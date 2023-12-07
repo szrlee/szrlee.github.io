@@ -3,7 +3,7 @@
 title: 李英儒
 
 # Name pronunciation (optional)
-name_pronunciation: Yingru Li
+name_pronunciation: LI Yingru 
 
 # Full name (for SEO)
 first_name: Yingru
