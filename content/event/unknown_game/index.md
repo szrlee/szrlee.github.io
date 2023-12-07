@@ -48,7 +48,7 @@ links:
     url: https://twitter.com/RichardYRLi
 url_code: ''
 url_pdf: ''
-url_slides: 'uploads/slides/OTS_1023.pdf'
+url_slides: 'uploads/slides/OTS_1023_2022.pdf'
 url_video: ''
 
 # Markdown Slides (optional).

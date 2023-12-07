@@ -51,7 +51,7 @@ links:
     url: https://twitter.com/RichardYRLi
 url_code: ''
 url_pdf: ''
-url_slides: 'uploads/slides/AGI_humanity_talk_1021.pdf'
+url_slides: 'uploads/slides/AGI_humanity_talk_1021_2023.pdf'
 url_video: ''
 
 # Markdown Slides (optional).

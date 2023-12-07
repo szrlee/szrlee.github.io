@@ -48,8 +48,8 @@ links:
     url: https://twitter.com/RichardYRLi
 url_code: ''
 url_pdf: ''
-url_slides: https://neurips.cc/virtual/2021/37946
-url_video: https://neurips.cc/virtual/2021/37946
+url_slides: 'uploads/slides/HyperDQN_workshop_1214_2021.pdf'
+url_video: 'https://neurips.cc/virtual/2021/37946'
 
 # Markdown Slides (optional).
 #   Associate this talk with Markdown slides.
