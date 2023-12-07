@@ -277,7 +277,7 @@ sections:
       title: Gallery
       subtitle: ''
       text: |-
-        {{< gallery album="photography" resize_options="250x250">}}
+        {{< gallery album="photography" >}}
     design:
       columns: '1'
 ---
