@@ -13,4 +13,11 @@ view: 4
 banner:
   caption: ''
   image: ''
+
+tags:
+- Reinforcement Learning
+- Algorithm
+- Optimization
+- Efficiency
+
 ---

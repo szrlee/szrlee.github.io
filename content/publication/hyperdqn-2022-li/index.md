@@ -11,4 +11,11 @@ publishDate: '2023-12-07T18:20:33.684354Z'
 publication_types:
 - paper-conference
 publication: '*International Conference on Learning Representations*'
+
+tags:
+  - Efficiency
+  - Reinforcement Learning
+  - Algorithm
+  - Deep Learning
+  - Application
 ---

@@ -24,6 +24,8 @@ tags:
   - Deep Learning
   - Regret
   - Random Projection
+  - Martingale
+  - Application
 
 # Display this page in the Featured widget?
 featured: true
@@ -33,12 +35,12 @@ featured: true
 # - name: Custom Link
 #   url: http://example.org
 
-# url_pdf: ''
-# url_code: 'https://github.com/HugoBlox/hugo-blox-builder'
+url_pdf: '#comming-soon'
+url_code: 'https://github.com/szrlee/HyperFQI'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
-# url_poster: ''
+url_poster: '#comming-soon'
 # url_project: ''
-# url_slides: ''
+url_slides: 'uploads/slides/AGI_humanity_talk_1021_2023.pdf'
 # url_source: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_video: 'https://youtube.com'
 

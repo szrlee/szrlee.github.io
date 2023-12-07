@@ -33,6 +33,8 @@ tags:
   - Algorithm
   - Regret
   - Multi agent
+  - Bandit
+  - Application
 
 # Is this a featured talk? (true/false)
 featured: false

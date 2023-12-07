@@ -11,4 +11,13 @@ publication_types:
 - paper-conference
 publication: '*Submitted to The 27th International Conference on Artificial Intelligence
   and Statistics (AISTATS)*'
+
+tags:
+  - Game Theory
+  - Algorithm
+  - Regret
+  - Multi agent
+  - Bandit
+  - Application
+
 ---
