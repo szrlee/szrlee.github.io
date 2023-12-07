@@ -130,6 +130,7 @@ He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-Shenzhen from 20
 
 His Ph.D. research is supported by SRIBD Scholarship, Presidential Fellowship and [Tencent Ph.D. fellowship](https://ai.tencent.com/ailab/en/index).
 
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/resume.pdf" "newtab" >}}resumé{{< /staticref >}}.
+{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/resume.pdf" "newtab" >}}resumé{{< /staticref >}}. **I am now actively seeking posdoctoral and other research positions!**
+
 
 {style="text-align: justify;"}
