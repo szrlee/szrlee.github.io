@@ -35,7 +35,7 @@ tags:
   - Multi agent
 
 # Is this a featured talk? (true/false)
-featured: featured
+featured: false
 
 # image:
 #   caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/bzdhc5b3Bxs)'

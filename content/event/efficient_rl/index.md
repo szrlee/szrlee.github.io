@@ -38,7 +38,7 @@ tags:
   - Random Projection
 
 # Is this a featured talk? (true/false)
-featured: featured
+featured: true
 
 # image:
 #   caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/bzdhc5b3Bxs)'
