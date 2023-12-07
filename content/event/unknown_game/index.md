@@ -1,9 +1,7 @@
 ---
 title: No-Regret Learning in Unknown Game with Applications
 
-event: 
-  - Invited Talk in RL Theory Student Workshop at Nanjing University, Aug. 23, 2022.
-  - Contributed Talk in The second doctoral and postdoctoral Daoyuan academic forum, Aug. 20, 2022.
+event: Invited Talk in RL Theory Student Workshop at Nanjing University, Aug. 23, 2022. Contributed Talk in The second doctoral and postdoctoral Daoyuan academic forum, Aug. 20, 2022.
 # event_url: https://example.org
 
 # location: Daoyuan Building

@@ -1,8 +1,7 @@
 ---
 title: HyperDQN - Randomized Exploration for Deep Reinforcement Learning
 
-event: 
-  - Contributed Talk in NeurIPS Workshop Ecological Theory of Reinforcement Learning, Dec. 14, 2021
+event: Contributed Talk in NeurIPS Workshop Ecological Theory of Reinforcement Learning, Dec. 14, 2021
 # event_url: https://example.org
 
 # location: Daoyuan Building
