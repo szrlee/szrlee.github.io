@@ -4,7 +4,7 @@ title: HyperDQN - Randomized Exploration for Deep Reinforcement Learning
 event: Contributed Talk in NeurIPS Workshop Ecological Theory of Reinforcement Learning, Dec. 14, 2021
 # event_url: https://example.org
 
-# location: Daoyuan Building
+location: NeurIPS Workshop Ecological Theory of Reinforcement Learning
 # address:
 #   # street: 450 Serra Mall
 #   city: Shenzhen
@@ -48,14 +48,14 @@ links:
     url: https://twitter.com/RichardYRLi
 url_code: ''
 url_pdf: ''
-url_slides: ''
+url_slides: 'https://neurips.cc/virtual/2021/37946'
 url_video: 'https://neurips.cc/virtual/2021/37946'
 
 # Markdown Slides (optional).
 #   Associate this talk with Markdown slides.
 #   Simply enter your slide deck's filename without extension.
-#   E.g. `slides = "example-slides"` references `content/slides/example-slides.md`.
-#   Otherwise, set `slides = ""`.
+#   E.g. `slides : "example"` references `content/slides/example/index.md`.
+#   Otherwise, set `slides : ""`.
 # slides: example
 
 # Projects (optional).
