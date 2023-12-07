@@ -49,7 +49,7 @@ links:
 url_code: ''
 url_pdf: ''
 url_slides: 'uploads/slides/HyperDQN_workshop_1214_2021.pdf'
-url_video: 'https://youtube.com'
+url_video: 'https://neurips.cc/virtual/2021/37946/'
 # 'https://neurips.cc/virtual/2021/37946'
 
 # Markdown Slides (optional).
