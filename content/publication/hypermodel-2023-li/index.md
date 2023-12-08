@@ -20,7 +20,7 @@ tags:
 # abstract: We design efficient and scalable RL algorithms for complex environments with hypermodel and approximate Thompson sampling, which demonstrates significant efficiency gain in DRL benchmark problems (e.g. only 15\% data consumption and 5\% model parameters compared to SOTAs in Arcade Learning Environment. We developed new probability tools for the sequential random projection and sequential subspace embedding via stopping-time argument and self-normalized martingale, which can be regard as a non-trivial extension to the renowned Johnson–Lindenstrauss (JL) lemma. The tools are then applied to the regret analysis of hypermodel-based TS-type algorithms in bandit and RL environments, achieving the same regret order of RLSVI and PSRL with cheap computation.
 
 # Summary. An optional shortened abstract.
-summary: Approximate Thompson sampling (TS) with hypermodel can achieve the same regret order of TS with small elevated dimension in hypermodel, achieving both data and computation efficiency.
+summary: We have developed a novel random projection tool for sequentially dependent data, which extends the Johnson–Lindenstrauss lemma in a non-trivial way. Wi th this novel analytical tool, we prove approximate Thompson sampling (TS) with hypermodel can achieve the same regret order of TS with exponential smaller computation requirement than the ensemble sampling. This result effectively addresses data and computation efficiency challenges in online decision-making (bandit and RL), bridging theory and practice.
 
 # Display this page in the Featured widget?
 featured: true
