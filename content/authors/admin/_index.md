@@ -125,12 +125,12 @@ Mr. Yingru Li is a Ph.D. Candidate in the [Chinese University of Hong Kong (CUHK
 Fortunately, he is advised by [Zhi-Quan (Tom) Luo](https://scholar.google.com/citations?user=dW3gcXoAAAAJ&hl=en).
 He received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/) with an advisory of [Kun He](http://faculty.hust.edu.cn/hekun/en/).
 He was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
-
-He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-Shenzhen from 2019 to 2022.
-
 His Ph.D. research is supported by SRIBD Scholarship, Presidential Fellowship and [Tencent Ph.D. fellowship](https://ai.tencent.com/ailab/en/index).
 
-{{< icon name="download" pack="fas" >}} Download my {{< staticref "uploads/resume.pdf" "newtab" >}}resumé{{< /staticref >}}. **I am now actively seeking posdoctoral and other research positions!**
+He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2022.
 
+{{< icon name="square-rss" pack="fas" >}} **I will be presenting at NeurIPS 2023, New Orleans!**
+
+{{< icon name="square-rss" pack="fas" >}} **I am now actively seeking posdoctoral and research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
 
 {style="text-align: justify;"}
