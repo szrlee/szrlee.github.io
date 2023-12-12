@@ -35,7 +35,7 @@ featured: true
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf: 'https://openreview.net/pdf?id=juq0ZUWOoY'
+url_pdf: 'uploads/papers/HyperFQI_camera_ready.pdf'
 url_code: 'https://github.com/szrlee/HyperFQI'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
 url_poster: '#comming-soon'
