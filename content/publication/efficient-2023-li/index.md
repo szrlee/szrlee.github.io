@@ -5,7 +5,7 @@ authors:
 - Jiawei Xu
 - Lei Han
 - Zhiquan Luo
-date: '2023-01-01'
+date: '2023-12-16'
 publishDate: '2023-12-07T18:20:33.668929Z'
 publication_types:
 - paper-conference
@@ -35,7 +35,7 @@ featured: true
 # - name: Custom Link
 #   url: http://example.org
 
-url_pdf: '#comming-soon'
+url_pdf: 'https://openreview.net/pdf?id=juq0ZUWOoY'
 url_code: 'https://github.com/szrlee/HyperFQI'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
 url_poster: '#comming-soon'
