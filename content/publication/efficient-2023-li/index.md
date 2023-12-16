@@ -36,9 +36,9 @@ featured: true
 #   url: http://example.org
 
 url_pdf: 'uploads/paper/HyperFQI_camera_ready.pdf'
-url_code: 'https://github.com/szrlee/HyperFQI'
+# url_code: 'https://github.com/szrlee/HyperFQI'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
-url_poster: '#comming-soon'
+url_poster: 'uploads/slides/HyperFQI_Short.pdf'
 # url_project: ''
 url_slides: 'uploads/slides/AGI_humanity_talk_1021_2023.pdf'
 # url_source: 'https://github.com/HugoBlox/hugo-blox-builder'
