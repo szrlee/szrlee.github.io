@@ -32,7 +32,7 @@ interests:
   - Sequential Decision-making and Reinforcement Learning.
   - Algorithms Design and Analysis. Probabilistic Analysis. 
   - Random projection in sequential processes.
-  - Artificial Intelligence and Communications.
+  - Human-centered AI.
 
 # Education to show in About widget
 education:
