@@ -1,5 +1,5 @@
 ---
-title: HyperAgent: A Simple, Efficient and Scalable RL Framework for Complex Environments
+title: HyperAgent - A Simple, Efficient and Scalable RL Framework for Complex Environments
 
 event: {Contributed Talk} in The third doctoral and postdoctoral Daoyuan academic forum. **Best paper award**.
 # event_url: https://example.org
@@ -48,14 +48,20 @@ featured: true
 #   focal_point: Right
 
 links:
-  - icon: twitter
-    icon_pack: fab
-    name: Follow
-    url: https://twitter.com/RichardYRLi
+- icon: twitter
+  icon_pack: fab
+  name: Follow
+  url: https://twitter.com/RichardYRLi
 url_code: ''
 url_pdf: ''
 url_slides: 'uploads/slides/HyperAgent_slides_0113_2024.pdf'
 url_video: ''
+- icon: newspaper
+  icon_pack: fab
+  name: News
+  url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
+
+
 
 # Markdown Slides (optional).
 #   Associate this talk with Markdown slides.
