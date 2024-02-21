@@ -47,11 +47,11 @@ featured: true
 
 links:
 - icon: twitter
-  icon_pack: brands
+  icon_pack: fab
   name: Follow
   url: https://twitter.com/RichardYRLi
 - icon: weixin
-  icon_pack: brands
+  icon_pack: fab
   name: News
   url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
 # https://docs.hugoblox.com/getting-started/page-builder/
