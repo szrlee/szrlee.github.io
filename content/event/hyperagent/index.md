@@ -54,10 +54,10 @@ url_code: ''
 url_pdf: ''
 url_slides: 'uploads/slides/HyperAgent_slides_0113_2024.pdf'
 url_video: ''
-- icon: newspaper
-  icon_pack: fab
-  name: News
-  url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
+# - icon: newspaper
+#   icon_pack: fab
+#   name: News
+#   url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
 
 
 
