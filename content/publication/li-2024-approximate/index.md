@@ -1,5 +1,5 @@
 ---
-title: Hypermodel and approximate Thompson sampling
+title: Approximate Thompson sampling via Hypermodel and Index sampling
 authors:
 - Yingru Li
 - Jiawei Xu
@@ -67,13 +67,13 @@ projects:
 ### Summary of contributions:
 
 1. New probability tools in high-dimensional probability and statistics
-- a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL
-- a unified and simple analysis for JL via high-dimension extension of Hanson-Wright
+- a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;
+- a unified and simple analysis for JL via high-dimension extension of Hanson-Wright.
 
 2. Methodology for sequential-decision making
-- hypermodel for efficient incremental approximation of the posterior (uncertainty estimation) over complex models without leveraging conjugacy as encountering more data
-- index sampling for approximate posterior sampling for data-efficient sequential decision-making 
+- hypermodel for efficient incremental approximation of the posterior (uncertainty estimation) over complex models without leveraging conjugacy as encountering more data;
+- index sampling for approximate posterior sampling for data-efficient sequential decision-making.
 
 3. Results for sequential-decision making
-- Practically, our developed HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation. 
-- Theoretically, first method to achieve logarithmic per-step computation and sublinear under tabular episodic RL among practically scalable algorithms
+- Practically, our developed HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation;
+- Theoretically, first method to achieve logarithmic per-step computation and sublinear under tabular episodic RL among practically scalable algorithms.
