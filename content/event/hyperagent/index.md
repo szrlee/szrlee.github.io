@@ -47,9 +47,13 @@ featured: true
 
 links:
 - icon: twitter
-  icon_pack: fab
+  icon_pack: brands
   name: Follow
   url: https://twitter.com/RichardYRLi
+- icon: weixin
+  icon_pack: brands
+  name: News
+  url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
 
 url_code: ''
 url_pdf: ''
@@ -57,10 +61,7 @@ url_slides: 'uploads/slides/HyperAgent_slides_0113_2024.pdf'
 url_video: ''
 
 links:
-- icon: newspaper
-  icon_pack: fab
-- name: News
-  url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
+
 
 
 
