@@ -54,15 +54,12 @@ links:
   icon_pack: brands
   name: News
   url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
+# https://docs.hugoblox.com/getting-started/page-builder/
 
 url_code: ''
 url_pdf: ''
 url_slides: 'uploads/slides/HyperAgent_slides_0113_2024.pdf'
 url_video: ''
-
-links:
-
-
 
 
 # Markdown Slides (optional).
