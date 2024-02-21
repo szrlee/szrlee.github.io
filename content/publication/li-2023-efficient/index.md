@@ -30,7 +30,7 @@ tags:
 # featured: true
 
 # Custom links (uncomment lines below)
-# links:
+links:
 - name: Workshop
   url: https://neurips.cc/virtual/2023/78739
 

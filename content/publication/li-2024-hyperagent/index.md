@@ -32,8 +32,8 @@ projects:
 - a unified and simple analysis for JL via high-dimension extension of Hanson-Wright
 
 2. Methodology for sequential-decision making
-- hypermodel for computation-efficient tracking the approximate posteiror (uncertainty estimation) over complex models without leveraging conjugacy as encoutering more data
-- index sampling for approximate posterior sampling for data-efficient sequantial decision-making 
+- hypermodel for efficient incremental approximation of the posterior (uncertainty estimation) over complex models without leveraging conjugacy as encountering more data
+- index sampling for approximate posterior sampling for data-efficient sequential decision-making 
 
 3. Results for sequential-decision making
 - Practically, our developed HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation. 
