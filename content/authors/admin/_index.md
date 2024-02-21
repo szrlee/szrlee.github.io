@@ -30,11 +30,12 @@ bio: My research interests include reinforcement learning, algorithms and theory
 # Interests to show in About widget
 interests:
   - Sequential Decision-making & Reinforcement Learning.
-  - Uncertainty quantification, Approx. Bayesian.
+  # - Uncertainty quantification
   - Algorithms Design \& Analysis;
-  - Applied probability, Random projection in Sequential processes.
-  - Random projection in sequential processes.
-  - Human-centered AI. Operations Research (OR).
+  # - Applied probability
+  # - Random projection
+  - Human-centered AI.
+  - Operations Research (OR).
 
 # Education to show in About widget
 education:

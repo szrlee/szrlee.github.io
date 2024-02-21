@@ -10,4 +10,12 @@ publication: '*The 37th Annual Conference on Learning Theory (COLT)*'
 links:
 - name: arXiv
   url: https://arxiv.org/abs/2402.10232
+
+tags:
+- Probability
+- Random Projection
+- High-dimension
+- Johnson-Lindenstrauss
+- Uncertainty Quantification
+- Matrix Factorization
 ---
