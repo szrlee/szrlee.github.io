@@ -19,8 +19,8 @@ abstract: Under resource constraints, reinforcement learning (RL) agents need to
 
 # Talk start and end times.
 #   End time can optionally be hidden by prefixing the line with `#`.
-date: '2024-1-13T13:20:00Z'
-date_end: '2024-1-13T13:50:00Z'
+date: '2024-01-13T13:20:00Z'
+date_end: '2024-01-13T13:50:00Z'
 all_day: false
 
 # Schedule page publish date (NOT talk date).
@@ -56,8 +56,8 @@ url_slides: 'uploads/slides/HyperAgent_slides_0113_2024.pdf'
 url_video: ''
 # - icon: newspaper
 #   icon_pack: fab
-#   name: News
-#   url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
+- name: News
+  url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
 
 
 
