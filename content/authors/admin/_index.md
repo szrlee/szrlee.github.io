@@ -29,17 +29,19 @@ bio: My research interests include reinforcement learning, algorithms and theory
 
 # Interests to show in About widget
 interests:
-  - Sequential Decision-making and Reinforcement Learning.
-  - Algorithms Design and Analysis. Probabilistic Analysis. 
+  - Sequential Decision-making & Reinforcement Learning.
+  - Uncertainty quantification, Approx. Bayesian.
+  - Algorithms Design \& Analysis;
+  - Applied probability, Random projection in Sequential processes.
   - Random projection in sequential processes.
-  - Human-centered AI.
+  - Human-centered AI. Operations Research (OR).
 
 # Education to show in About widget
 education:
   courses:
-    - course: Ph.D. in Computer and Information Engineering.
+    - course: Ph.D. in Computer and Information Engineering
       institution: The Chinese University of Hong Kong
-      year: 2018 --
+      year: 2018 - present
     # - course: MEng in Artificial Intelligence
     #   institution: Massachusetts Institute of Technology
     #   year: 2009
