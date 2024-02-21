@@ -1,7 +1,7 @@
 ---
 title: HyperAgent - A Simple, Efficient and Scalable RL Framework for Complex Environments
 
-event: {Contributed Talk} in The third doctoral and postdoctoral Daoyuan academic forum. **Best paper award**.
+event: Contributed Talk in The third doctoral and postdoctoral Daoyuan academic forum. Best paper award
 # event_url: https://example.org
 
 location: Daoyuan Building
