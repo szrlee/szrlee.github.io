@@ -76,4 +76,4 @@ projects:
 
 3. Results for sequential-decision making
 - Practically, our developed HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation;
-- Theoretically, first method to achieve logarithmic per-step computation and sublinear under tabular episodic RL among practically scalable algorithms.
+- Theoretically, first method to achieve logarithmic per-step computation and sublinear regret in linear bandit problems among practically scalable algorithms.
