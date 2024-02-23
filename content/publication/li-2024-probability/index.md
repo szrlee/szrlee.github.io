@@ -14,4 +14,8 @@ tags:
 - Johnson-Lindenstrauss
 
 abstract: We introduce the first probabilistic framework tailored for sequential random projection, an approach rooted in the challenges of sequential decision-making under uncertainty. The analysis is complicated by the sequential dependence and high-dimensional nature of random variables, a byproduct of the adaptive mechanisms inherent in sequential decision processes. Our work features a novel construction of a stopped process, facilitating the analysis of a sequence of concentration events that are interconnected in a sequential manner. By employing the method of mixtures within a self-normalized process, derived from the stopped process, we achieve a desired non-asymptotic probability bound. This bound represents a non-trivial martingale extension of the Johnson-Lindenstrauss (JL) lemma, marking a pioneering contribution to the literature on random projection and sequential analysis.
+
+links:
+- name: arXiv
+  url: https://arxiv.org/abs/2402.14026
 ---
