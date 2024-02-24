@@ -18,4 +18,8 @@ abstract: We introduce the first probabilistic framework tailored for sequential
 links:
 - name: arXiv
   url: https://arxiv.org/abs/2402.14026
+
+featured: true
+
+summary: First probabilistic framework for sequential random projection, an approach rooted in the challenges of sequential decision-making under uncertainty; A non-trivial martingale extension of Johnson-Lindenstrauss (JL) to sequentially adaptive data processes.
 ---
