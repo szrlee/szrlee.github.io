@@ -67,8 +67,8 @@ projects:
 ### Summary of contributions
 
 1. New probability tools in high-dimensional probability and statistics
-- The first probability tool for sequential random projection, a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;
-- A unified and simple analysis for JL via high-dimension extension of Hanson-Wright.
+- The [first probability tool](/publication/li-2024-probability) for sequential random projection, a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;
+- A [unified and simple analysis](/publication/li-2024-simple) for JL via high-dimension extension of Hanson-Wright.
 
 2. Methodology for sequential-decision making
 - Hypermodel: efficient incremental approximation of the posterior (uncertainty quantification) over complex models without leveraging conjugacy as encountering more data;
