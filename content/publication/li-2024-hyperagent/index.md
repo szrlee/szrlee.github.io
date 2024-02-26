@@ -25,16 +25,16 @@ projects:
   - Efficient RL
 ---
 
-### Summary of contributions:
+### Summary of contributions
 
 1. New probability tools in high-dimensional probability and statistics
-- a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;
-- a unified and simple analysis for JL via high-dimension extension of Hanson-Wright.
+- The first probability tool for sequential random projection, a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;
+- A unified and simple analysis for JL via high-dimension extension of Hanson-Wright.
 
 2. Methodology for sequential-decision making
-- hypermodel for efficient incremental approximation of the posterior (uncertainty estimation) over complex models without leveraging conjugacy as encountering more data;
-- index sampling for approximate posterior sampling for data-efficient sequential decision-making.
+- Hypermodel: efficient incremental approximation of the posterior (uncertainty quantification) over complex models without leveraging conjugacy as encountering more data;
+- Index sampling: approximate posterior sampling for data-efficient sequential decision-making.
 
 3. Results for sequential-decision making
 - Practically, our developed HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation;
-- Theoretically, first method to achieve logarithmic per-step computation and sublinear under episodic tabular RL among practically scalable algorithms.
+- Theoretically, the first method to achieve logarithmic per-step computation and sublinear under [tabular episodic RL](https://arxiv.org/abs/2402.10228) and [linear bandit](publication/li-2024-approximate/) setups among practically scalable algorithms. At the heart of the analysis is the sequential incremental posterior approximation argument, made possible by the our developed first probability tool for sequential random projection.
