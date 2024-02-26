@@ -37,4 +37,4 @@ projects:
 
 3. Results for sequential-decision making
 - Practically, our developed HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation;
-- Theoretically, the first method to achieve logarithmic per-step computation and sublinear under [tabular episodic RL](https://arxiv.org/abs/2402.10228) and [linear bandit](publication/li-2024-approximate/) setups among practically scalable algorithms. At the heart of the analysis is the sequential incremental posterior approximation argument, made possible by the our developed first probability tool for sequential random projection.
+- Theoretically, the first method to achieve logarithmic per-step computation and sublinear under [tabular episodic RL](https://arxiv.org/abs/2402.10228) and [linear bandit](/publication/li-2024-approximate/) setups among practically scalable algorithms. At the heart of the analysis is the sequential incremental posterior approximation argument, made possible by the our developed first probability tool for sequential random projection.
