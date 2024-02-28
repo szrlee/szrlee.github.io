@@ -133,7 +133,6 @@ His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fe
 He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2022.
 
 {{< icon name="square-rss" pack="fas" >}}(July 21, 2024) **Invited talk in International Symposium on Mathematical Programming, Montréal, CA.**
-
 {{< icon name="square-rss" pack="fas" >}}(Mar. 22, 2024) **Two talks in Informs Optimization Society Conference, Rice Univ.**
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions in US!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
