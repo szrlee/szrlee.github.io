@@ -135,14 +135,15 @@ He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions in US!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 
-{{< icon name="square-rss" pack="fas" >}} **News**:
-<small> 
-
-- [2024-07] **Invited talk** in International Symposium on Mathematical Programming ([ISMP](http://ismp2024.gerad.ca)), Montréal, CA.
-- [2024-03] **Two talks** in Informs Optimization Society ([IOS](https://ios2024.rice.edu)) Conference, Rice University.
-- [2023-12] **[NeurIPS](https://neurips.cc)**, New Orleans 🚀 My research in RL encompasses both theoretical aspects of high-dim probability and practical applications in Deep RL. I have developed a novel random projection tool for sequentially dependent data, which extends the Johnson–Lindenstrauss lemma in a non-trivial way and effectively addresses **efficiency challenges in RL. 🚀
-
 <small>
+
+{{< icon name="square-rss" pack="fas" >}} [2024-07] **Invited talk** in International Symposium on Mathematical Programming (**[ISMP](http://ismp2024.gerad.ca)**), Montréal, CA.
+
+{{< icon name="square-rss" pack="fas" >}} [2024-03] **Two talks** in Informs Optimization Society (**[IOS](https://ios2024.rice.edu)**) Conference, Rice University.
+
+{{< icon name="square-rss" pack="fas" >}} [2023-12] **[NeurIPS](https://neurips.cc)**, New Orleans 🚀 My research in RL encompasses both theoretical aspects of high-dim probability and practical applications in Deep RL. I have developed a novel random projection tool for sequentially dependent data, which extends the Johnson–Lindenstrauss lemma in a non-trivial way and effectively addresses **efficiency challenges in RL.** 🚀
+
+</small>
 
 
 {style="text-align: justify;"}
