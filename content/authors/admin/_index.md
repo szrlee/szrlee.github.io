@@ -132,14 +132,17 @@ His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fe
 
 He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2022.
 
-{{< icon name="square-rss" pack="fas" >}}(Jul. 2024) **Invited talk** in International Symposium on Mathematical Programming ([ISMP](http://ismp2024.gerad.ca)), Montréal, CA.
-
-{{< icon name="square-rss" pack="fas" >}}(Mar. 2024) **Two talks** in Informs Optimization Society ([IOS](https://ios2024.rice.edu)) Conference, Rice University.
-
-{{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions in US!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions in US!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 
-{{< icon name="square-rss" pack="fas" >}}(Dec. 2023) **[NeurIPS](https://neurips.cc)**, New Orleans
-🚀 My research in RL encompasses both theoretical aspects of high-dim probability and practical applications in Deep RL. I have developed a novel random projection tool for sequentially dependent data, which extends the Johnson–Lindenstrauss lemma in a non-trivial way and effectively addresses **efficiency challenges in RL**. 🚀
+:::note
+<div style="background-color: #f2f2f2; padding: 10px; font-size: 90%;">
+{{< icon name="square-rss" pack="fas" >}} **News**
+
+- [2024-07] **Invited talk** in International Symposium on Mathematical Programming ([ISMP](http://ismp2024.gerad.ca)), Montréal, CA.
+- [2024-03] **Two talks** in Informs Optimization Society ([IOS](https://ios2024.rice.edu)) Conference, Rice University.
+- [2023-12] **[NeurIPS](https://neurips.cc)**, New Orleans 🚀 My research in RL encompasses both theoretical aspects of high-dim probability and practical applications in Deep RL. I have developed a novel random projection tool for sequentially dependent data, which extends the Johnson–Lindenstrauss lemma in a non-trivial way and effectively addresses **efficiency challenges in RL. 🚀
+</div>
+:::
 
 {style="text-align: justify;"}
