@@ -139,7 +139,7 @@ He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 
 
 - **[2024-07]** ***Invited talk*** in International Symposium on Mathematical Programming (**[ISMP](http://ismp2024.gerad.ca)**), Montréal, CA.
 - **[2024-03]** ***Two talks*** in Informs Optimization Society (**[IOS](https://ios2024.rice.edu)**) Conference, Rice University.
-- **[2023-12]** **[NeurIPS](https://neurips.cc)**, New Orleans 🚀 My research in RL encompasses both theoretical aspects of high-dim probability and practical applications in Deep RL. I have developed a novel random projection tool for sequentially dependent data, which extends the Johnson–Lindenstrauss lemma in a non-trivial way and effectively addresses **efficiency challenges in RL.** 🚀
+- **[2023-12]** **[NeurIPS](https://neurips.cc)**, New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL. I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss. 🚀
 </div>
 
 
