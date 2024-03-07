@@ -31,7 +31,8 @@ bio: My research interests include reinforcement learning, algorithms and theory
 interests:
   - Sequential Decision-making & Reinforcement Learning
   # - Uncertainty quantification
-  - Optimization; Algorithms Design & Complexity Analysis
+  - Algorithms Design & Complexity Analysis
+  - Mathematical Optimization
   - Applied probability
   # - Random projection
   # - High-dimensional Data
