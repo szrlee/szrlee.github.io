@@ -138,7 +138,7 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 3px solid black; padding: 10px; font-size: 75%">
 
-- **[2024-07]** ***Invited Long Talk*** in International Symposium on Mathematical Programming (**[ISMP](http://ismp2024.gerad.ca)**), Montréal.
+- **[2024-07]** ***Invited Long Talk*** in International Symposium on Mathematical Programming (**[ISMP](http://ismp2024.gerad.ca)**), Montréal. ISMP is a triennial flagship conference on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 - **[2024-05]** **[AISTATS](https://aistats.org/aistats2024/index.html)**, Valencia, Spain. Want to know how integrating prior knowledge, such as historical data or pre-trained models (LLMs), enhances RL agent efficiency before direct exploration? Our [paper](/publication/li-2024-prior) presents a novel prior-dependent analysis of PSRL bound under linear mixture model, offering a distinctive perspective.
 - **[2024-05]** Presentation of [HyperAgent](/publication/li-2024-hyperagent) in **[ICLR](https://neurips.cc)** Vienna, Austria: Workshop on Bridging the Gap Between Practice and Theory in Deep Learning.
 - **[2024-03]** ***Two Talks*** in Informs Optimization Society (**[IOS](https://ios2024.rice.edu)**) Conference, Rice University.
