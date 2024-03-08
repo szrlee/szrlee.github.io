@@ -138,11 +138,16 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 3px solid black; padding: 10px; font-size: 75%">
 
-- **[2024-07]** ***Invited Long Talk*** in International Symposium on Mathematical Programming (**[ISMP](http://ismp2024.gerad.ca)**), Montréal. ISMP is a triennial flagship conference on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
-- **[2024-05]** **[AISTATS](https://aistats.org/aistats2024/index.html)**, Valencia, Spain. Want to know how integrating prior knowledge, such as historical data or pre-trained models (LLMs), enhances RL agent efficiency before direct exploration? Our [paper](/publication/li-2024-prior) presents a novel prior-dependent analysis of PSRL bound under linear mixture model, offering a distinctive perspective.
-- **[2024-05]** Presentation of [HyperAgent](/publication/li-2024-hyperagent) in **[ICLR](https://neurips.cc)** Vienna, Austria: Workshop on Bridging the Gap Between Practice and Theory in Deep Learning.
-- **[2024-03]** ***Two Talks*** in Informs Optimization Society (**[IOS](https://ios2024.rice.edu)**) Conference, Rice University.
-- **[2023-12]** **[NeurIPS](https://neurips.cc)**, New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL [[1]](/publication/li-2024-hyperagent). I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss [[2]](/publication/li-2024-probability). 🚀
+- **July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
+
+- **May 2024**: [**AISTATS**](https://aistats.org/aistats2024/index.html), Valencia, Spain. Our [paper](/publication/li-2024-prior) offer a groundbreaking prior-dependent analysis of PSRL under a linear mixture model. This helps understand how integrating prior knowledge like historical data or pre-trained models (LLMs) enhances RL agent efficiency. 
+
+- **May 2024**: Showcasing [**HyperAgent**](/publication/li-2024-hyperagent) at the [**ICLR**](https://neurips.cc) in Vienna, Austria, during the Workshop on Bridging the Gap Between Practice and Theory in Deep Learning. HyperAgent represents a significant stride towards aligning theoretical foundations with practical deep RL applications.
+
+- **March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University.
+
+- **December 2023**: [**NeurIPS**](https://neurips.cc), New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL [[1]](/publication/li-2024-hyperagent). I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss [[2]](/publication/li-2024-probability). 🚀
+
 </div>
 
 
