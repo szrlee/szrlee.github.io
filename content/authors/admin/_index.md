@@ -132,7 +132,7 @@ He received the bachelor degree in Computer Science (ACM Honors Program) from [H
 He was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fellowship and [Tencent Ph.D. Fellowship](https://ai.tencent.com/ailab/en/index).
 
-He organized [RL Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2022.
+He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2022.
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions in US!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
