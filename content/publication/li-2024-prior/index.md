@@ -1,5 +1,5 @@
 ---
-title: 'Prior-dependent analysis of posterior sampling reinforcement learning with function approximation '
+title: 'Prior-dependent analysis of posterior sampling reinforcement learning with function approximation'
 authors:
 - Yingru Li
 - Zhi-Quan Luo
