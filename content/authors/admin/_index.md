@@ -134,7 +134,7 @@ His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fe
 
 He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2023.
 
-{{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions in US!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+{{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 3px solid black; padding: 10px; font-size: 75%">
 
@@ -145,6 +145,8 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 - **May 2024**: Showcasing [**HyperAgent**](/publication/li-2024-hyperagent) at the [**ICLR**](https://neurips.cc) in Vienna, Austria, during the Workshop on Bridging the Gap Between Practice and Theory in Deep Learning. HyperAgent represents a significant stride towards aligning theoretical foundations with practical deep RL applications.
 
 - **March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University.
+
+- **Jan 2024**: Our work about [**HyperAgent**](/publication/li-2024-hyperagent) received [**Best Paper Award**](https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ) in the third doctoral and postdoctoral Daoyuan academic forum.
 
 - **December 2023**: [**NeurIPS**](https://neurips.cc), New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL [[1]](/publication/li-2024-hyperagent). I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss [[2]](/publication/li-2024-probability). 🚀
 
