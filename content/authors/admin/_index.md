@@ -21,7 +21,7 @@ role: Ph.D. Candidate
 
 # Organizations/Affiliations to show in About widget
 organizations:
-  - name: Chinese University of Hong Kong
+  - name: The Chinese University of Hong Kong
     url: https://www.cuhk.edu.cn/en
 
 # Short bio (displayed in user profile at end of posts)
@@ -125,7 +125,7 @@ social:
 highlight_name: true
 ---
 
-Mr. Yingru Li is a Ph.D. Candidate in the [Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
+Mr. Yingru Li is a Ph.D. Candidate in [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
 Fortunately, he is advised by [Zhi-Quan (Tom) Luo](https://scholar.google.com/citations?user=dW3gcXoAAAAJ&hl=en).
 He received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/) with an advisory of [Kun He](http://faculty.hust.edu.cn/hekun/en/).
 He was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
