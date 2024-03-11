@@ -25,7 +25,7 @@ organizations:
     url: https://www.cuhk.edu.cn/en
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research interests include reinforcement learning, algorithms and theory.
+bio: My interests include sequential decision-making, optimization and applied probability with applications in AI \& OR.
 
 # Interests to show in About widget
 interests:
