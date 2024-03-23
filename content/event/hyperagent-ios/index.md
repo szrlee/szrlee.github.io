@@ -1,16 +1,16 @@
 ---
 title: HyperAgent - A Simple, Efficient and Scalable RL Framework for Complex Environments
 
-event: Contributed Talk in The third doctoral and postdoctoral Daoyuan academic forum. Best paper award
-# event_url: https://example.org
+event: Informs Optimization Society Conference 2024
+event_url: https://ios2024.rice.edu
 
-location: Daoyuan Building
+location: Rice University
 address:
-  # street: 450 Serra Mall
-  city: Shenzhen
-  # region: CA
+  street: 6100 Main St.
+  city: Houston
+  region: TX
   # postcode: '94305'
-  country: China
+  country: US
 
 summary: Practically and provably efficient RL under resource constraints!
 abstract: Under resource constraints, reinforcement learning (RL) agents need to be simple, efficient and scalable with (1) large state space and (2) increasingly accumulated data of interactions when deploying in complex environments. We propose the HyperAgent, a RL framework with hypermodel, index sampling schemes and incremental update mechanism, enabling computation-efficient sequential posterior approximation and data-efficient action selection under general value function approximation beyond conjugacy. The implementation of HyperAgent is simple as it only add one module and a line of code additional to DDQN. Practically, HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation. Theoretically, among the practically scalable algorithms, HyperAgent is the first achieving provably scalable per-step computational complexity as well as sublinear regret under tabular RL. The core of our theoretical analysis is the sequential posterior approximation argument. This is made possible by the first analytical tool for sequential random projection, a non-trivial martingale extension of the Johnson-Lindenstrauss lemma, which is of independent interest. This work bridges the theoretical and practical realms of RL, establishing a new benchmark for RL algorithms design.
@@ -19,7 +19,7 @@ abstract: Under resource constraints, reinforcement learning (RL) agents need to
 
 # Talk start and end times.
 #   End time can optionally be hidden by prefixing the line with `#`.
-date: '2024-01-13T13:20:00Z'
+date: '2024-03-23T13:30:00Z'
 # date_end: '2024-01-13T13:50:00Z'
 all_day: false
 
@@ -39,7 +39,7 @@ tags:
   - Random Projection
 
 # Is this a featured talk? (true/false)
-featured: false
+featured: true
 
 # image:
 #   caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/bzdhc5b3Bxs)'
@@ -50,16 +50,12 @@ links:
   icon_pack: fab
   name: Follow
   url: https://twitter.com/RichardYRLi
-- icon: weixin
-  icon_pack: fab
-  name: News
-  url: https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ
 # https://docs.hugoblox.com/getting-started/page-builder/
 
 url_code: ''
 url_pdf: ''
-url_slides: 'uploads/slides/HyperAgent_slides_0113_2024.pdf'
-url_video: ''
+url_slides: 'uploads/slides/HyperAgent_slides_ios.pdf'
+url_video: 'https://meeting.tencent.com/v2/cloud-record/share?id=IHGtdxajucDxd2ULGfRYB5m_cGzjkUE43Age4ynky0k&from=3&is-single=true&record_type=1'
 
 
 # Markdown Slides (optional).
