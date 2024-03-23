@@ -1,5 +1,5 @@
 ---
-title: HyperAgent - A Simple, Efficient and Scalable RL Framework for Complex Environments
+title: HyperAgent - A Simple, Efficient, Scalable and Provable RL Framework
 
 event: Informs Optimization Society Conference 2024
 event_url: https://ios2024.rice.edu
