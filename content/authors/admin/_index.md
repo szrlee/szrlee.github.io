@@ -143,7 +143,7 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 
 - **May 2024**: Showcasing [**HyperAgent**](/publication/li-2024-hyperagent) at the [**ICLR**](https://neurips.cc) in Vienna, Austria, during the Workshop on Bridging the Gap Between Practice and Theory in Deep Learning. HyperAgent represents a significant stride towards aligning theoretical foundations with practical deep RL applications.
 
-- **March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University. **(1)** ["HyperAgent: A simple, efficient, scalable and provable RL framework for complex environments"](). 
+- **March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University. **(1)** ["HyperAgent: A simple, efficient, scalable and provable RL framework for complex environments"](/talk/hyperagent-a-simple-efficient-scalable-and-provable-rl-framework/). 
 
 - **Jan 2024**: Our work about [**HyperAgent**](/publication/li-2024-hyperagent) received [**Best Paper Award**](https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ) in the third doctoral and postdoctoral [Daoyuan academic forum](/talk/hyperagent-a-simple-efficient-and-scalable-rl-framework-for-complex-environments/).
 
