@@ -139,11 +139,13 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 
 - **July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 
+- **May 2024**: [**HyperAgent**](/publication/li-2024-hyperagent) accepted to [**ICML**](https://icml.cc)!
+
 - **May 2024**: [**AISTATS**](https://aistats.org/aistats2024/index.html), Valencia, Spain. Our [paper](/publication/li-2024-prior) offers a groundbreaking prior-dependent analysis of PSRL under a linear mixture model. This helps understand how integrating prior knowledge like historical data or pre-trained models (LLMs) enhances RL agent efficiency. 
 
-- **May 2024**: Showcasing [**HyperAgent**](/publication/li-2024-hyperagent) at the [**ICLR**](https://neurips.cc) in Vienna, Austria, during the Workshop on Bridging the Gap Between Practice and Theory in Deep Learning. HyperAgent represents a significant stride towards aligning theoretical foundations with practical deep RL applications.
+- **May 2024**: Remote presentation [**HyperAgent**](/publication/li-2024-hyperagent) at the [**ICLR**](https://neurips.cc) in Vienna, Austria, during the Workshop on Bridging the Gap Between Practice and Theory in Deep Learning. HyperAgent represents a significant stride towards aligning theoretical foundations with practical deep RL applications.
 
-- **March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University. **(1)** ["HyperAgent: A simple, efficient, scalable and provable RL framework for complex environments"](/talk/hyperagent-a-simple-efficient-scalable-and-provable-rl-framework/). 
+- **March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University. **(1)** ["HyperAgent: A simple, efficient, scalable and provable RL framework for complex environments"](/talk/hyperagent-a-simple-efficient-scalable-and-provable-rl-framework/) and **(2)** ["A Tutorial on Thompson Sampling and Ensemble Sampling"](uploads/slides/TS_ES_bg.pdf).
 
 - **Jan 2024**: Our work about [**HyperAgent**](/publication/li-2024-hyperagent) received [**Best Paper Award**](https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ) in the third doctoral and postdoctoral [Daoyuan academic forum](/talk/hyperagent-a-simple-efficient-and-scalable-rl-framework-for-complex-environments/).
 
