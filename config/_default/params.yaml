@@ -43,9 +43,9 @@ header:
 
 # Site footer
 
-footer:
+footer: "[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=today+%2F+total&edge_flat=false)](https://hits.seeyoufarm.com)"
   copyright:
-    notice: "[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=today+%2F+total&edge_flat=false)](https://hits.seeyoufarm.com) © {year} Yingru Li. This work is licensed under {license}"
+    notice: "© {year} Yingru Li. This work is licensed under {license}"
     license:
       enable: true
       allow_derivatives: false
@@ -74,7 +74,7 @@ features:
     content_dir: content
     branch: main
   avatar:
-    gravatar: true
+    gravatar: false
     shape: circle
   comment:
     provider: ""
