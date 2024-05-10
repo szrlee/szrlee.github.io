@@ -281,3 +281,4 @@ sections:
     design:
       columns: '1'
 ---
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
