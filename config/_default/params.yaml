@@ -43,7 +43,8 @@ header:
 
 # Site footer
 
-footer: "[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=today+%2F+total&edge_flat=false)](https://hits.seeyoufarm.com)"
+footer:
+  block: minimal
   copyright:
     notice: "© {year} Yingru Li. This work is licensed under {license}"
     license:
@@ -51,6 +52,7 @@ footer: "[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https
       allow_derivatives: false
       share_alike: true
       allow_commercial: false
+    notice: "[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=today+%2F+total&edge_flat=false)](https://hits.seeyoufarm.com)"
 
 # Localization
 
