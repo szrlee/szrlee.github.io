@@ -15,6 +15,17 @@ links:
 - name: arXiv
   url: https://arxiv.org/abs/2402.10228
 
+url_code: 'https://github.com/szrlee/HyperAgent'
+
+# url_pdf: ''
+# url_code: 'https://github.com/HugoBlox/hugo-blox-builder'
+# url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
+# url_poster: ''
+# url_project: ''
+# url_slides: ''
+# url_source: 'https://github.com/HugoBlox/hugo-blox-builder'
+# url_video: 'https://youtube.com''
+
 featured: true
 abstract: To solve complex tasks under resource constraints, reinforcement learning (RL) agents need to be simple, efficient, and scalable with (1) large state space and (2) increasingly accumulated data of interactions. We propose the HyperAgent, a RL framework with hypermodel, index sampling schemes and incremental update mechanism, enabling computation-efficient sequential posterior approximation and data-efficient action selection under general value function approximation beyond conjugacy. The implementation of HyperAgent is simple as it only adds one module and one line of code additional to DDQN. Practically, HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation. Theoretically, among the practically scalable algorithms, HyperAgent is the first method to achieve provably scalable per-step computational complexity as well as sublinear regret under tabular RL. The core of our theoretical analysis is the sequential posterior approximation argument, made possible by the first analytical tool for sequential random projection, a non-trivial martingale extension of the Johnson-Lindenstrauss lemma. This work bridges the theoretical and practical realms of RL, establishing a new benchmark for RL algorithm design.
 
