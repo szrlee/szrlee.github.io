@@ -135,8 +135,8 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
-<div style="border-radius: 20px;
- padding: 5px; font-size: 75%; height: 250px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd; background-color: #f2f2f2;">
+<div style="border: 3px outset; border-radius: 20px;
+ padding: 5px; font-size: 75%; height: 250px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
   
 ### News (Scroll to view more)
  ✈️**July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
