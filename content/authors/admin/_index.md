@@ -135,7 +135,7 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
-<div style="border: 3px solid black; padding: 10px; font-size: 75%">
+<div style="border: 3px solid black; padding: 10px; font-size: 75%; height: 200px; overflow: auto;">
 
 - **July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 
@@ -150,7 +150,6 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 - **Jan 2024**: Our work about [**HyperAgent**](/publication/li-2024-hyperagent) received [**Best Paper Award**](https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ) in the third doctoral and postdoctoral [Daoyuan academic forum](/talk/hyperagent-a-simple-efficient-and-scalable-rl-framework-for-complex-environments/).
 
 - **December 2023**: [**NeurIPS**](https://neurips.cc), New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL [[1]](/publication/li-2024-hyperagent). I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss [[2]](/publication/li-2024-probability). 🚀
-
 </div>
 
 
