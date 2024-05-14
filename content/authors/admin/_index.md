@@ -36,7 +36,7 @@ interests:
   - Applied probability
   # - Random projection
   # - High-dimensional Data
-  - AI, Robotics \& OR
+  # - AI, Robotics \& OR
 
 # Education to show in About widget
 education:
