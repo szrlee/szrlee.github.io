@@ -181,7 +181,7 @@ sections:
       view: showcase
       # For Showcase view, flip alternate rows?
       flip_alt_rows: false
-  - block: portfolio
+  - block: collection
     id: featured
     content:
       # title: Featured Publications
@@ -197,7 +197,7 @@ sections:
     design:
       columns: '1'
       view: showcase
-      flip_alt_rows: false
+      flip_alt_rows: true
   # - block: collection
   #   content:
   #     title: Recent Publications
