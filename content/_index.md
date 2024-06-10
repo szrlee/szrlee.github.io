@@ -184,11 +184,16 @@ sections:
   - block: collection
     id: featured
     content:
-      title: Featured Publications
+      # title: Featured Publications
+      title: Research Highlights
       filters:
         folders:
           - publication
         featured_only: true
+      text: |-
+        {{% callout note %}}
+        For Full List, See [Google Scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).
+        {{% /callout %}}
     design:
       columns: '2'
       view: showcase
