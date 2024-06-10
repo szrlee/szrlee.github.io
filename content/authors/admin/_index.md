@@ -99,7 +99,7 @@ social:
   - icon: envelope
     icon_pack: fas
     link: '/#contact'
-  - icon: x
+  - icon: twitter
     icon_pack: fab
     link: https://x.com/RichardYRLi
     label: Follow me on Twitter
@@ -130,16 +130,14 @@ Fortunately, he is advised by [Zhi-Quan (Tom) Luo](https://scholar.google.com/ci
 He received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/) with an advisory of [Kun He](http://faculty.hust.edu.cn/hekun/en/).
 He was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fellowship and [Tencent AI Ph.D. Fellowship](https://ai.tencent.com/ailab/en/index).
-
-He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2023.
-
 **My Research**:
 
+He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2023.
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 2px outset; border-radius: 20px;
- padding: 5px; font-size: 75%; height: 250px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
+ padding: 5px; font-size: 75%; height: 150px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More!)
  ✈️**July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).

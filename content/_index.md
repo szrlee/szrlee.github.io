@@ -160,7 +160,10 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-        Quickly discover relevant content by [filtering publications](./publication/).
+        Quickly discover relevant content by [filtering highlighted publications](./publication/).
+        {{% /callout %}}
+        {{% callout note %}}
+        For full list, see [google scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).
         {{% /callout %}}
       filters:
         folders:
@@ -179,10 +182,10 @@ sections:
           tag: algorithm
         - name: Probability
           tag: probability
-    design:
-      # Choose how many columns the section has. Valid values: '1' or '2'.
-      columns: '2'
-      view: card
+      design:
+        # Choose how many columns the section has. Valid values: '1' or '2'.
+        columns: '2'
+        view: card
         # For Showcase view, flip alternate rows?
         # flip_alt_rows: false
   # - block: collection
