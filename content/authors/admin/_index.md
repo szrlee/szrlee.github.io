@@ -139,7 +139,7 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
 <div style="border: 2px outset; border-radius: 20px;
  padding: 5px; font-size: 75%; height: 150px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
-#### Latest Updates (Swipe to Explore More!)
+#### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
  ✈️**July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 
  🎉**May 2024**: [**HyperAgent**](/publication/li-2024-hyperagent) accepted to [**ICML**](https://icml.cc)!
