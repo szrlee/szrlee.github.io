@@ -195,8 +195,9 @@ sections:
         For Full List, See [Google Scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).
         {{% /callout %}}
     design:
-      columns: '2'
+      columns: '1'
       view: showcase
+      flip_alt_rows: false
   # - block: collection
   #   content:
   #     title: Recent Publications
@@ -208,10 +209,9 @@ sections:
   #       folders:
   #         - publication
   #       exclude_featured: true
-    design:
-      columns: '1'
-      view: citation
-      flip_alt_rows: false
+    # design:
+    #   columns: '2'
+    #   view: citation
   # - block: collection
   #   id: talks
   #   content:
