@@ -175,28 +175,23 @@ sections:
           tag: algorithm
         - name: Probability
           tag: probability
-    design:
-      # Choose how many columns the section has. Valid values: '1' or '2'.
-      columns: '1'
-      view: card
-      # For Showcase view, flip alternate rows?
-      flip_alt_rows: false
-  - block: collection
-    id: featured
-    content:
-      # title: Featured Publications
-      title: Research Highlights
-      filters:
-        folders:
-          - publication
-        featured_only: true
-      text: |-
-        {{% callout note %}}
-        For Full List, See [Google Scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).
-        {{% /callout %}}
       design:
-        columns: '2'
+        # Choose how many columns the section has. Valid values: '1' or '2'.
+        columns: '1'
         view: card
+        # For Showcase view, flip alternate rows?
+        flip_alt_rows: false
+  # - block: collection
+  #   id: featured
+  #   content:
+  #     title: Featured Publications
+  #     filters:
+  #       folders:
+  #         - publication
+  #       featured_only: true
+  #   design:
+  #     columns: '2'
+  #     view: card
   # - block: collection
   #   content:
   #     title: Recent Publications
