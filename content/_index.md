@@ -161,9 +161,7 @@ sections:
       text: |-
         {{% callout note %}}
         Quickly discover relevant content by [filtering highlighted publications](./publication/).
-        {{% /callout %}}
-        {{% callout note %}}
-        For full list, see [google scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).
+        **For full list, see [google scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).**
         {{% /callout %}}
       filters:
         folders:
