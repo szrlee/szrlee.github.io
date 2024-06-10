@@ -160,7 +160,7 @@ sections:
       title: Projects
       filters:
         folders:
-          - project
+          - publication
       # Default filter index (e.g. 0 corresponds to the first `filter_button` instance below).
       default_button_index: 0
       # Filter toolbar (optional).
@@ -171,17 +171,17 @@ sections:
       buttons:
         - name: All
           tag: '*'
-        - name: Deep Learning
-          tag: Deep Learning
-        - name: Other
-          tag: Demo
+        - name: Algorithm
+          tag: algorithm
+        - name: Probability
+          tag: probability
     design:
       # Choose how many columns the section has. Valid values: '1' or '2'.
       columns: '1'
       view: showcase
       # For Showcase view, flip alternate rows?
       flip_alt_rows: false
-  - block: portfolio
+  - block: collection
     id: featured
     content:
       # title: Featured Publications
@@ -210,7 +210,7 @@ sections:
       design:
         columns: '1'
         view: card
-        flip_alt_rows: false
+        flip_alt_rows: true
   # - block: collection
   #   content:
   #     title: Recent Publications
