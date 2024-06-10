@@ -27,29 +27,29 @@ organizations:
 # Short bio (displayed in user profile at end of posts)
 bio: My interests include sequential decision-making, optimization and applied probability with applications in AI \& OR.
 
-# Interests to show in About widget
-interests:
-  - Sequential Decision-making & Reinforcement Learning
-  # - Uncertainty quantification
-  - Algorithms Design & Analysis
-  - Mathematical Optimization
-  - Applied probability
-  # - Random projection
-  # - High-dimensional Data
-  # - AI, Robotics \& OR
+# # Interests to show in About widget
+# interests:
+#   - Sequential Decision-making & Reinforcement Learning
+#   # - Uncertainty quantification
+#   - Algorithms Design & Analysis
+#   - Mathematical Optimization
+#   - Applied probability
+#   # - Random projection
+#   # - High-dimensional Data
+#   # - AI, Robotics \& OR
 
-# Education to show in About widget
-education:
-  courses:
-    - course: Ph.D. in Computer and Information Engineering
-      institution: The Chinese University of Hong Kong
-      year: 2018 - present
-    # - course: MEng in Artificial Intelligence
-    #   institution: Massachusetts Institute of Technology
-    #   year: 2009
-    - course: B.Eng. in Computer Science (Honors Program). Outstanding Graduate
-      institution: Huazhong University of Science and Technology, China
-      year: 2017
+# # Education to show in About widget
+# education:
+#   courses:
+#     - course: Ph.D. in Computer and Information Engineering
+#       institution: The Chinese University of Hong Kong
+#       year: 2018 - present
+#     # - course: MEng in Artificial Intelligence
+#     #   institution: Massachusetts Institute of Technology
+#     #   year: 2009
+#     - course: B.Eng. in Computer Science (Honors Program). Outstanding Graduate
+#       institution: Huazhong University of Science and Technology, China
+#       year: 2017
 
 # Skills
 # For available icons, see: https://docs.hugoblox.com/getting-started/page-builder/#icons
@@ -99,9 +99,9 @@ social:
   - icon: envelope
     icon_pack: fas
     link: '/#contact'
-  - icon: twitter
+  - icon: x-twitter
     icon_pack: fab
-    link: https://twitter.com/RichardYRLi
+    link: https://x.com/RichardYRLi
     label: Follow me on Twitter
     display:
       header: true
@@ -132,6 +132,9 @@ He was a research visiting student at Cornell University with [John E. Hopcroft]
 His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fellowship and [Tencent AI Ph.D. Fellowship](https://ai.tencent.com/ailab/en/index).
 
 He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2023.
+
+**My Research**:
+
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
