@@ -155,9 +155,13 @@ sections:
   #     view: compact
   #     columns: '2'
   - block: portfolio
-    id: projects
+    id: research
     content:
-      title: Projects
+      title: Research Highlights
+      text: |-
+        {{% callout note %}}
+        Quickly discover relevant content by [filtering publications](./publication/).
+        {{% /callout %}}
       filters:
         folders:
           - publication
@@ -175,12 +179,12 @@ sections:
           tag: algorithm
         - name: Probability
           tag: probability
-      design:
+      # design:
         # Choose how many columns the section has. Valid values: '1' or '2'.
-        columns: '1'
+        columns: '2'
         view: card
         # For Showcase view, flip alternate rows?
-        flip_alt_rows: false
+        # flip_alt_rows: false
   # - block: collection
   #   id: featured
   #   content:

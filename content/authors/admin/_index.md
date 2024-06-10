@@ -99,7 +99,7 @@ social:
   - icon: envelope
     icon_pack: fas
     link: '/#contact'
-  - icon: x-twitter
+  - icon: x
     icon_pack: fab
     link: https://x.com/RichardYRLi
     label: Follow me on Twitter
