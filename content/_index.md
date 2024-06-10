@@ -210,7 +210,7 @@ sections:
       design:
         columns: '1'
         view: card
-        flip_alt_rows: true
+        flip_alt_rows: false
   # - block: collection
   #   content:
   #     title: Recent Publications
