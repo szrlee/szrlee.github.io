@@ -17,4 +17,5 @@ tags:
     - application
     - healthcare
     - medical
+    - foundation-model
 ---
