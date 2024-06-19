@@ -11,6 +11,12 @@ publication_types:
 - article-journal
 publication: '*Information Sciences*'
 
+links:
+- name: paper
+  url: https://www.sciencedirect.com/science/article/pii/S0020025517310101
+  
+url_code: 'https://github.com/JHL-HUST/HiCode'
+
 tags:
   - Social Network Analysis
   - Reinforcement Learning

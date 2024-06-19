@@ -8,7 +8,7 @@ publication_types:
 - paper-conference
 publication: '*The 37th Annual Conference on Learning Theory (COLT)* (Submitted)'
 links:
-- name: arXiv
+- name: paper
   url: https://arxiv.org/abs/2402.10232
 
 tags:

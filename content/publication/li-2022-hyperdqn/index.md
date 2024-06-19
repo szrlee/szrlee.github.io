@@ -12,8 +12,13 @@ publication_types:
 - paper-conference
 publication: '*International Conference on Learning Representations (ICLR)*'
 links:
-- name: ICLR2022
+- name: paper
   url: https://openreview.net/pdf?id=X0nrKAXu7g-
+
+url_code: 'https://github.com/liziniu/HyperDQN'
+
+url_video: 'https://neurips.cc/virtual/2021/37946/'
+
 tags:
   - efficiency
   - reinforcement-earning

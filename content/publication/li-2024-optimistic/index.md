@@ -11,7 +11,7 @@ publication_types:
 - manuscript
 
 links:
-- name: arXiv
+- name: paper
   url: https://arxiv.org/abs/2402.09456
 
 tags:
