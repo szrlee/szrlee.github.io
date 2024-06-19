@@ -13,4 +13,10 @@ publication_types:
 - paper-conference
 publication: '*2024 IEEE 13th Sensor Array and Multichannel Signal Processing Workshop
   (SAM)*'
+
+tags:
+  - optimization
+  - game-theory
+  - application
+  - multi-agent
 ---

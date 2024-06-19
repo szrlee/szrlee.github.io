@@ -1,6 +1,5 @@
 ---
-title: Provably scalable and near-optimal Thompson sampling via hypermodel with applications
-  in decision-making language agents
+title: "Scaling Up Exploration with Foundation Models: Dynamic Uncertainty Estimation Matters"
 authors:
 - Yingru Li
 - Jiawei Xu
@@ -10,19 +9,20 @@ publishDate: '2024-05-03T17:13:02.195766Z'
 publication_types:
 - manuscript
 
-tags:
-  - Efficiency
-  - Bandit
-  - Algorithm
-  - Regret
-  - Random Projection
-  - Martingale
-
 
 # abstract: We design efficient and scalable RL algorithms for complex environments with hypermodel and approximate Thompson sampling, which demonstrates significant efficiency gain in DRL benchmark problems (e.g. only 15\% data consumption and 5\% model parameters compared to SOTAs in Arcade Learning Environment. We developed new probability tools for the sequential random projection and sequential subspace embedding via stopping-time argument and self-normalized martingale, which can be regard as a non-trivial extension to the renowned Johnson–Lindenstrauss (JL) lemma. The tools are then applied to the regret analysis of hypermodel-based TS-type algorithms in bandit and RL environments, achieving the same regret order of RLSVI and PSRL with cheap computation.
 
 # Summary. An optional shortened abstract.
-summary: Hypermodel for efficient incremental approximation of the posterior (uncertainty quantification) over complex models without leveraging conjugacy as encountering more data; Index sampling for approximate posterior sampling for data-efficient sequential decision-making. This approach is provably superior than ensemble sampling and Langevin Monte-carlo.
+summary: Scalable online interactive agents using foundation models that continuously align and explore with human feedback, deployed in online automated content moderation system. Theoretically, we prove logarithmic per-step computation and close a gap in the scalable exploration problem of contextual bandits.
+
+tags:
+  - agent
+  - foundation-model
+  - application
+  - theory
+  - probability
+  - bandit
+  - regret
 
 # Display this page in the Featured widget?
 featured: true

@@ -1,6 +1,5 @@
 ---
-title: 'HyperAgent: A Simple, Scalable, Efficient and Provable Reinforcement Learning
-  Framework for Complex Environments'
+title: 'Q-Star Meets Scalable Posterior Sampling: Bridging Theory and Practice via HyperAgent'
 authors:
 - Yingru Li
 - Jiawei Xu
@@ -27,13 +26,19 @@ url_code: 'https://github.com/szrlee/HyperAgent'
 # url_video: 'https://youtube.com''
 
 featured: true
-abstract: To solve complex tasks under resource constraints, reinforcement learning (RL) agents need to be simple, efficient, and scalable with (1) large state space and (2) increasingly accumulated data of interactions. We propose the HyperAgent, a RL framework with hypermodel, index sampling schemes and incremental update mechanism, enabling computation-efficient sequential posterior approximation and data-efficient action selection under general value function approximation beyond conjugacy. The implementation of HyperAgent is simple as it only adds one module and one line of code additional to DDQN. Practically, HyperAgent demonstrates its robust performance in large-scale deep RL benchmarks with significant efficiency gain in terms of both data and computation. Theoretically, among the practically scalable algorithms, HyperAgent is the first method to achieve provably scalable per-step computational complexity as well as sublinear regret under tabular RL. The core of our theoretical analysis is the sequential posterior approximation argument, made possible by the first analytical tool for sequential random projection, a non-trivial martingale extension of the Johnson-Lindenstrauss lemma. This work bridges the theoretical and practical realms of RL, establishing a new benchmark for RL algorithm design.
+abstract: We propose HyperAgent, a reinforcement learning (RL) algorithm based on the hypermodel framework for exploration in RL. HyperAgent allows for the efficient incremental approximation of posteriors associated with an optimal action-value function ($Q^\star$) without the need for conjugacy and follows the greedy policies w.r.t. these approximate posterior samples. We demonstrate that HyperAgent offers robust performance in large-scale deep RL benchmarks. It can solve Deep Sea hard exploration problems with episodes that optimally scale with problem size and exhibits significant efficiency gains in the Atari suite. Implementing HyperAgent requires minimal code addition to well-established deep RL frameworks like DQN. We theoretically prove that, under tabular assumptions, HyperAgent achieves logarithmic per-step computational complexity while attaining sublinear regret, matching the best known randomized tabular RL algorithm.
 
 # Summary. An optional shortened abstract.
-summary: Addressing data and computation efficiency challenge in RL for real-world problems with theoretical advancements and practical algorithm designs.(1) Theoretically, we demonstrate exponential improvements in per-step computation complexity; (2) Empirically, HyperAgent has significant practical efficiency gains, particularly in deep RL benchmarks.
+summary: Addressing data and computation efficiency challenges in real-world deployments of RL Agents. It achieves significant efficiency gains in deep RL benchmarks as well as theoretical milestones.
 
 projects:
   - Efficient RL
+
+tags:
+  - agent
+  - probability
+  - theory
+  - reinforcement-learning
 ---
 
 ### Summary of contributions

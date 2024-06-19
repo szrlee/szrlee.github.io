@@ -15,12 +15,15 @@ links:
   url: https://arxiv.org/abs/2402.09456
 
 tags:
-- Game Theory
-- Algorithm
-- Regret
-- Multi agent
-- Bandit
-- Application
+- game-theory
+- algorithm
+- regret
+- multi-agent
+- agent
+- bandit
+- application
 
-abstract: Many real-world problems involving multiple decision-makers can be modeled as an unknown game characterized by bandit feedback. Addressing the challenges posed by bandit feedback and the curse of multi-agency, we developed Thompson sampling-type algorithms, leveraging information about opponent's action and reward structures. Our approach significantly reduces experimental budgets, achieving a more than tenfold reduction compared to baseline algorithms in practical applications like traffic routing and radar sensing. We demonstrate that, under certain assumptions about the reward structure, the regret bound exhibits merely a logarithmic dependence on the total action space size, effectively mitigating the curse of multi-agency. Additionally, this research introduces the Optimism-then-NoRegret framework, a novel contribution that integrates both our proposed methodologies and existing algorithms in the field.
+abstract: Many real-world problems involving multiple decision-makers can be modeled as an unknown game characterized by bandit feedback. Addressing the challenges posed by bandit feedback and the curse of multi-agency, we developed Thompson sampling-type algorithms, leveraging information about opponent's action and reward structures. Our approach significantly reduces experimental budgets, achieving a more than tenfold reduction compared to baseline algorithms in practical applications like traffic routing and radar sensing. We demonstrate that, under certain assumptions about the reward structure, the regret bound exhibits merely a logarithmic dependence on the total action space size, effectively mitigating the curse of multi-agency. Additionally, this research introduces the Optimism-then-NoRegret framework, a novel contribution that integrates both our proposed methodologies and existing algorithms in the field. A preliminary version was presented at ICML 2023 Workshop The Many Facets of Preference-Based Learning.
+
+summary: Game-theoretic decision-making in multi-agent systems. I developed optimistic TS type algorithm that significantly reduce experimental costs in applications such as traffic management and radar communications.
 ---

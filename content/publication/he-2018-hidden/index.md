@@ -10,4 +10,11 @@ publishDate: '2023-12-07T12:23:02.296998Z'
 publication_types:
 - article-journal
 publication: '*Information Sciences*'
+
+tags:
+  - Social Network Analysis
+  - Reinforcement Learning
+  - Algorithm
+  - Deep Learning
+  - Application
 ---

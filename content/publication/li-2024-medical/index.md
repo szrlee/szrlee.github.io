@@ -10,4 +10,11 @@ date: '2024-01-01'
 publishDate: '2024-06-19T04:15:50.995804Z'
 publication_types:
 - manuscript
+
+
+tags:
+    - agent
+    - application
+    - healthcare
+    - medical
 ---
