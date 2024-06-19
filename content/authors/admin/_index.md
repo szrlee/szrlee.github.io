@@ -132,7 +132,7 @@ I was a research visiting student at Cornell University with [John E. Hopcroft](
 
 
 **Research interests**:
-I work on algorithms and theory for **interactive agents** that learn and adapt to complex environments, using and developing **fundamental tools** in probability, optimization, game theory and information theory. I developed HyperAgent, which quantifies epistemic uncertainty, provides scalable and efficient solutions, and supports **continuous decision-making with foundation models**. I also work on **cloud-end hybrid solutions** for customer and business **operations**, including AI assistant agents and online content moderation. It leverages the powerful cloud computing services while augmenting necessary algorithmic module in end devices that serve the need for private and trustworthy decision-making.
+I work on algorithms and theory for **interactive agents** that learn and adapt to complex environments, using and developing **fundamental tools** in probability, optimization, game theory and information theory. I developed HyperAgent, which quantifies epistemic uncertainty, provides scalable and efficient solutions, and supports **continuous decision-making with foundation models**. I also work on **cloud-end hybrid solutions** for customer and business **operations**, including AI assistant agents and online content moderation, leveraging powerful cloud computing services while augmenting necessary algorithmic modules in end devices for private and trustworthy decision-making.
 
 I organized [reinforcement Learning seminar](https://rlseminar.github.io/) at CUHK,SZ from 2019 to 2023.
 
