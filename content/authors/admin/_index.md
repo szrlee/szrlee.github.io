@@ -130,7 +130,7 @@ I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214). My
 Previously, I received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/).
 I was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 
-I initiated and organized [reinforcement Learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
+I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
