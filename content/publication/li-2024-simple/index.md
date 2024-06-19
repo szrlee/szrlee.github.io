@@ -5,8 +5,7 @@ authors:
 date: '2024-01-01'
 publishDate: '2024-02-21T16:25:24.133311Z'
 publication_types:
-- paper-conference
-publication: '*The 37th Annual Conference on Learning Theory (COLT)* (Submitted)'
+- manuscript
 links:
 - name: paper
   url: https://arxiv.org/abs/2402.10232
