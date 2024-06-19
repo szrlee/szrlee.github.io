@@ -125,14 +125,16 @@ social:
 highlight_name: true
 ---
 
-Mr. Yingru Li is a Ph.D. Candidate in [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
-Fortunately, he is advised by [Zhi-Quan (Tom) Luo](https://scholar.google.com/citations?user=dW3gcXoAAAAJ&hl=en).
-He received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/) with an advisory of [Kun He](http://faculty.hust.edu.cn/hekun/en/).
-He was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
-His Ph.D. research is supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fellowship and [Tencent AI Ph.D. Fellowship](https://ai.tencent.com/ailab/en/index).
-**My Research**:
+I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
+I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214). My doctoral research is generously supported by SRIBD Ph.D. Fellowship, Presidential Ph.D. Fellowship and [Tencent AI Ph.D. Fellowship](https://ai.tencent.com/ailab/en/index).
+Previously, I received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/).
+I was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 
-He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in CUHK-SZ from 2019 to 2023.
+
+**Research interests**:
+I work on algorithms and theory for **interactive agents** that learn and adapt to complex environments, using and developing **fundamental tools** in probability, optimization, game theory and information theory. I developed HyperAgent, which quantifies epistemic uncertainty, provides scalable and efficient solutions, and supports **continuous decision-making with foundation models**. I also work on **cloud-end hybrid solutions** for customer and business **operations**, including AI assistant agents and online content moderation. It leverages the powerful cloud computing services while augmenting necessary algorithmic module in end devices that serve the need for private and trustworthy decision-making.
+
+I organized [reinforcement Learning seminar](https://rlseminar.github.io/) at CUHK,SZ from 2019 to 2023.
 
 {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
@@ -140,9 +142,10 @@ He organized [Reinforcement Learning Seminar](https://rlseminar.github.io/) in C
  padding: 5px; font-size: 75%; height: 150px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
- ✈️**July 2024**: Will deliver an **Invited Long Talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
+ ✈️**July 2024**: [**HyperAgent**](/publication/li-2024-hyperagent) accepted to [**ICML**](https://icml.cc). I will be presenting at Vienna in person.
 
- 🎉**May 2024**: [**HyperAgent**](/publication/li-2024-hyperagent) accepted to [**ICML**](https://icml.cc)!
+ 💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
+
 
  💻**May 2024**: [**AISTATS**](https://aistats.org/aistats2024/index.html), Valencia, Spain. Our [paper](/publication/li-2024-prior) offers the first prior-dependent analysis of PSRL under function approximation. This helps understand how integrating prior knowledge like historical data or pre-trained models (LLMs) enhances RL agent efficiency.
 
