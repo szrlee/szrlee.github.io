@@ -154,14 +154,17 @@ sections:
   #     # Choose a layout view
   #     view: compact
   #     columns: '2'
+  # Quickly discover relevant content by [filtering highlighted publications](./publication/).
+        # **For full list, see [google scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).**
+        # {{% /callout %}}
   - block: portfolio
     id: research
     content:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-        Quickly discover relevant content by [filtering highlighted publications](./publication/).
-        **For full list, see [google scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).**
+        I work on algorithms and theory for **interactive agents** that learn and adapt to complex environments, using and developing **fundamental tools** in probability, optimization, game theory and information theory. I developed HyperAgent, which quantifies epistemic uncertainty, provides scalable and efficient solutions, and supports **continuous decision-making with foundation models**. I also work on **cloud-end hybrid solutions** for customer, healthcare and business **operations**, including AI assistant agents and online content moderation, leveraging powerful cloud computing services while augmenting necessary algorithmic modules in end devices for un and trustworthy decision-making.
+        **Find full list in my [resume](uploads/resume.pdf).**
         {{% /callout %}}
       filters:
         folders:
@@ -178,8 +181,12 @@ sections:
           tag: '*'
         - name: Algorithm
           tag: algorithm
-        - name: Probability
-          tag: probability
+        - name: Theory
+          tag: theory
+        - name: Foundation model
+          tag: foundation-model
+        - name: Operations
+          tag: operations
       # design:
         # Choose how many columns the section has. Valid values: '1' or '2'.
         # columns: '2'
