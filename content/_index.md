@@ -163,9 +163,10 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-        I work on algorithms and theory for **interactive agents** that efficiently learn and continuously adapt to complex environments. To this end, I use and develop **fundamental tools** in probability, optimization, game theory and information theory. To highlight, I designed "HyperAgent", which quantifies epistemic uncertainty, provides scalable and efficient solutions, and supports **continual alignment and decision-making with foundation models**. I also work on **cloud-end hybrid solutions** for customer, healthcare and business **operations**, including AI assistant agents and online content moderation with human feedback, leveraging powerful cloud computing services while augmenting necessary algorithmic modules in end devices for uncertainty-aware and **trustworthy decision-making**.
-        *See full publication list in the [resume](uploads/resume.pdf).*
+        I work on algorithms and theory for **interactive agents** that efficiently learn and continuously adapt to complex environments. To this end, I use and develop **fundamental tools** in probability, optimization, game theory and information theory.
         {{% /callout %}}
+         To highlight, I designed "HyperAgent", which quantifies epistemic uncertainty, provides scalable solutions for **continual alignment and decision-making with foundation models**, applied to **online content moderation with human feedback**. I also work on **cloud-end hybrid solutions** for customer, healthcare and business **operations**, leveraging powerful cloud computing services while augmenting necessary algorithmic modules in end devices for **reliable and safe decision-making**.
+        *See full publication list in the [resume](uploads/resume.pdf).*
       filters:
         folders:
           - publication
