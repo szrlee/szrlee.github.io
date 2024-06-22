@@ -9,10 +9,7 @@ publishDate: '2024-05-03T17:13:02.195766Z'
 publication_types:
 - manuscript
 
-
-# abstract: We design efficient and scalable RL algorithms for complex environments with hypermodel and approximate Thompson sampling, which demonstrates significant efficiency gain in DRL benchmark problems (e.g. only 15\% data consumption and 5\% model parameters compared to SOTAs in Arcade Learning Environment. We developed new probability tools for the sequential random projection and sequential subspace embedding via stopping-time argument and self-normalized martingale, which can be regard as a non-trivial extension to the renowned Johnson–Lindenstrauss (JL) lemma. The tools are then applied to the regret analysis of hypermodel-based TS-type algorithms in bandit and RL environments, achieving the same regret order of RLSVI and PSRL with cheap computation.
-
-abstract: "Motivated by challenges in continual content moderation, such as the cold start problem and the need for exploration to align with unknown human feedback, we introduce GPT-HyperAgent. It leverages foundation models for pretrained expressive feature embeddings and integrates HyperAgent for scalable uncertainty representation and exploration. We demonstrate GPT-HyperAgent's effectiveness in continual content moderation as a contextual bandit problem with natural language input. Empirical advancements are built upon theoretical insights: 1. HyperAgent allows for the general and separate treatment of reference, perturbation, and update distributions with computational benefits. 2. Under the linear realizable assumption, HyperAgent achieves scalable uncertainty estimation with \(\tilde{O}(\log T)\) per-step computational complexity over \(T\) periods. 3. By establishing a general analysis framework, we prove HyperAgent’s regret order matches exact Thompson sampling in linear contextual bandits, closing a theoretical gap in scalable exploration."
+abstract: "Motivated by challenges in continual content moderation, such as the cold start problem and the need for exploration to align with unknown human feedback, we introduce GPT-HyperAgent. It leverages foundation models for pretrained expressive feature embeddings and integrates HyperAgent for scalable uncertainty representation and exploration. We demonstrate GPT-HyperAgent's effectiveness in continual content moderation as a contextual bandit problem with natural language input. Empirical advancements are built upon theoretical insights: 1. HyperAgent allows for the general and separate treatment of reference, perturbation, and update distributions with computational benefits. 2. Under the linear realizable assumption, HyperAgent achieves scalable uncertainty estimation with $\tilde{O}(\log T)$ per-step computational complexity over $T$ periods. 3. By establishing a general analysis framework, we prove HyperAgent’s regret order matches exact Thompson sampling in linear contextual bandits, closing a theoretical gap in scalable exploration."
 
 
 # Summary. An optional shortened abstract.
@@ -68,7 +65,7 @@ projects:
 ---
 
 
-### Summary of technical contributions
+### Summary of technical contributions of HyperAgent
 
 1. New probability tools in high-dimensional probability and statistics
 - The [first probability tool](/publication/li-2024-probability) for sequential random projection, a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;

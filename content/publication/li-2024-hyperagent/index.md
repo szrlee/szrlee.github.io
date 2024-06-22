@@ -43,7 +43,7 @@ tags:
   - reinforcement-learning
 ---
 
-### Summary of technical contributions
+### Summary of technical contributions of HyperAgent
 
 1. New probability tools in high-dimensional probability and statistics
 - The [first probability tool](/publication/li-2024-probability) for sequential random projection, a non-trivial martingale extension of Johnson-Lindenstrauss (JL) for adaptively sampled data due to the sequential nature of RL;
