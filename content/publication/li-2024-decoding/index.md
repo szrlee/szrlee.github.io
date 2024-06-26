@@ -1,6 +1,5 @@
 ---
-title: 'Agentic Fine-tuning for Self-evolving Large Foundation Models: A Cloud-End
-  Hybrid Solution'
+title: 'Guided Decoding via Q-Star on Outcome Feedback for Language Models'
 authors:
 - Jiawei Xu
 - Yingru Li

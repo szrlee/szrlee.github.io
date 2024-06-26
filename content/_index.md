@@ -166,7 +166,8 @@ sections:
         I work on algorithms and theory for **interactive agents** that continuously operate in the complex environments. To this end, I use and develop **fundamental tools** in probability, optimization, game theory and information theory. *See full publication list in the [resume](uploads/resume.pdf).*
         {{% /callout %}}
         - I designed "HyperAgent", which quantifies epistemic uncertainty, provides scalable solutions for sequential decision making under uncertainty.
-        - HyperAgent can be used for **continual human-AI alignment and collaboration**, e.g. GPT-HyperAgent for **online content moderation from human feedback**. 
+          - HyperAgent can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for **online content moderation from human feedback**.
+          - HyperAgent can be used for LLM guided decoding with outcome supervision.
         - I am working on **cloud-end hybrid solutions** for customer, healthcare and business **operations**, leveraging powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices for **reliable and safe decision-making**.
       filters:
         folders:
