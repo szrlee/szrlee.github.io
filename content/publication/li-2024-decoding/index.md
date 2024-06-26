@@ -1,8 +1,8 @@
 ---
 title: 'Guided Decoding via Q-Star on Outcome Feedback for Language Models'
 authors:
-- Jiawei Xu
 - Yingru Li
+- Jiawei Xu
 - Baoxiang Wang
 - Zhi-Quan Luo
 date: '2024-01-01'
