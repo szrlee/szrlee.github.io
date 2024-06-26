@@ -142,6 +142,7 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
 
  💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 
+ 💻**June 2024**: Will present at ([**RLCN**](https://rlchina.org/)). Find [slides](uploads/slides/HyperAgent_RLCN.pdf) here.
 
  💻**May 2024**: [**AISTATS**](https://aistats.org/aistats2024/index.html), Valencia, Spain. Our [paper](/publication/li-2024-prior) offers the first prior-dependent analysis of PSRL under function approximation. This helps understand how integrating prior knowledge like historical data or pre-trained models (LLMs) enhances RL agent efficiency.
 
