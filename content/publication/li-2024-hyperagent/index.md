@@ -23,7 +23,7 @@ url_video: 'https://meeting.tencent.com/v2/cloud-record/share?id=IHGtdxajucDxd2U
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_poster: ''
 # url_project: ''
-# url_slides: ''
+url_slides: 'uploads/slides/HyperAgent_RLCN.pdf'
 # url_source: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_video: 'https://youtube.com''
 
