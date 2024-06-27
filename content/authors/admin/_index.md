@@ -132,7 +132,7 @@ I was a research visiting student at Cornell University with [John E. Hopcroft](
 
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-{{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+<!-- {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf). -->
  <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 2px outset; border-radius: 20px;
  padding: 5px; font-size: 75%; height: 150px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
