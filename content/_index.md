@@ -168,7 +168,7 @@ sections:
         - I designed "HyperAgent", which quantifies epistemic uncertainty on optimal value function $Q^\star$, provides scalable solutions for real-time sequential decision making.
           - HyperAgent can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for **online content moderation from human feedback**.
           - HyperAgent can be used for controlling LLM decoding towards high outcome feedback.
-        - I am working on **cloud-end hybrid solutions** for customer, healthcare and business **operations**, leveraging powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices for **reliable and safe decision-making**.
+        - I am working on **reliable and safe solutions** for customer, healthcare and business **operations**, via **inference-time algorithms** that leverages powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices.
       filters:
         folders:
           - publication
