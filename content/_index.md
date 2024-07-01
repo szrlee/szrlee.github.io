@@ -246,7 +246,7 @@ sections:
       title: Contact
       subtitle:
       text: |-
-        You only live once. [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+        szrlee [at] gmail [dot] com [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
       # Contact (add or remove contact options as necessary)
       # email: szrlee@gmail.com
       # phone: 888 888 88 88
