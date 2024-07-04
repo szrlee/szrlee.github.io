@@ -163,11 +163,15 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-        I work on algorithms and theory for **interactive agents** that continuously operate in the complex environments. To this end, I use and develop **fundamental tools** in probability, optimization, game theory and information theory. *See full publication list in the [resume](uploads/resume.pdf).*
+        I work on algorithms and theory for **interactive agents** that continually operate in the complex and uncertain environments. This requires advances in methods for knowledge and uncertainty representation, exploration, adaptation, and decision. To this end, I use and develop **fundamental tools** in probability, optimization, game theory and information theory. *See full publication list in the [resume](uploads/resume.pdf).*
         {{% /callout %}}
-        - I designed "HyperAgent", which quantifies epistemic uncertainty on optimal value function $Q^\star$, provides scalable solutions for real-time sequential decision making.
-          - HyperAgent can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for **online content moderation from human feedback**.
-          - HyperAgent can be used for controlling LLM decoding towards high outcome feedback.
+        - I designed "HyperAgent" that quantifies epistemic uncertainty on optimal value function $Q^\star$ and leads to scalable solutions for real-time sequential decision making.
+          - HyperAgent shows significant data and computation efficiency gains in large-scale deep RL benchmarks such as Atari suite.
+            - HyperAgent can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for **automated content moderation from human feedback**.
+            - HyperAgent can be used for controlling LLM decoding towards high outcome feedback.
+          - Theoretical analysis confirms that:
+            - With logarithmic per-step computational complexity, HyperAgent's performance matches exact Thompson sampling (TS) in linear contextual bandits and Randomized Least-Square Value Iteration (RLSVI) in tabular RL environments. 
+            - Fundamental to this analysis is the first probability tool for sequential random projection. 
         - I am working on **reliable and safe solutions** for customer, healthcare and business **operations**, via **inference-time algorithms** that leverages powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices.
       filters:
         folders:
