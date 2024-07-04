@@ -169,7 +169,7 @@ sections:
 
           Currently, I am developing reliable and safe solutions for customer, healthcare, and business operations through inference-time algorithms. These algorithms leverage powerful cloud computing services on foundation models while augmenting necessary algorithmic modules in end devices. For example, controlling large language model (LLM) decoding towards high outcome feedback and minimum constraint violations via learned $Q^\star$.
 
-          Another key area of my research is game-theoretic decision-making, focusing on minimizing adversarial regret in repeated unknown games. This includes learning to collaborate in traffic routing and compete in radar communications, resulting in significant budget savings. I have developed frameworks that synergies optimistic TS and hedge/regret-matching for opponent/structure-aware reward modeling and no-regret learning.
+          Another key area of my research is game-theoretic decision-making, focusing on minimizing adversarial regret in repeated unknown games. This includes learning to collaborate in traffic routing and compete in radar communications, resulting in significant budget savings. I have developed frameworks that synergies opponent/structure-aware reward modeling and no-regret learning/optimization.
 
           ### Key Contributions
           - **HyperAgent**: Efficient, scalable real-time decision-making.
@@ -181,7 +181,7 @@ sections:
             - **Control of LLM decoding**: Guided by learned $Q^\star$ for high outcome feedback and minimum constraint violations.
           - **Game-theoretic decision-making**: Minimizing adversarial regret in repeated unknown games.
             - **Applications**: Collaboration in traffic routing and competition in radar communications, achieving significant budget savings.
-            - **Frameworks**: Optimistic TS for opponent/structure-aware reward modeling and hedge/regret-matching for no-regret learning.
+            - **Frameworks**: Synergy between opponent/structure-aware reward modeling and no-regret learning/optimization.
           
           This research aims to advance the field of interactive agents, contributing to both theoretical understanding and practical applications.
           {{< /spoiler >}}
