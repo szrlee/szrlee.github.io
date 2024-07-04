@@ -124,8 +124,6 @@ social:
 # Highlight the author in author lists? (true/false)
 highlight_name: true
 ---
-I am a final-year Ph.D. candidate at [University]. I am advised by [Advisor's Name] (). My doctoral research is generously supported by various prestigious fellowships. Previously, I received a bachelor's degree in Computer Science (ACM Honors Program) from [University]. I was also a research visiting student at Cornell University with [Advisor's Name].
-
 I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
 I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214). My doctoral research is generously supported by various [prestigious fellowships](uploads/resume.pdf).
 Previously, I received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/).
