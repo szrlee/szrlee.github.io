@@ -163,16 +163,34 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-        I work on algorithms and theory for **interactive agents** that continually operate in the complex and uncertain environments. This requires advances in methods for knowledge and uncertainty representation, exploration, adaptation, and decision. To this end, I use and develop **fundamental tools** in probability, optimization, game theory and information theory. *See full publication list in the [resume](uploads/resume.pdf).*
+          I focus on algorithms and theory for **interactive agents** that operate continually in complex and uncertain environments. This work necessitates advancements in methods for knowledge and uncertainty representation, exploration, adaptation, and decision-making. To achieve these goals, I use and develop **fundamental tools** in probability, optimization, game theory, and information theory. (See full publication list in the [resume](uploads/resume.pdf)).
         {{% /callout %}}
-        - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value function $Q^\star$ for scalable real-time sequential decision making.
-          - HyperAgent shows significant data and computation efficiency gains in large-scale deep RL benchmarks such as Atari suite.
-            - It can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for content moderation with human feedback.
-          - Theoretical analysis confirms that:
-            - With logarithmic per-step computational complexity, HyperAgent's performance matches exact Thompson sampling (TS) in linear contextual bandits and Randomized Least-Square Value Iteration (RLSVI) in tabular RL environments. 
-            - Fundamental to this analysis is the first probability tool for sequential random projection I developed. 
-        - I am working on **reliable and safe solutions** for customer, healthcare and business **operations**, via **inference-time algorithms** that leverages powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices.
-          - Control LLM decoding towards high outcome feedback via learned $Q^\star$.
+        {{< spoiler text="Click to view the short research statement" >}}
+          One notable project is "HyperAgent," designed to quantify and resolve epistemic uncertainty on optimal value \( Q^\star \) for scalable real-time sequential decision-making. HyperAgent demonstrates significant gains in data and computational efficiency in large-scale deep reinforcement learning (RL) benchmarks, such as the Atari suite. It also has potential applications in human-AI alignment and collaboration, like GPT-HyperAgent for content moderation with human feedback. 
+
+          Theoretical analysis of HyperAgent confirms that with logarithmic per-step computational complexity, its performance matches exact Thompson sampling (TS) in linear contextual bandits and Randomized Least-Square Value Iteration (RLSVI) in tabular RL environments. This analysis is grounded in the first probability tool for sequential random projection that I developed.
+
+          Currently, I am developing reliable and safe solutions for customer, healthcare, and business operations through inference-time algorithms. These algorithms leverage powerful cloud computing services on foundation models while augmenting necessary algorithmic modules in end devices. For example, controlling large language model (LLM) decoding towards high outcome feedback via learned \( Q^\star \).
+
+          ### Key Contributions
+          - **HyperAgent**: Efficient, scalable real-time decision-making.
+            - **Data and computation efficiency**: Significant gains in deep RL benchmarks.
+            - **Applications**: Human-AI alignment, e.g., content moderation with human feedback.
+            - **Theoretical validation**: Matches performance of TS and RLSVI with logarithmic computational complexity.
+          - **Reliable and Safe Solutions**: Customer, healthcare, and business operations.
+            - **Inference-time algorithms**: Leveraging cloud services and augmenting end devices.
+            - **Control of LLM decoding**: Guided by learned \( Q^\star \) for high outcome feedback.
+
+          This research aims to advance the field of interactive agents, contributing to both theoretical understanding and practical applications.
+        {{< /spoiler >}}
+# - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value $(Q^\star)$ for scalable real-time sequential decision-making.
+#   - HyperAgent shows significant data and computation efficiency gains in large-scale deep RL benchmarks such as Atari suite.
+#     - It can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for content moderation with human feedback.
+#   - Theoretical analysis confirms that:
+#     - With logarithmic per-step computational complexity, HyperAgent's performance matches exact Thompson sampling (TS) in linear contextual bandits and Randomized Least-Square Value Iteration (RLSVI) in tabular RL environments. 
+#     - Fundamental to this analysis is the first probability tool for sequential random projection I developed. 
+# - I am working on **reliable and safe solutions** for customer, healthcare and business **operations**, via **inference-time algorithms** that leverages powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices.
+#   - Control LLM decoding towards high outcome feedback via learned $Q^\star$.
       filters:
         folders:
           - publication
