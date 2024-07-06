@@ -184,10 +184,11 @@ sections:
           
           This research aims to advance the field of interactive agents, contributing to both theoretical understanding and practical applications.
 
-          ![png]{uploads/research_statement_overview.png}
-          
-          {{< /spoiler >}}
+          <img src="uploads/research_statement_overview.png">
+        {{< /spoiler >}}
+        ![png]{uploads/research_statement_overview.png}
         {{% /callout %}}
+      ![png]{uploads/research_statement_overview.png}
 # - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value $(Q^\star)$ for scalable real-time sequential decision-making.
 #   - HyperAgent shows significant data and computation efficiency gains in large-scale deep RL benchmarks such as Atari suite.
 #     - It can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for content moderation with human feedback.
