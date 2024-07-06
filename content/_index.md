@@ -183,7 +183,9 @@ sections:
             - **Control of LLM decoding**: Guided by learned $Q^\star$ for high outcome feedback and minimum constraint violations.
           
           This research aims to advance the field of interactive agents, contributing to both theoretical understanding and practical applications.
-          ![Image]{uploads/research_statement_overview.png}
+
+          ![png]{uploads/research_statement_overview.png}
+          
           {{< /spoiler >}}
         {{% /callout %}}
 # - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value $(Q^\star)$ for scalable real-time sequential decision-making.
