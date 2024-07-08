@@ -2,6 +2,7 @@
 title: Uncertainty-aware Multi-turn Language Agents for Medical Decision-making
 authors:
 - Yingru Li
+- Xiangbo Wu
 - Yanchuan Tang
 - Benyou Wang
 - Xiang Wan

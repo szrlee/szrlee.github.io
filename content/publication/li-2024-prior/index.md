@@ -9,9 +9,9 @@ publication_types:
 - paper-conference
 publication: '*The 27th International Conference on Artificial Intelligence and Statistics (AISTATS)*'
 
-links:
-- name: paper
-  url: https://arxiv.org/abs/2403.11175
+# links:
+# - name: paper
+url_pdf: https://arxiv.org/abs/2403.11175
 
 tags:
     - reinforcement-learning

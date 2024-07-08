@@ -4,15 +4,17 @@ authors:
 - Yingru Li
 - Liangqi Liu
 - Wenqiang Pu
+- Hao Liang
 - Zhi-Quan Luo
 date: '2024-01-01'
 publishDate: '2024-02-21T16:25:24.151772Z'
 publication_types:
 - manuscript
+publication: '*presented at ICML 2023 Workshop on The Many Facets of Preference-Based Learning*'
 
-links:
-- name: paper
-  url: https://arxiv.org/abs/2402.09456
+# links:
+# - name: paper
+url_pdf: https://arxiv.org/abs/2402.09456
 
 tags:
 - game-theory

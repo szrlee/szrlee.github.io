@@ -10,15 +10,15 @@ publishDate: '2024-02-21T16:25:24.139610Z'
 publication_types:
 - paper-conference
 publication: '*The 41st International Conference on Machine Learning (ICML)*'
-links:
-- name: paper
-  url: https://arxiv.org/abs/2402.10228
+# links:
+# - name: paper
+#   url: https://arxiv.org/abs/2402.10228
 
 url_code: 'https://github.com/szrlee/HyperAgent'
 url_video: 'https://meeting.tencent.com/v2/cloud-record/share?id=IHGtdxajucDxd2ULGfRYB5m_cGzjkUE43Age4ynky0k&from=3&is-single=true&record_type=1'
 
 
-# url_pdf: ''
+url_pdf: 'https://arxiv.org/abs/2402.10228'
 # url_code: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_poster: ''

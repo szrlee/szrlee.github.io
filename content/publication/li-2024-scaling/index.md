@@ -1,5 +1,5 @@
 ---
-title: "Scaling up Exploration with GPT-HyperAgent: Continual Content Moderation from Human Feedback"
+title: "Scaling Exploration with HyperAgent: Fast Incremental Uncertainty Estimation"
 authors:
 - Yingru Li
 - Jiawei Xu
@@ -8,13 +8,15 @@ date: '2024-01-01'
 publishDate: '2024-05-03T17:13:02.195766Z'
 publication_types:
 - manuscript
+publication: "*presented at ICML 2024 Workshops: (1) Aligning Reinforcement Learning Experimentalists and Theorists; (2) Automated Reinforcement Learning: Exploring Meta-Learning, AutoML, and LLMs*"
 
-
-abstract: Motivated by challenges in continual content moderation, such as the cold start problem and the need for exploration to align with unknown human feedback, we introduce GPT-HyperAgent. It leverages foundation models for pretrained expressive feature embeddings and integrates HyperAgent for scalable uncertainty estimation and exploration. We demonstrate GPT-HyperAgent's effectiveness in continual content moderation as a contextual bandit problem with natural language input. Empirical advancements are built upon theoretical insights. 1. HyperAgent allows for the general and separate treatment of reference, perturbation, and update distributions with computational benefits. 2. Under the linear realizable assumption, HyperAgent achieves scalable uncertainty estimation with $\tilde{O}(\log T)$ per-step computational complexity over $T$ periods. 3. By establishing a general analysis framework, we prove HyperAgent’s regret order matches exact Thompson sampling in linear contextual bandits, closing a theoretical gap in scalable exploration.
+abstract: Foundation models often struggle with uncertainty when faced with new situations in online decision-making, necessitating scalable and efficient exploration to resolve this uncertainty. To address these challenges, we introduce GPT-HyperAgent, which augments GPT with uncertainty-awareness via HyperAgent [Li et al., 2024] for scalable exploration in contextual bandits, a fundamental online decision problem involving natural language input.
+Theoretically, we prove that HyperAgent achieves fast incremental uncertainty estimation with $\tilde{O}(\log T)$ per-step computational complexity over $T$ periods under the linear realizable assumption. Our analysis framework shows that HyperAgent’s regret matches exact Thompson sampling in linear contextual bandits, closing a significant theoretical gap in scalable exploration.
+Empirical results in real-world contextual bandit tasks, such as automated content moderation with human feedback, validate the practical effectiveness of GPT-HyperAgent for safety-critical decisions
 
 
 # Summary. An optional shortened abstract.
-summary: We prove HyperAgent closes a theoretical gap in scale exploration for contextual bandit problems. Further, with integration of pretrained GPT, GPT-HyperAgent addresses continual content moderation challenges, such as cold start and exploration with human feedback.
+summary: We prove HyperAgent closes a theoretical gap in scale exploration for contextual bandit problems. Further, with integration of pretrained GPT, GPT-HyperAgent addresses challenges in human-AI pipeline for automated content moderation with human feedback by minimizing human involvement while ensuring long-term system reliability and safety.
 
 tags:
   - agent

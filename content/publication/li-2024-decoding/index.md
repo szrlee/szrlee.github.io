@@ -3,7 +3,8 @@ title: 'Controlled Decoding via Q-Star on Outcome Feedback for Language Models'
 authors:
 - Yingru Li
 - Jiawei Xu
-- Ningzhe Gaoan
+- Xiangbo Wu
+- Anningzhe Gao
 - Baoxiang Wang
 - Benyou Wang
 - Zhi-Quan Luo
