@@ -14,7 +14,7 @@ publication_types:
 publication: '*2024 IEEE 13th Sensor Array and Multichannel Signal Processing Workshop (SAM)*'
 # links:
 # - name: paper
-url_pdf: https://arxiv.org/abs/2402.16274
+url_pdf: 'https://arxiv.org/abs/2402.16274'
 tags:
   - optimization
   - game-theory

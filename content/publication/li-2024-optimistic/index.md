@@ -14,7 +14,7 @@ publication: '*presented at ICML 2023 Workshop on The Many Facets of Preference-
 
 # links:
 # - name: paper
-url_pdf: https://arxiv.org/abs/2402.09456
+url_pdf: 'https://arxiv.org/abs/2402.09456'
 
 tags:
 - game-theory

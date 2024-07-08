@@ -11,7 +11,7 @@ publication: '*The 27th International Conference on Artificial Intelligence and 
 
 # links:
 # - name: paper
-url_pdf: https://arxiv.org/abs/2403.11175
+url_pdf: 'https://arxiv.org/abs/2403.11175'
 
 tags:
     - reinforcement-learning

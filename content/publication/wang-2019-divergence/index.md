@@ -16,7 +16,7 @@ abstract: In deep reinforcement learning, policy optimization methods need to de
 summary: Stabilizing policy optimization when off-policy data are reused, addressing the data efficiency issue in RL for real-world problems.
 # links:
 # - name: paper
-url_pdf: https://papers.nips.cc/paper_files/paper/2019/hash/cc9657884708170e160c8372d92f3535-Abstract.html
+url_pdf: 'https://papers.nips.cc/paper_files/paper/2019/hash/cc9657884708170e160c8372d92f3535-Abstract.html'
 
 url_code: 'https://github.com/lns/dapo'
 url_poster: 'https://www.tbsi.edu.cn/wolt/tbsi_wolt2021/posters/Yingru_Li_1.pdf'
