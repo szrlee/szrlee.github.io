@@ -6,7 +6,7 @@ date: '2024-01-01'
 publishDate: '2024-02-21T16:25:24.127323Z'
 publication_types:
 - manuscript
-publication: '*presented at ICML 2024 Workshop on High-dimensional Learning Dynamics 2024: The Emergence of Structure and Reasoning*'
+publication: '*Preprint. Presentation at **ICML** 2024 Workshop "High-dimensional Learning Dynamics 2024: The Emergence of Structure and Reasoning"*'
 
 tags:
   - probability
