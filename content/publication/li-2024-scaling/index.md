@@ -8,7 +8,7 @@ date: '2024-01-01'
 publishDate: '2024-05-03T17:13:02.195766Z'
 publication_types:
 - manuscript
-publication: 'Preprint. Presentation at **ICML** 2024 Workshops: (1) "Aligning Reinforcement Learning Experimentalists and Theorists"; (2) "Automated Reinforcement Learning: Exploring Meta-Learning, AutoML, and LLMs"*'
+publication: '*Preprint. Presentation at **ICML** 2024 Workshops: (1) "Aligning Reinforcement Learning Experimentalists and Theorists"; (2) "Automated Reinforcement Learning: Exploring Meta-Learning, AutoML, and LLMs"*'
 
 abstract: Foundation models often struggle with uncertainty when faced with new situations in online decision-making, necessitating scalable and efficient exploration to resolve this uncertainty. To address these challenges, we introduce GPT-HyperAgent, which augments GPT with uncertainty-awareness via HyperAgent [Li et al., 2024] for scalable exploration in contextual bandits, a fundamental online decision problem involving natural language input. Theoretically, we prove that HyperAgent achieves fast incremental uncertainty estimation with $\tilde{O}(\log T)$ per-step computational complexity over $T$ periods under the linear realizable assumption. Our analysis framework shows that HyperAgent’s regret matches exact Thompson sampling in linear contextual bandits, closing a significant theoretical gap in scalable exploration. Empirical results in real-world contextual bandit tasks, such as automated content moderation with human feedback, validate the practical effectiveness of GPT-HyperAgent for safety-critical decisions.
 
