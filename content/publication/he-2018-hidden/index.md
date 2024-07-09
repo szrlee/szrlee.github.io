@@ -9,7 +9,7 @@ date: '2018-01-01'
 publishDate: '2023-12-07T12:23:02.296998Z'
 publication_types:
 - article-journal
-publication: '* **Information Sciences** *'
+publication: '***Information Sciences***'
 
 # links:
 # - name: paper
