@@ -134,10 +134,13 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
 <!-- {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf). -->
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 2px outset; border-radius: 20px;
- padding: 5px; font-size: 75%; height: 150px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
+ padding: 5px; font-size: 75%; height: 200px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
- ✈️**July 2024**: [**HyperAgent**](/publication/li-2024-hyperagent) accepted to [**ICML**](https://icml.cc). I will be presenting at Vienna in person.
+ ✈️**July 2024**: I will present 4 of my recent works at [**ICML**](https://icml.cc). See you in Vienna!
+ <!-- [**HyperAgent**](/publication/li-2024-hyperagent) accepted to . -->
+
+🎉 **July 2024**: Congratulations to the team! We received the ***Best Student Paper Award*** at **SAM**!
 
  💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 
@@ -149,7 +152,7 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
 
  💻**March 2024**: **Two Talks** at the Informs Optimization Society ([**IOS**](https://ios2024.rice.edu)) Conference at Rice University. **(1)** ["HyperAgent: A simple, efficient, scalable and provable RL framework for complex environments"](/talk/hyperagent-a-simple-efficient-scalable-and-provable-rl-framework/) and **(2)** ["A Tutorial on Thompson Sampling and Ensemble Sampling"](uploads/slides/TS_ES_bg.pdf).
 
- 🎉**Jan 2024**: Our work about [**HyperAgent**](/publication/li-2024-hyperagent) received [**Best Paper Award**](https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ) in the third doctoral and postdoctoral [Daoyuan academic forum](/talk/hyperagent-a-simple-efficient-and-scalable-rl-framework-for-complex-environments/).
+ 🎉**Jan 2024**: [**HyperAgent**](/publication/li-2024-hyperagent) received [**Best Paper Award**](https://mp.weixin.qq.com/s/erfgIgYJCjYg2aRTnqseuQ) in the third doctoral and postdoctoral [Daoyuan academic forum](/talk/hyperagent-a-simple-efficient-and-scalable-rl-framework-for-complex-environments/).
 
  ✈️**December 2023**: [**NeurIPS**](https://neurips.cc), New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL [[1]](/publication/li-2024-hyperagent). I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss [[2]](/publication/li-2024-probability). 🚀
 </div>
