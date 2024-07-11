@@ -140,7 +140,7 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
  ✈️**July 2024**: I will present 4 of my recent works at [**ICML**](https://icml.cc). See you in Vienna!
  <!-- [**HyperAgent**](/publication/li-2024-hyperagent) accepted to . -->
 
-🎉 **July 2024**: Congratulations to the team! We received the ***Best Student Paper Award*** at **SAM**!
+ 🎉**July 2024**: Congratulations to the team! We received the ***Best Student Paper Award*** at **SAM**!
 
  💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. The ISMP is the **leading triennial conference** focusing on [mathematical optimization](https://www.mathopt.org/?nav=ismp).
 
