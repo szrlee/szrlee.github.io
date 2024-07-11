@@ -134,7 +134,7 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
 <!-- {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf). -->
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 2px outset; border-radius: 20px;
- padding: 5px; font-size: 75%; height: 200px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
+ padding: 5px; font-size: 75%; height: 180px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
  ✈️**July 2024**: I will present 4 of my recent works at [**ICML**](https://icml.cc). See you in Vienna!
