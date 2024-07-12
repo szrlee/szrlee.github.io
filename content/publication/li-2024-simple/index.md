@@ -2,7 +2,7 @@
 title: Simple, unified analysis of Johnson-Lindenstrauss with applications
 authors:
 - Yingru Li
-date: '2024-01-01'
+date: '2024-02-01'
 publishDate: '2024-02-21T16:25:24.133311Z'
 publication_types:
 - manuscript

@@ -3,7 +3,7 @@ title: 'Prior-dependent analysis of posterior sampling reinforcement learning wi
 authors:
 - Yingru Li
 - Zhi-Quan Luo
-date: '2024-01-01'
+date: '2024-05-01'
 publishDate: '2024-02-21T16:25:24.158149Z'
 publication_types:
 - paper-conference
