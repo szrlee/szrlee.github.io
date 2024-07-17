@@ -163,7 +163,7 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-          I work on algorithms and theoretical foundations for interactive agents. My focus is on ensuring these agents operate reliably and safely in complex, uncertain, and potentially human-in-the-loop environments, always aligning their decisions with human objectives.
+          I work on algorithms and theoretical foundations for interactive agents. My focus is on ensuring these agents operate reliably and safely in complex, uncertain, and human-in-the-loop environments, aligning their decisions with human objectives.
           This work necessitates advancements in methods for knowledge and uncertainty representation, exploration, adaptation, and decision-making. To achieve these goals, I use and develop **fundamental tools** in probability, optimization, game theory, and information theory. My methods have been **applied** to human-AI alignment and reliable & strategic operations. 
           The significance of my work has been recognized through invitations to speak at **prestigious forums**, including ICML, NeurIPS, ICLR, AISTATS, ISMP and INFORMS Annual Meetings, and through awards, such as the ***Best Paper Award*** at the 2024 Daoyuan academic forum and the ***Best Student Paper Award*** at the 2024 IEEE SAM. (See full publication list in the [resume](uploads/resume.pdf)).
           {{< spoiler text="Click to view the short research statement" >}}
