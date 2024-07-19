@@ -14,7 +14,7 @@ abstract: Foundation models often struggle with uncertainty when faced with new 
 
 
 # Summary. An optional shortened abstract.
-summary: We prove HyperAgent closes a theoretical gap in scalable exploration. Further, GPT-HyperAgent addresses challenges in human-Al interplay for automated content moderation with human feedback.
+summary: We prove HyperAgent closes a theoretical gap in scalable exploration. Further, GPT-HyperAgent addresses risk and efficiency challenges in human-Al interplay for automated content moderation with human feedback.
 
 tags:
   - agent
