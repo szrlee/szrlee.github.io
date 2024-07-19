@@ -21,7 +21,7 @@ url_video: 'https://meeting.tencent.com/v2/cloud-record/share?id=IHGtdxajucDxd2U
 url_pdf: 'https://arxiv.org/abs/2402.10228'
 # url_code: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
-# url_poster: ''
+url_poster: 'https://icml.cc/virtual/2024/poster/34173'
 # url_project: ''
 url_slides: 'uploads/slides/HyperAgent_RLCN.pdf'
 # url_source: 'https://github.com/HugoBlox/hugo-blox-builder'

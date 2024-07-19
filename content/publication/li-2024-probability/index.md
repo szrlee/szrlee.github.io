@@ -19,6 +19,7 @@ abstract: We introduce the first probabilistic framework tailored for sequential
 # links:
 # - name: paper
 url_pdf: 'https://arxiv.org/abs/2402.14026'
+url_poster: 'https://icml.cc/virtual/2024/search?query=yingru'
 
 featured: true
 

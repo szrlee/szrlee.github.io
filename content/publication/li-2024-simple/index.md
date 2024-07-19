@@ -10,6 +10,8 @@ publication: '*Preprint. Presentation at **ICML** 2024 Workshop "High-dimensiona
 # links:
 # - name: paper
 url_pdf: 'https://arxiv.org/abs/2402.10232'
+url_poster: 'https://icml.cc/virtual/2024/search?query=yingru'
+
 
 tags:
 - probability

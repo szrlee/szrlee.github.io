@@ -137,7 +137,7 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
  padding: 5px; font-size: 75%; height: 200px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
- ✈️**July 2024**: I will present 4 of my recent works at [**ICML**](https://icml.cc). See you in Vienna!
+ ✈️**July 2024**: I'll be at #ICML2024 in Vienna from July 21st to 27th! Also, don't miss my lightning talk on "Agile Human-AI Collaboration for #RiskOversight" at the #AlignmentWorkshop on 21st and 22nd. Check out the details in [tweets](https://twitter.com/RichardYRLi/status/1813959473339461934) and [ICML events](https://icml.cc/virtual/2024/search?query=yingru).
  <!-- [**HyperAgent**](/publication/li-2024-hyperagent) accepted to . -->
 
  🎉**July 2024**: Congratulations to the team! We received the ***Best Student Paper Award*** at **IEEE SAM**!

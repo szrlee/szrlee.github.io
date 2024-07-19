@@ -37,6 +37,7 @@ featured: true
 url_pdf: 'https://arxiv.org/abs/2407.13195'
 # url_code: 'https://github.com/HugoBlox/hugo-blox-builder'
 # url_dataset: 'https://github.com/HugoBlox/hugo-blox-builder'
+url_poster: 'https://icml.cc/virtual/2024/search?query=yingru'
 # url_poster: ''
 # url_project: ''
 url_slides: 'uploads/slides/HyperAgent_RLCN.pdf'
