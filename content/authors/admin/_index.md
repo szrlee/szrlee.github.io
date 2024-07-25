@@ -131,13 +131,13 @@ I was a research visiting student at Cornell University with [John E. Hopcroft](
 
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-<!-- {{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf). -->
+{{< icon name="square-rss" pack="fas" >}} **Now actively seeking postdoctoral & research positions!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 2px outset; border-radius: 20px;
  padding: 5px; font-size: 75%; height: 200px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
- 💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)), Montréal. Slides of the talk is [here](uploads/slides/HyperAgent_ISMP.pdf).
+ 💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)) in Montréal. The slides for the talk can be found [here](uploads/slides/HyperAgent_ISMP.pdf).
 
  ✈️**July 2024**: I'll be at #ICML2024 in Vienna from July 21st to 27th! Also, don't miss my lightning talk on "Agile Human-AI Collaboration for #RiskOversight" at the #AlignmentWorkshop on 21st and 22nd. Check out the details in [tweets](https://twitter.com/RichardYRLi/status/1813959473339461934) and [ICML events](https://icml.cc/virtual/2024/search?query=yingru).
  <!-- [**HyperAgent**](/publication/li-2024-hyperagent) accepted to . -->
