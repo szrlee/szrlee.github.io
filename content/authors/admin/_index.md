@@ -137,7 +137,7 @@ I initiated and organized the [reinforcement learning seminar](https://rlseminar
  padding: 5px; font-size: 75%; height: 200px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
- 💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)) in Montréal. The slides for the talk can be found [here](uploads/slides/HyperAgent_ISMP.pdf).
+ 💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)) in Montréal. [Slides](uploads/slides/HyperAgent_ISMP.pdf). [Recording](https://meeting.tencent.com/v2/cloud-record/share?id=VBA718MUvruzY8OnuGI95X8pXtzeK3DooYLckwPKh4M&from=3&record_type=1&is-single=true). Relevant publications include [1] [HyperAgent](https://arxiv.org/abs/2402.10228) [2] [GPT-HyperAgent](https://arxiv.org/abs/2407.13195).
 
  ✈️**July 2024**: I'll be at #ICML2024 in Vienna from July 21st to 27th! Also, don't miss my lightning talk on "Agile Human-AI Collaboration for #RiskOversight" at the #AlignmentWorkshop on 21st and 22nd. Check out the details in [tweets](https://twitter.com/RichardYRLi/status/1813959473339461934) and [ICML events](https://icml.cc/virtual/2024/search?query=yingru).
  <!-- [**HyperAgent**](/publication/li-2024-hyperagent) accepted to . -->

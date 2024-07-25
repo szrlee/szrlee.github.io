@@ -40,9 +40,9 @@ url_code: 'https://github.com/szrlee/GPT-HyperAgent'
 url_poster: 'https://icml.cc/virtual/2024/search?query=yingru'
 # url_poster: ''
 # url_project: ''
-url_slides: 'uploads/slides/HyperAgent_RLCN.pdf'
+url_slides: 'uploads/slides/HyperAgent_ISMP.pdf'
 # url_source: 'https://github.com/HugoBlox/hugo-blox-builder'
-# url_video: 'https://youtube.com'
+url_video: 'https://meeting.tencent.com/v2/cloud-record/share?id=VBA718MUvruzY8OnuGI95X8pXtzeK3DooYLckwPKh4M&from=3&record_type=1&is-single=true'
 
 # Featured image
 # To use, add an image named `featured.jpg/png` to your page's folder.
