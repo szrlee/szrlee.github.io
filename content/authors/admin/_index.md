@@ -128,9 +128,9 @@ I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)
 I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214). My doctoral research is generously supported by various [prestigious fellowships](uploads/resume.pdf).
 Previously, I received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/).
 I was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
-
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
+My research vision is to develop interactive AI agents that operate reliably in complex environments. I use and develop **fundamental tools** while designing **scalable algorithms**.
 {{< icon name="square-rss" pack="fas" >}} **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <div style="border: 2px outset; border-radius: 20px;
