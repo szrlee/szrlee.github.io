@@ -119,22 +119,36 @@ social:
   # and uncomment the lines below.
   - icon: cv
     icon_pack: ai
-    link: uploads/resume.pdf
+    link: uploads/resume.pdfs
 
 # Highlight the author in author lists? (true/false)
 highlight_name: true
 ---
 I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
-I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214). My doctoral research is generously supported by various [prestigious fellowships](uploads/resume.pdf).
-Previously, I received the bachelor degree in Computer Science (ACM Honors Program) from [Huazhong University of Science and Technology](http://english.cs.hust.edu.cn/).
-I was a research visiting student at Cornell University with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
-I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023. {{< icon name="square-rss" pack="fas" >}} **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214).
+Previously, I received the M.S. \& B.E. in Computer Science with honors from Huazhong [University of Science \& Technology](http://english.cs.hust.edu.cn/).
+I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
+I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023. {{< icon name="square-rss" pack="fas" >}}
+
+**Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 
 My research vision is to develop interactive AI agents that operate reliably in complex world. I use and develop **fundamental tools** while designing **scalable algorithms**.
 
+**Awards**:
+
+- Best Paper Award at 2024 Daoyuan Forum
+
+- Best Student Paper Award at 2024 IEEE SAM
+
+- Presidential PhD Fellowship
+
+- SRIBD PhD Fellowship
+
+- Tencent AI PhD Fellowship
+
 <div style="border: 2px outset; border-radius: 20px;
- padding: 5px; font-size: 75%; height: 200px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
+ padding: 5px; font-size: 75%; height: 100px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
 #### Latest Updates (Swipe to Explore More! Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!)
  💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)) in Montréal. [Slides](uploads/slides/HyperAgent_ISMP.pdf). [Recording](https://meeting.tencent.com/v2/cloud-record/share?id=VBA718MUvruzY8OnuGI95X8pXtzeK3DooYLckwPKh4M&from=3&record_type=1&is-single=true). Relevant publications include [1] [HyperAgent](https://arxiv.org/abs/2402.10228) [2] [GPT-HyperAgent](https://arxiv.org/abs/2407.13195).
