@@ -130,23 +130,22 @@ Previously, I received the M.S. \& B.E. in Computer Science with honors from Hua
 I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-{{< icon name="square-rss" pack="fas" >}}
-**Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
-<!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
-
 My research vision is to develop interactive AI agents that operate reliably in complex world. I use and develop **fundamental tools** while designing **scalable algorithms**.
+**Awards** during Ph.D. includes
 
-**Awards**:
+- Presidential PhD Fellowship 
 
-- Best Paper Award at 2024 Daoyuan Forum
+- SRIBD PhD Fellowship (Gold Class)
+
+- Tencent AI PhD Fellowship
+
+- Best Paper Award at 2024 Daoyuan Academic Forum
 
 - Best Student Paper Award at 2024 IEEE SAM
 
-- Presidential PhD Fellowship
-
-- SRIBD PhD Fellowship
-
-- Tencent AI PhD Fellowship
+{{< icon name="square-rss" pack="fas" >}}
+**Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+<!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 
 <div style="border: 2px outset; border-radius: 20px;
  padding: 5px; font-size: 75%; height: 100px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
