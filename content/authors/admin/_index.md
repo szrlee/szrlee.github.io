@@ -131,7 +131,7 @@ I was a research visiting student at Cornell with [John E. Hopcroft](http://www.
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
 My research vision is to develop interactive AI agents that operate reliably in complex world. I use and develop **fundamental tools** while designing **scalable algorithms**.
-**Awards** during Ph.D. includes
+**Awards** during Ph.D. include
 
 - Presidential PhD Fellowship 
 
