@@ -130,7 +130,7 @@ Previously, I received the M.S. \& B.E. in Computer Science with honors from [Hu
 I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-My research vision is to develop reliable interactive AI **agents** for complex environments. I design **scalable architectures and algorithms** with **fundamental tools**. They are recognized with awards:
+My research vision is to develop reliable interactive AI **agents** for complex environments. I design **scalable architectures and algorithms** and create **fundamental tools**, recognized with awards:
 
 - Presidential PhD Fellowship
 - SRIBD PhD Fellowship (Gold Class)
