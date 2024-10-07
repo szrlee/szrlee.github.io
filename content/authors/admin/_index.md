@@ -126,7 +126,7 @@ highlight_name: true
 ---
 I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
 I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214).
-Previously, I received the M.S. \& B.E. in Computer Science with honors from Huazhong [University of Science \& Technology](http://english.cs.hust.edu.cn/).
+Previously, I received the M.S. \& B.E. in Computer Science with honors from [Huazhong University of Science \& Technology](https://english.hust.edu.cn/).
 I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
