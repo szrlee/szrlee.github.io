@@ -18,4 +18,5 @@ tags:
     - healthcare
     - medical
     - foundation-model
+    - selected
 ---

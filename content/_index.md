@@ -211,10 +211,11 @@ sections:
       # To filter by a specific tag, set `tag` to an existing tag name.
       # To remove the toolbar, delete the entire `filter_button` block.
       buttons:
-        - name: All
-          tag: '*'
+        - name: Selected Publications
+          # tag: ''
+          tag: 'selected'
         - name: Reinforcement Learning
-          tag: agent
+          tag: reinforcement-learning
         - name: Probability
           tag: probability
         # - name: Optimization

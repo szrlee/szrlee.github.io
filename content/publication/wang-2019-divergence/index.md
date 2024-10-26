@@ -1,8 +1,8 @@
 ---
 title: Divergence-augmented policy optimization
 authors:
-- Qing Wang
-- Yingru Li
+- Qing Wang*
+- Yingru Li*
 - Jiechao Xiong
 - Tong Zhang
 date: '2019-12-01'
@@ -25,4 +25,7 @@ tags:
     - optimization
     - policy-gradients
     - theory
+    - selected
+    - agent
+    - reinforcement-learning
 ---

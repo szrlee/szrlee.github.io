@@ -11,6 +11,7 @@ date: '2024-07-08'
 publishDate: '2024-06-19T04:15:50.980794Z'
 publication_types:
 - paper-conference
+draft: true
 publication: '***Best Student Paper Award**. IEEE Sensor Array and Multichannel Signal Processing Workshop (**SAM**)*'
 # links:
 # - name: paper

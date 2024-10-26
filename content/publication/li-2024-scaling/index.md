@@ -24,6 +24,8 @@ tags:
   - probability
   - bandit
   - regret
+  - selected
+  - reinforcement-learning
 
 # Display this page in the Featured widget?
 featured: true

@@ -20,8 +20,6 @@ url_code: 'https://github.com/JHL-HUST/HiCode'
 
 tags:
   - Social Network Analysis
-  - Reinforcement Learning
-  - Algorithm
-  - Deep Learning
-  - Application
+  - algorithm
+  - application
 ---
