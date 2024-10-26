@@ -16,8 +16,5 @@ publication: '***Best Student Paper Award**. IEEE Sensor Array and Multichannel 
 # - name: paper
 url_pdf: 'https://arxiv.org/abs/2402.16274'
 tags:
-  - optimization
-  - game-theory
-  - application
   - multi-agent
 ---

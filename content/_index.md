@@ -213,16 +213,14 @@ sections:
       buttons:
         - name: All
           tag: '*'
-        - name: Interactive Agents
+        - name: Reinforcement Learning
           tag: agent
         - name: Probability
           tag: probability
-        - name: Optimization
-          tag: optimization
-        - name: Foundation Models
-          tag: foundation-model
-        - name: Multi-agent & Game Theory
-          tag: game-theory
+        # - name: Optimization
+        #   tag: optimization
+        # - name: Foundation Models
+        #   tag: foundation-model
         - name: Applications
           tag: application
     design:

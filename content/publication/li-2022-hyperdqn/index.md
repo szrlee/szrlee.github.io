@@ -21,7 +21,7 @@ url_video: 'https://neurips.cc/virtual/2021/37946/'
 
 tags:
   - efficiency
-  - reinforcement-earning
+  - reinforcement-learning
   - algorithm
   - deep-learning
   - agent

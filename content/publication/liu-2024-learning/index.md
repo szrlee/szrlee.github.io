@@ -15,8 +15,5 @@ publication: '*Extended version of "Radar Anti-jamming Strategy Learning via Dom
 # - name: paper
 # url_pdf: 'https://arxiv.org/abs/2402.16274'
 tags:
-  - optimization
-  - game-theory
-  - application
   - multi-agent
 ---
