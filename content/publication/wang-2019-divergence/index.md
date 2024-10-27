@@ -2,7 +2,7 @@
 title: Divergence-augmented policy optimization
 authors:
 - Qing Wang*
-- Yingru Li*
+- Yingru Li* (equal)
 - Jiechao Xiong
 - Tong Zhang
 date: '2019-12-01'
