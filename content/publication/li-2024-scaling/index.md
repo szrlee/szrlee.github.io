@@ -23,7 +23,6 @@ tags:
   - theory
   - bandit
   - regret
-  - selected
   - reinforcement-learning
 
 # Display this page in the Featured widget?
