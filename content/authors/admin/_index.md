@@ -130,25 +130,18 @@ Previously, I received the M.S. \& B.E. in Computer Science with honors from [Hu
 I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-My research vision is to develop reliable interactive AI **agents** for complex environments. I design **scalable architectures and algorithms** and create **fundamental tools**, recognized with awards:
+My research vision is to develop reliable interactive AI **agents** for complex environments.
+During PhD, I focus on sample-efficient reinforcement learning (RL), bridging theoretical foundations with practical applications.
+I design **scalable architectures and algorithms** and create **fundamental tools**, recognized with awards:
 
 - Presidential PhD Fellowship
 - SRIBD PhD Fellowship (Gold Class)
 - Tencent AI PhD Fellowship
 - Best Paper Award, 2024 Daoyuan Academic Forum
 - Best Student Paper Award, 2024 IEEE SAM
-<!-- 
-My research vision is to develop **interactive AI agents** that operate reliably in complex world. I develop **fundamental tools** while designing **scalable architecture \& algorithms**. During Ph.D. research, I received
 
-- Presidential PhD Fellowship 
-
-- SRIBD PhD Fellowship (Gold Class)
-
-- Tencent AI PhD Fellowship
-
-- Best Paper Award at 2024 Daoyuan Academic Forum
-
-- Best Student Paper Award at 2024 IEEE SAM -->
+🔬 Recent Achievement:
+Successfully extended my uncertainty-aware exploration algorithm to LLM value-guided search for multi-step reasoning.
 
 {{< icon name="square-rss" pack="fas" >}}
 **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
