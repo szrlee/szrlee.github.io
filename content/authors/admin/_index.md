@@ -125,24 +125,29 @@ social:
 highlight_name: true
 ---
 
-I am completing my PhD degree at The Chinese University of Hong Kong (CUHK) with advisory by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), expected March 2025. My academic journey includes M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, a research visit at Cornell University under [John E. Hopcroft](http://www.cs.cornell.edu/jeh/) and industry experience at Microsoft Research and Tencent AI Lab.
+I am completing my PhD in Computer Science at The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), with expected graduation in March 2025. Previously, I received my M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, conducted research at Cornell University with [Prof. John E. Hopcroft](http://www.cs.cornell.edu/jeh/), and gained industry experience at Microsoft Research and Tencent AI \& Robotics X.
 
-🎓 Research Vision:
-Developing trustworthy AI agents with a focus on sample-efficient reinforcement learning (RL). My work bridges theoretical foundations with practical applications, creating scalable architectures and fundamental algorithms.
+### Research Vision
+My research aims to develop trustworthy AI agents, with a current focus on sample-efficient reinforcement learning (RL). I bridge theoretical foundations with practical applications by designing scalable architectures and fundamental algorithms for real-world deployment. My recent research extends uncertainty-aware scalable exploration algorithms to LLM value-guided search for multi-step reasoning.
 
-🏆 Selected Honors:
-• Presidential PhD Fellowship
-• SRIBD PhD Fellowship (Gold Class)
-• Tencent AI PhD Fellowship
-• Best Paper Award, 2024 Daoyuan Academic Forum
-• Best Student Paper Award, 2024 IEEE SAM
+### Recent Honors
+- Presidential PhD Fellowship
+- SRIBD PhD Fellowship (Gold Class)
+- Tencent AI PhD Fellowship
+- Best Paper Award, 2024 Daoyuan Academic Forum
+- Best Student Paper Award, 2024 IEEE SAM
 
-🔬 Recent Achievement:
-Successfully extended uncertainty-aware exploration algorithms to LLM value-guided search for multi-step reasoning.
+### Research Interests
+- Large-Scale Machine Learning
+- LLM Reasoning \& Agents
+- Probability \& Optimization
 
-🎯 Currently on the job market! View my full [resumé](uploads/resume.pdf). Research interests: Reinforcement Learning, Large Language Models, Probability, Optimization
+---
 
-**Latest Updates?** Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!
+🎯 **I am currently on the job market.** View my [CV/resumé](uploads/resume.pdf).
+
+📢 For latest updates, follow me on [Twitter/X](https://twitter.com/RichardYRLi).
+
 
 <!-- 
 I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
