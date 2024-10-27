@@ -130,9 +130,9 @@ Previously, I received the M.S. \& B.E. in Computer Science with honors from [Hu
 I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-My research vision is to develop reliable interactive AI **agents** for complex environments.
+🎓 My research vision is to develop reliable interactive AI **agents** for complex environments.
 During PhD, I focus on sample-efficient reinforcement learning (RL), bridging theoretical foundations with practical applications.
-I design **scalable architectures and algorithms** and create **fundamental tools**, recognized with awards:
+I design **scalable architectures and algorithms** and create **fundamental tools**, recognized with awards 🏆:
 
 - Presidential PhD Fellowship
 - SRIBD PhD Fellowship (Gold Class)
@@ -140,13 +140,14 @@ I design **scalable architectures and algorithms** and create **fundamental tool
 - Best Paper Award, 2024 Daoyuan Academic Forum
 - Best Student Paper Award, 2024 IEEE SAM
 
-🔬 Recent Achievement:
+🔬 **Recent Achievement**:
 Successfully extended my uncertainty-aware exploration algorithm to LLM value-guided search for multi-step reasoning.
-
 {{< icon name="square-rss" pack="fas" >}}
-**Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
-<!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
+🎯 **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
 
+**Latest Updates?** Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!
+<!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
+<!-- 
 <div style="border: 2px outset; border-radius: 20px;
  padding: 5px; font-size: 75%; height: 100px; overflow: scroll; scrollbar-width: thin; scrollbar-color: #888888 #dddddd;">
 
@@ -170,6 +171,6 @@ Successfully extended my uncertainty-aware exploration algorithm to LLM value-gu
 
  ✈️**December 2023**: [**NeurIPS**](https://neurips.cc), New Orleans 🚀 My research addresses **efficiency challenges in reinforcement learning (RL).** It encompasses both theoretical aspects of *high-dimentional probability* and *practical applications* in Deep RL [[1]](/publication/li-2024-hyperagent). I have developed a novel random projection tool for high-dimensional *sequentially dependent data*, a **non-trivial** martingale extension of Johnson–Lindenstrauss [[2]](/publication/li-2024-probability). 🚀
 </div>
-
+ -->
 
 {style="text-align: justify;"}
