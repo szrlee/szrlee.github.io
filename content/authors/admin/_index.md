@@ -124,6 +124,27 @@ social:
 # Highlight the author in author lists? (true/false)
 highlight_name: true
 ---
+
+I am completing my PhD degree at The Chinese University of Hong Kong (CUHK) with advisory by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), expected March 2025. My academic journey includes M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, a research visit at Cornell University under [John E. Hopcroft](http://www.cs.cornell.edu/jeh/) and industry experience at Microsoft Research and Tencent AI Lab.
+
+🎓 Research Vision:
+Developing trustworthy AI agents with a focus on sample-efficient reinforcement learning (RL). My work bridges theoretical foundations with practical applications, creating scalable architectures and fundamental algorithms.
+
+🏆 Selected Honors:
+• Presidential PhD Fellowship
+• SRIBD PhD Fellowship (Gold Class)
+• Tencent AI PhD Fellowship
+• Best Paper Award, 2024 Daoyuan Academic Forum
+• Best Student Paper Award, 2024 IEEE SAM
+
+🔬 Recent Achievement:
+Successfully extended uncertainty-aware exploration algorithms to LLM value-guided search for multi-step reasoning.
+
+🎯 Currently on the job market! View my full [resumé](uploads/resume.pdf). Research interests: Reinforcement Learning, Large Language Models, Probability, Optimization
+
+**Latest Updates?** Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!
+
+<!-- 
 I am a final-year Ph.D. candidate at [The Chinese University of Hong Kong (CUHK)](https://www.cuhk.edu.cn/en), Shenzhen, China.
 I am advised by [Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214).
 Previously, I received the M.S. \& B.E. in Computer Science with honors from [Huazhong University of Science \& Technology](https://english.hust.edu.cn/).
@@ -141,11 +162,10 @@ I design **scalable architectures and algorithms** and create **fundamental tool
 - Best Student Paper Award, 2024 IEEE SAM
 
 🔬 **Recent Achievement**:
-Successfully extended my uncertainty-aware exploration algorithm to LLM value-guided search for multi-step reasoning. 🎯 **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+Successfully extended my uncertainty-aware exploration algorithm to LLM value-guided search for multi-step reasoning. 🎯 **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf). -->
 
 <!-- {{< icon name="square-rss" pack="fas" >}} -->
 
-**Latest Updates?** Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
 <!-- 
 <div style="border: 2px outset; border-radius: 20px;
