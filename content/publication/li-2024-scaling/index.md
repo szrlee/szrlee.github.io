@@ -21,7 +21,6 @@ tags:
   - foundation-model
   - application
   - theory
-  - probability
   - bandit
   - regret
   - selected

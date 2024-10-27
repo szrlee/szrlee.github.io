@@ -12,10 +12,7 @@ publication_types:
 
 tags:
   - agent
-  - foundation-model
-  - application
   - theory
-  - probability
   - bandit
   - regret
   - selected

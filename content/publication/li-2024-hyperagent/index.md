@@ -38,7 +38,6 @@ projects:
 
 tags:
   - agent
-  - probability
   - theory
   - reinforcement-learning
   - selected
