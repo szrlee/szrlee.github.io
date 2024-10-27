@@ -133,8 +133,10 @@ I am completing my PhD in Computer Science at The Chinese University of Hong Kon
 
 ### Research Vision
 My research aims to develop **trustworthy AI agents**, with two primary focuses:
-1. **Sample-Efficient Reinforcement Learning**: I bridge theoretical foundations with practical applications by designing scalable architectures and algorithms for real-world deployment.
-2. **LLM Reasoning and Agents**: I extend my algorithmic expertise to LLM-based reasoning and medical AI agents, developing reliable solutions for complex decision-making.
+
+1. **Data-Efficient Reinforcement Learning (RL)**: I design scalable Thompson sampling architectures for real-world deployment where data collection is the key bottleneck, bridging theoretical foundations with practical applications.
+
+2. **LLM Reasoning and Agents**: I leverage RL methodologies to enhance LLM reasoning capabilities and design language agents for mathematics and healthcare scenarios. Notably, our hospital referral conversational agent has been successfully deployed across 16 hospitals.
 
 ### Recent Honors
 - Presidential PhD Fellowship
