@@ -2,7 +2,7 @@
 title: 'HyperDQN: A Randomized Exploration Method for Deep Reinforcement Learning'
 authors:
 - Ziniu Li
-- Yingru Li
+- Yingru Li* (corresponding)
 - Yushun Zhang
 - Tong Zhang
 - Zhi-Quan Luo

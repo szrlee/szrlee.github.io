@@ -1,11 +1,11 @@
 ---
 title: Uncertainty-guided Search for Multi-step Reasoning in LLMs
 authors:
-- Fei Yu
-- Yingru Li
+- Fei Yu*
+- Yingru Li* (equal)
 - Benyou Wang
 - Zhi-Quan Luo
-date: '2024-01-01'
+date: '2024-11-01'
 publishDate: '2024-10-26T12:02:44.616950Z'
 publication_types:
 - manuscript

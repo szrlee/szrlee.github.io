@@ -2,7 +2,7 @@
 title: Hidden community detection in social networks
 authors:
 - Kun He
-- Yingru Li
+- Yingru Li* (corresponding)
 - Sucheta Soundarajan
 - John E Hopcroft
 date: '2018-01-01'
