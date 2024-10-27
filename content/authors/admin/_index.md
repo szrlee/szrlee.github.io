@@ -130,8 +130,8 @@ Previously, I received the M.S. \& B.E. in Computer Science with honors from [Hu
 I was a research visiting student at Cornell with [John E. Hopcroft](http://www.cs.cornell.edu/jeh/).
 I initiated and organized the [reinforcement learning seminar](https://rlseminar.github.io/) from 2019 to 2023.
 
-🎓 My research vision is to develop reliable interactive AI **agents** for complex environments.
-During PhD, I focus on sample-efficient reinforcement learning (RL), bridging theoretical foundations with practical applications.
+🎓 My research vision is to develop trustworthy AI agents.
+During PhD, I focus on sample-efficient reinforcement learning (RL) agent, bridging theoretical foundations with practical applications.
 I design **scalable architectures and algorithms** and create **fundamental tools**, recognized with awards 🏆:
 
 - Presidential PhD Fellowship
@@ -141,9 +141,9 @@ I design **scalable architectures and algorithms** and create **fundamental tool
 - Best Student Paper Award, 2024 IEEE SAM
 
 🔬 **Recent Achievement**:
-Successfully extended my uncertainty-aware exploration algorithm to LLM value-guided search for multi-step reasoning.
-{{< icon name="square-rss" pack="fas" >}}
-🎯 **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+Successfully extended my uncertainty-aware exploration algorithm to LLM value-guided search for multi-step reasoning. 🎯 **Now on job market!** {{< icon name="download" pack="fas" >}} my [resumé](uploads/resume.pdf).
+
+<!-- {{< icon name="square-rss" pack="fas" >}} -->
 
 **Latest Updates?** Follow me on [X/Twitter](https://twitter.com/RichardYRLi)!
 <!-- [cards](uploads/personal/Yingru_Cards_phd_candidates.pdf). -->
@@ -155,7 +155,7 @@ Successfully extended my uncertainty-aware exploration algorithm to LLM value-gu
  💻**July 2024**: I will deliver an **invited talk** at the International Symposium on Mathematical Programming ([**ISMP**](http://ismp2024.gerad.ca)) in Montréal. [Slides](uploads/slides/HyperAgent_ISMP.pdf). [Recording](https://meeting.tencent.com/v2/cloud-record/share?id=VBA718MUvruzY8OnuGI95X8pXtzeK3DooYLckwPKh4M&from=3&record_type=1&is-single=true). Relevant publications include [1] [HyperAgent](https://arxiv.org/abs/2402.10228) [2] [GPT-HyperAgent](https://arxiv.org/abs/2407.13195).
 
  ✈️**July 2024**: I'll be at #ICML2024 in Vienna from July 21st to 27th! Also, don't miss my lightning talk on "Agile Human-AI Collaboration for #RiskOversight" at the #AlignmentWorkshop on 21st and 22nd. Check out the details in [tweets](https://twitter.com/RichardYRLi/status/1813959473339461934) and [ICML events](https://icml.cc/virtual/2024/search?query=yingru).
- <!-- [**HyperAgent**](/publication/li-2024-hyperagent) accepted to . -->
+ [**HyperAgent**](/publication/li-2024-hyperagent) accepted to .
 
  🎉**July 2024**: Congratulations to the team! We received the ***Best Student Paper Award*** at **IEEE SAM**!
 
