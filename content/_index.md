@@ -192,7 +192,7 @@ sections:
           Efficient learning under data scarcity is crucial for trustworthy AI agents operating in real-world environments:
 
           - **HyperAgent Framework**:
-            - Created HyperAgent to quantify and resolve epistemic uncertainty in optimal value estimation ($Q^\star$).
+            - Created HyperAgent to quantify and resolve epistemic uncertainty in optimal value estimation ($Q^\star$) based on Ensemble++.
             - Achieved 10x improvement in data and computational efficiency on deep RL benchmarks such as Atari.
             - **Impact on Trustworthiness**: Ensures consistent performance even with limited data, enhancing reliability.
 
@@ -211,13 +211,9 @@ sections:
           Transparency and explainability are key aspects of trustworthiness, addressed through advancements in language-based reasoning:
 
           - **Uncertainty-Guided Search Strategies in LLMs**:
-            - Applied ensemble sampling and Thompson sampling to improve complex multi-step reasoning in LLMs.
+            - Applied **Ensemble++** & Thompson sampling to improve complex multi-step reasoning in LLMs.
             - Achieved significant advancements in solving intricate mathematical problems.
             - **Impact on Trustworthiness**: Improves explainability and confidence in AI reasoning processes.
-
-          - **Math Reasoning Agent**:
-            - Developed an agent acting as both prover and corrector, interacting with environments generating mathematical problems.
-            - **Impact on Trustworthiness**: Demonstrates reliable and transparent reasoning capabilities.
 
           - **Hospital Referral Agent**:
             - Implemented a conversational agent serving 16 hospitals nationwide.
@@ -235,6 +231,10 @@ sections:
           {{< /spoiler >}}
         {{% /callout %}}
 
+
+# - **Math Reasoning Agent**:
+#   - Developed an agent acting as both prover and corrector, interacting with environments generating mathematical problems.
+#   - **Impact on Trustworthiness**: Demonstrates reliable and transparent reasoning capabilities.
 
 
 
