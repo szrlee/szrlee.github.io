@@ -24,6 +24,7 @@ tags:
   - bandit
   - regret
   - reinforcement-learning
+  - llm
 
 # Display this page in the Featured widget?
 featured: true

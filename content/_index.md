@@ -222,8 +222,8 @@ sections:
         #   tag: optimization
         # - name: Foundation Models
         #   tag: foundation-model
-        - name: Applications
-          tag: application
+        - name: LLM Reasoning & Agent
+          tag: llm
     design:
       # Choose how many columns the section has. Valid values: '1' or '2'.
       columns: '1'
