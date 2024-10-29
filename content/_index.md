@@ -166,47 +166,76 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-          My research vision focuses on developing trustworthy AI agents that operate reliably in complex, uncertain, and dynamic environments with human interaction. This work advances fundamental knowledge in uncertainty representation, exploration strategies, while designing scalable algorithms leveraging modern large-scale optimization and distributed computing tools.
-          
-          My methods have demonstrated impact across LLM reasoning enhancement, strategic games in sensing & transportation, human-AI interplay for content moderation, and reliable medical decision-making. This work has been recognized at premier venues (ICML, NeurIPS, ICLR, AISTATS, ISMP, INFORMS) and received distinguished honors, including the 2024 Daoyuan Forum Best Paper and 2024 IEEE SAM Best Student Paper Award.
-          
+          My research is dedicated to developing **trustworthy AI agents** that operate reliably in complex, uncertain, and dynamic environments involving human interaction. Trustworthiness in AI encompasses reliability, transparency, ethical operation, and robust performance under uncertainty and data scarcity. By advancing fundamental knowledge in **uncertainty representation**, **exploration strategies**, and **language-based reasoning and decision-making**, I design scalable algorithms that enhance the trustworthiness of AI agents. This work bridges foundational theory with practical applications across reinforcement learning (RL) and large language models (LLMs), contributing to both theoretical advancements and impactful real-world solutions.
+
+          My contributions have led to significant advancements in reinforcement learning, language model reasoning, and human-AI interaction. Recognized at premier venues such as **ICML**, **NeurIPS**, **ICLR**, **AISTATS**, **ISMP**, and **INFORMS**, my work has also received honors like the **2024 Daoyuan Forum Best Paper** and the **2024 IEEE SAM Best Student Paper Award**.
+
           {{< spoiler text="Click to view the short research statement" >}}
           ### Key Contributions
-          
-          #### Data-Efficient Reinforcement Learning
-          My work advances scalable uncertainty representation and Thompson sampling frameworks for real-world applications where data acquisition is costly, bridging theory and practice. A notable project is "HyperAgent," designed to quantify and resolve epistemic uncertainty on optimal value \[Q^\star\] for scalable real-time sequential decision-making.
 
-          - **Ensemble++ and Thompson sampling**:
-            - **Neural Ensemble++ Architecture**: Overcomes the scalability challenges for independent ensembles and mitigates the ensemble coupling issue in shared-layer ensembles
-            - **Ensemble Sampling Theory**: First rigorous analysis demonstrating ensemble sampling as a scalable and effective approximation of Thompson sampling
-            - **Theoretical Impact**: Closed key theoretical gap in scalable exploration efficiency
-          
-          - **Large-Scale Systems**:
-            - **HyperAgent**: Achieves significant gains in data and computational efficiency on deep RL benchmarks
-            - **Memoire Framework**: Distributed replay memory system with 300+ CPU actors and 10+ GPU learners
-            - **System Optimization**: Achieved 10x throughput via prioritized sampling and memory management
-          
-          - **Multi-Agent Strategic Learning**:
-            - **Framework**: Integrates structure-aware modeling with no-regret learning for unknown repeated games
-            - **Applications**: Enables efficient collaboration in traffic routing and competition in radar sensing
-            - **Innovation**: Achieves significant sample budget savings by leveraging domain-specific utility structures
-          
-          #### LLM Reasoning and Agency
-          I pioneer uncertainty-guided approaches to enhance LLM capabilities in complex reasoning and decision-making tasks:
-          
-          - **Advanced Mathematical Reasoning**:
-            - **Uncertainty-Guided Search**: Search with Thompson Sampling for strengthening LLM's multi-step reasoning
-            - **Performance**: Significant improvements in solving complex mathematical problems
-          
-          - **Medical Applications**:
-            - **Hospital Referral Agent**: Deployed conversational system serving 16 hospitals nationwide
-            - **Practical Impact**: Streamlined patient flow and improved resource allocation
-          
-          This research advances both theoretical foundations and practical applications of interactive AI agents, with a focus on reliability and real-world impact.
-          
+          #### 1. Advancements in Uncertainty Representation and Exploration
+
+          To enhance the reliability and robustness of AI agents, I advanced methods for representing and handling uncertainty:
+
+          - **Ensemble Sampling Theory**:
+            - Developed a rigorous analysis establishing ensemble sampling as a scalable approximation of Thompson sampling.
+            - Addressed critical challenges in exploration efficiency and scalability in reinforcement learning.
+            - **Impact on Trustworthiness**: Improves agents' ability to make reliable decisions under uncertainty, enhancing their robustness.
+
+          - **Neural Ensemble++ Architecture**:
+            - Designed to overcome challenges in ensemble scalability and mitigate coupling in shared-layer architectures.
+            - Enhanced uncertainty quantification, facilitating more effective exploration in deep RL models.
+            - **Impact on Trustworthiness**: Provides accurate uncertainty estimates, leading to more trustworthy decision-making.
+
+          #### 2. Data-Efficient Reinforcement Learning and Multi-Agent Strategic Learning
+
+          Efficient learning under data scarcity is crucial for trustworthy AI agents operating in real-world environments:
+
+          - **HyperAgent Framework**:
+            - Created HyperAgent to quantify and resolve epistemic uncertainty in optimal value estimation ($Q^\star$).
+            - Achieved 10x improvement in data and computational efficiency on deep RL benchmarks such as Atari.
+            - **Impact on Trustworthiness**: Ensures consistent performance even with limited data, enhancing reliability.
+
+          - **Memoire Framework and Divergence-Augmented Policy Optimization**:
+            - Developed a distributed deep RL system utilizing prioritized sampling, achieving 10x throughput.
+            - Introduced methods to stabilize policy optimization with off-policy data reuse.
+            - **Impact on Trustworthiness**: Enhances stability and robustness in learning, crucial for dependable AI agents.
+
+          - **Frameworks for Unknown Repeated Games**:
+            - Integrated structure-aware modeling with no-regret learning.
+            - Enabled efficient collaboration and competition in domains such as traffic routing and radar sensing.
+            - **Impact on Trustworthiness**: Facilitates predictable and fair agent behavior in multi-agent settings.
+
+          #### 3. Enhancing Language-Based Reasoning, Decision-Making, and Human-AI Interaction
+
+          Transparency and explainability are key aspects of trustworthiness, addressed through advancements in language-based reasoning:
+
+          - **Uncertainty-Guided Search Strategies in LLMs**:
+            - Applied ensemble sampling and Thompson sampling to improve complex multi-step reasoning in LLMs.
+            - Achieved significant advancements in solving intricate mathematical problems.
+            - **Impact on Trustworthiness**: Improves explainability and confidence in AI reasoning processes.
+
+          - **Math Reasoning Agent**:
+            - Developed an agent acting as both prover and corrector, interacting with environments generating mathematical problems.
+            - **Impact on Trustworthiness**: Demonstrates reliable and transparent reasoning capabilities.
+
+          - **Hospital Referral Agent**:
+            - Implemented a conversational agent serving 16 hospitals nationwide.
+            - Designed a multi-agent role-play framework to generate synthetic data, addressing privacy concerns.
+            - **Impact on Trustworthiness**: Enhances reliability and efficiency in critical medical decision-making.
+
+          - **Human-AI Collaboration Frameworks**:
+            - Explored methods to enhance the interplay between humans and AI systems.
+            - Effectively handled uncertainty and prioritized human oversight where necessary.
+            - **Impact on Trustworthiness**: Promotes ethical operation and respect for human judgment, essential for user trust.
+
+          This research collectively enhances the trustworthiness of AI agents by addressing fundamental challenges and providing scalable, reliable solutions applicable to real-world scenarios.
+
           <img src="uploads/research_statement_overview.png" alt="research statement" style="width: 60%;">
           {{< /spoiler >}}
         {{% /callout %}}
+
+
 
 
 # - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value $(Q^\star)$ for scalable real-time sequential decision-making.
