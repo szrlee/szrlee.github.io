@@ -134,7 +134,7 @@ I am completing my PhD in Computer Science at The Chinese University of Hong Kon
 ### Research Vision
 My research aims to develop **trustworthy AI agents**, with two primary focuses:
 
-1. **Data-Efficient Reinforcement Learning (RL)**: I design scalable Thompson sampling architectures for real-world deployment where data collection is the key bottleneck, bridging theoretical foundations with practical applications.
+1. **Data-Efficient Reinforcement Learning (RL)**: I design scalable Thompson sampling, ensemble architectures and distributed computing systems for real-world RL deployment where data collection is the key bottleneck. My work bridges theoretical foundations with practical applications. To highlight, I close a key theoretical gap in scalable exploration via novel probability tools design and analysis. I designed and implemented distributed replay memory system supporting 300+ CPU actors and 10+ GPU learners.
 
 2. **LLM Reasoning and Agents**: I leverage RL methodologies to enhance LLM reasoning capabilities and design language agents for mathematics and medical scenarios. Notably, our hospital referral conversational agent has been successfully deployed across 16 hospitals.
 

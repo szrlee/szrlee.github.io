@@ -166,7 +166,7 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-          My research vision focuses on developing trustworthy AI agents that operate reliably in complex, uncertain, and dynamic environments with human interaction. This work advances fundamental knowledge in uncertainty representation, exploration strategies, and decision-making while designing scalable algorithms leveraging modern computational tools.
+          My research vision focuses on developing trustworthy AI agents that operate reliably in complex, uncertain, and dynamic environments with human interaction. This work advances fundamental knowledge in uncertainty representation, exploration strategies, while designing scalable algorithms leveraging modern large-scale optimization and distributed computing tools.
           
           My methods have demonstrated impact across LLM reasoning enhancement, strategic games in sensing & transportation, human-AI interplay for content moderation, and reliable medical decision-making. This work has been recognized at premier venues (ICML, NeurIPS, ICLR, AISTATS, ISMP, INFORMS) and received distinguished honors, including the 2024 Daoyuan Forum Best Paper and 2024 IEEE SAM Best Student Paper Award.
           
@@ -174,16 +174,17 @@ sections:
           ### Key Contributions
           
           #### Data-Efficient Reinforcement Learning
-          My work advances scalable uncertainty representation and Thompson sampling frameworks for real-world applications where data acquisition is costly, bridging theory and practice. A notable project is "HyperAgent," designed to quantify and resolve epistemic uncertainty on optimal value $Q^\star$ for scalable real-time sequential decision-making.
+          My work advances scalable uncertainty representation and Thompson sampling frameworks for real-world applications where data acquisition is costly, bridging theory and practice. A notable project is "HyperAgent," designed to quantify and resolve epistemic uncertainty on optimal value \[Q^\star\] for scalable real-time sequential decision-making.
 
           - **Ensemble++ and Thompson sampling**:
-            - Neural Ensemble++ Architecture: Overcomes the scalability challenges for independent ensembles and mitigate the ensemble coupling issue in the shared-layer ensembles.
-            - Ensemble Sampling Theory: First rigorous analysis demonstrating the ensemble sampling as a scalable and effective approximation of Thompson sampling, closing a key theoretical gap in scalable exploration efficiency.
+            - **Neural Ensemble++ Architecture**: Overcomes the scalability challenges for independent ensembles and mitigates the ensemble coupling issue in shared-layer ensembles
+            - **Ensemble Sampling Theory**: First rigorous analysis demonstrating ensemble sampling as a scalable and effective approximation of Thompson sampling
+            - **Theoretical Impact**: Closed key theoretical gap in scalable exploration efficiency
           
-          - **Efficient Single-Agent Learning**:
+          - **Large-Scale Systems**:
             - **HyperAgent**: Achieves significant gains in data and computational efficiency on deep RL benchmarks
-            - **Theoretical Guarantees**: Matches exact Thompson sampling with only logarithmic computational complexity
-            - **Applications**: Powers uncertainty-guided human oversight in content moderation systems
+            - **Memoire Framework**: Distributed replay memory system with 300+ CPU actors and 10+ GPU learners
+            - **System Optimization**: Achieved 10x throughput via prioritized sampling and memory management
           
           - **Multi-Agent Strategic Learning**:
             - **Framework**: Integrates structure-aware modeling with no-regret learning for unknown repeated games
@@ -194,7 +195,7 @@ sections:
           I pioneer uncertainty-guided approaches to enhance LLM capabilities in complex reasoning and decision-making tasks:
           
           - **Advanced Mathematical Reasoning**:
-            - **Uncertainty-Guided Search**: Search with $K$-Thompson Sampling  for strengthening LLM's multi-step reasoning
+            - **Uncertainty-Guided Search**: Search with \[K\]-Thompson Sampling for strengthening LLM's multi-step reasoning
             - **Performance**: Significant improvements in solving complex mathematical problems
             - **Reliability**: Enhanced accuracy and interpretability in solution paths
           
@@ -208,6 +209,8 @@ sections:
           <img src="uploads/research_statement_overview.png" alt="research statement" style="width: 60%;">
           {{< /spoiler >}}
         {{% /callout %}}
+
+
 # - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value $(Q^\star)$ for scalable real-time sequential decision-making.
 #   - HyperAgent shows significant data and computation efficiency gains in large-scale deep RL benchmarks such as Atari suite.
 #     - It can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for content moderation with human feedback.
