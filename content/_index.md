@@ -160,38 +160,54 @@ sections:
         # I work on algorithms and theoretical foundations for interactive agents. My focus is on ensuring these agents operate reliably and safely in complex, uncertain, and human-in-the-loop environments, aligning their decisions with human objectives.
         #   This work necessitates advancements in methods for knowledge and uncertainty representation, exploration, adaptation, and decision-making. To achieve these goals, I use and develop **fundamental tools** in probability, optimization, game theory, and information theory. My methods have been **applied** to human-AI alignment and reliable & strategic operations. 
         #   The significance of my work has been recognized through invitations to speak at **prestigious forums**, including ICML, NeurIPS, ICLR, AISTATS, ISMP and INFORMS Annual Meetings, and through awards, such as the ***Best Paper Award*** at the 2024 Daoyuan academic forum and the ***Best Student Paper Award*** at the 2024 IEEE SAM. 
-  - block: portfolio
-    id: research
-    content:
-      title: Research Highlights
-      text: |-
-        {{% callout note %}}
-          My research vision is to develop interactive AI agents that operate reliably in complex, uncertain, dynamic and human-in-the-loop environments. This work necessitates advancements in knowledge and uncertainty representation, exploration, continual adaptation, reasoning and decision-making. To achieve these goals, I use and develop **fundamental tools** in probability, game theory, and information theory. Meanwhile, I design **scalable** algorithms that take advantages of modern large-scale computation tools.
-          My methods have been applied to llm math reasoning, strategic games in sensing \& transportation, human-AI interplay for content moderation, and reliable medical decision-making. The significance of my work has been recognized through presentations at top-tier conferences (ICML, NeurIPS, ICLR, AISTATS, ISMP, INFORMS), as well as through awards (Best Paper Award at the 2024 Daoyuan Forum, Best Student Paper Award at the 2024 IEEE SAM).(See full publication list in the [resume](uploads/resume.pdf)).
-          {{< spoiler text="Click to view the short research statement" >}}
-          ### Key Contributions
-          One notable project is "HyperAgent," designed to quantify and resolve epistemic uncertainty on optimal value $Q^\star$ for scalable real-time sequential decision-making. HyperAgent demonstrates significant gains in data and computational efficiency in large-scale deep reinforcement learning (RL) benchmarks, such as the Atari suite. It has also shown effectiveness in human-AI alignment and collaboration, such as GPT-HyperAgent for content moderation with human feedback. Theoretical analysis of HyperAgent confirms that with logarithmic per-step computational complexity, its performance matches exact Thompson sampling (TS) in linear contextual bandits and Randomized Least-Square Value Iteration (RLSVI) in tabular RL environments. This analysis is grounded in the first probability tool for sequential random projection that I developed.
-          - **HyperAgent**: Efficient, scalable real-time decision-making.
-            - **Data and computation efficiency**: Significant gains in deep RL benchmarks.
-            - **Applications**: Human-AI alignment, e.g., content moderation with human feedback.
-            - **Theory**: Matches TS and RLSVI with logarithmic computational complexity, proved via fundamental probability tools I developed.
+- block: portfolio
+  id: research
+  content:
+    title: Research Highlights
+    text: |-
+      {{% callout note %}}
+        My research vision focuses on developing trustworthy AI agents that operate reliably in complex, uncertain, and dynamic environments with human interaction. This work advances fundamental knowledge in uncertainty representation, exploration strategies, and decision-making while designing scalable algorithms leveraging modern computational tools.
+        
+        My methods have demonstrated impact across LLM reasoning enhancement, strategic games in sensing & transportation, human-AI interplay for content moderation, and reliable medical decision-making. This work has been recognized at premier venues (ICML, NeurIPS, ICLR, AISTATS, ISMP, INFORMS) and received distinguished honors, including the 2024 Daoyuan Forum Best Paper and 2024 IEEE SAM Best Student Paper Award.
+        
+        {{< spoiler text="Click to view the short research statement" >}}
+        ### Key Contributions
+        
+        #### Data-Efficient Reinforcement Learning
+        My work advances scalable uncertainty representation and Thompson sampling frameworks for real-world applications where data acquisition is costly, bridging theory and practice. A notable project is "HyperAgent," designed to quantify and resolve epistemic uncertainty on optimal value $Q^\star$ for scalable real-time sequential decision-making.
 
-          Another key area of my research is game-theoretic decision-making, focusing on minimizing adversarial regret in repeated unknown games. This includes real-world applications where strategic agents learn to collaborate in traffic routing and compete in radar sensing. In these applications, the utility function is typically unknown at the start of the repeated games and requires learning from feedback after the strategic moves of multiple agents. Additionally, while the opponent's strategic behavior is initially unknown, the revealed actions and game outcomes can be observed.
-          Real-world applications usually exhibit special game structures due to domain prior knowledge, such as the structural properties of the utility function that depend on the joint actions of each agent and the opponents' history-dependent strategic behavior. For example, the utility functions in traffic routing and radar sensing have polynomial and linear structures, respectively. I have developed frameworks that integrate structure-aware modeling with no-regret learning and optimization, resulting in significant sample budget savings. 
-          - **Game-theoretic Decision-making**: Minimizing adversarial regret in repeated unknown games.
-            - **Applications**: Collaboration in traffic routing and competition in radar sensing, achieving significant budget savings.
-            - **Frameworks**: Synergy between domain knowledge-enhanced modeling and no-regret learning/optimization.
-
-          Currently, I am developing reliable and safe solutions for healthcare operations through inference-time algorithms. These algorithms leverage powerful cloud computing services on foundation models while augmenting necessary algorithmic modules in end devices. For example, controlling large language model (LLM) decoding towards high outcome feedback and minimum constraint violations via learned $Q^\star$. This is especially important for goal-conditioned sequential decision tasks that involves the LLMs while ensuring safety. Specifically, in healthcare inpatient flows, we employ LLM as multi-turn conversational agents to help doctor for various tasks and meanwhile enforces LLM agent to follow established rules.
-          - **Reliable and Safe Operations**: for healthcare, customer and business services.
-            - **Inference-time algorithms**: Leveraging cloud services and augmenting end devices.
-            - **Control of LLM decoding**: Guided by learned $Q^\star$ for high outcome feedback and minimum constraint violations.
-          
-          This research aims to advance the field of interactive agents, contributing to both theoretical understanding and practical applications.
-
-          <img src="uploads/research_statement_overview.png" alt="research statement" style="width: 60%;">
-          {{< /spoiler >}}
-        {{% /callout %}}
+        - **Ensemble++ and Thompson sampling**:
+          - Neural Ensemble++ Architecture: Overcomes the scalability challenges for independent ensembles and mitigate the ensemble coupling issue in the shared-layer ensembles.
+          - Ensemble Sampling Theory: First rigorous analysis demonstrating the ensemble sampling as a scalable and effective approximation of Thompson sampling, closing a key theoretical gap in scalable exploration efficiency.
+        
+        - **Efficient Single-Agent Learning**:
+          - **HyperAgent**: Achieves significant gains in data and computational efficiency on deep RL benchmarks
+          - **Theoretical Guarantees**: Matches exact Thompson sampling with only logarithmic computational complexity
+          - **Applications**: Powers uncertainty-guided human oversight in content moderation systems
+        
+        - **Multi-Agent Strategic Learning**:
+          - **Framework**: Integrates structure-aware modeling with no-regret learning for unknown repeated games
+          - **Applications**: Enables efficient collaboration in traffic routing and competition in radar sensing
+          - **Innovation**: Achieves significant sample budget savings by leveraging domain-specific utility structures
+        
+        #### LLM Reasoning and Agency
+        I pioneer uncertainty-guided approaches to enhance LLM capabilities in complex reasoning and decision-making tasks:
+        
+        - **Advanced Mathematical Reasoning**:
+          - **Uncertainty-Guided Search**: Search with $K$-Thompson Sampling  for strengthening LLM's multi-step reasoning
+          - **Performance**: Significant improvements in solving complex mathematical problems
+          - **Reliability**: Enhanced accuracy and interpretability in solution paths
+        
+        - **Medical Applications**:
+          - **Hospital Referral Agent**: Deployed conversational system serving 16 hospitals nationwide
+          - **Safety-First Design**: Control mechanisms ensuring adherence to medical protocols
+          - **Practical Impact**: Streamlined patient flow and improved resource allocation
+        
+        This research advances both theoretical foundations and practical applications of interactive AI agents, with a focus on reliability and real-world impact.
+        
+        <img src="uploads/research_statement_overview.png" alt="research statement" style="width: 60%;">
+        {{< /spoiler >}}
+      {{% /callout %}}
 # - I designed "HyperAgent" that quantifies and resolves epistemic uncertainty on optimal value $(Q^\star)$ for scalable real-time sequential decision-making.
 #   - HyperAgent shows significant data and computation efficiency gains in large-scale deep RL benchmarks such as Atari suite.
 #     - It can be used for **human-AI alignment and collaboration**, e.g. GPT-HyperAgent for content moderation with human feedback.
