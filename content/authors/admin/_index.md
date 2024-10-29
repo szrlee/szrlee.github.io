@@ -129,7 +129,7 @@ social:
 highlight_name: true
 ---
 
-I am completing my PhD in Computer Science at The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), with expected graduation in March 2025. Previously, I received my M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, conducted research at Cornell University with [Prof. John E. Hopcroft](http://www.cs.cornell.edu/jeh/), and gained industry experience at Microsoft Research and Tencent AI \& Robotics X.
+I am completing my PhD degree in Computer Science at The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), with expected graduation in March 2025. Previously, I received my M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, conducted research at Cornell University with [Prof. John E. Hopcroft](http://www.cs.cornell.edu/jeh/), and gained industry experience at Microsoft Research and Tencent AI \& Robotics X.
 
 ### Research Vision
 My research focuses on developing **trustworthy AI agents** that operate reliably in complex, uncertain, and dynamic environments. By advancing methods in **uncertainty representation**, **scalable exploration**, **reasoning & decision-making**, I bridge foundational theory with real-world applications in reinforcement learning (**RL**) and large language models (**LLMs**). 
