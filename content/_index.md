@@ -195,13 +195,11 @@ sections:
           I pioneer uncertainty-guided approaches to enhance LLM capabilities in complex reasoning and decision-making tasks:
           
           - **Advanced Mathematical Reasoning**:
-            - **Uncertainty-Guided Search**: Search with \[K\]-Thompson Sampling for strengthening LLM's multi-step reasoning
+            - **Uncertainty-Guided Search**: Search with Thompson Sampling for strengthening LLM's multi-step reasoning
             - **Performance**: Significant improvements in solving complex mathematical problems
-            - **Reliability**: Enhanced accuracy and interpretability in solution paths
           
           - **Medical Applications**:
             - **Hospital Referral Agent**: Deployed conversational system serving 16 hospitals nationwide
-            - **Safety-First Design**: Control mechanisms ensuring adherence to medical protocols
             - **Practical Impact**: Streamlined patient flow and improved resource allocation
           
           This research advances both theoretical foundations and practical applications of interactive AI agents, with a focus on reliability and real-world impact.
