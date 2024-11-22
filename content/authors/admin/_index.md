@@ -132,7 +132,7 @@ highlight_name: true
 I am completing my PhD degree in Computer Science at The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), with expected graduation in March 2025. Previously, I received my M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, conducted research at Cornell University with [Prof. John E. Hopcroft](http://www.cs.cornell.edu/jeh/), and gained industry experience at Microsoft Research and Tencent AI \& Robotics X.
 
 ### Research Vision
-I develop intelligent **agents** for complex, uncertain environments with human interaction. Through advances in **uncertainty quantification**, **RL**, and **LLM** reasoning, I bridge foundational theory with scalable algorithms for **trustworthy decision-making** in critical domains under data scarcity.
+I develop intelligent **agents** for complex, uncertain environments with human interaction. Through advances in **uncertainty quantification**, **RL**, and **LLM reasoning**, I bridge foundational theory with scalable algorithms for **trustworthy decision-making** in critical domains under data scarcity.
 <!-- My research focuses on developing **trustworthy AI agents** that operate reliably in complex, uncertain environments. By advancing methods in **uncertainty representation**, **scalable exploration**, **reasoning & decision-making**, I bridge foundational theory with real-world applications in reinforcement learning (**RL**) and large language models (**LLMs**).  -->
 <!-- My work impacts fields including automated decision-making, medical triage, and multi-agent learning.  -->
 <!-- I aim to create resilient, transparent, and ethical AI systems. -->

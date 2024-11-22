@@ -166,7 +166,7 @@ sections:
       title: Research Highlights
       text: |-
         {{% callout note %}}
-          My research is dedicated to developing **trustworthy AI agents** that operate reliably in complex, uncertain, and dynamic environments involving human interaction. Data scarcity is the central challenge. By advancing fundamental theory in **uncertainty quantification**, **exploration strategies**, and **LLM reasoning and decision-making**, I design scalable algorithms that enhance the trustworthiness of AI agents. This work bridges foundational theory with practical applications across reinforcement learning (**RL**) and large language models (**LLMs**), contributing to both theoretical advancements and impactful real-world solutions.
+          My research is dedicated to developing **trustworthy AI agents** that operate reliably in complex, uncertain, and dynamic environments involving human interaction. By advancing fundamental theory in **uncertainty quantification**, **exploration strategies**, and **LLM reasoning and decision-making**, I design scalable algorithms that enhance the trustworthiness of AI agents. This work bridges foundational theory with practical applications across reinforcement learning (**RL**) and large language models (**LLMs**), contributing to both theoretical advancements and impactful real-world solutions.
 
           My contributions have led to significant advancements in reinforcement learning, language model reasoning, and human-AI interaction. Recognized at premier venues such as ICML, NeurIPS, ICLR, AISTATS, ISMP, and INFORMS, my work has also received honors like the **2024 Daoyuan Forum Best Paper** and the **2024 IEEE SAM Best Student Paper Award**.
 
