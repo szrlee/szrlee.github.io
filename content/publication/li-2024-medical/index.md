@@ -2,10 +2,12 @@
 title: Multi-turn Actor-critic Language Agents for Hospital Outpatient Referral
 authors:
 - Yingru Li
+- Xuheng Shen
 - Xiaoxiao Liu
+- Gehan Hu
 - Benyou Wang
 - Zhi-Quan Luo
-date: '2024-07-01'
+date: '2024-12-01'
 publishDate: '2024-06-19T04:15:50.995804Z'
 publication_types:
 - manuscript
