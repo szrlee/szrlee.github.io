@@ -1,5 +1,5 @@
 ---
-title: Multi-turn Actor-critic Language Agents for Hospital Outpatient Referral
+title: Proactive Agents for Multi-turn Hospital Outpatient Referral under Uncertainty
 authors:
 - Yingru Li
 - Xuheng Shen
