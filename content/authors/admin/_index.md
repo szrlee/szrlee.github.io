@@ -17,12 +17,12 @@ status:
 superuser: true
 
 # Role/position/tagline
-role: Ph.D. Candidate
+role: Researcher
 
 # Organizations/Affiliations to show in About widget
 organizations:
-  - name: The Chinese University of Hong Kong
-    url: https://www.cuhk.edu.cn/en
+  - name: ByteDance
+    # url: https://www.cuhk.edu.cn/en
 
 # Short bio (displayed in user profile at end of posts)
 bio: My interests include sequential decision-making, optimization and applied probability with applications in AI \& OR.
