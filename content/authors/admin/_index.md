@@ -129,10 +129,11 @@ social:
 highlight_name: true
 ---
 
-I am completing my PhD degree in Computer Science at The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://sds.cuhk.edu.cn/en/teacher/214), with expected graduation in March 2025. Previously, I received my M.S. & B.E. degrees with honors from Huazhong University of Science & Technology, conducted research at Cornell University with [Prof. John E. Hopcroft](http://www.cs.cornell.edu/jeh/), and gained industry experience at Microsoft Research and Tencent AI \& Robotics X.
+I am research scientist at Bytedance, Singapore.
+I obtained my PhD degree from The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/). Previously, I was research intern at Microsoft Research and Tencent AI \& Robotics X.
 
 ### Research Vision
-I develop intelligent **agents** that reliably **interact** with complex, uncertain, human-in-the-loop environments. Through advances in **uncertainty quantification**, reinforcement learning **(RL)**, and **LLM reasoning & planning**, I bridge foundational theory with scalable algorithms for **trustworthy decision-making** in critical domains under data scarcity.
+I develop intelligent **agents** that reliably interact with complex environments. Through advances in **uncertainty quantification**, **reinforcement learning**, **optimization** and **LLM reasoning & planning**, I bridge foundational **theory** with **scalable** algorithms for trustworthy decision-making.
 <!-- My research focuses on developing **trustworthy AI agents** that operate reliably in complex, uncertain environments. By advancing methods in **uncertainty representation**, **scalable exploration**, **reasoning & decision-making**, I bridge foundational theory with real-world applications in reinforcement learning (**RL**) and large language models (**LLMs**).  -->
 <!-- My work impacts fields including automated decision-making, medical triage, and multi-agent learning.  -->
 <!-- I aim to create resilient, transparent, and ethical AI systems. -->
@@ -144,14 +145,13 @@ I develop intelligent **agents** that reliably **interact** with complex, uncert
 
 ### Recent Honors
 - Presidential PhD Fellowship
-- SRIBD PhD Fellowship (Gold Class)
 - Tencent AI PhD Fellowship
 - Best Paper Award, 2024 Daoyuan Academic Forum
 - Best Student Paper Award, 2024 IEEE SAM
 
 ---
 
-🎯 **I am currently on the job market.** View my [CV/resumé](uploads/resume.pdf).
+🎯 View my [CV/resumé](uploads/resume.pdf).
 📢 For latest updates, follow me on [Twitter/X](https://twitter.com/RichardYRLi).
 
 

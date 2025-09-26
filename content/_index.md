@@ -160,76 +160,76 @@ sections:
         # I work on algorithms and theoretical foundations for interactive agents. My focus is on ensuring these agents operate reliably and safely in complex, uncertain, and human-in-the-loop environments, aligning their decisions with human objectives.
         #   This work necessitates advancements in methods for knowledge and uncertainty representation, exploration, adaptation, and decision-making. To achieve these goals, I use and develop **fundamental tools** in probability, optimization, game theory, and information theory. My methods have been **applied** to human-AI alignment and reliable & strategic operations. 
         #   The significance of my work has been recognized through invitations to speak at **prestigious forums**, including ICML, NeurIPS, ICLR, AISTATS, ISMP and INFORMS Annual Meetings, and through awards, such as the ***Best Paper Award*** at the 2024 Daoyuan academic forum and the ***Best Student Paper Award*** at the 2024 IEEE SAM. 
-  - block: portfolio
-    id: research
-    content:
-      title: Research Highlights
-      text: |-
-        {{% callout note %}}
-          My research is dedicated to developing **trustworthy AI agents** that operate reliably in complex, uncertain, and dynamic environments involving human interaction. By advancing fundamental theory in **uncertainty quantification**, **exploration strategies**, and **LLM reasoning and decision-making**, I design scalable algorithms that enhance the trustworthiness of AI agents. This work bridges foundational theory with practical applications across reinforcement learning (**RL**) and large language models (**LLMs**), contributing to both theoretical advancements and impactful real-world solutions.
+  # - block: portfolio
+  #   id: research
+  #   content:
+  #     title: Research Highlights
+  #     text: |-
+  #       {{% callout note %}}
+  #         My research is dedicated to developing **trustworthy AI agents** that operate reliably in complex, uncertain, and dynamic environments involving human interaction. By advancing fundamental theory in **uncertainty quantification**, **exploration strategies**, and **LLM reasoning and decision-making**, I design scalable algorithms that enhance the trustworthiness of AI agents. This work bridges foundational theory with practical applications across reinforcement learning (**RL**) and large language models (**LLMs**), contributing to both theoretical advancements and impactful real-world solutions.
 
-          My contributions have led to significant advancements in reinforcement learning, language model reasoning, and human-AI interaction. Recognized at premier venues such as ICML, NeurIPS, ICLR, AISTATS, ISMP, and INFORMS, my work has also received honors like the **2024 Daoyuan Forum Best Paper** and the **2024 IEEE SAM Best Student Paper Award**.
+  #         My contributions have led to significant advancements in reinforcement learning, language model reasoning, and human-AI interaction. Recognized at premier venues such as ICML, NeurIPS, ICLR, AISTATS, ISMP, and INFORMS, my work has also received honors like the **2024 Daoyuan Forum Best Paper** and the **2024 IEEE SAM Best Student Paper Award**.
 
-          {{< spoiler text="Click to view the short research statement" >}}
-          ### Key Contributions
+  #         {{< spoiler text="Click to view the short research statement" >}}
+  #         ### Key Contributions
 
-          #### 1. Advancements in Uncertainty Representation and Exploration
+  #         #### 1. Advancements in Uncertainty Representation and Exploration
 
-          To enhance the reliability and robustness of AI agents, I advanced methods for representing and handling uncertainty:
+  #         To enhance the reliability and robustness of AI agents, I advanced methods for representing and handling uncertainty:
 
-          - **Ensemble Sampling Theory**:
-            - Developed a rigorous analysis establishing ensemble sampling as a scalable approximation of Thompson sampling.
-            - Addressed critical challenges in exploration efficiency and scalability in reinforcement learning.
-            - **Impact on Trustworthiness**: Improves agents' ability to make reliable decisions under uncertainty, enhancing their robustness.
+  #         - **Ensemble Sampling Theory**:
+  #           - Developed a rigorous analysis establishing ensemble sampling as a scalable approximation of Thompson sampling.
+  #           - Addressed critical challenges in exploration efficiency and scalability in reinforcement learning.
+  #           - **Impact on Trustworthiness**: Improves agents' ability to make reliable decisions under uncertainty, enhancing their robustness.
 
-          - **Neural Ensemble++ Architecture**:
-            - Designed to overcome challenges in ensemble scalability and mitigate coupling in shared-layer architectures.
-            - Enhanced uncertainty quantification, facilitating more effective exploration in deep RL models.
-            - **Impact on Trustworthiness**: Provides accurate uncertainty estimates, leading to more trustworthy decision-making.
+  #         - **Neural Ensemble++ Architecture**:
+  #           - Designed to overcome challenges in ensemble scalability and mitigate coupling in shared-layer architectures.
+  #           - Enhanced uncertainty quantification, facilitating more effective exploration in deep RL models.
+  #           - **Impact on Trustworthiness**: Provides accurate uncertainty estimates, leading to more trustworthy decision-making.
 
-          #### 2. Data-Efficient Reinforcement Learning and Multi-Agent Strategic Learning
+  #         #### 2. Data-Efficient Reinforcement Learning and Multi-Agent Strategic Learning
 
-          Efficient learning under data scarcity is crucial for trustworthy AI agents operating in real-world environments:
+  #         Efficient learning under data scarcity is crucial for trustworthy AI agents operating in real-world environments:
 
-          - **HyperAgent Framework**:
-            - Created HyperAgent to quantify and resolve epistemic uncertainty in optimal value estimation ($Q^\star$) based on Ensemble++.
-            - Achieved 10x improvement in data and computational efficiency on deep RL benchmarks such as Atari.
-            - **Impact on Trustworthiness**: Ensures consistent performance even with limited data, enhancing reliability.
+  #         - **HyperAgent Framework**:
+  #           - Created HyperAgent to quantify and resolve epistemic uncertainty in optimal value estimation ($Q^\star$) based on Ensemble++.
+  #           - Achieved 10x improvement in data and computational efficiency on deep RL benchmarks such as Atari.
+  #           - **Impact on Trustworthiness**: Ensures consistent performance even with limited data, enhancing reliability.
 
-          - **Memoire Framework and Divergence-Augmented Policy Optimization**:
-            - Developed a distributed deep RL system utilizing prioritized sampling, achieving 10x throughput.
-            - Introduced methods to stabilize policy optimization with off-policy data reuse.
-            - **Impact on Trustworthiness**: Enhances stability and robustness in learning, crucial for dependable AI agents.
+  #         - **Memoire Framework and Divergence-Augmented Policy Optimization**:
+  #           - Developed a distributed deep RL system utilizing prioritized sampling, achieving 10x throughput.
+  #           - Introduced methods to stabilize policy optimization with off-policy data reuse.
+  #           - **Impact on Trustworthiness**: Enhances stability and robustness in learning, crucial for dependable AI agents.
 
-          - **Frameworks for Unknown Repeated Games**:
-            - Integrated structure-aware modeling with no-regret learning.
-            - Enabled efficient collaboration and competition in domains such as traffic routing and radar sensing.
-            - **Impact on Trustworthiness**: Facilitates predictable and fair agent behavior in multi-agent settings.
+  #         - **Frameworks for Unknown Repeated Games**:
+  #           - Integrated structure-aware modeling with no-regret learning.
+  #           - Enabled efficient collaboration and competition in domains such as traffic routing and radar sensing.
+  #           - **Impact on Trustworthiness**: Facilitates predictable and fair agent behavior in multi-agent settings.
 
-          #### 3. Enhancing Language-Based Reasoning, Decision-Making, and Human-AI Interaction
+  #         #### 3. Enhancing Language-Based Reasoning, Decision-Making, and Human-AI Interaction
 
-          Transparency and explainability are key aspects of trustworthiness, addressed through advancements in language-based reasoning:
+  #         Transparency and explainability are key aspects of trustworthiness, addressed through advancements in language-based reasoning:
 
-          - **Uncertainty-Guided Search Strategies in LLMs**:
-            - Applied **Ensemble++** & Thompson sampling to improve complex multi-step reasoning in LLMs.
-            - Achieved significant advancements in solving intricate mathematical problems.
-            - **Impact on Trustworthiness**: Improves explainability and confidence in AI reasoning processes.
+  #         - **Uncertainty-Guided Search Strategies in LLMs**:
+  #           - Applied **Ensemble++** & Thompson sampling to improve complex multi-step reasoning in LLMs.
+  #           - Achieved significant advancements in solving intricate mathematical problems.
+  #           - **Impact on Trustworthiness**: Improves explainability and confidence in AI reasoning processes.
 
-          - **Hospital Referral Agent**:
-            - Implemented a conversational agent serving 16 hospitals nationwide.
-            - Designed a multi-agent role-play framework to generate synthetic data, addressing privacy concerns.
-            - **Impact on Trustworthiness**: Enhances reliability and efficiency in critical medical decision-making.
+  #         - **Hospital Referral Agent**:
+  #           - Implemented a conversational agent serving 16 hospitals nationwide.
+  #           - Designed a multi-agent role-play framework to generate synthetic data, addressing privacy concerns.
+  #           - **Impact on Trustworthiness**: Enhances reliability and efficiency in critical medical decision-making.
 
-          - **Human-AI Collaboration Frameworks**:
-            - Explored methods to enhance the interplay between humans and AI systems.
-            - Effectively handled uncertainty and prioritized human oversight where necessary.
-            - **Impact on Trustworthiness**: Promotes ethical operation and respect for human judgment, essential for user trust.
+  #         - **Human-AI Collaboration Frameworks**:
+  #           - Explored methods to enhance the interplay between humans and AI systems.
+  #           - Effectively handled uncertainty and prioritized human oversight where necessary.
+  #           - **Impact on Trustworthiness**: Promotes ethical operation and respect for human judgment, essential for user trust.
 
-          This research collectively enhances the trustworthiness of AI agents by addressing fundamental challenges and providing scalable, reliable solutions applicable to real-world scenarios.
+  #         This research collectively enhances the trustworthiness of AI agents by addressing fundamental challenges and providing scalable, reliable solutions applicable to real-world scenarios.
 
-          <img src="uploads/research_statement_overview.png" alt="research statement" style="width: 60%;">
-          {{< /spoiler >}}
-        {{% /callout %}}
+  #         <img src="uploads/research_statement_overview.png" alt="research statement" style="width: 60%;">
+  #         {{< /spoiler >}}
+  #       {{% /callout %}}
 
 
 # - **Math Reasoning Agent**:
@@ -246,36 +246,36 @@ sections:
 #     - Fundamental to this analysis is the first probability tool for sequential random projection I developed. 
 # - I am working on **reliable and safe solutions** for customer, healthcare and business **operations**, via **inference-time algorithms** that leverages powerful cloud computing services on **foundation models** while augmenting necessary algorithmic modules in end devices.
 #   - Control LLM decoding towards high outcome feedback via learned $Q^\star$.
-      filters:
-        folders:
-          - publication
-      # Default filter index (e.g. 0 corresponds to the first `filter_button` instance below).
-      default_button_index: 0
-      # Filter toolbar (optional).
-      # Add or remove as many filters (`filter_button` instances) as you like.
-      # To show all items, set `tag` to "*".
-      # To filter by a specific tag, set `tag` to an existing tag name.
-      # To remove the toolbar, delete the entire `filter_button` block.
-      buttons:
-        - name: Selected Publications
-          # tag: ''
-          tag: 'selected'
-        - name: Reinforcement Learning
-          tag: reinforcement-learning
-        - name: Probability
-          tag: probability
-        # - name: Optimization
-        #   tag: optimization
-        # - name: Foundation Models
-        #   tag: foundation-model
-        - name: LLM Reasoning & Agent
-          tag: llm
-    design:
-      # Choose how many columns the section has. Valid values: '1' or '2'.
-      columns: '1'
-      view: card
-      # For Showcase view, flip alternate rows?
-      flip_alt_rows: false
+    #   filters:
+    #     folders:
+    #       - publication
+    #   # Default filter index (e.g. 0 corresponds to the first `filter_button` instance below).
+    #   default_button_index: 0
+    #   # Filter toolbar (optional).
+    #   # Add or remove as many filters (`filter_button` instances) as you like.
+    #   # To show all items, set `tag` to "*".
+    #   # To filter by a specific tag, set `tag` to an existing tag name.
+    #   # To remove the toolbar, delete the entire `filter_button` block.
+    #   buttons:
+    #     - name: Selected Publications
+    #       # tag: ''
+    #       tag: 'selected'
+    #     - name: Reinforcement Learning
+    #       tag: reinforcement-learning
+    #     - name: Probability
+    #       tag: probability
+    #     # - name: Optimization
+    #     #   tag: optimization
+    #     # - name: Foundation Models
+    #     #   tag: foundation-model
+    #     - name: LLM Reasoning & Agent
+    #       tag: llm
+    # design:
+    #   # Choose how many columns the section has. Valid values: '1' or '2'.
+    #   columns: '1'
+    #   view: card
+    #   # For Showcase view, flip alternate rows?
+    #   flip_alt_rows: false
   # - block: collection
   #   id: featured
   #   content:
@@ -322,7 +322,8 @@ sections:
       title: Contact
       subtitle:
       text: |-
-        szrlee [at] gmail [dot] com [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+        szrlee [at] gmail [dot] com
+      #  [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Frichardli.xyz&count_bg=%23E4E9E0&title_bg=%23686767&icon=googlemaps.svg&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
       # Contact (add or remove contact options as necessary)
       # email: szrlee@gmail.com
       # phone: 888 888 88 88
