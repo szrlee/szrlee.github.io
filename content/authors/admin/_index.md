@@ -129,11 +129,11 @@ social:
 highlight_name: true
 ---
 
-I am research scientist at Bytedance, Singapore.
-I obtained my PhD degree from The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/). Previously, I was research intern at Microsoft Research and Tencent AI \& Robotics X.
+I am a research scientist at Bytedance, Singapore.
+I obtained the PhD degree in computer science from The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/). Previously, I was research intern at Microsoft Research and Tencent AI \& Robotics X.
 
 ### Research Vision
-I develop intelligent **agents** that reliably interact with complex environments. Through advances in **uncertainty quantification**, **reinforcement learning**, **optimization** and **LLM reasoning & planning**, I bridge foundational **theory** with **scalable** algorithms for trustworthy decision-making.
+I develop intelligent **agents** that reliably interact with complex environments. Through advances in reinforcement learning, optimization and LLM reasoning & planning, I bridge foundational **theory** with **scalable** algorithms for trustworthy decision-making.
 <!-- My research focuses on developing **trustworthy AI agents** that operate reliably in complex, uncertain environments. By advancing methods in **uncertainty representation**, **scalable exploration**, **reasoning & decision-making**, I bridge foundational theory with real-world applications in reinforcement learning (**RL**) and large language models (**LLMs**).  -->
 <!-- My work impacts fields including automated decision-making, medical triage, and multi-agent learning.  -->
 <!-- I aim to create resilient, transparent, and ethical AI systems. -->
