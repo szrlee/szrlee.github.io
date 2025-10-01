@@ -572,92 +572,6 @@ When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approxim
 
 ---
 
-### 3.3 Model-Based Methods (World Models, Dreamer)
-
-**Algorithm**:
-1. Learn a model {{< math >}}$\hat{P}_\psi(s', r | s, a)${{< /math >}} of transitions and rewards
-2. At each step, observe: {{< math >}}$(s_t, a_t, s_{t+1}, r_t)${{< /math >}}
-3. Update model: {{< math >}}$\psi \leftarrow \psi - \alpha \nabla_\psi (-\log \hat{P}_\psi(s_{t+1}, r_t | s_t, a_t))${{< /math >}}
-4. Use learned model for planning or policy optimization
-
-**Learning Signal**: {{< math >}}$\{S_t = (s_{t+1}, r_t)\}_{t=0}^{T-1}${{< /math >}}
-
-{{% callout warning %}}
-**Note**: In the token-level MDP, the "model" would learn:
-- Next token distribution: {{< math >}}$\hat{P}_\psi(x_{t+1} | x_1, \ldots, x_t)${{< /math >}} (already known—it's the LM!)
-- Reward prediction: {{< math >}}$\hat{R}_\psi(x_1, \ldots, x_t)${{< /math >}}
-
-So model-based RL for LLMs typically focuses on learning reward models.
-{{% /callout %}}
-
----
-
-**Rigorous Analysis**:
-
-**Step 1**: Calculate Potential Bandwidth.
-
-Each signal {{< math >}}$S_t = (s_{t+1}, r_t)${{< /math >}} where:
-- {{< math >}}$s_{t+1} = (x_1, \ldots, x_{t+1})${{< /math >}} is the state after adding token {{< math >}}$x_{t+1}${{< /math >}}
-- {{< math >}}$r_t = R_\xi(s_t)${{< /math >}} is the reward
-
-Since transitions are deterministic and we chose action {{< math >}}$a_t${{< /math >}}, we know {{< math >}}$s_{t+1} = s_t \circ a_t${{< /math >}}. So the entropy:
-
-{{< math >}}
-$$H(S_t | s_t, a_t) = H(r_t | s_t, a_t)$$
-{{< /math >}}
-
-In the sparse reward case:
-- For {{< math >}}$t < T${{< /math >}}: {{< math >}}$r_t = 0${{< /math >}} (deterministic), so {{< math >}}$H(r_t) = 0${{< /math >}}
-- For {{< math >}}$t = T${{< /math >}}: {{< math >}}$H(r_T | s_T) = H(R_\xi(s_T))${{< /math >}} where randomness is from {{< math >}}$\xi \sim p(\xi)${{< /math >}}
-
-Therefore:
-
-{{< math >}}
-$$\mathcal{B}_{\text{potential}} = \sum_{t=0}^{T-1} H(r_t | s_t) = H(r_T | s_T) = O(1)$$
-{{< /math >}}
-
-However, if rewards are dense (reward at every token), then:
-
-{{< math >}}
-$$\mathcal{B}_{\text{potential}} = \sum_{t=0}^{T-1} H(r_t | s_t) = T \cdot O(1) = O(T)$$
-{{< /math >}}
-
-**Step 2**: Probabilistic structure and DPI.
-
-The signal {{< math >}}$S_t = (s_{t+1}, r_t)${{< /math >}} where {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}}.
-
-By the Data Processing Inequality for deterministic functions:
-
-{{< math >}}
-$$I(S_t; \pi^* | \text{history}) = I(S_t; \pi^*_\xi | \text{history}) \leq I(S_t; \xi | \text{history})$$
-{{< /math >}}
-
-For dense rewards:
-
-{{< math >}}
-$$\mathcal{B}_{\text{effective}} = \sum_{t=0}^{T-1} I(r_t; \xi | s_t) = O(T)$$
-{{< /math >}}
-
-**The Curse of Irrelevance in LLMs**: In the autoregressive case, since transitions are deterministic and known (token concatenation), there's no dynamics to learn. The "model-based" approach reduces to learning a reward model, which is similar to actor-critic in terms of information bandwidth.
-
----
-
-**Summary**:
-
-For the token-level MDP with known deterministic transitions:
-
-| Quantity | Value | Notes |
-|----------|-------|-------|
-| Potential Bandwidth | {{< math >}}$O(1)${{< /math >}} sparse, {{< math >}}$O(T)${{< /math >}} dense | Depends on reward density |
-| Effective Bandwidth | {{< math >}}$O(1)${{< /math >}} sparse, {{< math >}}$O(T)${{< /math >}} dense | Same as potential (no irrelevant dynamics) |
-| Distinction from AC | Minimal | Transitions known, focus on reward learning |
-
-{{% callout note %}}
-**Key insight**: In autoregressive generation, "model-based" RL doesn't have an advantage because transitions are already known. The information bandwidth is determined by reward density, not model complexity.
-{{% /callout %}}
-
----
-
 ## Part 4: Synthesis and Implications
 
 ### 4.1 Unified Comparison for Token-Level MDPs
@@ -666,7 +580,6 @@ For the token-level MDP with known deterministic transitions:
 |-----------|--------|--------------|--------------|-------|
 | Policy Gradient | Episode return {{< math >}}$G${{< /math >}} | {{< math >}}$O(1)${{< /math >}} | {{< math >}}$\leq O(1)${{< /math >}} | Sparse: 1 signal per episode |
 | Actor-Critic | TD errors {{< math >}}$\{\delta_t\}${{< /math >}} | {{< math >}}$O(T)${{< /math >}} | {{< math >}}$\leq O(T)${{< /math >}} | Dense: 1 signal per token |
-| Model-Based | Reward observations | {{< math >}}$O(1)${{< /math >}} sparse, {{< math >}}$O(T)${{< /math >}} dense | Same | Transitions known in this setting |
 
 **Key Insights**:
 
