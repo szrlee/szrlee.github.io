@@ -650,9 +650,9 @@ $$I_{\text{total}} \leq H(\pi^*)$$
 {{< /math >}}
 
 {{% callout note %}}
-**Key Assumption for LoRA Analysis**: We analyze the learning regime where fine-tuning has not yet fully converged to {{< math >}}$\pi^*${{< /math >}}, i.e., {{< math >}}$N \cdot O(1) < H(\pi^*)${{< /math >}}, so the information accumulated is approximately {{< math >}}$N \cdot O(1)${{< /math >}} bits.
+**Key Assumption for LoRA Analysis**: We analyze the learning regime where fine-tuning has not yet fully converged to {{< math >}}$\pi^*${{< /math >}}, i.e., {{< math >}}$$N \cdot O(1) < H(\pi^*)$${{< /math >}}, so the information accumulated is approximately {{< math >}}$N \cdot O(1)${{< /math >}} bits.
 
-This is reasonable for practical fine-tuning scenarios where {{< math >}}$N \sim 10^3${{< /math >}} to {{< math >}}$10^4${{< /math >}} episodes and the policy space is large. Once {{< math >}}$I_{\text{total}}${{< /math >}} approaches {{< math >}}$H(\pi^*)${{< /math >}}, the learning rate necessarily slows as there is less remaining uncertainty to resolve.
+This is reasonable for practical fine-tuning scenarios where {{< math >}}$N \sim 10^3$ to $10^4${{< /math >}} episodes and the policy space is large. Once {{< math >}}$I_{\text{total}}${{< /math >}} approaches {{< math >}}$H(\pi^*)${{< /math >}}, the learning rate necessarily slows as there is less remaining uncertainty to resolve.
 {{% /callout %}}
 
 **Concrete numbers**: With {{< math >}}$c = 2${{< /math >}} bits per episode (4-level rewards):
