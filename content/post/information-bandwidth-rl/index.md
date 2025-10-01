@@ -216,13 +216,21 @@ By standard DPI: {{< math >}}$I(X; f(Y)) \leq I(X; Y)${{< /math >}}
 
 More simply: applying a deterministic function {{< math >}}$f${{< /math >}} can only reduce or preserve entropy, so it cannot increase mutual information.
 
-**Application to RL**: Since the optimal policy {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of the reward parameter {{< math >}}$\xi${{< /math >}}, we have:
+**Application to RL**: Since the optimal policy {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of the reward parameter {{< math >}}$\xi${{< /math >}}, we can establish:
 
 {{< math >}}
 $$I(S; \pi^*) = I(S; \pi^*_\xi) \leq I(S; \xi)$$
 {{< /math >}}
 
-This bound holds even though {{< math >}}$S \to \xi \to \pi^*${{< /math >}} is NOT a Markov chain (because {{< math >}}$S${{< /math >}} depends on both {{< math >}}$\xi${{< /math >}} and the current policy {{< math >}}$\pi_\theta${{< /math >}}). The bound follows from {{< math >}}$\pi^*${{< /math >}} being a function of {{< math >}}$\xi${{< /math >}}, not from a Markov property.
+**Proof**: The equality {{< math >}}$I(S; \pi^*) = I(S; \pi^*_\xi)${{< /math >}} holds by definition since {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}}. For the inequality, since {{< math >}}$\pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}}, we have {{< math >}}$I(S; \pi^* | \xi) = 0${{< /math >}} (knowing {{< math >}}$\xi${{< /math >}} fully determines {{< math >}}$\pi^*${{< /math >}}). By the chain rule:
+
+{{< math >}}
+$$I(S; \pi^*, \xi) = I(S; \xi) + I(S; \pi^* | \xi) = I(S; \xi)$$
+{{< /math >}}
+
+Also, {{< math >}}$I(S; \pi^*, \xi) \geq I(S; \pi^*)${{< /math >}} since observing more variables cannot decrease mutual information. Therefore {{< math >}}$I(S; \pi^*) \leq I(S; \xi)${{< /math >}}.
+
+This bound holds despite {{< math >}}$S${{< /math >}} depending on both {{< math >}}$\xi${{< /math >}} (through rewards) and {{< math >}}$\pi_\theta${{< /math >}} (through trajectory generation)—it relies only on {{< math >}}$\pi^*${{< /math >}} being uniquely determined by {{< math >}}$\xi${{< /math >}}.
 
 ---
 
@@ -425,7 +433,7 @@ $$I(G; \pi^*) \leq \log_2(4) = 2 \text{ bits per episode}$$
 
 ---
 
-### 3.2 Actor-Critic (A2C, PPO)
+### 3.2 Actor-Critic (e.g. PPO)
 
 **Algorithm**:
 1. At each step {{< math >}}$t${{< /math >}}, given state {{< math >}}$s_t = (x_1, \ldots, x_t)${{< /math >}}:
@@ -462,23 +470,15 @@ graph LR
 
 Where {{< math >}}$V_\phi${{< /math >}} is the critic learned from past data.
 
-**Key observation**: This is NOT a Markov chain {{< math >}}$\delta_t \to \xi \to \pi^*${{< /math >}} because each {{< math >}}$\delta_t${{< /math >}} depends on {{< math >}}$\xi${{< /math >}} (through rewards), {{< math >}}$\pi_\theta${{< /math >}} (which states visited), and {{< math >}}$V_\phi${{< /math >}} (critic estimates).
-
 **Step 2**: Apply the Data Processing Inequality.
 
-Since {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}}:
+As in the policy gradient analysis, we have {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} as a deterministic function of {{< math >}}$\xi${{< /math >}}. While {{< math >}}$\delta_t \to \xi \to \pi^*${{< /math >}} is NOT a Markov chain (since {{< math >}}$\delta_t${{< /math >}} depends on {{< math >}}$\xi${{< /math >}} through rewards, {{< math >}}$\pi_\theta${{< /math >}} determining which states are visited, and {{< math >}}$V_\phi${{< /math >}} providing critic estimates), we can still apply DPI using the deterministic function property:
 
 {{< math >}}
 $$I(\delta_t; \pi^* | \text{history}) = I(\delta_t; \pi^*_\xi | \text{history}) \leq I(\delta_t; \xi | \text{history})$$
 {{< /math >}}
 
-This follows from the general principle: for deterministic function {{< math >}}$f${{< /math >}},
-
-{{< math >}}
-$$I(X; f(Y)) \leq I(X; Y)$$
-{{< /math >}}
-
-This bound is valid without requiring a Markov chain.
+This bound follows from the general principle that for any deterministic function {{< math >}}$f${{< /math >}}, {{< math >}}$I(X; f(Y)) \leq I(X; Y)${{< /math >}}, which holds regardless of the relationship between {{< math >}}$X${{< /math >}} and {{< math >}}$Y${{< /math >}}.
 
 **Step 3**: Calculate Potential Bandwidth.
 
@@ -709,7 +709,11 @@ However, we also have the constraint that we cannot learn more than the initial 
 $$I_{\text{total}} \leq H(\pi^*)$$
 {{< /math >}}
 
-**Assumption for LoRA analysis**: We assume that fine-tuning has not yet fully determined {{< math >}}$\pi^*${{< /math >}}, i.e., {{< math >}}$N \cdot O(1) < H(\pi^*)${{< /math >}}, so the information accumulated is approximately {{< math >}}$N \cdot O(1)${{< /math >}} bits. This is reasonable for practical fine-tuning scenarios where {{< math >}}$N \sim 10^3${{< /math >}} to {{< math >}}$10^4${{< /math >}} episodes and the policy space is large.
+{{% callout note %}}
+**Key Assumption for LoRA Analysis**: We analyze the learning regime where fine-tuning has not yet fully converged to {{< math >}}$\pi^*${{< /math >}}, i.e., {{< math >}}$N \cdot O(1) < H(\pi^*)${{< /math >}}, so the information accumulated is approximately {{< math >}}$N \cdot O(1)${{< /math >}} bits.
+
+This is reasonable for practical fine-tuning scenarios where {{< math >}}$N \sim 10^3${{< /math >}} to {{< math >}}$10^4${{< /math >}} episodes and the policy space is large. Once {{< math >}}$I_{\text{total}}${{< /math >}} approaches {{< math >}}$H(\pi^*)${{< /math >}}, the learning rate necessarily slows as there is less remaining uncertainty to resolve.
+{{% /callout %}}
 
 **Concrete numbers**: With 4-bin discretization ({{< math >}}$2${{< /math >}} bits per episode):
 - After {{< math >}}$N = 1000${{< /math >}} episodes: {{< math >}}$\leq 2000${{< /math >}} bits
@@ -721,12 +725,12 @@ $$I_{\text{total}} \leq H(\pi^*)$$
 
 **Example**: {{< math >}}$r = 8${{< /math >}}, {{< math >}}$d = 4096${{< /math >}} (typical for large LLMs):
 - Parameters: {{< math >}}$2 \times 8 \times 4096 = 65{,}536${{< /math >}}
-- Bits: {{< math >}}$64 \times 8 \times 4096 = 2{,}097{,}152${{< /math >}} bits {{< math >}}$\approx 262${{< /math >}} KB
+- Bits: {{< math >}}$64 \times 8 \times 4096 = 2{,}097{,}152${{< /math >}} bits {{< math >}}$= 256${{< /math >}} KB
 
 **Excess capacity ratio**:
 
 {{< math >}}
-$$\frac{\text{LoRA capacity}}{\text{Information accumulated}} = \frac{262 \text{ KB}}{2.5 \text{ KB}} \approx 100\times$$
+$$\frac{\text{LoRA capacity}}{\text{Information accumulated}} = \frac{256 \text{ KB}}{2.5 \text{ KB}} \approx 100\times$$
 {{< /math >}}
 
 Even for {{< math >}}$N = 10{,}000${{< /math >}} episodes, LoRA still has {{< math >}}$\sim 10\times${{< /math >}} excess capacity.
@@ -859,7 +863,7 @@ This explains why multi-task RL may benefit from higher-rank adapters.
 **2. Prior Strength vs. Learning Speed**
 - Strong prior (good pre-training): Low {{< math >}}$H(\pi^* | \text{prior})${{< /math >}}, fast fine-tuning
 - Weak prior: High {{< math >}}$H(\pi^* | \text{prior})${{< /math >}}, slow fine-tuning
-- **Recommendation**: Invest in high-quality pre-training for faster RL fine tuning
+- **Recommendation**: Invest in high-quality pre-training for faster RL fine-tuning
 
 **3. Adapter Capacity vs. Catastrophic Forgetting**
 - Low-rank adapters: Limited capacity, preserves pre-training
@@ -979,10 +983,33 @@ The information-theoretic perspective not only explains current methods (why LoR
 
 ---
 
+### 4.6 Extension to Agentic RL and Model-Based Methods
+
+**Note on Reasoning RL**: Our analysis focused on autoregressive token generation where transitions are deterministic and known (token concatenation). However, for **agentic RL settings** where language models interact with **external environments** (e.g., tool use, code execution, web browsing), the picture changes significantly.
+
+**Model-Based RL in Agentic Settings**:
+
+When transitions are **not** deterministic or known:
+- **Learning Signal**: {{< math >}}$\{S_t = (s_{t+1}, r_t)\}_{t=0}^{T-1}${{< /math >}} now contains information about both dynamics and rewards
+- **Potential Bandwidth**: {{< math >}}$O(T \log |\mathcal{S}|)${{< /math >}} bits per episode (observing next states provides {{< math >}}$\log |\mathcal{S}|${{< /math >}} bits each step)
+- **Effective Bandwidth**: Can be much higher than actor-critic when dynamics are unknown
+
+**Key Distinction**:
+- **Token-level MDP** (this analysis): Transitions known → model-based ≈ actor-critic
+- **Agentic RL**: Transitions unknown → model-based has information advantage
+
+**Information Allocation**: In agentic settings, the agent may learn both:
+1. {{< math >}}$P(s' | s, a)${{< /math >}}: Transition dynamics (how the environment responds)
+2. {{< math >}}$R_\xi(s)${{< /math >}}: Reward function (what the user wants)
+
+Model-based methods can learn both simultaneously, potentially achieving higher total information bandwidth. However, in pure reasoning RL (e.g., chain-of-thought, internal planning), transitions remain deterministic and our analysis applies directly.
+
+---
+
 ## Further Reading
 
 - Russo & Van Roy (2014), "Learning to Optimize via Information-Directed Sampling"
-- Ouyang et al. (2022), "Training language models to follow instructions with human feedback" (InstructGPT) (InstructGPT)
+- Ouyang et al. (2022), "Training language models to follow instructions with human feedback" (InstructGPT)
 - Hu et al. (2021), "LoRA: Low-Rank Adaptation of Large Language Models"
 - Cover & Thomas (2006), "Elements of Information Theory"
 
