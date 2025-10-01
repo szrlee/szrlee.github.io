@@ -19,7 +19,7 @@ featured: true
 draft: false
 math: true
 
-Featured image
+#Featured image
 image:
   caption: '"LoRA Without Regret" by John Schulman in collaboration with others at Thinking Machines'
   focal_point: ''
