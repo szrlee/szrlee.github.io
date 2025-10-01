@@ -1,6 +1,6 @@
 ---
 title: 'Information Bandwidth in Reinforcement Learning'
-subtitle: 'How many bits does an RL algorithm gather within an episode?'
+subtitle: 'Understanding Why Policy Gradient Learns 1 Bit Per Episode'
 summary: 'A mathematically rigorous information-theoretic analysis of learning efficiency in RL algorithms, explaining why LoRA works for policy gradient fine-tuning.'
 authors:
   - admin
