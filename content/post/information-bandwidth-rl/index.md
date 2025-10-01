@@ -327,7 +327,7 @@ For any random variables {{< math >}}$X${{< /math >}} and {{< math >}}$Y${{< /ma
 $$I(X; f(Y)) \leq I(X; Y)$$
 {{< /math >}}
 
-**Proof**: Since {{< math >}}$f${{< /math >}} is a deterministic function, we have the Markov chain {{< math >}}$X \to Y \to f(Y)${{< /math >}} (because {{< math >}}$f(Y)${{< /math >}} depends only on {{< math >}}$Y${{< /math >}}, not on {{< math >}}$X${{< /math >}} directly). By the Data Processing Inequality proven above (Section 2.4):
+**Proof**: Since {{< math >}}$f${{< /math >}} is deterministic, {{< math >}}$f(Y)${{< /math >}} is conditionally independent of {{< math >}}$X${{< /math >}} given {{< math >}}$Y${{< /math >}}: {{< math >}}$p(f(Y)|X,Y) = p(f(Y)|Y)${{< /math >}}. This establishes the Markov chain {{< math >}}$X \to Y \to f(Y)${{< /math >}}. By the Data Processing Inequality proven above (Section 2.4):
 
 {{< math >}}
 $$I(X; f(Y)) \leq I(X; Y)$$
@@ -553,6 +553,8 @@ $$\mathcal{B}_{\text{effective}} = I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \
 | Late | Converged | High | {{< math >}}$\approx O(T)${{< /math >}} |
 
 When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approximates true expected rewards, and the TD errors become informative about {{< math >}}$\xi${{< /math >}} throughout the trajectory.
+
+**Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** that requires a well-trained critic. In practice, especially early in training or without careful critic tuning, the effective bandwidth may be much lower. The TD errors at different timesteps may also be correlated (not providing independent information), further reducing the effective bandwidth below the theoretical maximum.
 
 ---
 
