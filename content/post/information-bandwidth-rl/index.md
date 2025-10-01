@@ -12,8 +12,8 @@ tags:
 categories:
   - Research
   - Theory
-date: '2024-01-15T00:00:00Z'
-lastmod: '2024-01-15T00:00:00Z'
+date: '2025-10-01T00:00:00Z'
+lastmod: '2025-10-01T00:00:00Z'
 featured: true
 draft: false
 math: true
@@ -993,12 +993,12 @@ The information-theoretic perspective not only explains current methods (why LoR
 If you found this post useful in your research, please consider citing it:
 
 ```bibtex
-@article{li2024information,
+@article{li2025information,
   title   = {Information Bandwidth in Reinforcement Learning: Understanding Why Policy Gradient Learns 1 Bit Per Episode},
   author  = {Li, Yingru},
   journal = {Richard Li's Blog},
-  year    = {2024},
-  month   = {January},
+  year    = {2025},
+  month   = {October},
   url     = {https://richardli.xyz/post/information-bandwidth-rl/}
 }
 ```
