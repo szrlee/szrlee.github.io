@@ -775,12 +775,12 @@ This provides a theoretical foundation for the empirically observed sample effic
 
 ---
 
-### 4.4 Implications for LLM Alignment
+### 4.4 Implications for LLM-RL
 
 **1. Dense vs. Sparse Rewards**:
 - Sparse (outcome-based): Reward only at sequence end → {{< math >}}$O(1)${{< /math >}} bits/episode
 - Dense (token-level): Reward at each token → {{< math >}}$O(T)${{< /math >}} bits/episode
-- **Current limitation**: Most LLM alignment uses sparse rewards (RLHF with binary preferences)
+- **Current limitation**: Most LLM-RL uses sparse rewards (RLHF with binary preferences)
 - **Research opportunity**: Develop methods for meaningful token-level reward signals
 
 **2. The Value-Based RL Gap**:
@@ -858,7 +858,7 @@ This explains why multi-task RL may benefit from higher-rank adapters.
 **2. Prior Strength vs. Learning Speed**
 - Strong prior (good pre-training): Low {{< math >}}$H(\pi^* | \text{prior})${{< /math >}}, fast fine-tuning
 - Weak prior: High {{< math >}}$H(\pi^* | \text{prior})${{< /math >}}, slow fine-tuning
-- **Recommendation**: Invest in high-quality pre-training for faster alignment
+- **Recommendation**: Invest in high-quality pre-training for faster RL fine tuning
 
 **3. Adapter Capacity vs. Catastrophic Forgetting**
 - Low-rank adapters: Limited capacity, preserves pre-training
@@ -899,16 +899,6 @@ We established a rigorous information-theoretic framework for RL in autoregressi
 - Actor-critic: {{< math >}}$\Omega(H(\pi^*)/T)${{< /math >}} episodes
 - Explains {{< math >}}$100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} empirical differences
 
-### Why This Analysis is Rigorous
-
-✅ **Concrete MDP**: Token-level formulation with explicit state/action spaces  
-✅ **Known transitions**: Deterministic concatenation—no assumptions needed  
-✅ **Well-defined probabilities**: Bayesian prior {{< math >}}$p(\xi)${{< /math >}} induces {{< math >}}$p(\pi^*)${{< /math >}}  
-✅ **Valid information theory**: All {{< math >}}$I(S; \pi^*)${{< /math >}} computations are mathematically sound  
-✅ **Proper DPI application**: Clear Markov chains {{< math >}}$S \to \xi \to \pi^*${{< /math >}} (via conditional independence)  
-✅ **Provable bounds**: Every inequality rigorously justified  
-✅ **Empirical validation**: Predictions match observed sample efficiency differences
-
 ### Open Questions
 
 Our rigorous information-theoretic framework reveals fundamental bottlenecks and opportunities in RL for LLMs:
@@ -933,7 +923,7 @@ How should we design exploration strategies to maximize {{< math >}}$I(S; \pi^*)
 - Traditional RL uses entropy bonuses, but these don't target information about {{< math >}}$\xi${{< /math >}}
 - **Information-directed sampling**: Choose actions to maximize expected information gain about reward function
 
-**4. Multi-Objective Alignment**:
+**4. Multi-Objective RL**:
 
 How does information bandwidth extend to multiple reward functions {{< math >}}$\{\xi_i\}_{i=1}^K${{< /math >}}?
 - Does learning about one objective help with others?
