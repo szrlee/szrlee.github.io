@@ -373,10 +373,10 @@ More rigorously, even if rewards are continuous, the **mutual information** {{< 
 $$I(G; \xi) \leq \log_2(B) = O(1)$$
 {{< /math >}}
 
-This bound captures the practical information content of scalar reward signals:
+This bound captures the practical information content of scalar reward signals: with {{< math >}}$B = 2${{< /math >}} to {{< math >}}$10${{< /math >}} distinguishable levels:
 
 {{< math >}}
-$$\mathcal{B}_{\text{potential}} = H(G) = O(1) \text{ bits per episode}$$
+$$\mathcal{B}_{\text{potential}} = H(G) = 1\text{-}3.3 \text{ bits per episode}$$
 {{< /math >}}
 
 **Step 4**: Analyze {{< math >}}$I(G; \xi)${{< /math >}}.
@@ -556,6 +556,23 @@ When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approxim
 
 **Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** that requires a well-trained critic. In practice, especially early in training or without careful critic tuning, the effective bandwidth may be much lower. The TD errors at different timesteps may also be correlated (not providing independent information), further reducing the effective bandwidth below the theoretical maximum.
 
+**Correlation between TD errors**: In practice, TD errors at successive timesteps are often correlated, particularly in long sequences. This correlation reduces the effective information rate compared to the {{< math >}}$T \cdot O(1)${{< /math >}} upper bound.
+
+**Rigorous bound**: Even with correlation, the information still scales as {{< math >}}$O(T)${{< /math >}}, but with a reduced constant. If {{< math >}}$\delta_t = \rho \delta_{t-1} + \epsilon_t${{< /math >}} where innovations {{< math >}}$\epsilon_t${{< /math >}} are independent with {{< math >}}$H(\epsilon_t) = c${{< /math >}} bits, then:
+
+{{< math >}}
+$$I(\{\delta_t\}; \xi) \leq T \cdot c \cdot f(\rho)$$
+{{< /math >}}
+
+where {{< math >}}$f(\rho) < 1${{< /math >}} is a decreasing function of correlation strength. For example, with {{< math >}}$\rho = 0.7${{< /math >}}, the effective constant might be reduced by a factor of {{< math >}}$2${{< /math >}}-{{< math >}}$5\times${{< /math >}} compared to independent observations.
+
+This correlation arises because:
+- Consecutive states share most tokens (only one token differs)
+- Value estimates propagate through bootstrapping
+- Policy changes affect multiple timesteps similarly
+
+While the asymptotic scaling remains {{< math >}}$O(T)${{< /math >}}, the reduced constant factor partially explains why actor-critic methods for LLMs haven't achieved the full theoretical improvement over policy gradient. Additionally, **optimization difficulties** in training the critic further reduce practical gains.
+
 ---
 
 **Summary**:
@@ -605,7 +622,7 @@ When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approxim
 After {{< math >}}$N${{< /math >}} episodes of policy gradient, total information gained:
 
 {{< math >}}
-$$I(\{G_1, \ldots, G_N\}; \pi^*) = \sum_{i=1}^{N} I(G_i; \pi^* | \{G_j\}_{j<i})$$
+$$I(\{G_1, \ldots, G_N\}; \pi^*) = \sum_{i=1}^{N} I(G_i; \pi^* | \{G_j\}_{j < i})$$
 {{< /math >}}
 
 **Key insight**: Each term {{< math >}}$I(G_i; \pi^* | \{G_j\}_{j<i})${{< /math >}} represents the **marginal information** from episode {{< math >}}$i${{< /math >}}. This decreases as training progresses due to:
@@ -695,7 +712,7 @@ $$N \geq \frac{I_{\text{required}}}{I_{\text{per-episode}}}$$
 {{< /math >}}
 
 **For different algorithms**:
-- **Policy gradient**: {{< math >}}$I_{\text{per-episode}} = O(1)${{< /math >}} → {{< math >}}$N_{\text{PG}} = \Omega(H(\pi^*)/c)${{< /math >}} where {{< math >}}$c \in [1,4]${{< /math >}}
+- **Policy gradient**: {{< math >}}$I_{\text{per-episode}} = 1\text{-}4${{< /math >}} bits (with typical reward discretization) → {{< math >}}$N_{\text{PG}} = \Omega(H(\pi^*)/c)${{< /math >}} where {{< math >}}$c \in [1,4]${{< /math >}}
 - **Actor-critic**: {{< math >}}$I_{\text{per-episode}} = O(T)${{< /math >}} → {{< math >}}$N_{\text{AC}} = \Omega(H(\pi^*)/T)${{< /math >}}
 
 **Important caveats**:
@@ -786,7 +803,33 @@ This explains why multi-task RL may benefit from higher-rank adapters.
 
 ---
 
-### 4.5 Fundamental Trade-offs
+### 4.5 Scope and Applicability
+
+#### 4.5.1 When This Analysis Applies
+
+**This information-theoretic framework is most applicable when:**
+
+1. **Stationary reward functions**: The analysis assumes {{< math >}}$\xi${{< /math >}} is fixed. For continually evolving preferences or non-stationary objectives, the effective bandwidth must also account for tracking a moving target.
+
+2. **Pure policy learning**: We focus on learning which policy is optimal, not exploration. Information-directed sampling or active learning would have different bandwidth properties.
+
+3. **Known dynamics**: For token-level MDPs with deterministic transitions. Agentic settings with unknown stochastic dynamics require additional bandwidth for learning transition models (see Section 4.7).
+
+4. **Optimization is not the bottleneck**: We measure information provided to the learning algorithm, not whether gradient descent can utilize it effectively. Poor optimization can waste available bandwidth.
+
+**This analysis may not directly apply to:**
+
+1. **Partial observability**: If the agent cannot observe the full state, additional bandwidth is needed to infer hidden information.
+
+2. **Exploration-exploitation settings**: The framework assumes we're learning from a fixed policy distribution, not actively exploring to gain information.
+
+3. **Multi-task or continual learning**: Interference between tasks and catastrophic forgetting introduce additional constraints beyond information bandwidth.
+
+4. **Adversarial or strategic environments**: When the environment responds to the policy, game-theoretic considerations matter beyond pure information flow.
+
+---
+
+### 4.6 Fundamental Trade-offs
 
 **1. Signal Density vs. Computational Cost**
 - Dense signals: {{< math >}}$O(T)${{< /math >}} bandwidth but requires critic, more computation per step
@@ -823,9 +866,9 @@ We established a rigorous information-theoretic framework for RL in autoregressi
 - Both {{< math >}}$S${{< /math >}} and {{< math >}}$\pi^*${{< /math >}} are random variables
 
 **3. Rigorous Information Bandwidth Results**
-- Policy gradient: {{< math >}}$\mathcal{B}_{\text{effective}} = O(1)${{< /math >}} bits per episode ({{< math >}}$\sim 1${{< /math >}}-{{< math >}}$4${{< /math >}} bits)
-- Actor-critic: {{< math >}}$\mathcal{B}_{\text{effective}} = O(T)${{< /math >}} bits per episode
-- Difference: {{< math >}}$T\times${{< /math >}} where {{< math >}}$T${{< /math >}} is sequence length ({{< math >}}$\sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}})
+- Policy gradient: {{< math >}}$\mathcal{B}_{\text{effective}} = 1\text{-}4${{< /math >}} bits per episode (depending on reward distinguishability)
+- Actor-critic: {{< math >}}$\mathcal{B}_{\text{effective}} = O(T)${{< /math >}} bits per episode (upper bound requiring well-trained critic)
+- Difference: {{< math >}}$T\times${{< /math >}} where {{< math >}}$T${{< /math >}} is sequence length ({{< math >}}$\sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} theoretical, less in practice due to TD error correlation)
 
 **4. LoRA Explained**
 - Policy gradient accumulates {{< math >}}$O(N)${{< /math >}} bits over {{< math >}}$N${{< /math >}} episodes
@@ -916,7 +959,7 @@ The information-theoretic perspective not only explains current methods (why LoR
 
 ---
 
-### 4.6 Extension to Agentic RL and Model-Based Methods
+### 4.7 Extension to Agentic RL and Model-Based Methods
 
 **Note on Reasoning RL**: Our analysis focused on autoregressive token generation where transitions are deterministic and known (token concatenation). However, for **agentic RL settings** where language models interact with **external environments** (e.g., tool use, code execution, web browsing), the picture changes significantly.
 
