@@ -17,6 +17,7 @@ lastmod: '2024-01-15T00:00:00Z'
 featured: true
 draft: false
 math: true
+toc: true
 
 # Featured image
 image:
