@@ -9,7 +9,6 @@ tags:
   - Information Theory
   - Language Models
   - Deep Learning
-  - RLHF
 categories:
   - Research
   - Theory
@@ -19,9 +18,9 @@ featured: true
 draft: false
 math: true
 
-#Featured image
+# Featured image
 image:
-  caption: '"LoRA Without Regret" by John Schulman in collaboration with others at Thinking Machines'
+  caption: '"LoRA without Regret"'
   focal_point: ''
   preview_only: false
 
@@ -34,7 +33,7 @@ projects: []
 
 ### The Central Question
 
-The "LoRA Without Regret" blog post makes a striking claim: policy gradient algorithms learn roughly **1 bit of information per episode**. This explains why low-rank adaptation (LoRA)—which adds only thousands of trainable parameters—works remarkably well for RL fine-tuning of large language models.
+The "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)" blog post makes a striking claim: policy gradient algorithms learn roughly **1 bit of information per episode**. This explains why low-rank adaptation (LoRA)—which adds only thousands of trainable parameters—works remarkably well for RL fine-tuning of large language models.
 
 But what does "1 bit per episode" mean rigorously? How do different RL algorithms compare in their information-gathering capacity?
 
@@ -43,7 +42,7 @@ This analysis provides a mathematically rigorous answer using the **Bayesian RL 
 - Transitions are deterministic and known
 - The uncertainty is entirely in the reward function
 
-This setting is both theoretically clean and practically relevant for RLHF and LLM alignment.
+This setting is both theoretically clean and practically relevant for RL-based LLM fine-tuning.
 
 ---
 
@@ -51,7 +50,7 @@ This setting is both theoretically clean and practically relevant for RLHF and L
 
 ### 2.1 Autoregressive Generation as an MDP
 
-**Setup**: Consider fine-tuning a language model using RL (e.g., RLHF for alignment).
+**Setup**: Consider fine-tuning a language model using RL (e.g., for task optimization or preference learning).
 
 **State Space**: {{< math >}}$\mathcal{S} = \mathcal{V}^*${{< /math >}} where {{< math >}}$\mathcal{V}${{< /math >}} is the vocabulary
 - A state {{< math >}}$s = (x_1, \ldots, x_t)${{< /math >}} is a sequence of tokens
@@ -96,9 +95,9 @@ Often simplified (sparse rewards): {{< math >}}$J(\theta; R_\xi) = \mathbb{E}_{\
 **Prior over Reward Functions**: We have a prior distribution {{< math >}}$p(\xi)${{< /math >}} over reward parameters.
 
 **Examples of** {{< math >}}$\xi${{< /math >}}:
-- **RLHF**: {{< math >}}$\xi${{< /math >}} represents human preferences (parameters of a reward model)
+- **Preference learning**: {{< math >}}$\xi${{< /math >}} represents human preferences (parameters of a reward model)
 - **Task learning**: {{< math >}}$\xi${{< /math >}} indexes different task specifications
-- **Alignment**: {{< math >}}$\xi${{< /math >}} represents aspects of "helpfulness" or "harmlessness"
+- **Objective optimization**: {{< math >}}$\xi${{< /math >}} represents aspects of desired behavior
 
 **Induced Distribution over Optimal Policies**: For each reward function {{< math >}}$R_\xi${{< /math >}}, there is an optimal policy:
 
@@ -681,7 +680,7 @@ For the token-level MDP with known deterministic transitions:
 
 **Setup**: Fine-tune a large language model using REINFORCE for {{< math >}}$N${{< /math >}} episodes.
 
-**Prior**: Pre-trained model gives us prior {{< math >}}$p(\xi)${{< /math >}} over reward functions (implicitly, from pre-training on human-written text).
+**Prior**: Pre-trained model gives us prior {{< math >}}$p(\xi)${{< /math >}} over reward functions (implicitly, from pre-training on diverse text data).
 
 **Information Accumulation**:
 
@@ -781,17 +780,56 @@ This provides a theoretical foundation for the empirically observed sample effic
 **1. Dense vs. Sparse Rewards**:
 - Sparse (outcome-based): Reward only at sequence end → {{< math >}}$O(1)${{< /math >}} bits/episode
 - Dense (token-level): Reward at each token → {{< math >}}$O(T)${{< /math >}} bits/episode
-- **Recommendation**: When possible, design token-level reward signals
+- **Current limitation**: Most LLM alignment uses sparse rewards (RLHF with binary preferences)
+- **Research opportunity**: Develop methods for meaningful token-level reward signals
 
-**2. Actor-Critic for Sample Efficiency**:
-- PPO (actor-critic) should have {{< math >}}$\sim T\times${{< /math >}} better sample efficiency than REINFORCE (policy gradient)
-- Empirically observed: PPO requires {{< math >}}$\sim 100\times${{< /math >}} fewer samples than REINFORCE
-- Our theory predicts this for {{< math >}}$T \sim 100${{< /math >}} token sequences
+**2. The Value-Based RL Gap**:
 
-**3. LoRA Rank Selection**:
+Our analysis reveals that actor-critic methods should theoretically achieve {{< math >}}$\sim T\times${{< /math >}} better sample efficiency than policy gradient. In traditional RL domains, PPO (actor-critic) requires {{< math >}}$\sim 100\times${{< /math >}} fewer samples than REINFORCE.
+
+**However, for LLMs:**
+- **Current state**: No established training recipes for value function learning at scale
+- **Key challenges**:
+  - Value function training is unstable for large language models
+  - Critic networks require careful initialization and hyperparameter tuning
+  - Bootstrap error accumulation in long sequences ({{< math >}}$T \sim 1000${{< /math >}} tokens)
+  - Computational overhead of maintaining and updating critics
+
+**Why this matters from an information-theoretic perspective**:
+- Current RLHF with policy gradient is limited to {{< math >}}$O(1)${{< /math >}} bits/episode
+- Successfully training critics could unlock {{< math >}}$O(T) = O(1000)${{< /math >}} bits/episode
+- This represents a {{< math >}}$1000\times${{< /math >}} potential improvement in information bandwidth
+
+**3. Research Directions: Value-Based RL for LLMs**:
+
+From our information-theoretic analysis, developing effective value-based methods for LLMs is the highest-leverage research direction:
+
+a) **Stable Critic Training**:
+   - **Challenge**: Value function learning at LLM scale
+   - **Information perspective**: Each successful critic update should provide {{< math >}}$O(1)${{< /math >}} bits about {{< math >}}$\xi${{< /math >}} per token
+   - **Research questions**: 
+     - What architectures enable stable value learning?
+     - How to handle long-horizon credit assignment ({{< math >}}$T \sim 1000${{< /math >}})?
+     - Can we leverage pre-trained representations?
+
+b) **Alternative Value Representations**:
+   - **Approach**: Instead of learning {{< math >}}$V_\phi(s_t)${{< /math >}}, learn compressed value representations
+   - **Information perspective**: The critic need only capture {{< math >}}$O(T)${{< /math >}} bits about expected rewards
+   - **Concrete ideas**:
+     - Low-rank value functions
+     - Hierarchical value decomposition
+     - Outcome-conditioned value models
+
+c) **Hybrid Approaches**:
+   - **Monte Carlo + TD**: Use sparse rewards but dense value targets
+   - **Model-based value learning**: Use reward models to generate dense pseudo-rewards
+   - **Information gain**: Even partial value information could provide {{< math >}}$O(T/k)${{< /math >}} bits for some {{< math >}}$k < T${{< /math >}}
+
+**4. LoRA Rank Selection (For Current Policy Gradient Methods)**:
+
+Given that we currently use policy gradient with {{< math >}}$O(1)${{< /math >}} bits/episode:
+
 Information accumulated in {{< math >}}$N${{< /math >}} episodes: {{< math >}}$\sim N \cdot 2${{< /math >}} bits (with 4-bin returns)
-
-Required LoRA capacity: {{< math >}}$\sim 2N${{< /math >}} bits
 
 Choose rank {{< math >}}$r${{< /math >}} such that: {{< math >}}$64rd \geq 2N${{< /math >}}
 
@@ -799,11 +837,11 @@ For {{< math >}}$d = 4096${{< /math >}}, {{< math >}}$N = 1000${{< /math >}}: {{
 
 In practice, {{< math >}}$r = 8${{< /math >}} or {{< math >}}$r = 16${{< /math >}} provides ample margin.
 
-**4. Multi-Task Learning**:
+**5. Multi-Task Learning**:
 If fine-tuning on {{< math >}}$K${{< /math >}} tasks simultaneously, information accumulation scales:
 
 {{< math >}}
-$$I_{\text{total}} = N \cdot O(K)$$
+$I_{\text{total}} = N \cdot O(K)$
 {{< /math >}}
 
 This explains why multi-task RL may benefit from higher-rank adapters.
@@ -873,30 +911,79 @@ We established a rigorous information-theoretic framework for RL in autoregressi
 
 ### Open Questions
 
-1. **Optimal reward shaping**: How should we design reward signals to maximize {{< math >}}$I(S; \pi^*)${{< /math >}} per token?
+Our rigorous information-theoretic framework reveals fundamental bottlenecks and opportunities in RL for LLMs:
 
-2. **Multi-objective alignment**: How does information bandwidth extend to multiple reward functions {{< math >}}$\{\xi_i\}${{< /math >}}?
+**1. The Value Function Challenge** (Highest Priority):
 
-3. **Continual learning**: As we update the policy, the distribution over trajectories changes. How does this affect information accumulation?
+How can we develop stable, scalable methods for training value functions on LLMs?
+- **Information gain**: Could unlock {{< math >}}$\sim 1000\times${{< /math >}} improvement (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(1000)${{< /math >}} bits/episode)
+- **Key obstacles**: Training stability, long-horizon credit assignment, computational overhead
+- **Promising directions**: Low-rank critics, hierarchical decomposition, better initialization
 
-4. **Hierarchical policies**: Can we decompose {{< math >}}$\pi^*${{< /math >}} into levels and learn each level with different bandwidths?
+**2. Token-Level Reward Design**:
+
+Can we design meaningful dense reward signals without human annotation at every token?
+- **Current**: Sparse outcome-based rewards ({{< math >}}$O(1)${{< /math >}} bits/episode)
+- **Potential**: Token-level rewards ({{< math >}}$O(T)${{< /math >}} bits/episode)
+- **Approaches**: Automated reward shaping, proxy signals, model-based pseudo-rewards
+
+**3. Information-Efficient Exploration**:
+
+How should we design exploration strategies to maximize {{< math >}}$I(S; \pi^*)${{< /math >}} per token?
+- Traditional RL uses entropy bonuses, but these don't target information about {{< math >}}$\xi${{< /math >}}
+- **Information-directed sampling**: Choose actions to maximize expected information gain about reward function
+
+**4. Multi-Objective Alignment**:
+
+How does information bandwidth extend to multiple reward functions {{< math >}}$\{\xi_i\}_{i=1}^K${{< /math >}}?
+- Does learning about one objective help with others?
+- How should we allocate limited bandwidth across objectives?
+
+**5. Continual Learning Dynamics**:
+
+As policy updates, the trajectory distribution {{< math >}}$p(\tau | \pi_\theta, \xi)${{< /math >}} changes. How does this affect:
+- Information accumulation rate over training?
+- The relationship between bandwidth and convergence speed?
+- Optimal learning rate schedules from an information perspective?
 
 ### Practical Recommendations
 
 For practitioners fine-tuning LLMs with RL:
 
-1. **Use actor-critic methods** (PPO, not REINFORCE) for {{< math >}}$\sim 100\times${{< /math >}} better sample efficiency
+**Current Best Practices (Policy Gradient Era)**:
 
-2. **Use LoRA with small rank** ({{< math >}}$r = 8${{< /math >}} to {{< math >}}$16${{< /math >}}) for policy gradient—full fine-tuning is wasteful
+1. **Use LoRA with small rank** ({{< math >}}$r = 8${{< /math >}} to {{< math >}}$16${{< /math >}}) for policy gradient—our analysis shows full fine-tuning is wasteful given {{< math >}}$O(1)${{< /math >}} bits/episode
 
-3. **Design token-level rewards** when possible instead of episode-level rewards
+2. **Expect slow convergence**: With {{< math >}}$O(1)${{< /math >}} bits/episode, budget for thousands of episodes
 
-4. **Invest in pre-training quality** to reduce {{< math >}}$H(\pi^* | \text{prior})${{< /math >}} and speed up alignment
+3. **Invest in pre-training quality** to reduce {{< math >}}$H(\pi^* | \text{prior})${{< /math >}} and speed up RL fine-tuning
 
-5. **For multi-task learning**, scale LoRA rank proportionally to number of tasks
+4. **For multi-task learning**, scale LoRA rank proportionally to number of tasks ({{< math >}}$I_{\text{total}} = N \cdot O(K)${{< /math >}})
+
+**The $1000\times$ Opportunity**:
+
+Our analysis reveals a massive opportunity: successfully training value functions for LLMs could improve sample efficiency by {{< math >}}$\sim 1000\times${{< /math >}} (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(T)${{< /math >}} bits/episode where {{< math >}}$T \sim 1000${{< /math >}}).
+
+**Priority Research Directions**:
+
+1. **Develop stable critic training methods** for LLMs
+   - Low-rank value functions
+   - Better initialization strategies
+   - Hierarchical value decomposition
+
+2. **Design meaningful token-level rewards** (currently most methods use sparse, outcome-based rewards)
+
+3. **Explore hybrid approaches** that partially capture {{< math >}}$O(T)${{< /math >}} bandwidth:
+   - Monte Carlo + TD methods
+   - Model-based value learning with reward models
+   - Outcome-conditioned value estimation
+
+{{% callout warning %}}
+**Current State**: The field currently lacks reliable value-based RL recipes for LLMs. From an information-theoretic perspective, this represents the single largest bottleneck in sample-efficient LLM RL training. Solving this problem could reduce training costs and data requirements by orders of magnitude.
+{{% /callout %}}
 
 {{% callout note %}}
-The information-theoretic perspective provides both theoretical understanding and actionable insights for building better RL systems for language models.
+The information-theoretic perspective not only explains current methods (why LoRA works, why training is slow) but also reveals where the highest-leverage research opportunities lie: unlocking the {{< math >}}$O(T)${{< /math >}} bits/episode potential of value-based methods.
 {{% /callout %}}
 
 ---
@@ -905,7 +992,7 @@ The information-theoretic perspective provides both theoretical understanding an
 
 - Ghavamzadeh et al. (2015), "Bayesian Reinforcement Learning: A Survey"
 - Russo & Van Roy (2014), "Learning to Optimize via Information-Directed Sampling"
-- Ouyang et al. (2022), "Training language models to follow instructions with human feedback" (InstructGPT)
+- Ouyang et al. (2022), "Training language models to follow instructions with human feedback" (InstructGPT) (InstructGPT)
 - Hu et al. (2021), "LoRA: Low-Rank Adaptation of Large Language Models"
 - Cover & Thomas (2006), "Elements of Information Theory"
 
