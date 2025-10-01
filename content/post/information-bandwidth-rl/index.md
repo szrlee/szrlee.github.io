@@ -1,6 +1,6 @@
 ---
 title: 'Information Bandwidth in Reinforcement Learning'
-subtitle: 'Understanding Why Policy Gradient Learns 1 Bit Per Episode'
+subtitle: 'How many bits does an RL algorithm gather within an episode?'
 summary: 'A mathematically rigorous information-theoretic analysis of learning efficiency in RL algorithms, explaining why LoRA works for policy gradient fine-tuning.'
 authors:
   - admin
@@ -981,12 +981,27 @@ The information-theoretic perspective not only explains current methods (why LoR
 
 ## Further Reading
 
-- Ghavamzadeh et al. (2015), "Bayesian Reinforcement Learning: A Survey"
 - Russo & Van Roy (2014), "Learning to Optimize via Information-Directed Sampling"
 - Ouyang et al. (2022), "Training language models to follow instructions with human feedback" (InstructGPT) (InstructGPT)
 - Hu et al. (2021), "LoRA: Low-Rank Adaptation of Large Language Models"
 - Cover & Thomas (2006), "Elements of Information Theory"
 
 ---
+
+## Citation
+
+If you found this post useful in your research, please consider citing it:
+
+```bibtex
+@article{li2024information,
+  title   = {Information Bandwidth in Reinforcement Learning: Understanding Why Policy Gradient Learns 1 Bit Per Episode},
+  author  = {Li, Yingru},
+  journal = {Richard Li's Blog},
+  year    = {2024},
+  month   = {January},
+  url     = {https://richardli.xyz/post/information-bandwidth-rl/}
+}
+```
+
 
 ### Did you find this post helpful? Consider sharing it 🙌
