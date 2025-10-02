@@ -777,11 +777,11 @@ $$\mathcal{B}_{\text{effective}} = I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \
 
 When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approximates true expected rewards, and the TD errors become informative about {{< math >}}$\xi${{< /math >}} throughout the trajectory.
 
-**Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** achieved asymptotically with:
+**Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** that would require:
 1. Well-trained critic approximating true values
-2. Information propagated effectively through trajectory
+2. **Independent information across timesteps** (violated in practice due to state overlap and bootstrapping)
 
-In practice, TD errors at successive timesteps are correlated (states share most tokens), and critic training requires careful tuning. These factors reduce effective bandwidth below the theoretical {{< math >}}$O(T)${{< /math >}} maximum, though still substantially higher than policy gradient's {{< math >}}$O(1)${{< /math >}}.
+In practice, successive TD errors are highly correlated because consecutive states share most tokens. This correlation means the **achievable bandwidth is likely {{< math >}}$O(\alpha T)${{< /math >}} where {{< math >}}$\alpha \ll 1${{< /math >}}** represents the effective reduction due to correlation, even with a perfect critic. The theoretical speedup over policy gradient is therefore reduced from {{< math >}}$O(T)${{< /math >}} to {{< math >}}$O(\alpha T)${{< /math >}}, though still potentially substantial for long sequences.
 
 ---
 
@@ -802,8 +802,10 @@ Let's step back and see what we've learned.
 
 2. **For language models with sparse rewards**:
    - Policy gradient: {{< math >}}$\sim 1${{< /math >}}-{{< math >}}$4${{< /math >}} bits per episode
-   - Actor-critic: {{< math >}}$\sim T${{< /math >}} bits per episode where {{< math >}}$T${{< /math >}} is sequence length
-   - If {{< math >}}$T = 1000${{< /math >}} tokens, actor-critic has {{< math >}}$O(T) \sim 500${{< /math >}}-{{< math >}}$1000\times${{< /math >}} more bandwidth
+   - Actor-critic (theoretical): {{< math >}}$\sim T${{< /math >}} bits per episode where {{< math >}}$T${{< /math >}} is sequence length
+   - **Critical requirement**: The {{< math >}}$O(T)${{< /math >}} bandwidth requires a well-trained critic that successfully propagates value information throughout the trajectory
+   - If {{< math >}}$T = 1000${{< /math >}} tokens and the critic is well-trained, theoretical upper bound is {{< math >}}$500${{< /math >}}-{{< math >}}$1000\times${{< /math >}} more bandwidth than policy gradient
+   - **In practice**: Achieving this requires solving critic training stability for LLMs (currently unsolved)
 
 3. **Token-level MDP clarifies everything**: No need to assume unknown dynamics—transitions are deterministic concatenation
 
