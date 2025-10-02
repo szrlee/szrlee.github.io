@@ -204,7 +204,7 @@ Actor-critic methods (A3C, PPO with value function) work differently:
 2. Compute TD error: {{< math >}}$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)${{< /math >}}
 3. Update both actor and critic using {{< math >}}$\delta_t${{< /math >}}
 
-**Learning signal**: {{< math >}}$S = \{\delta_t\}_{t=0}^{T-1}${{< /math >}} (one signal per token)
+**Learning signal**: {{< math >}}$S = \{\delta_t\}_{t=0}^{ T - 1 }${{< /math >}} (one signal per token)
 
 Instead of waiting until the end for one scalar, we get feedback at **every step**.
 
@@ -292,12 +292,12 @@ We bound the entropy of the TD error sequence.
 
 By the chain rule for entropy:
 {{< math >}}
-$$H(\delta_0, \delta_1, \ldots, \delta_{T-1}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_0, \ldots, \delta_{t-1})$$
+$$H(\delta_0, \delta_1, \ldots, \delta_{ T - 1 }) = \sum_{t=0}^{ T - 1 } H(\delta_t | \delta_0, \ldots, \delta_{ t - 1 })$$
 {{< /math >}}
 
-Using {{< math >}}$\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})${{< /math >}}:
+Using {{< math >}}$\delta_{ < t } = (\delta_0, \ldots, \delta_{ t - 1 })${{< /math >}}:
 {{< math >}}
-$$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$
+$$H(\{\delta_t\}) = \sum_{t=0}^{ T - 1 } H(\delta_t | \delta_{ < t })$$
 {{< /math >}}
 
 **Step 2: Bounding Conditional Entropy**
@@ -314,20 +314,20 @@ for any conditioning variable {{< math >}}$Y${{< /math >}}. This holds because:
 
 Therefore:
 {{< math >}}
-$$H(\delta_t | \delta_{<t}) \leq \log_2(B_\delta)$$
+$$H(\delta_t | \delta_{ < t }) \leq \log_2(B_\delta)$$
 {{< /math >}}
 
-**Critical observation**: This bound is **tight** only when {{< math >}}$\delta_t${{< /math >}} is nearly independent of {{< math >}}$\delta_{<t}${{< /math >}}:
+**Critical observation**: This bound is **tight** only when {{< math >}}$\delta_t${{< /math >}} is nearly independent of {{< math >}}$\delta_{ < t }${{< /math >}}:
 {{< math >}}
-$$H(\delta_t | \delta_{<t}) \approx H(\delta_t)$$
+$$H(\delta_t | \delta_{ < t }) \approx H(\delta_t)$$
 {{< /math >}}
 
-If perfectly correlated: {{< math >}}$H(\delta_t | \delta_{<t}) = 0${{< /math >}}. Reality falls between these extremes.
+If perfectly correlated: {{< math >}}$H(\delta_t | \delta_{ < t }) = 0${{< /math >}}. Reality falls between these extremes.
 
 **Step 3: Summing Over Time**
 
 {{< math >}}
-$$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq T \log_2(B_\delta)$$
+$$H(\{\delta_t\}) = \sum_{t=0}^{ T - 1 } H(\delta_t | \delta_{ < t }) \leq T \log_2(B_\delta)$$
 {{< /math >}}
 
 **Step 4: Information Flow Bound**
