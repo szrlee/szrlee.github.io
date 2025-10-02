@@ -54,7 +54,7 @@ This turns out to be both theoretically clean and practically relevant for under
 | Algorithm | Information per Episode | Sample Efficiency | Current Status |
 |-----------|------------------------|-------------------|----------------|
 | **Policy Gradient** | 1-4 bits | Baseline (slow) | ✓ Works at scale |
-| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits (100s-1000s) | {{< math >}}$50${{< /math >}}-{{< math >}}$1000\times${{< /math >}} faster (theoretical) | ✗ Unstable for LLMs |
+| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits (~150-300 realistic) | {{< math >}}$50${{< /math >}}-{{< math >}}$150\times${{< /math >}} faster (realistic) | ✗ Unstable for LLMs |
 
 **Main Findings**:
 
@@ -212,7 +212,7 @@ Under this assumption, the prior {{< math >}}$p(\xi)${{< /math >}} induces a dis
 
 ### Information Theory Foundations
 
-Before diving into the analysis, let's review the information-theoretic tools we'll need. If you're comfortable with entropy and mutual information, feel free to skim this section—but I want to be explicit about the machinery we're using.
+Before diving into the analysis, here are the information-theoretic tools we'll need. If you're comfortable with entropy and mutual information, feel free to skim this section—but I want to be explicit about the machinery we're using.
 
 **Entropy**: For discrete random variable {{< math >}}$X${{< /math >}}:
 
@@ -588,20 +588,6 @@ We're still talking about a trickle of information.
 
 ---
 
-**Summary**:
-
-| Quantity | Value | Meaning |
-|----------|-------|---------|
-| Potential Bandwidth | {{< math >}}$O(1)${{< /math >}} bits | Scalar signal has limited capacity |
-| Effective Bandwidth | {{< math >}}$\leq O(1)${{< /math >}} bits | At most {{< math >}}$\log_2(B)${{< /math >}} bits where {{< math >}}$B${{< /math >}} is number of distinguishable reward levels |
-| Bottleneck | Episode-level compression | {{< math >}}$T${{< /math >}} tokens → 1 scalar return |
-
-{{% callout note %}}
-**Key insight**: Policy gradient compresses an entire sequence of {{< math >}}$T${{< /math >}} tokens into a single scalar reward signal, creating a severe information bottleneck.
-{{% /callout %}}
-
----
-
 ### Actor-Critic: Unlocking Token-Level Information
 
 So policy gradients learn 1-4 bits per episode. That's... not much. But what if we could get a learning signal at *every* token instead of just at the end? That's the promise of actor-critic methods.
@@ -665,9 +651,7 @@ Since we have {{< math >}}$T${{< /math >}} steps (one per token generated):
 $$\mathcal{B}_{\text{potential}} = \sum_{t=0}^{T-1} H(\delta_t | \text{history}) = T \cdot O(1) = O(T) \text{ bits}$$
 {{< /math >}}
 
-{{% callout note %}}
-**Key difference from policy gradient**: We get a learning signal at **every token**, not just at episode end.
-{{% /callout %}}
+This is fundamentally different from policy gradient: instead of one scalar signal per episode, we get learning feedback at every single token.
 
 **Step 4**: Analyze {{< math >}}$I(\delta_t; \xi | \text{history})${{< /math >}} — the information content of TD errors.
 
@@ -891,20 +875,6 @@ This partially explains why:
 
 ---
 
-**Summary**:
-
-| Quantity | Value | Meaning |
-|----------|-------|---------|
-| Potential Bandwidth | {{< math >}}$O(T)${{< /math >}} bits | Dense signal: one per token |
-| Effective Bandwidth | {{< math >}}$\leq O(T)${{< /math >}} bits | Achievable when critic is trained |
-| Improvement over PG | {{< math >}}$T \times${{< /math >}} | For {{< math >}}$T=1000${{< /math >}} tokens, {{< math >}}$1000\times${{< /math >}} more bandwidth |
-
-{{% callout note %}}
-**Key insight**: Actor-critic provides learning signals at every token generation step, not just episode end, yielding {{< math >}}$T\times${{< /math >}} more information capacity.
-{{% /callout %}}
-
----
-
 ## Synthesis and Implications
 
 Let's step back and see what we've learned.
@@ -1071,27 +1041,9 @@ Regardless of the exact conversion between storage bits and information content,
 
 This **qualitatively explains** why low-rank adapters work well for policy gradient fine-tuning—the parameter bottleneck matches the information bottleneck.
 
-**Why full fine-tuning is wasteful**:
-
-Extending this argument to full fine-tuning of a 7B parameter model:
-- Parameters: {{< math >}}$7 \times 10^9${{< /math >}}
-- Degrees of freedom: {{< math >}}$7 \times 10^9${{< /math >}}
-- Information from 1000 episodes PG: {{< math >}}$\sim 2000${{< /math >}} bits
-
-{{< math >}}
-$$\text{Parameters per information bit} = \frac{7 \times 10^9}{2000} \approx 3.5 \times 10^6$$
-{{< /math >}}
-
-That's **3.5 million parameters per information bit**—an absurd overcapacity that invites overfitting, catastrophic forgetting, and computational waste.
-
 **Conclusion** (with appropriate epistemic humility):
 
-While we cannot rigorously quantify the exact relationship between parameter DOF and information capacity, the order-of-magnitude analysis strongly suggests:
-- LoRA ({{< math >}}$r = 8${{< /math >}}-{{< math >}}$16${{< /math >}}): Well-matched to policy gradient's information rate
-- Full fine-tuning: Vastly overcapacitated for sparse learning signals
-- This mismatch qualitatively explains empirical observations about LoRA's effectiveness
-
-The low-rank bottleneck naturally matches the information bottleneck—which is why LoRA works.
+While we cannot rigorously quantify the exact relationship between parameter DOF and information capacity, the order-of-magnitude analysis strongly suggests that LoRA ({{< math >}}$r = 8${{< /math >}}-{{< math >}}$16${{< /math >}}) is well-matched to policy gradient's information rate, while full fine-tuning provides vastly more capacity than needed. This mismatch qualitatively explains empirical observations about LoRA's effectiveness—the low-rank bottleneck naturally matches the information bottleneck.
 
 ---
 
@@ -1343,10 +1295,7 @@ If I had to bet on where the next major breakthrough in LLM RL will come from, i
 
 **1. The Value Function Challenge** (Highest Priority):
 
-How can we develop stable, scalable methods for training value functions on LLMs?
-- **Information gain**: Could unlock {{< math >}}$\sim 1000\times${{< /math >}} improvement (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(1000)${{< /math >}} bits/episode)
-- **Key obstacles**: Training stability, long-horizon credit assignment, computational overhead
-- **Promising directions**: Low-rank critics, hierarchical decomposition, better initialization
+Developing stable critic training for LLMs could unlock {{< math >}}$\sim 1000\times${{< /math >}} sample efficiency improvements. This is the single highest-leverage research direction suggested by our information-theoretic analysis (see Section 4.4 for detailed challenges and approaches).
 
 **2. Token-Level Reward Design**:
 
@@ -1376,42 +1325,14 @@ As policy updates, the trajectory distribution {{< math >}}$p(\tau | \pi_\theta,
 
 ### Practical Recommendations
 
-For practitioners fine-tuning LLMs with RL:
-
-**Current Best Practices (Policy Gradient Era)**:
-
-1. **Use LoRA with small rank** ({{< math >}}$r = 8${{< /math >}} to {{< math >}}$16${{< /math >}}) for policy gradient—our analysis shows full fine-tuning is wasteful given {{< math >}}$O(1)${{< /math >}} bits/episode
-
-2. **Expect slow convergence**: With {{< math >}}$O(1)${{< /math >}} bits/episode, budget for thousands of episodes
-
-3. **Invest in pre-training quality** to reduce {{< math >}}$H(\pi^* | \text{prior})${{< /math >}} and speed up RL fine-tuning
-
-4. **For multi-task learning**, scale LoRA rank proportionally to number of tasks ({{< math >}}$I_{\text{total}} = N \cdot O(K)${{< /math >}})
+**For Current Practice**: See Section 4.4 for specific recommendations on LoRA rank selection, convergence expectations, and parameter-efficient fine-tuning strategies.
 
 **The $1000\times$ Opportunity**:
 
-Our analysis reveals a massive opportunity: successfully training value functions for LLMs could improve sample efficiency by {{< math >}}$\sim 1000\times${{< /math >}} (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(T)${{< /math >}} bits/episode where {{< math >}}$T \gg 1000${{< /math >}}).
-
-**Priority Research Directions**:
-
-1. **Develop stable critic training methods** for LLMs
-   - Low-rank value functions
-   - Better initialization strategies
-   - Hierarchical value decomposition
-
-2. **Design meaningful token-level rewards** (currently most methods use sparse, outcome-based rewards)
-
-3. **Explore hybrid approaches** that partially capture {{< math >}}$O(T)${{< /math >}} bandwidth:
-   - Monte Carlo + TD methods
-   - Model-based value learning with reward models
-   - Outcome-conditioned value estimation
+Our analysis reveals a massive opportunity: successfully training value functions for LLMs could improve sample efficiency by {{< math >}}$\sim 1000\times${{< /math >}} (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(T)${{< /math >}} bits/episode where {{< math >}}$T \gg 1000${{< /math >}}). The priority research directions are stable critic training, token-level reward design, and hybrid approaches (detailed in Section 4.4).
 
 {{% callout warning %}}
-**Current State**: The field currently lacks reliable value-based RL recipes for LLMs. From an information-theoretic perspective, this represents the single largest bottleneck in sample-efficient LLM RL training. Solving this problem could reduce training costs and data requirements by orders of magnitude.
-{{% /callout %}}
-
-{{% callout note %}}
-The information-theoretic perspective not only explains current methods (why LoRA works, why training is slow) but also reveals where the highest-leverage research opportunities lie: unlocking the {{< math >}}$O(T)${{< /math >}} bits/episode potential of value-based methods.
+**Current State**: The field currently lacks reliable value-based RL recipes for LLMs. From an information-theoretic perspective, this represents the single largest bottleneck in sample-efficient LLM RL training. Solving this problem could reduce training costs and data requirements by orders of magnitude—unlocking the {{< math >}}$O(T)${{< /math >}} bits/episode potential of value-based methods.
 {{% /callout %}}
 
 ---
@@ -1485,26 +1406,24 @@ It does **not** provide:
 
 ---
 
-## Appendix: Scope and Limitations
+## Appendix: Technical Notes
 
 **What this analysis rigorously establishes**:
 1. ✅ Policy gradient uses scalar signals with {{< math >}}$O(1)${{< /math >}} bit capacity per episode
 2. ✅ Actor-critic uses token-level signals with {{< math >}}$O(T)${{< /math >}} bit capacity per episode
-3. ✅ The qualitative conclusion: dense signals provide {{< math >}}$T\times${{< /math >}} more information bandwidth
-4. ✅ LoRA's storage capacity vastly exceeds information provided by policy gradient
+3. ✅ Dense signals provide {{< math >}}$T\times${{< /math >}} more information bandwidth (qualitative conclusion)
 
-**What requires additional assumptions**:
-1. ⚠️ Exact sample complexity bounds (requires analysis of optimization dynamics)
-2. ⚠️ Linear accumulation of information (assumes limited redundancy across episodes)
-3. ⚠️ Actor-critic achieving {{< math >}}$O(T)${{< /math >}} bandwidth (requires well-trained critic)
-4. ⚠️ Reward distinguishability (assumes {{< math >}}$O(1)${{< /math >}} effective precision)
+**What requires assumptions** (see "What This Analysis Proves" section above for details):
+1. ⚠️ Finite reward distinguishability ({{< math >}}$B = O(1)${{< /math >}} levels)
+2. ⚠️ Well-trained critic for {{< math >}}$O(T)${{< /math >}} bandwidth
+3. ⚠️ Linear accumulation in early/mid training
+4. ⚠️ Near-optimal information utilization for sample complexity
 
-**What remains qualitative**:
-1. 📊 Specific constants (exact bits per distinguishable reward level)
-2. 📊 Saturation dynamics (when marginal information gain decreases)
-3. 📊 Relationship between storage bits and representational capacity in neural networks
-
-**Perspective**: This analysis provides an **information-theoretic lens** for understanding RL efficiency in LLM fine-tuning. The mathematical framework is rigorous, but translating information-theoretic bounds to concrete sample complexity requires additional assumptions about optimization and learning dynamics. The value lies in the **qualitative insights** and **order-of-magnitude comparisons**, which align well with empirical observations and provide intuition for why certain methods work.
+**Additional technical considerations**:
+- For continuous policy spaces, we use differential entropy; mutual information {{< math >}}$I(S; \pi^*)${{< /math >}} remains well-defined
+- Sample complexity bounds are information-theoretic lower bounds, not tight predictions
+- Storage bits ≠ information bits (see Section 4.2 for careful discussion)
+- Empirical speedups (10-100×) align with correlation-adjusted theoretical predictions
 
 ---
 
