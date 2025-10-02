@@ -53,8 +53,11 @@ This turns out to be both theoretically clean and practically relevant for under
 
 | Algorithm | Information per Episode | Sample Efficiency | Current Status |
 |-----------|------------------------|-------------------|----------------|
-| **Policy Gradient** | 1-4 bits | Baseline (slow) | ✓ Works at scale |
-| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits | Up to {{< math >}}$O(T)\times${{< /math >}} (theoretical upper bound) | ✗ Unstable for LLMs |
+| **Policy Gradient** | 1-4 bits* | Baseline (slow) | ✓ Works at scale |
+| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits† | Up to {{< math >}}$O(T)\times${{< /math >}}† | ✗ Unstable for LLMs |
+
+*Under finite reward distinguishability assumption
+†Theoretical upper bound requiring well-trained critic
 
 **Main Findings**:
 
@@ -64,7 +67,7 @@ This turns out to be both theoretically clean and practically relevant for under
 
 3. **LoRA success explained**: With only {{< math >}}$\sim 2{,}000${{< /math >}} bits accumulated over 1,000 episodes, LoRA's {{< math >}}$\sim 65{,}000${{< /math >}} degrees of freedom provide {{< math >}}$\sim 30\times${{< /math >}} more capacity than information bits
 
-4. **Research opportunity**: Developing stable value-based methods for LLMs could unlock substantial sample efficiency improvements (theoretical upper bound of {{< math >}}$O(T) \sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} with {{< math >}}$T \sim 1000${{< /math >}} tokens, though practical speedups of {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} are more realistic based on traditional RL experience)
+4. **Research opportunity**: Developing stable value-based methods for LLMs could unlock substantial sample efficiency improvements
 
 ### Mathematical Framework
 
@@ -80,17 +83,72 @@ This turns out to be both theoretically clean and practically relevant for under
 
 ### Practical Implications
 
-**For current practice** (policy gradient era):
-- Use LoRA with {{< math >}}$r = 8${{< /math >}}-{{< math >}}$16${{< /math >}} (sufficient for {{< math >}}$O(1)${{< /math >}} bits/episode)
-- Expect slow convergence (thousands of episodes needed)
-- Full fine-tuning wastes capacity ({{< math >}}$\sim 10^6\times${{< /math >}} overcapacity)
-
-**For future research** (unlock actor-critic potential):
-- Develop stable critic training for LLMs
-- Design token-level reward signals
-- Explore low-rank value functions
+- **For current practice**: Use LoRA with {{< math >}}$r = 8${{< /math >}}-{{< math >}}$16${{< /math >}} (sufficient for {{< math >}}$O(1)${{< /math >}} bits/episode)
+- **For future research**: Develop stable critic training for LLMs to unlock {{< math >}}$O(T)${{< /math >}} bits/episode potential
 
 The information-theoretic lens reveals not just why current methods work, but where the biggest opportunities for improvement lie.
+
+---
+
+## Notation and Key Assumptions
+
+Before diving into the analysis, let me be explicit about notation and the critical assumptions that underpin our main results.
+
+### Core Random Variables
+
+- {{< math >}}$\xi \sim p(\xi)${{< /math >}}: **Reward function parameter** (what we're learning about)
+- {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}}: **Optimal policy** (deterministic function of {{< math >}}$\xi${{< /math >}})
+- {{< math >}}$\tau${{< /math >}}: **Trajectory** (sequence of states and actions)
+- {{< math >}}$G${{< /math >}}: **Return** (scalar reward signal in policy gradient)
+- {{< math >}}$\delta_t${{< /math >}}: **TD error** at timestep {{< math >}}$t${{< /math >}} (vector of signals in actor-critic)
+
+### Entropy Notation
+
+- {{< math >}}$H(X)${{< /math >}}: **Discrete entropy** (bits) - used when {{< math >}}$X${{< /math >}} takes finitely many values
+- {{< math >}}$h(X)${{< /math >}}: **Differential entropy** (nats or bits) - used when {{< math >}}$X${{< /math >}} is continuous
+- **Key point**: {{< math >}}$I(X;Y)${{< /math >}} (mutual information) is always well-defined and finite even when individual entropies may be infinite
+
+### Critical Assumptions
+
+{{% callout warning %}}
+**The main results depend on these assumptions. They are not mathematical theorems—they are modeling choices motivated by practical systems.**
+{{% /callout %}}
+
+**Assumption A1 (Unique Optimum)**: Each reward parameter {{< math >}}$\xi${{< /math >}} determines a unique optimal policy {{< math >}}$\pi^*_\xi${{< /math >}}.
+
+- **When it holds**: Generic smooth objectives, large parameter spaces, finite precision
+- **When it fails**: Exact symmetries, flat regions, pathological cases
+- **Practical status**: Effectively true for neural network LLM training
+- **Why we need it**: Makes {{< math >}}$\pi^*${{< /math >}} a well-defined random variable with distribution {{< math >}}$p(\pi^*)${{< /math >}}
+
+**Assumption A2 (Finite Reward Distinguishability)**: Rewards have {{< math >}}$B = O(1)${{< /math >}} effectively distinguishable levels from the perspective of learning {{< math >}}$\pi^*${{< /math >}}.
+
+- **Implication**: {{< math >}}$H(G) \leq \log_2(B) = O(1)${{< /math >}} bits
+- **Empirical grounding**: Binary preferences ({{< math >}}$B=2${{< /math >}} levels), Likert scales ({{< math >}}$B=4${{< /math >}}-{{< math >}}$5${{< /math >}} levels)
+- **Status**: **Modeling assumption** motivated by practical systems
+- **Critical**: This bounds the **entropy** of returns, but not yet the **information** about {{< math >}}$\xi${{< /math >}}
+
+**Assumption A3 (Bounded Information per Episode)**: {{< math >}}$I(G; \xi) = O(1)${{< /math >}} bits
+
+- **Relation to A2**: This is **STRONGER** than just {{< math >}}$H(G) = O(1)${{< /math >}}
+- **What it requires**: Prior {{< math >}}$p(\xi)${{< /math >}} and policy {{< math >}}$\pi_\theta${{< /math >}} don't make returns arbitrarily informative about {{< math >}}$\xi${{< /math >}}
+- **Status**: **Additional assumption** beyond A2, not proven from A2
+- **Why separate**: A signal can have low entropy but high mutual information if perfectly correlated with {{< math >}}$\xi${{< /math >}}
+
+**Assumption A4 (Linear Accumulation)**: {{< math >}}$I_{\text{total}} \approx Nc${{< /math >}} in early/mid training
+
+- **When it holds**: {{< math >}}$Nc \ll H(\pi^*)${{< /math >}} (before saturation)
+- **What it ignores**: Correlation, redundancy, diminishing returns
+- **Status**: **Approximation** valid for typical fine-tuning regimes ({{< math >}}$N \sim 10^3${{< /math >}}-{{< math >}}$10^4${{< /math >}})
+
+### Assumption Dependencies
+
+The main results require different combinations:
+
+- **"1 bit per episode" for policy gradient**: Requires A1 + A2 + A3
+- **"{{< math >}}$O(T)${{< /math >}} bits per episode" for actor-critic**: Requires A1 + well-trained critic (unproven for LLMs)
+- **LoRA sufficiency**: Requires A1 + A2 + A3 + A4
+- **Sample complexity bounds**: Require all assumptions + perfect optimization (unrealistic)
 
 ---
 
@@ -140,9 +198,7 @@ Often simplified (sparse rewards): {{< math >}}$J(\theta; R_\xi) = \mathbb{E}_{\
 
 ### The Bayesian RL Formulation
 
-Here's where things get interesting. Instead of treating the reward function as fixed and known, let's be honest: we're uncertain about what the "right" reward function is. Maybe we're learning human preferences, or trying to figure out what makes a good code completion, or optimizing for some task we only partially understand.
-
-So let's model this uncertainty explicitly with a **prior distribution** {{< math >}}$p(\xi)${{< /math >}} over reward parameters {{< math >}}$\xi${{< /math >}}.
+Instead of treating the reward function as fixed and known, let's model our uncertainty explicitly with a **prior distribution** {{< math >}}$p(\xi)${{< /math >}} over reward parameters {{< math >}}$\xi${{< /math >}}.
 
 **Examples of** {{< math >}}$\xi${{< /math >}}:
 - **Preference learning**: {{< math >}}$\xi${{< /math >}} represents human preferences (parameters of a reward model)
@@ -150,52 +206,18 @@ So let's model this uncertainty explicitly with a **prior distribution** {{< mat
 - **Objective optimization**: {{< math >}}$\xi${{< /math >}} represents aspects of desired behavior
 
 **Induced Distribution over Optimal Policies**: For each reward function {{< math >}}$R_\xi${{< /math >}}, there is an optimal policy:
-
 {{< math >}}
 $$\pi^*_\xi = \arg\max_\pi J(\pi; R_\xi)$$
 {{< /math >}}
 
-**Assumption (Unique Optimum)**: We assume that for each {{< math >}}$\xi${{< /math >}}, the optimal policy {{< math >}}$\pi^*_\xi${{< /math >}} is **unique** (or at least, unique up to measure zero).
-
-**When this assumption holds**:
-
-1. **Continuous parameter space with generic objectives**: The policy is parameterized by {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}. For "generic" smooth objective functions {{< math >}}$J(\theta; R_\xi)${{< /math >}} (in a measure-theoretic sense), the set of global maxima has measure zero in the parameter space. Multiple distinct global maxima require special structure (symmetries, flat regions) that occur with probability zero under typical priors {{< math >}}$p(\xi)${{< /math >}}
-
-2. **Strict concavity of objective**: If {{< math >}}$J(\pi; R_\xi)${{< /math >}} is strictly concave in the policy parameters {{< math >}}$\theta${{< /math >}}, there exists a unique maximizer
-
-3. **Lexicographic tie-breaking**: For discrete cases or when multiple optima exist mathematically, we can impose an arbitrary but consistent ordering (e.g., by parameter norm) to select a unique policy
-
-4. **Generic property**: For "most" reward functions (in a measure-theoretic sense), the optimal policy is unique. Exact degeneracies require special structure
-
-**When this assumption might fail**:
-
-- **Symmetries**: If the MDP has symmetries (e.g., equivalent actions), multiple policies may be exactly optimal
-- **Flat regions**: If the objective has flat plateaus, many policies achieve the same maximum value
-- **Discrete spaces**: In small discrete action spaces, ties are more common
-- **Pathological rewards**: Carefully constructed reward functions could have degenerate optima
-
-**Why we need this assumption**:
-
-For the mapping {{< math >}}$\xi \mapsto \pi^*_\xi${{< /math >}} to be well-defined (single-valued), we need each {{< math >}}$\xi${{< /math >}} to determine a unique {{< math >}}$\pi^*${{< /math >}}. If multiple optimal policies exist for some {{< math >}}$\xi${{< /math >}}, we would need to specify a selection rule.
-
-**Practical impact**:
-
-In real LLM fine-tuning:
-- Neural network optimization implicitly breaks ties via initialization and optimization path
-- Floating-point arithmetic has finite precision, making exact ties nearly impossible
-- The policy space {{< math >}}$\mathbb{R}^d${{< /math >}} (with {{< math >}}$d \sim 10^9${{< /math >}} parameters) is so large that generic uniqueness holds
-- Even if multiple {{< math >}}$\theta${{< /math >}} values achieve the same maximum objective, they typically induce the same policy {{< math >}}$\pi_\theta(\cdot|\cdot)${{< /math >}}
-
-Therefore, **effective uniqueness holds in practice** for LLM RL, making this assumption reasonable.
-
-Under this assumption, the prior {{< math >}}$p(\xi)${{< /math >}} induces a distribution {{< math >}}$p(\pi^*)${{< /math >}} where {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} and {{< math >}}$\xi \sim p(\xi)${{< /math >}}.
+Under **Assumption A1** (unique optimum), the prior {{< math >}}$p(\xi)${{< /math >}} induces a distribution {{< math >}}$p(\pi^*)${{< /math >}} where {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} and {{< math >}}$\xi \sim p(\xi)${{< /math >}}.
 
 **Critical Point**: This makes {{< math >}}$\pi^*${{< /math >}} a **random variable** with a well-defined probability distribution, allowing us to rigorously compute:
-- {{< math >}}$H(\pi^*)${{< /math >}}: Entropy of the optimal policy (we use differential entropy for continuous policy parameters)
+- {{< math >}}$H(\pi^*)${{< /math >}} or {{< math >}}$h(\pi^*)${{< /math >}}: Entropy of the optimal policy
 - {{< math >}}$I(S; \pi^*)${{< /math >}}: Mutual information between learning signals and optimal policy
 - {{< math >}}$H(\pi^* | \mathcal{D})${{< /math >}}: Posterior entropy after observing data
 
-**Note on Differential Entropy**: For continuous policy parameterizations {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}, the entropy {{< math >}}$h(\pi^*)${{< /math >}} may be infinite. However, the mutual information {{< math >}}$I(S; \pi^*) = h(\pi^*) - h(\pi^*|S)${{< /math >}} remains well-defined and finite as long as the conditioning reduces entropy by a finite amount. This is the quantity we care about—it measures the reduction in uncertainty about {{< math >}}$\pi^*${{< /math >}} after observing {{< math >}}$S${{< /math >}}, which is finite even when absolute entropies are infinite. For discrete policy spaces or finite {{< math >}}$\epsilon${{< /math >}}-nets, all entropies are finite.
+**Note on Differential Entropy**: For continuous {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}, the differential entropy {{< math >}}$h(\pi^*)${{< /math >}} may be infinite. However, the mutual information {{< math >}}$I(S; \pi^*) = h(\pi^*) - h(\pi^*|S)${{< /math >}} remains well-defined and finite—it measures the reduction in uncertainty about {{< math >}}$\pi^*${{< /math >}} after observing {{< math >}}$S${{< /math >}}.
 
 **Learning Objective**: Reduce uncertainty about {{< math >}}$\pi^*${{< /math >}} by observing trajectories.
 
@@ -203,10 +225,7 @@ Under this assumption, the prior {{< math >}}$p(\xi)${{< /math >}} induces a dis
 
 ### Information Theory Foundations
 
-Before diving into the analysis, here are the information-theoretic tools we'll need. If you're comfortable with entropy and mutual information, feel free to skim this section—but I want to be explicit about the machinery we're using.
-
 **Entropy**: For discrete random variable {{< math >}}$X${{< /math >}}:
-
 {{< math >}}
 $$H(X) = -\sum_{x} p(x) \log_2 p(x)$$
 {{< /math >}}
@@ -214,15 +233,13 @@ $$H(X) = -\sum_{x} p(x) \log_2 p(x)$$
 Measures average uncertainty (in bits).
 
 **Conditional Entropy**:
-
 {{< math >}}
-$$H(X | Y) = \sum_{y} p(y) H(X | Y=y) = -\sum_{x,y} p(x,y) \log_2 p(x|y)$$
+$$H(X | Y) = -\sum_{x,y} p(x,y) \log_2 p(x|y)$$
 {{< /math >}}
 
 Average uncertainty in {{< math >}}$X${{< /math >}} after observing {{< math >}}$Y${{< /math >}}.
 
 **Mutual Information**:
-
 {{< math >}}
 $$I(X; Y) = H(X) - H(X | Y) = H(Y) - H(Y | X)$$
 {{< /math >}}
@@ -237,62 +254,17 @@ Amount of uncertainty reduction: how much learning {{< math >}}$Y${{< /math >}} 
 
 ---
 
-### Data Processing Inequality: The Key Tool
+### Data Processing Inequality
 
-The Data Processing Inequality (DPI) is going to be our workhorse theorem. The intuition is beautiful: you can't create information by processing it. Every transformation, every function application, every summary—it can only lose information or preserve it, never create it from thin air.
-
-Let me state this precisely. For a **Markov chain** {{< math >}}$X \to Y \to Z${{< /math >}}, the variables satisfy:
-
-{{< math >}}
-$$p(z | x, y) = p(z | y)$$
-{{< /math >}}
-
-Meaning: {{< math >}}$X${{< /math >}} and {{< math >}}$Z${{< /math >}} are conditionally independent given {{< math >}}$Y${{< /math >}}.
-
-**Data Processing Inequality (DPI)**:
-If {{< math >}}$X \to Y \to Z${{< /math >}}, then:
+**For Markov chain** {{< math >}}$X \to Y \to Z${{< /math >}} (meaning {{< math >}}$p(z | x, y) = p(z | y)${{< /math >}}):
 
 {{< math >}}
 $$I(X; Z) \leq I(X; Y)$$
 {{< /math >}}
 
-**Proof**:
-
+**Proof**: By chain rule:
 {{< math >}}
-$$\begin{align}
-I(X; Y, Z) &= I(X; Y) + I(X; Z | Y)\\
-&= I(X; Y) + 0 \quad \text{(by conditional independence)}\\
-&= I(X; Y)
-\end{align}$$
-{{< /math >}}
-
-Also:
-
-{{< math >}}
-$$\begin{align}
-I(X; Y, Z) &= I(X; Z) + I(X; Y | Z)\\
-&\geq I(X; Z) \quad \text{(since } I(X; Y | Z) \geq 0\text{)}
-\end{align}$$
-{{< /math >}}
-
-Therefore: {{< math >}}$I(X; Z) \leq I(X; Y, Z) = I(X; Y)${{< /math >}}.
-
-**Intuition**: Processing information through a chain can only lose information, never create it.
-
----
-
-**DPI for Deterministic Functions**:
-
-A special case we'll use is when {{< math >}}$Z = f(Y)${{< /math >}} is a deterministic function of {{< math >}}$Y${{< /math >}}. In this case, {{< math >}}$Z${{< /math >}} is conditionally independent of {{< math >}}$X${{< /math >}} given {{< math >}}$Y${{< /math >}} (since knowing {{< math >}}$Y${{< /math >}} completely determines {{< math >}}$Z${{< /math >}}), which establishes the Markov chain {{< math >}}$X \to Y \to Z${{< /math >}}.
-
-The Data Processing Inequality therefore applies:
-{{< math >}}
-$$I(X; f(Y)) \leq I(X; Y)$$
-{{< /math >}}
-
-**Proof**: Since {{< math >}}$f${{< /math >}} is deterministic, {{< math >}}$H(Z|Y) = 0${{< /math >}}, which means {{< math >}}$I(X; Z | Y) = 0${{< /math >}}. By the chain rule:
-{{< math >}}
-$$I(X; Y, Z) = I(X; Y) + I(X; Z | Y) = I(X; Y)$$
+$$I(X; Y, Z) = I(X; Y) + I(X; Z | Y) = I(X; Y) + 0 = I(X; Y)$$
 {{< /math >}}
 
 Also:
@@ -300,11 +272,16 @@ Also:
 $$I(X; Y, Z) = I(X; Z) + I(X; Y | Z) \geq I(X; Z)$$
 {{< /math >}}
 
-Therefore {{< math >}}$I(X; Z) \leq I(X; Y)${{< /math >}}.
+Therefore: {{< math >}}$I(X; Z) \leq I(X; Y)${{< /math >}}. ∎
 
-**Intuition**: Processing information through a deterministic function can only lose or preserve information, never create it.
+**Intuition**: Processing information through a chain can only lose information, never create it.
 
-**Important caveat**: This form of DPI applies when we have the Markov chain structure. However, we can establish similar bounds using the chain rule even without Markov structure, as we'll see in the policy gradient analysis.
+**Special case—Deterministic Functions**: When {{< math >}}$Z = f(Y)${{< /math >}} is deterministic, we have {{< math >}}$H(Z|Y) = 0${{< /math >}}, which establishes the Markov chain {{< math >}}$X \to Y \to Z${{< /math >}}. Therefore:
+{{< math >}}
+$$I(X; f(Y)) \leq I(X; Y)$$
+{{< /math >}}
+
+**Important**: We can also establish similar bounds using the chain rule even without Markov structure, as we'll see in the policy gradient analysis.
 
 ---
 
@@ -385,6 +362,8 @@ graph LR
     C --> E[G]
 ```
 
+*Figure: Probabilistic dependencies in policy gradient. Arrows represent causal/probabilistic influence.*
+
 Where:
 - {{< math >}}$\xi \sim p(\xi)${{< /math >}}: Prior over reward parameters
 - {{< math >}}$\pi_\theta${{< /math >}}: Current policy (fixed/given)
@@ -418,30 +397,31 @@ This is why the DAG shows:
 
 **Key observation**: This is NOT a Markov chain {{< math >}}$G \to \xi \to \pi^*${{< /math >}} because {{< math >}}$G${{< /math >}} depends on both {{< math >}}$\xi${{< /math >}} (which rewards) and {{< math >}}$\pi_\theta${{< /math >}} (which trajectory), while {{< math >}}$\pi^*${{< /math >}} depends only on {{< math >}}$\xi${{< /math >}}.
 
-**Step 2**: Bound effective bandwidth using the chain rule.
+**Step 2: Bound effective bandwidth using the chain rule**
 
 We want to establish: {{< math >}}$I(G; \pi^*) \leq I(G; \xi)${{< /math >}}
 
 This bound is crucial because it shows that the learning signal's information about the optimal policy is limited by its information about the reward parameters.
 
-**Proof using chain rule for mutual information**:
+**Theorem 1 (Information Flow Bound)**:
+{{< math >}}
+$$I(G; \pi^*) \leq I(G; \xi)$$
+{{< /math >}}
 
-Recall that {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}}. This means that once we know {{< math >}}$\xi${{< /math >}}, we know {{< math >}}$\pi^*${{< /math >}} with certainty, so:
+**Proof**: Since {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}}:
 {{< math >}}
 $$H(\pi^* | \xi) = 0$$
 {{< /math >}}
 
-Now apply the chain rule for mutual information in two different ways:
-
+Apply the chain rule in two ways:
 {{< math >}}
 $$I(G; \pi^*, \xi) = I(G; \pi^*) + I(G; \xi | \pi^*)$$
 {{< /math >}}
-
 {{< math >}}
 $$I(G; \pi^*, \xi) = I(G; \xi) + I(G; \pi^* | \xi)$$
 {{< /math >}}
 
-Since {{< math >}}$\pi^*${{< /math >}} is deterministic given {{< math >}}$\xi${{< /math >}}, knowing {{< math >}}$\xi${{< /math >}} tells us nothing new about the relationship between {{< math >}}$G${{< /math >}} and {{< math >}}$\pi^*${{< /math >}}:
+Since {{< math >}}$\pi^*${{< /math >}} is deterministic given {{< math >}}$\xi${{< /math >}}:
 {{< math >}}
 $$I(G; \pi^* | \xi) = 0$$
 {{< /math >}}
@@ -453,167 +433,100 @@ $$I(G; \pi^*, \xi) = I(G; \xi)$$
 
 From the first chain rule equation:
 {{< math >}}
-$$I(G; \pi^*) + I(G; \xi | \pi^*) = I(G; \pi^*, \xi)$$
-{{< /math >}}
-
-Rearranging:
-{{< math >}}
 $$I(G; \pi^*) = I(G; \pi^*, \xi) - I(G; \xi | \pi^*)$$
 {{< /math >}}
 
-Since mutual information is always non-negative, {{< math >}}$I(G; \xi | \pi^*) \geq 0${{< /math >}}, therefore:
-{{< math >}}
-$$I(G; \pi^*) \leq I(G; \pi^*, \xi)$$
-{{< /math >}}
-
-From the second chain rule equation, we established that {{< math >}}$I(G; \pi^*, \xi) = I(G; \xi)${{< /math >}}.
-
-Combining these results:
+Since {{< math >}}$I(G; \xi | \pi^*) \geq 0${{< /math >}}:
 {{< math >}}
 $$I(G; \pi^*) \leq I(G; \pi^*, \xi) = I(G; \xi)$$
-{{< /math >}}
+{{< /math >}} ∎
 
-**Important note**: This bound holds even though {{< math >}}$G${{< /math >}} depends on both {{< math >}}$\xi${{< /math >}} (through the reward function {{< math >}}$R_\xi${{< /math >}}) and {{< math >}}$\pi_\theta${{< /math >}} (through which trajectory is generated). The key insight is that {{< math >}}$\pi^*${{< /math >}} is uniquely determined by {{< math >}}$\xi${{< /math >}}, regardless of how {{< math >}}$G${{< /math >}} was generated. We do NOT need a Markov chain {{< math >}}$G \to \xi \to \pi^*${{< /math >}} for this inequality to hold—the chain rule argument is sufficient.
-
-**Step 3**: Calculate Potential Bandwidth and establish the finite information bound.
-
-The return {{< math >}}$G = R_\xi(s_T)${{< /math >}} is a scalar that depends on:
-- The reward parameter {{< math >}}$\xi \sim p(\xi)${{< /math >}} (what we're learning about)
-- The policy {{< math >}}$\pi_\theta${{< /math >}} (which sequences are generated)
-- The stochastic generation process
-
-**Potential bandwidth** is bounded by the entropy of this signal:
-{{< math >}}
-$$\mathcal{B}_{\text{potential}} = H(G) = H(R_\xi(s_T))$$
-{{< /math >}}
-
-**Critical insight**: For the "1 bit per episode" result to hold, we need to establish that {{< math >}}$H(G)${{< /math >}} and {{< math >}}$I(G; \xi)${{< /math >}} are both {{< math >}}$O(1)${{< /math >}} (bounded by a constant).
-
-**Why rewards have limited information capacity**:
-
-In practice, reward signals have **finite effective distinguishability** due to:
-
-1. **Categorical feedback**: Human preference data is often binary ("A > B") or small Likert scales (1-5 stars)
-2. **Bounded precision**: Reward models output scores with finite precision (e.g., floats with limited significant digits)
-3. **Noise**: Human judgments and reward model predictions have inherent variability
-4. **Limited sensitivity**: Different reward values may not meaningfully distinguish different optimal policies
-
-{{% callout warning %}}
-**Critical Assumption: Finite Effective Reward Distinguishability**
-
-The "{{< math >}}$O(1)${{< /math >}} bits per episode" result requires assuming that reward signals have **finite effective distinguishability** from the perspective of learning about {{< math >}}$\pi^*${{< /math >}}.
-
-**This is an assumption, not a theorem.**
-
-Mathematically, for arbitrary continuous reward functions with unbounded precision, {{< math >}}$H(G)${{< /math >}} could be unbounded. However, we argue this assumption is reasonable for practical LLM-RL systems based on:
-
-1. **Empirical grounding**: Real systems use binary preferences ({{< math >}}$B=2${{< /math >}}), Likert scales ({{< math >}}$B=4${{< /math >}}-{{< math >}}$5${{< /math >}}), or reward models with limited effective resolution
-2. **Practical limitations**: Human judgment noise, model uncertainty, and optimization constraints limit distinguishability
-3. **Information relevance**: Reward differences smaller than a threshold may not meaningfully distinguish optimal policies
-
-**What we prove**: *Given* the assumption of {{< math >}}$B = O(1)${{< /math >}} distinguishable levels, *then* {{< math >}}$H(G) \leq \log_2(B) = O(1)${{< /math >}} bits.
-
-**Status**: This is a **modeling assumption** motivated by practical systems, not a mathematical necessity.
+{{% callout note %}}
+**Result Status**:
+- **Type**: Rigorous theorem
+- **Requires**: Only Assumption A1 (unique optimum)
+- **Proven**: Information flow inequality holds regardless of how {{< math >}}$G${{< /math >}} depends on {{< math >}}$\xi${{< /math >}} and {{< math >}}$\pi_\theta${{< /math >}}
+- **Does NOT require**: Markov chain structure—chain rule argument is sufficient
 {{% /callout %}}
 
-**Given this assumption**, we can formalize it as follows:
+**Step 3: Establish potential bandwidth bound**
 
-Assume that from the perspective of learning about {{< math >}}$\pi^*${{< /math >}}, the continuous reward values can be effectively discretized into {{< math >}}$B${{< /math >}} distinguishable levels. This means:
+The return {{< math >}}$G = R_\xi(s_T)${{< /math >}} is a scalar signal.
 
-- If two reward values {{< math >}}$r_1, r_2${{< /math >}} fall in the same bin, they provide essentially the same information about which policy is optimal
-- The number of bins {{< math >}}$B${{< /math >}} captures the effective "resolution" of the reward signal for policy learning
-
-Under this assumption:
+**Under Assumption A2** (finite reward distinguishability with {{< math >}}$B${{< /math >}} distinguishable levels):
 {{< math >}}
-$$H(G) \leq \log_2(B)$$
+$$H(G) \leq \log_2(B) = O(1) \text{ bits}$$
 {{< /math >}}
 
 **Empirical grounding from real LLM-RL systems**:
 
-- **Binary preferences** (Ouyang et al., 2022, InstructGPT): Human annotators choose between two completions → {{< math >}}$B = 2${{< /math >}} → {{< math >}}$\log_2(2) = 1${{< /math >}} bit
+- **Binary preferences** (InstructGPT): {{< math >}}$B = 2${{< /math >}} levels → {{< math >}}$\log_2(2) = 1${{< /math >}} bit
+- **Likert scales** (Constitutional AI): {{< math >}}$B = 4${{< /math >}}-{{< math >}}$5${{< /math >}} levels → {{< math >}}$\log_2(4) = 2${{< /math >}} to {{< math >}}$\log_2(5) \approx 2.3${{< /math >}} bits
+- **Continuous reward models**: Effective resolution {{< math >}}$B = 8${{< /math >}}-{{< math >}}$10${{< /math >}} levels → {{< math >}}$\log_2(10) \approx 3.3${{< /math >}} bits
 
-- **Likert-style scales** (Bai et al., 2022, Constitutional AI): Multi-level harmlessness ratings with {{< math >}}$B = 4${{< /math >}}-{{< math >}}$5${{< /math >}} distinguishable levels → {{< math >}}$\log_2(4) = 2${{< /math >}} to {{< math >}}$\log_2(5) \approx 2.3${{< /math >}} bits
+{{% callout note %}}
+**Result Status**:
+- **Type**: Conditional result
+- **Requires**: Assumption A2 (finite reward distinguishability)
+- **Proven**: IF A2 holds, THEN {{< math >}}$H(G) = O(1)${{< /math >}}
+- **Status of A2**: Modeling assumption motivated by practical systems
+{{% /callout %}}
 
-- **Continuous reward models**: While rewards are technically continuous, effective distinguishability is limited by:
-  - Human judgment noise (inter-annotator agreement {{< math >}}$\sim 70${{< /math >}}-{{< math >}}$80\%${{< /math >}})
-  - Reward model prediction uncertainty
-  - Limited sensitivity to small score differences
-  - Typical effective resolution: {{< math >}}$B = 8${{< /math >}}-{{< math >}}$10${{< /math >}} levels → {{< math >}}$\log_2(10) \approx 3.3${{< /math >}} bits
+**Step 4: Bound information about reward parameters**
 
-These empirical observations from production LLM-RL systems support our {{< math >}}$O(1)${{< /math >}} bit assumption.
-
-**Key assumption being made**: We assume that the mutual information {{< math >}}$I(G; \xi)${{< /math >}} is similarly bounded. This requires that:
-- The prior {{< math >}}$p(\xi)${{< /math >}} doesn't make the reward signal arbitrarily informative
-- The mapping from reward values to optimal policies has limited sensitivity
-- We're in a regime where scalar returns provide limited information about optimal behavior
-
-**Rigorous statement**:
-
-With {{< math >}}$B${{< /math >}} effectively distinguishable reward levels:
-{{< math >}}
-$$\mathcal{B}_{\text{potential}} = H(G) \leq \log_2(B) = O(1) \text{ bits}$$
-{{< /math >}}
-
-For typical LLM-RL systems with {{< math >}}$B \in \{2, 4, 5\}${{< /math >}}:
-{{< math >}}
-$$\mathcal{B}_{\text{potential}} = 1 \text{ to } 2.3 \text{ bits per episode}$$
-{{< /math >}}
-
-**When this bound might not hold**:
-
-This analysis assumes a regime where:
-- Rewards don't have unbounded precision that meaningfully distinguishes policies
-- The prior {{< math >}}$p(\xi)${{< /math >}} is reasonably diffuse (not concentrated on a tiny region)
-- We're learning from typical human feedback or reward models
-
-If rewards were arbitrarily precise and highly informative about subtle policy differences, {{< math >}}$H(G)${{< /math >}} could be larger. However, this is not the practical regime for current LLM RL systems.
-
-**Step 4**: Analyze {{< math >}}$I(G; \xi)${{< /math >}}.
-
-The return {{< math >}}$G = R_\xi(s_T)${{< /math >}} provides information about {{< math >}}$\xi${{< /math >}} through the observed reward. Since {{< math >}}$G${{< /math >}} is a scalar observation:
-
+We have the fundamental inequality:
 {{< math >}}
 $$I(G; \xi) \leq H(G)$$
 {{< /math >}}
 
-This is a fundamental inequality (mutual information cannot exceed entropy of either variable).
+**Under Assumption A2**: {{< math >}}$I(G; \xi) \leq \log_2(B) = O(1)${{< /math >}}
 
-**Under our assumption** from Step 3 that {{< math >}}$H(G) \leq \log_2(B) = O(1)${{< /math >}}, we have:
+**However**, we need a stronger condition:
 
-{{< math >}}
-$$I(G; \xi) \leq \log_2(B) = O(1)$$
-{{< /math >}}
+**Assumption A3 is required**: We assume {{< math >}}$I(G; \xi) = O(1)${{< /math >}} (not just {{< math >}}$H(G) = O(1)${{< /math >}}).
 
-**Additional assumption needed**: We further assume that {{< math >}}$I(G; \xi) = O(1)${{< /math >}} (not just {{< math >}}$H(G) = O(1)${{< /math >}}). This requires that:
-- The prior {{< math >}}$p(\xi)${{< /math >}} doesn't make the reward signal arbitrarily informative about {{< math >}}$\xi${{< /math >}}
+**Why A3 is stronger than A2**: A signal can have low entropy but high mutual information if it's perfectly correlated with {{< math >}}$\xi${{< /math >}}. For example, if {{< math >}}$G = f(\xi) + \epsilon${{< /math >}} where {{< math >}}$f${{< /math >}} is invertible and {{< math >}}$\epsilon${{< /math >}} is small noise, then {{< math >}}$H(G)${{< /math >}} could be small but {{< math >}}$I(G; \xi)${{< /math >}} could be large.
+
+**What A3 requires**:
+- The prior {{< math >}}$p(\xi)${{< /math >}} doesn't make the reward signal arbitrarily informative
+- The mapping from {{< math >}}$\xi${{< /math >}} to {{< math >}}$G${{< /math >}} through {{< math >}}$\pi_\theta${{< /math >}} has limited sensitivity
 - We're in a regime where scalar returns provide limited information about optimal behavior
-- The mapping from {{< math >}}$\xi${{< /math >}} to {{< math >}}$G${{< /math >}} through the policy {{< math >}}$\pi_\theta${{< /math >}} has limited sensitivity
 
-**Status**: Both {{< math >}}$H(G) = O(1)${{< /math >}} and {{< math >}}$I(G; \xi) = O(1)${{< /math >}} are **assumptions** motivated by practical LLM-RL systems, not proven bounds.
+{{% callout warning %}}
+**Critical Distinction**:
+- **A2** (finite distinguishability): Bounds entropy {{< math >}}$H(G)${{< /math >}}
+- **A3** (bounded information): Bounds mutual information {{< math >}}$I(G; \xi)${{< /math >}}
 
-**Step 5**: Calculate Effective Bandwidth.
+These are **two separate assumptions**. A2 does NOT imply A3.
 
-**Under our assumptions** (finite effective reward distinguishability with {{< math >}}$B = O(1)${{< /math >}} bins, and {{< math >}}$I(G; \xi) = O(1)${{< /math >}}), we have established:
+**Status**: Both are modeling assumptions motivated by practical LLM-RL systems, not proven bounds.
+{{% /callout %}}
 
+**Step 5: Calculate effective bandwidth**
+
+**Theorem 2 (Policy Gradient Bandwidth)**:
+
+*Under Assumptions A1, A2, and A3*:
 {{< math >}}
-$$I(G; \pi^*) \leq I(G; \xi) \leq H(G) \leq \log_2(B)$$
+$$\mathcal{B}_{\text{effective}}^{PG} = I(G; \pi^*) \leq \log_2(B) \text{ bits per episode}$$
 {{< /math >}}
 
-**The "1 bit per episode" result**: **Under our assumptions**, with {{< math >}}$B = 2${{< /math >}} bins (binary preferences like "good" vs "bad"):
+**Proof**: From Step 2: {{< math >}}$I(G; \pi^*) \leq I(G; \xi)${{< /math >}}
+From A3: {{< math >}}$I(G; \xi) \leq \log_2(B)${{< /math >}}
+Therefore: {{< math >}}$I(G; \pi^*) \leq \log_2(B)${{< /math >}} ∎
 
-{{< math >}}
-$$I(G; \pi^*) \leq 1 \text{ bit per episode}$$
-{{< /math >}}
+**Concrete numbers** (under assumptions):
+- Binary preferences ({{< math >}}$B=2${{< /math >}}): {{< math >}}$\leq 1${{< /math >}} bit/episode
+- 4-level feedback ({{< math >}}$B=4${{< /math >}}): {{< math >}}$\leq 2${{< /math >}} bits/episode
+- 5-level Likert ({{< math >}}$B=5${{< /math >}}): {{< math >}}$\leq 2.3${{< /math >}} bits/episode
 
-Literally one bit! And even with more granular feedback—say {{< math >}}$B = 4${{< /math >}} bins:
-
-{{< math >}}
-$$I(G; \pi^*) \leq \log_2(4) = 2 \text{ bits per episode}$$
-{{< /math >}}
-
-We're still talking about a trickle of information.
-
-**Status**: This is a **conditional result** that holds under the stated assumptions about reward distinguishability.
+{{% callout note %}}
+**Result Status**:
+- **Type**: Conditional theorem
+- **Requires**: Assumptions A1 + A2 + A3
+- **Proven**: The inequality is rigorous given the assumptions
+- **Practical validity**: Assumptions are empirically motivated by production systems
+{{% /callout %}}
 
 ---
 
@@ -654,6 +567,8 @@ graph LR
     F[V_φ] --> E[δ_t]
 ```
 
+*Figure: Probabilistic dependencies in actor-critic. Arrows represent causal/probabilistic influence.*
+
 Where {{< math >}}$V_\phi${{< /math >}} is the critic learned from past data.
 
 **Step 2**: Apply the Data Processing Inequality.
@@ -668,7 +583,7 @@ This bound follows from the general principle that for any deterministic functio
 
 **Step 3**: Calculate Potential Bandwidth.
 
-Each TD error {{< math >}}$\delta_t${{< /math >}} is a scalar. Assuming we discretize into {{< math >}}$B_\delta${{< /math >}} bins:
+Each TD error {{< math >}}$\delta_t${{< /math >}} is a scalar. Assuming we discretize into {{< math >}}$B_\delta${{< /math >}} distinguishable levels:
 
 {{< math >}}
 $$H(\delta_t | \text{history}) \leq \log_2(B_\delta) = O(1)$$
@@ -698,7 +613,7 @@ At the final timestep with terminal state {{< math >}}$s_{T+1}${{< /math >}}:
 $$\delta_T = R_\xi(s_T) - V_\phi(s_T) \quad \text{(assuming } V_\phi(s_{T+1}) = 0\text{)}$$
 {{< /math >}}
 
-This directly contains the reward signal {{< math >}}$R_\xi(s_T)${{< /math >}}. Under the same assumptions as policy gradient (finite effective reward distinguishability with {{< math >}}$B = O(1)${{< /math >}} bins):
+This directly contains the reward signal {{< math >}}$R_\xi(s_T)${{< /math >}}. Under the same assumptions as policy gradient (finite effective reward distinguishability with {{< math >}}$B = O(1)${{< /math >}} levels):
 {{< math >}}
 $$I(\delta_T; \xi | s_T, \text{history}) = O(1) \text{ bits}$$
 {{< /math >}}
@@ -791,14 +706,22 @@ $$\mathcal{B}_{\text{effective}} = I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \
 2. ✗ Independent information across timesteps (violated due to state overlap)
 3. ✗ Effective bootstrapping (requires convergence)
 
-**Practical expectation**:
+**Practical expectation with correlation**:
 
 Even with a perfect critic, successive TD errors are correlated because:
 - State {{< math >}}$s_t = (x_1, \ldots, x_t)${{< /math >}} and {{< math >}}$s_{t+1} = (x_1, \ldots, x_t, x_{t+1})${{< /math >}} share {{< math >}}$t${{< /math >}} tokens
 - Bootstrap targets {{< math >}}$V_\phi(s_{t+1})${{< /math >}} are correlated with {{< math >}}$V_\phi(s_t)${{< /math >}}
 - Information about {{< math >}}$\xi${{< /math >}} propagates slowly through value estimates
 
-**Conjecture**: The achievable bandwidth is likely {{< math >}}$O(\alpha T)${{< /math >}} where {{< math >}}$\alpha \ll 1${{< /math >}} represents effective information density after accounting for correlation, even with a perfect critic.
+**Define the correlation factor** {{< math >}}$\alpha \in (0, 1]${{< /math >}} **as the effective information density**, where:
+- {{< math >}}$\alpha = 1${{< /math >}}: No correlation (every TD error provides independent information)
+- {{< math >}}$\alpha \to 0${{< /math >}}: Extreme correlation (TD errors are redundant)
+- Empirically: {{< math >}}$\alpha \sim 0.1${{< /math >}}-{{< math >}}$1.0${{< /math >}} in traditional RL
+
+**Conjecture**: The achievable bandwidth is:
+{{< math >}}
+$$\mathcal{B}_{\text{effective}} \approx O(\alpha T) \text{ bits per episode}$$
+{{< /math >}}
 
 **Empirical grounding**:
 
@@ -1010,7 +933,7 @@ This close alignment between order-of-magnitude predictions and empirical result
 Suppose {{< math >}}$H(\pi^*) \approx 10{,}000${{< /math >}} bits and {{< math >}}$T = 1000${{< /math >}} tokens:
 
 - **Policy gradient**: {{< math >}}$N_{\text{PG}} \gtrsim \frac{10{,}000}{2} = 5{,}000${{< /math >}} episodes
-  (assuming {{< math >}}$c = 2${{< /math >}} bits/episode with 4-bin rewards)
+  (assuming {{< math >}}$c = 2${{< /math >}} bits/episode with 4-level rewards)
 
 - **Actor-critic** (theoretical with well-trained critic):
   {{< math >}}$N_{\text{AC}} \sim O\left(\frac{\mathcal{I}_{\text{required}}}{T}\right) \sim O(10)${{< /math >}} to {{< math >}}$O(10^2)${{< /math >}} episodes
@@ -1077,7 +1000,7 @@ c) **Hybrid Approaches**:
 
 Given that we currently use policy gradient with {{< math >}}$O(1)${{< /math >}} bits/episode:
 
-Information accumulated in {{< math >}}$N${{< /math >}} episodes: {{< math >}}$\sim N \cdot 2${{< /math >}} bits (with 4-bin returns)
+Information accumulated in {{< math >}}$N${{< /math >}} episodes: {{< math >}}$\sim N \cdot 2${{< /math >}} bits (with 4-level returns)
 
 Choose rank {{< math >}}$r${{< /math >}} such that: {{< math >}}$32rd \geq 2N${{< /math >}}
 
@@ -1315,43 +1238,59 @@ This alignment suggests the information-theoretic lens captures real phenomena, 
 
 ---
 
-## Appendix: Technical Notes and Limitations
+## Appendix: Technical Notes
 
-### A.1 Summary of Rigorous vs Assumed Results
+### A.1 Assumption Dependency Graph
 
-**Rigorous (proven from first principles)**:
-1. ✅ Chain rule bound: {{< math >}}$I(G; \pi^*) \leq I(G; \xi)${{< /math >}}
-2. ✅ DPI for deterministic functions: {{< math >}}$I(X; f(Y)) \leq I(X; Y)${{< /math >}}
-3. ✅ Potential bandwidth hierarchy: Policy gradient has {{< math >}}$O(1)${{< /math >}} signals, actor-critic has {{< math >}}$O(T)${{< /math >}} signals
-4. ✅ Qualitative conclusion: Dense signals provide more information capacity
+```mermaid
+graph TD
+    A1[A1: Unique Optimum] --> R1[π* well-defined<br/>as random variable]
+    A2[A2: Finite<br/>Distinguishability] --> R2[H&#40;G&#41; = O&#40;1&#41;]
+    A3[A3: Bounded<br/>Information] --> R3[I&#40;G;ξ&#41; = O&#40;1&#41;]
+    A4[A4: Linear<br/>Accumulation] --> R4[I_total ≈ Nc]
 
-**Assumed (modeling choices)**:
-1. ⚠️ Finite effective reward distinguishability: {{< math >}}$H(G) = O(1)${{< /math >}}
-2. ⚠️ Information bound: {{< math >}}$I(G; \xi) = O(1)${{< /math >}}
-3. ⚠️ Critic quality: {{< math >}}$V_\phi${{< /math >}} accurately estimates {{< math >}}$V^{\pi_\theta}_\xi${{< /math >}}
-4. ⚠️ Linear accumulation: {{< math >}}$I_{\text{total}} \approx Nc${{< /math >}} in early/mid training
+    R1 --> Main[Main Results]
+    R2 --> A3
+    R3 --> Main
+    R4 --> LoRA[LoRA Analysis]
 
-**Conjectural (not proven, but plausible)**:
-1. ~ Actor-critic achieves {{< math >}}$O(\alpha T)${{< /math >}} bits/episode with {{< math >}}$\alpha \ll 1${{< /math >}} (correlation reduces theoretical maximum)
-2. ~ Sample complexity speedup of {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} is achievable with good critic
-3. ~ LoRA parameters encode policy information efficiently (rough capacity matching)
+    style A1 fill:#ffe6e6
+    style A2 fill:#ffe6e6
+    style A3 fill:#ffe6e6
+    style A4 fill:#ffe6e6
+    style Main fill:#e6ffe6
+    style LoRA fill:#e6f3ff
+```
+
+*Figure: Assumption dependency graph. Arrows show how assumptions build on each other. Note that A3 is stronger than A2.*
+
+**Key dependencies**:
+- "1 bit per episode" requires: A1 + A2 + A3
+- "{{< math >}}$O(T)${{< /math >}} bits per episode" requires: A1 + well-trained critic
+- LoRA sufficiency requires: A1 + A2 + A3 + A4
+- Sample complexity bounds require: All assumptions + perfect optimization
 
 ### A.2 Why These Assumptions Are Reasonable
 
-**For finite reward distinguishability**:
-- Binary preferences in InstructGPT: {{< math >}}$B = 2${{< /math >}}, {{< math >}}$H(G) = 1${{< /math >}} bit
-- Likert scales in Constitutional AI: {{< math >}}$B = 4${{< /math >}}-{{< math >}}$5${{< /math >}}, {{< math >}}$H(G) = 2${{< /math >}}-{{< math >}}$2.3${{< /math >}} bits
-- Continuous rewards with noise: Effective resolution limited by judgment variance
+**For A1 (unique optimum)**:
+- Neural network optimization implicitly breaks ties
+- Floating-point precision makes exact ties impossible
+- Large parameter space ({{< math >}}$d \sim 10^9${{< /math >}}) ensures generic uniqueness
 
-**For critic quality**:
-- Traditional RL: PPO critics do converge with careful tuning
-- LLMs: Unsolved at scale, but not impossible in principle
-- Theoretical analysis: Shows what's possible with good critics
+**For A2 (finite distinguishability)**:
+- Binary preferences: {{< math >}}$B = 2${{< /math >}}, {{< math >}}$H(G) = 1${{< /math >}} bit
+- Likert scales: {{< math >}}$B = 4${{< /math >}}-{{< math >}}$5${{< /math >}}, {{< math >}}$H(G) = 2${{< /math >}}-{{< math >}}$2.3${{< /math >}} bits
+- Continuous rewards with noise: Limited effective resolution
 
-**For linear accumulation**:
+**For A3 (bounded information)**:
+- Typical priors don't make returns arbitrarily informative
+- Scalar returns have limited capacity to distinguish policies
+- Validated by practical system behavior
+
+**For A4 (linear accumulation)**:
 - Valid when {{< math >}}$N \ll H(\pi^*)/c${{< /math >}}
 - Typical fine-tuning: {{< math >}}$N \sim 10^3${{< /math >}}-{{< math >}}$10^4${{< /math >}}, large policy space
-- Saturation occurs later, outside typical training regime
+- Saturation occurs outside typical training regime
 
 ### A.3 Additional Technical Considerations
 
