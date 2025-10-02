@@ -54,7 +54,7 @@ This turns out to be both theoretically clean and practically relevant for under
 | Algorithm | Information per Episode | Sample Efficiency | Current Status |
 |-----------|------------------------|-------------------|----------------|
 | **Policy Gradient** | 1-4 bits | Baseline (slow) | ✓ Works at scale |
-| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits (~150-300 realistic) | {{< math >}}$50${{< /math >}}-{{< math >}}$150\times${{< /math >}} faster (realistic) | ✗ Unstable for LLMs |
+| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits | Up to {{< math >}}$O(T)\times${{< /math >}} (theoretical upper bound) | ✗ Unstable for LLMs |
 
 **Main Findings**:
 
@@ -777,101 +777,11 @@ $$\mathcal{B}_{\text{effective}} = I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \
 
 When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approximates true expected rewards, and the TD errors become informative about {{< math >}}$\xi${{< /math >}} throughout the trajectory.
 
-**Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** that requires a well-trained critic. In practice, especially early in training or without careful critic tuning, the effective bandwidth may be much lower. The TD errors at different timesteps may also be correlated (not providing independent information), further reducing the effective bandwidth below the theoretical maximum.
+**Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** achieved asymptotically with:
+1. Well-trained critic approximating true values
+2. Information propagated effectively through trajectory
 
-### TD Error Correlation Reduces Effective Bandwidth
-
-So far we've established that actor-critic methods can achieve {{< math >}}$O(T)${{< /math >}} bits per episode with a well-trained critic. However, this analysis assumed that TD errors at different timesteps provide independent information. In practice, successive TD errors are **correlated**, which reduces the effective information rate.
-
-**Source of correlation**:
-
-In autoregressive generation, consecutive states share most tokens:
-{{< math >}}
-$$s_t = (x_1, \ldots, x_t), \quad s_{t+1} = (x_1, \ldots, x_t, x_{t+1})$$
-{{< /math >}}
-
-This creates several sources of correlation in TD errors:
-
-1. **State overlap**: Consecutive states differ by only one token, so their value estimates are highly correlated
-2. **Bootstrapping**: The value function itself creates temporal dependencies: {{< math >}}$V_\phi(s_{t+1})${{< /math >}} appears in {{< math >}}$\delta_t${{< /math >}}, and value updates propagate through time
-3. **Policy coherence**: The same policy {{< math >}}$\pi_\theta${{< /math >}} generates the entire sequence, creating correlated actions
-
-**Modeling correlation**:
-
-Consider a simplified model where TD errors follow an AR(1) process:
-{{< math >}}
-$$\delta_t = \rho \cdot \delta_{t-1} + \epsilon_t$$
-{{< /math >}}
-
-where:
-- {{< math >}}$\rho \in [0, 1]${{< /math >}} is the correlation coefficient
-- {{< math >}}$\epsilon_t${{< /math >}} are independent innovations with {{< math >}}$H(\epsilon_t) = h${{< /math >}} bits
-
-**Information-theoretic consequence**:
-
-For this process, the total information in {{< math >}}$T${{< /math >}} observations is:
-
-{{< math >}}
-$$I(\{\delta_t\}_{t=0}^{T-1}; \xi) \leq T \cdot h \cdot g(\rho)$$
-{{< /math >}}
-
-where {{< math >}}$g(\rho)${{< /math >}} is a reduction factor due to correlation.
-
-For Gaussian AR(1), we can compute:
-{{< math >}}
-$$g(\rho) = \frac{\sqrt{1-\rho^2}}{1-\rho^2/2} \approx 1 - \rho \quad \text{(for moderate } \rho\text{)}$$
-{{< /math >}}
-
-**Numerical examples**:
-
-| Correlation {{< math >}}$\rho${{< /math >}} | Reduction factor {{< math >}}$g(\rho)${{< /math >}} | Effective info rate |
-|-------------------|---------------------------|---------------------|
-| 0.0 (independent) | 1.0 | {{< math >}}$T \cdot h${{< /math >}} bits |
-| 0.5 (moderate) | {{< math >}}$\approx 0.5${{< /math >}} | {{< math >}}$0.5T \cdot h${{< /math >}} bits |
-| 0.7 (high) | {{< math >}}$\approx 0.3${{< /math >}} | {{< math >}}$0.3T \cdot h${{< /math >}} bits |
-| 0.9 (very high) | {{< math >}}$\approx 0.1${{< /math >}} | {{< math >}}$0.1T \cdot h${{< /math >}} bits |
-
-**Empirical estimates**:
-
-In LLM token generation with {{< math >}}$T \gg 1000${{< /math >}} tokens:
-- Correlation between adjacent TD errors: {{< math >}}$\rho \approx 0.5${{< /math >}} to {{< math >}}$0.8${{< /math >}} (empirically observed in RL training)
-- Effective reduction: {{< math >}}$3\times${{< /math >}} to {{< math >}}$10\times${{< /math >}} compared to independent case
-
-**Revised bandwidth estimate**:
-
-Combining critic quality and correlation effects:
-
-{{< math >}}
-$$\mathcal{B}_{\text{effective, AC}} = c_{\text{critic}} \cdot g(\rho) \cdot T \cdot O(1) \text{ bits per episode}$$
-{{< /math >}}
-
-With realistic values ({{< math >}}$c_{\text{critic}} \approx 0.5${{< /math >}}, {{< math >}}$g(\rho) \approx 0.3${{< /math >}}):
-{{< math >}}
-$$\mathcal{B}_{\text{effective, AC}} \approx 0.15 \cdot T \text{ bits per episode}$$
-{{< /math >}}
-
-For {{< math >}}$T \sim 1000${{< /math >}}-{{< math >}}$2000${{< /math >}} tokens, this gives {{< math >}}$150${{< /math >}}-{{< math >}}$300${{< /math >}} bits per episode.
-
-Compared to policy gradient ({{< math >}}$\sim 2${{< /math >}} bits per episode):
-{{< math >}}
-$$\text{Actual speedup} \approx 75\times \text{ to } 150\times$$
-{{< /math >}}
-
-This is still substantial, but far from the naive {{< math >}}$1000\times${{< /math >}} suggested by ignoring correlation and critic quality.
-
-**Why this matters**:
-
-This partially explains why:
-1. Actor-critic methods for LLMs haven't achieved the full theoretical {{< math >}}$T\times${{< /math >}} improvement
-2. Value-based RL for language models remains challenging
-3. Sample efficiency gains are significant but not as dramatic as pure {{< math >}}$O(T)${{< /math >}} scaling suggests
-
-**Research implication**: Developing methods to:
-- Reduce correlation between successive TD errors
-- Improve critic training efficiency
-- Better utilize the available {{< math >}}$O(T)${{< /math >}} information capacity
-
-...could unlock closer-to-theoretical sample efficiency improvements.
+In practice, TD errors at successive timesteps are correlated (states share most tokens), and critic training requires careful tuning. These factors reduce effective bandwidth below the theoretical {{< math >}}$O(T)${{< /math >}} maximum, though still substantially higher than policy gradient's {{< math >}}$O(1)${{< /math >}}.
 
 ---
 
@@ -893,7 +803,7 @@ Let's step back and see what we've learned.
 2. **For language models with sparse rewards**:
    - Policy gradient: {{< math >}}$\sim 1${{< /math >}}-{{< math >}}$4${{< /math >}} bits per episode
    - Actor-critic: {{< math >}}$\sim T${{< /math >}} bits per episode where {{< math >}}$T${{< /math >}} is sequence length
-   - If {{< math >}}$T = 1000${{< /math >}} tokens, actor-critic has {{< math >}}$250${{< /math >}}-{{< math >}}$1000\times${{< /math >}} more bandwidth
+   - If {{< math >}}$T = 1000${{< /math >}} tokens, actor-critic has {{< math >}}$O(T) \sim 500${{< /math >}}-{{< math >}}$1000\times${{< /math >}} more bandwidth
 
 3. **Token-level MDP clarifies everything**: No need to assume unknown dynamics—transitions are deterministic concatenation
 
@@ -1098,7 +1008,7 @@ $$\frac{N_{\text{PG}}}{N_{\text{AC}}} = O(T)$$
 **Why actual speedup is much smaller**:
 
 1. **Critic training**: AC bandwidth requires well-trained critic (not available in early training)
-2. **Correlation**: TD error correlation reduces effective {{< math >}}$T${{< /math >}} by factor of 3-10× (see Section 3.2)
+2. **Correlation**: TD errors at successive timesteps are correlated, reducing effective bandwidth below theoretical maximum
 3. **Optimization**: Gradient descent may need more samples than information theory suggests
 4. **Exploration**: Real RL requires exploration overhead beyond pure information gathering
 5. **Approximation**: Function approximation errors waste some available information
@@ -1112,11 +1022,11 @@ In traditional RL benchmarks (Atari, MuJoCo), PPO (actor-critic) typically achie
 Schulman et al. (2017) report that PPO requires approximately {{< math >}}$100\times${{< /math >}} fewer environment interactions than REINFORCE to achieve comparable performance on continuous control tasks.
 
 For episodes of length {{< math >}}$T \sim 100${{< /math >}}-{{< math >}}$1000${{< /math >}} steps:
-- Naive information-theoretic prediction: {{< math >}}$100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} speedup
-- Correlation-adjusted prediction: {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} speedup (with {{< math >}}$g(\rho) \approx 0.1${{< /math >}}-{{< math >}}$0.3${{< /math >}})
+- Naive information-theoretic prediction: {{< math >}}$O(T) \sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} speedup
+- Practical speedup accounting for imperfections: {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}}
 - **Empirical observation**: {{< math >}}$\sim 100\times${{< /math >}} speedup ✓
 
-This close alignment between information-theoretic predictions (with correlation correction) and empirical results validates the framework while showing the importance of accounting for correlation and critic quality.
+This close alignment between order-of-magnitude predictions and empirical results validates the framework while showing that practical factors (correlation, critic quality) reduce theoretical gains.
 
 **Illustrative numerical example** (with all caveats):
 
@@ -1125,11 +1035,10 @@ Suppose {{< math >}}$H(\pi^*) \approx 10{,}000${{< /math >}} bits and {{< math >
 - **Policy gradient**: {{< math >}}$N_{\text{PG}} \gtrsim \frac{10{,}000}{2} = 5{,}000${{< /math >}} episodes
   (assuming {{< math >}}$c = 2${{< /math >}} bits/episode with 4-bin rewards)
 
-- **Actor-critic** (well-trained critic, accounting for correlation):
-  {{< math >}}$N_{\text{AC}} \gtrsim \frac{10{,}000}{0.15 \times 1000} = 67${{< /math >}} episodes
-  (with {{< math >}}$c_{\text{critic}} \approx 0.5${{< /math >}}, {{< math >}}$g(\rho) \approx 0.3${{< /math >}})
+- **Actor-critic** (theoretical with well-trained critic):
+  {{< math >}}$N_{\text{AC}} \sim O\left(\frac{\mathcal{I}_{\text{required}}}{T}\right) \sim O(10)${{< /math >}} to {{< math >}}$O(10^2)${{< /math >}} episodes
 
-- **Predicted speedup**: {{< math >}}$\sim 75\times${{< /math >}}
+- **Predicted speedup**: {{< math >}}$O(T) \sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} (theoretical upper bound)
 
 These numbers are **illustrative only**—actual sample complexity depends heavily on optimization dynamics, network architecture, and problem structure.
 
