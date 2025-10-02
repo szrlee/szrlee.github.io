@@ -49,7 +49,7 @@ But what does this actually mean? And if policy gradients learn so little per ep
 | Algorithm | Signal Density | Information Upper Bound |
 |-----------|---------------|---------------------|
 | Policy Gradient | 1 scalar/episode | {{< math >}}$\leq 1${{< /math >}} bit/episode (binary) |
-| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling) |
+| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (assumes independent signals) |
 
 **Note**: The 8000 bits/episode ceiling assumes independent TD errors—an assumption violated in practice by bootstrap methods. The actual achievable information bandwidth remains an open empirical question.
 
@@ -195,12 +195,37 @@ This structural compression is why:
 
 ### The Algorithm
 
-Actor-critic methods (A3C, PPO with value function) work differently:
+Actor-critic methods (A3C, PPO with value function) maintain two components:
 
-**At each timestep** {{< math >}}$t${{< /math >}}:
-1. Observe state {{< math >}}$s_t${{< /math >}}, take action {{< math >}}$a_t${{< /math >}}
-2. Compute TD error: {{< math >}}$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)${{< /math >}}
-3. Update both actor and critic using {{< math >}}$\delta_t${{< /math >}}
+- **Actor** {{< math >}}$\pi_\theta(a|s)${{< /math >}}: The policy with parameters {{< math >}}$\theta${{< /math >}}
+- **Critic** {{< math >}}$V_\phi(s)${{< /math >}}: Value function estimating expected return from state {{< math >}}$s${{< /math >}}, with parameters {{< math >}}$\phi${{< /math >}}
+
+**Training loop**: For each episode, perform updates at each timestep:
+
+1. **Rollout**: Generate trajectory {{< math >}}$\tau = (s_0, a_0, r_0, s_1, a_1, r_1, \ldots, s_T)${{< /math >}} using current policy {{< math >}}$\pi_\theta${{< /math >}}
+
+2. **Compute TD errors** at each timestep {{< math >}}$t${{< /math >}}:
+   {{< math >}}
+   $$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
+   {{< /math >}}
+
+   This measures how much better/worse the observed outcome was compared to the critic's expectation.
+
+3. **Update critic** toward the TD target:
+   {{< math >}}
+   $$\phi \leftarrow \phi + \alpha_\phi \cdot \delta_t \cdot \nabla_\phi V_\phi(s_t)$$
+   {{< /math >}}
+
+   This semi-gradient update moves {{< math >}}$V_\phi(s_t)${{< /math >}} toward the bootstrap target {{< math >}}$r_t + \gamma V_\phi(s_{t+1})${{< /math >}}, treating {{< math >}}$V_\phi(s_{t+1})${{< /math >}} as fixed.
+
+4. **Update actor** (policy gradient with advantage):
+   {{< math >}}
+   $$\theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
+   {{< /math >}}
+
+   Move probability toward actions with positive {{< math >}}$\delta_t${{< /math >}} (better than expected), away from negative {{< math >}}$\delta_t${{< /math >}}.
+
+**Key difference from policy gradient**: Instead of one scalar return {{< math >}}$G${{< /math >}} per episode, we get {{< math >}}$T${{< /math >}} TD errors {{< math >}}$\{\delta_t\}_{t=0}^{ T - 1 }${{< /math >}}—one feedback signal per timestep.
 
 **Learning signal**: {{< math >}}$S = \{\delta_t\}_{t=0}^{ T - 1 }${{< /math >}} (one signal per token)
 
@@ -328,11 +353,21 @@ If perfectly correlated: {{< math >}}$H(\delta_t | \delta_{ < t }) = 0${{< /math
 $$H(\{\delta_t\}) = \sum_{t=0}^{ T - 1 } H(\delta_t | \delta_{ < t }) \leq T \log_2(B_\delta)$$
 {{< /math >}}
 
-**Step 4: Information Flow Bound**
+**Step 4: Information Flow Bound via Data Processing Inequality**
 
-Since {{< math >}}$\pi^*${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} (by Assumption A1), we have:
+Consider the Markov chain:
 {{< math >}}
-$$I(\{\delta_t\}; \pi^*) = I(\{\delta_t\}; \xi)$$
+$$\xi \to \{\delta_t\} \to f(\{\delta_t\})$$
+{{< /math >}}
+
+where {{< math >}}$f${{< /math >}} is any function of the TD error sequence (including the identity). Since {{< math >}}$\pi^*${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} alone (by Assumption A1), knowing {{< math >}}$\xi${{< /math >}} completely determines {{< math >}}$\pi^*${{< /math >}}. Therefore {{< math >}}$\pi^*${{< /math >}} can be viewed as a function {{< math >}}$g(\xi)${{< /math >}}, giving us another Markov chain:
+{{< math >}}
+$$\{\delta_t\} \to \xi \to \pi^*$$
+{{< /math >}}
+
+By the **data processing inequality**, post-processing cannot increase information:
+{{< math >}}
+$$I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \xi)$$
 {{< /math >}}
 
 Mutual information is always bounded by the entropy of either variable:
@@ -342,10 +377,12 @@ $$I(\{\delta_t\}; \xi) \leq H(\{\delta_t\})$$
 
 Combining with Step 3:
 {{< math >}}
-$$I(\{\delta_t\}; \pi^*) = I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
+$$I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
 {{< /math >}} ∎
 
-**Critical note on the proof**: This bound treats TD errors as information-carrying signals about the reward parameter {{< math >}}$\xi${{< /math >}}. In practice, TD errors also depend on the learned value function {{< math >}}$V_\phi${{< /math >}} and training history. The bound represents an idealized scenario where we model what information about {{< math >}}$\xi${{< /math >}} (and thus {{< math >}}$\pi^*${{< /math >}}) could theoretically be extracted from the TD error sequence, assuming the value function perfectly captures relevant information from {{< math >}}$\xi${{< /math >}}. This idealization, combined with the independence assumption, makes this an upper limit on what could theoretically be achieved rather than a characterization of actual algorithms.
+**Critical note on the proof**: This bound treats TD errors as information-carrying signals about the reward parameter {{< math >}}$\xi${{< /math >}}. However, in the actual actor-critic algorithm, {{< math >}}$\delta_t${{< /math >}} depends on both {{< math >}}$\xi${{< /math >}} (through rewards) and the current training state ({{< math >}}$\theta, \phi${{< /math >}}). The Markov chain {{< math >}}$\{\delta_t\} \to \xi \to \pi^*${{< /math >}} is valid when we view the TD error sequence as the raw observational data from which we want to infer {{< math >}}$\xi${{< /math >}}, treating the influence of {{< math >}}$(\theta, \phi)${{< /math >}} as part of the observation process.
+
+The bound represents an idealized scenario modeling what information about {{< math >}}$\xi${{< /math >}} (and thus {{< math >}}$\pi^*${{< /math >}}) could theoretically be extracted from observing the TD error sequence. This theoretical upper limit assumes: (1) the value function perfectly captures all relevant information from {{< math >}}$\xi${{< /math >}}, and (2) TD errors are independent. In practice, both assumptions are violated—value functions are approximate, and TD errors share the same learned {{< math >}}$V_\phi${{< /math >}}, creating correlation. Thus this is an upper limit on potential information flow rather than a characterization of what actual algorithms achieve.
 
 </details>
 
@@ -421,35 +458,69 @@ Only with dramatic improvements approaching the theoretical ceiling would LoRA c
 
 ## Part 5: Implications and Future Directions
 
-### Current State of LLM Fine-Tuning
+### Why Policy Gradient + LoRA Dominates
 
-Policy gradient + LoRA dominates because:
+The current state of LLM fine-tuning is dominated by policy gradient + LoRA because this combination achieves a practical equilibrium:
 
-- ✅ **Stable**: Single optimization, no critic training
-- ✅ **Parameter-efficient**: Capacity exceeds ceiling by 300×
-- ❌ **Sample-inefficient**: {{< math >}}$\leq 1${{< /math >}} bit/episode with binary preferences
+- ✅ **Stable**: Single optimization target, no critic training instability
+- ✅ **Parameter-efficient**: LoRA provides 300-500× excess capacity relative to policy gradient's information ceiling
+- ❌ **Sample-inefficient**: {{< math >}}$\leq 1${{< /math >}} bit/episode with binary preferences requires thousands of episodes
 
-### The Path Forward
+This explains why practitioners default to this approach despite its sample inefficiency—the stability-efficiency tradeoff favors it over alternatives.
 
-**Terminology clarification**: We use "fundamental" in two senses:
+### Understanding the Limitations
 
-1. **Information-theoretic fundamentals**: The bounds in Theorems 1 and 2 are fundamental in that they cannot be exceeded by any algorithm using those signal types, regardless of computational resources
+Our analysis reveals **two distinct types of barriers**:
 
-2. **Fundamental to TD learning**: Correlation between TD errors appears fundamental to bootstrap methods specifically—using {{< math >}}$V(s')${{< /math >}} to estimate the target for {{< math >}}$V(s)${{< /math >}} creates structural dependencies. This may not be fundamental to RL in general (e.g., Monte Carlo methods avoid this)
+**1. Information-theoretic ceilings** (provably unavoidable):
+- Policy gradient: {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode—cannot be exceeded by any algorithm that learns from scalar episode returns
+- Actor-critic: {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—cannot be exceeded by any algorithm that learns from {{< math >}}$T${{< /math >}} signals with resolution {{< math >}}$B_\delta${{< /math >}}
 
-**Key open questions**:
-- How much of the gap between the theoretical ceiling and achievable performance is fundamental (inherent correlation) vs algorithmic (poor critics)?
-- Can methods substantially reduce TD error correlation?
-- Are there alternative formulations that avoid bootstrap correlation?
+**2. Bootstrap correlation barrier** (specific to TD methods):
+- The {{< math >}}$T \log_2(B_\delta)${{< /math >}} ceiling assumes independent TD errors
+- Bootstrap methods inherently violate this: all {{< math >}}$\delta_t${{< /math >}} share the same learned {{< math >}}$V_\phi${{< /math >}}
+- The actual achievable information bandwidth remains unmeasured
 
-**Research directions**:
-1. **Stable critic training** at LLM scale (low-rank value architectures, ensemble methods)
-2. **Decorrelation techniques** (eligibility traces, multi-step returns, though these may have fundamental limits)
-3. **Dense reward engineering** (process rewards, per-token feedback)
-4. **Non-bootstrap alternatives** (Monte Carlo methods, model-based approaches)
+**Key open question**: How much of the gap between 1 bit/episode (policy gradient) and 8000 bits/episode (theoretical ceiling) is bridgeable? Is there a practical middle ground, or does bootstrap correlation prevent substantial improvements?
 
-**What's not needed**:
-- More parameters (LoRA already has 300× excess capacity relative to policy gradient's ceiling)
+### Research Directions
+
+**Priority 1: Empirically measure the achievable information bandwidth**
+- Develop methods to quantify {{< math >}}$I(S; \pi^*)${{< /math >}} in trained models
+- Measure TD error correlation across architectures and tasks
+- Establish empirical baselines for what's actually achievable vs theoretical ceilings
+
+**Priority 2: Improve actor-critic stability at LLM scale**
+- Low-rank value function architectures (matching LoRA structure)
+- Ensemble critics to reduce bias
+- Better optimization techniques for joint actor-critic training
+
+**Priority 3: Explore decorrelation techniques**
+- Eligibility traces ({{< math >}}$\lambda${{< /math >}}-returns) to diversify bootstrap targets
+- Multi-step returns with varying horizons
+- Note: These may have fundamental limits due to bootstrap structure
+
+**Priority 4: Circumvent bootstrap correlation entirely**
+- Monte Carlo methods (no bootstrapping, but high variance)
+- Model-based RL (learn environment dynamics, plan without bootstrap)
+- Hybrid approaches that blend MC and TD
+
+**Priority 5: Engineer denser ground-truth signals**
+- Process rewards provide intermediate feedback beyond just outcomes
+- Per-token human annotations increase signal granularity
+- Both approaches increase {{< math >}}$B${{< /math >}} directly, sidestepping the bootstrap issue entirely
+
+**Not needed**: More parameters. LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
+
+### Terminology: Two Senses of "Fundamental"
+
+We use "fundamental" to describe barriers at different levels:
+
+1. **Information-theoretic fundamentals**: Theorems 1 and 2 establish ceilings that cannot be exceeded by *any* algorithm using those signal types, regardless of computational resources or algorithmic sophistication
+
+2. **Fundamental to bootstrap methods**: TD error correlation appears inherent to methods that use {{< math >}}$V(s')${{< /math >}} to estimate targets for {{< math >}}$V(s)${{< /math >}}—this creates structural dependencies. However, this may not be fundamental to RL in general (Monte Carlo methods avoid it)
+
+The distinction matters: information-theoretic barriers are absolute, while bootstrap correlation might be circumventable with alternative RL paradigms.
 
 ---
 
@@ -476,21 +547,13 @@ Policy gradient + LoRA dominates because:
 
 ## Conclusion
 
-This information-theoretic analysis reveals fundamental structure in RL for LLMs:
+This information-theoretic analysis reveals why policy gradient + LoRA dominates current LLM fine-tuning and what barriers limit potential improvements:
 
-**The 1-bit bottleneck**: Policy gradient compresses rich token-level dynamics into scalar returns, creating a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling. This explains:
-- LoRA's success (capacity naturally matches ceiling)
-- Sample inefficiency (1000s of episodes needed)
-- Why more parameters don't help (bottleneck is signal sparsity)
+**The 1-bit bottleneck**: Policy gradient's compression of rich token-level dynamics into scalar returns creates a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling. For binary feedback, this is {{< math >}}$\leq 1${{< /math >}} bit/episode—explaining both why 1000s of episodes are needed and why LoRA's modest capacity (300-500× excess) suffices.
 
-**The dense signal bound**: By using a critic to **bootstrap historical information** into dense, token-level signals, actor-critic methods have a theoretical ceiling of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher than policy gradient. However, bootstrap correlation makes this ceiling likely unachievable in practice, with the actual achievable information bandwidth remaining an open empirical question.
+**Actor-critic's theoretical potential**: Bootstrap methods can theoretically achieve {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher. However, the structural correlation inherent to TD learning (all {{< math >}}$\delta_t${{< /math >}} share the same {{< math >}}$V_\phi${{< /math >}}) creates a gap between theoretical ceiling and achievable performance. How much of this gap is bridgeable remains an open empirical question.
 
-**The path forward**: Future work should focus on empirically quantifying the achievable information bandwidth and understanding how much of the gap to the theoretical ceiling is fundamental versus algorithmic. Progress requires either:
-1. **Better utilizing existing signals**: Improving critic training and exploring decorrelation techniques
-2. **Circumventing bootstrap correlation**: Exploring Monte Carlo methods, model-based RL, or hybrid approaches that avoid systematic value function reuse
-3. **Denser ground truth**: Engineering process rewards or per-token feedback that increases {{< math >}}$B${{< /math >}} directly
-
-Understanding these tradeoffs—between signal density, correlation, and approximation quality—is essential for the next generation of LLM fine-tuning methods.
+**The path forward**: As detailed in Part 5, progress requires first empirically measuring what's achievable, then pursuing improvements through better critic training and decorrelation, non-bootstrap alternatives like Monte Carlo or model-based methods, or engineering denser supervision signals. Understanding these tradeoffs is essential for next-generation LLM fine-tuning methods.
 
 ---
 
