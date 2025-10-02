@@ -100,13 +100,15 @@ Our rigorous results require two assumptions:
 
 ### Assumption A2 (Finite Effective Resolution)
 
-**Statement**: Returns {{< math >}}$G${{< /math >}} have effective resolution of {{< math >}}$B${{< /math >}} distinguishable values. For TD errors, {{< math >}}$\delta_t${{< /math >}} have effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values from finite-precision arithmetic and gradient noise (typically {{< math >}}$B_\delta \sim 256${{< /math >}} in practical systems).
+**Statement**: Returns {{< math >}}$G${{< /math >}} have effective resolution of {{< math >}}$B${{< /math >}} distinguishable values.
 
 **When it holds**:
 - *Exactly*: Binary preferences ({{< math >}}$B = 2${{< /math >}}), Likert scales ({{< math >}}$B = 4${{< /math >}}-{{< math >}}$7${{< /math >}})
 - *Approximately*: Continuous rewards with finite precision, noise, or practical distinguishability limits
 
 **What we don't assume**: Policy determinism, low reward variance, specific prior structure, or how informative {{< math >}}$G${{< /math >}} is about {{< math >}}$\xi${{< /math >}}.
+
+**Extension to TD errors (used for actor-critic)**: We extend this assumption to TD errors {{< math >}}$\delta_t${{< /math >}}, assuming they also have effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values. This extension is justified in the Actor-Critic section below.
 
 ---
 
@@ -237,6 +239,8 @@ This is fundamentally different from policy gradient: instead of one scalar per 
 
 ### Main Result
 
+**Important**: This bound assumes TD errors can provide independent information at each timestep. In practice, correlation between successive TD errors reduces realized information below this ceiling—we discuss this gap in detail below.
+
 **Theorem 2 (Actor-Critic Information Ceiling):**
 
 *Given Assumptions A1 and A2:*
@@ -254,10 +258,10 @@ We bound the entropy of the sequence of TD errors.
 
 By the chain rule for entropy:
 {{< math >}}
-$$H(\{\delta_t\}_{t=0}^{T-1}) = H(\delta_0, \delta_1, \ldots, \delta_{T-1}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_0, \ldots, \delta_{t-1})$$
+$$H(\{\delta_t\}_{t=0}^{T-1}) = H(\delta_0, \delta_1, \ldots, \delta_{ T - 1 }) = \sum_{t=0}^{T-1} H(\delta_t | \delta_0, \ldots, \delta_{ t - 1 })$$
 {{< /math >}}
 
-Using shorthand {{< math >}}$\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})${{< /math >}}:
+Using shorthand {{< math >}}$\delta_{<t} = (\delta_0, \ldots, \delta_{ t - 1 })${{< /math >}}:
 {{< math >}}
 $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$
 {{< /math >}}
@@ -292,9 +296,9 @@ $$I(\{\delta_t\}; \pi^*) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
 
 ### Understanding the Bound
 
-This bound assumes TD errors are maximally informative. In practice, three factors reduce realized information:
+**This is an upper bound on potential bandwidth, not realized information.** The bound {{< math >}}$T \log_2(B_\delta)${{< /math >}} represents the maximum possible information if TD errors were independent and perfectly informative. In practice, three factors reduce realized information:
 
-**1. Correlation between TD errors**: Successive TD errors share temporal structure and value function biases. If perfectly correlated, all {{< math >}}$T${{< /math >}} TD errors collapse to one signal—no better than policy gradient. Typical RL achieves partial decorrelation.
+**1. Correlation between TD errors**: Successive TD errors share temporal structure and value function biases, violating the independence assumption implicit in the {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound. If perfectly correlated, all {{< math >}}$T${{< /math >}} TD errors collapse to one signal—no better than policy gradient. Typical RL achieves partial decorrelation, explaining why practical speedups are 10-100× rather than the theoretical maximum of 1000×.
 
 **2. Imperfect value functions**: We observe {{< math >}}$\hat{\delta}_t${{< /math >}} from approximate critic {{< math >}}$V_\phi${{< /math >}}, not true TD errors. By the data processing inequality, approximation errors can only lose information: {{< math >}}$I(\{\hat{\delta}_t\}; \pi^*) \leq I(\{\delta_t^*\}; \pi^*)${{< /math >}}. Critic training instability limits how much of the potential information we can extract.
 
@@ -306,10 +310,12 @@ These factors explain why traditional RL achieves 10-100× speedups rather than 
 
 For {{< math >}}$T = 1000${{< /math >}} tokens with {{< math >}}$B_\delta = 256${{< /math >}} (8-bit effective resolution):
 - Policy gradient: {{< math >}}$\leq 1${{< /math >}} bit/episode
-- Actor-critic: {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling)
-- Actor-critic: ~10-100 bits/episode (practical, accounting for correlation and value quality)
+- Actor-critic: {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling, assumes independence)
+- Actor-critic: ~10-100 bits/episode (practical realized information)
 
 **Theoretical ceiling: 8000× higher. Practical today: 10-100× higher.**
+
+**Note on practical speedups**: The 10-100× improvement of actor-critic over policy gradient is well-documented in traditional RL domains (e.g., Mnih et al., 2016; Schulman et al., 2015). For LLMs specifically, sample efficiency comparisons are less established due to the dominance of policy gradient methods.
 
 The gap between 100× (practical) and 8000× (theoretical) represents the frontier—stable critic training and decorrelation techniques could unlock another 10-100× improvement.
 
@@ -325,11 +331,13 @@ Typical setup:
 
 **LoRA capacity**:
 - Parameters: {{< math >}}$2rd \approx 65{,}000${{< /math >}}
-- Information capacity (32-bit floats): {{< math >}}$\approx 2${{< /math >}} million bits
+- Information capacity: {{< math >}}$\approx 2${{< /math >}} million bits (if each parameter can encode 32 distinguishable values)
+
+*Note: This comparison between parameter precision and information-theoretic bits is illustrative. The key point is the order-of-magnitude mismatch: LoRA provides ~1000-2000× more capacity than the information ceiling.*
 
 **Information ceiling**: {{< math >}}$\leq 1000${{< /math >}} bits (binary preferences, 1000 episodes)
 
-**Capacity comparison**: LoRA provides ~2000× more information capacity than the learning signal delivers.
+**Capacity comparison**: LoRA provides ~2000× more capacity than the learning signal delivers.
 
 This explains why LoRA works: **the parameter bottleneck isn't binding**—we have far more capacity than the information ceiling allows us to use. The bottleneck is signal sparsity, not parameter count.
 
@@ -381,14 +389,14 @@ The ceiling is structural, not algorithmic—that's why there's room for transfo
 ## Technical Notes
 
 **What we prove rigorously** (given A1, A2):
-- {{< math >}}$I(G; \pi^*) \leq \log_2(B)${{< /math >}} bits/episode (policy gradient)
-- {{< math >}}$I(\{\delta_t\}; \pi^*) \leq T \log_2(B_\delta)${{< /math >}} bits/episode (actor-critic)
+- {{< math >}}$I(G; \pi^*) \leq H(G) \leq \log_2(B)${{< /math >}} bits/episode (policy gradient)
+- {{< math >}}$I(\{\delta_t\}; \pi^*) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)${{< /math >}} bits/episode (actor-critic, assumes independence)
 
-These are hard upper bounds independent of sequence length, model complexity, or optimization quality.
+These are upper bounds on the entropy of the learning signals. The mutual information {{< math >}}$I(S; \pi^*)${{< /math >}} can be lower if signals are uninformative about the optimal policy. For actor-critic, correlation between TD errors substantially reduces realized information below the {{< math >}}$T \log_2(B_\delta)${{< /math >}} ceiling.
 
 **What remains conjectural**:
 - How close algorithms get to these ceilings in practice
-- Correlation structure between successive TD errors and its quantitative impact
+- Correlation structure between successive TD errors and its quantitative impact on realized bandwidth
 - Sample complexity predictions (optimization dynamics matter)
 - Tightness of bounds: optimal algorithms may achieve {{< math >}}$\Theta(\log B)${{< /math >}} or only {{< math >}}$O(\log B)${{< /math >}}
 - What fraction of TD error entropy actually informs policy learning
@@ -410,6 +418,8 @@ These are hard upper bounds independent of sequence length, model complexity, or
 
 **Foundational RL**:
 - Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.
+- Mnih, V., et al. (2016). "Asynchronous Methods for Deep Reinforcement Learning." *ICML*. (A3C)
+- Schulman, J., et al. (2015). "High-Dimensional Continuous Control Using Generalized Advantage Estimation." *ICLR*. (GAE)
 
 **Inspiration**: ThinkingMachines.ai (2025). "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)."
 
