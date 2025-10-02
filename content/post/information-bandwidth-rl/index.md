@@ -58,7 +58,7 @@ This turns out to be both theoretically clean and practically relevant for under
 
 **Main Findings**:
 
-1. **Policy gradient bottleneck**: Compressing entire sequences ({{< math >}}$T \sim 1000${{< /math >}} tokens) into scalar returns creates severe information bottleneck of {{< math >}}$O(1)${{< /math >}} bits/episode
+1. **Policy gradient bottleneck**: Compressing entire sequences ({{< math >}}$T \gg 1000${{< /math >}} tokens) into scalar returns creates severe information bottleneck of {{< math >}}$O(1)${{< /math >}} bits/episode
 
 2. **Actor-critic potential**: Token-level TD errors could provide {{< math >}}$O(T)${{< /math >}} bits/episode, but only with well-trained critics (currently unsolved for LLMs)
 
@@ -849,7 +849,7 @@ $$g(\rho) = \frac{\sqrt{1-\rho^2}}{1-\rho^2/2} \approx 1 - \rho \quad \text{(for
 
 **Empirical estimates**:
 
-In LLM token generation with {{< math >}}$T \sim 1000${{< /math >}} tokens:
+In LLM token generation with {{< math >}}$T \gg 1000${{< /math >}} tokens:
 - Correlation between adjacent TD errors: {{< math >}}$\rho \approx 0.5${{< /math >}} to {{< math >}}$0.8${{< /math >}} (empirically observed in RL training)
 - Effective reduction: {{< math >}}$3\times${{< /math >}} to {{< math >}}$10\times${{< /math >}} compared to independent case
 
@@ -1200,7 +1200,7 @@ Here's what keeps me up at night: our analysis shows that actor-critic methods s
 - **Key challenges**:
   - Value function training is unstable for large language models
   - Critic networks require careful initialization and hyperparameter tuning
-  - Bootstrap error accumulation in long sequences ({{< math >}}$T \sim 1000${{< /math >}} tokens)
+  - Bootstrap error accumulation in long sequences ({{< math >}}$T \gg 1000${{< /math >}} tokens)
   - Computational overhead of maintaining and updating critics
 
 **Why this matters from an information-theoretic perspective**:
@@ -1217,7 +1217,7 @@ a) **Stable Critic Training**:
    - **Information perspective**: Each successful critic update should provide {{< math >}}$O(1)${{< /math >}} bits about {{< math >}}$\xi${{< /math >}} per token
    - **Research questions**: 
      - What architectures enable stable value learning?
-     - How to handle long-horizon credit assignment ({{< math >}}$T \sim 1000${{< /math >}})?
+     - How to handle long-horizon credit assignment ({{< math >}}$T \gg 1000${{< /math >}})?
      - Can we leverage pre-trained representations?
 
 b) **Alternative Value Representations**:
@@ -1388,7 +1388,7 @@ For practitioners fine-tuning LLMs with RL:
 
 **The $1000\times$ Opportunity**:
 
-Our analysis reveals a massive opportunity: successfully training value functions for LLMs could improve sample efficiency by {{< math >}}$\sim 1000\times${{< /math >}} (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(T)${{< /math >}} bits/episode where {{< math >}}$T \sim 1000${{< /math >}}).
+Our analysis reveals a massive opportunity: successfully training value functions for LLMs could improve sample efficiency by {{< math >}}$\sim 1000\times${{< /math >}} (from {{< math >}}$O(1)${{< /math >}} to {{< math >}}$O(T)${{< /math >}} bits/episode where {{< math >}}$T \gg 1000${{< /math >}}).
 
 **Priority Research Directions**:
 
