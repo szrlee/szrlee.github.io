@@ -159,13 +159,13 @@ $$\pi^*_\xi = \arg\max_\pi J(\pi; R_\xi)$$
 
 **When this assumption holds**:
 
-1. **Continuous action spaces**: With softmax over large vocabularies ({{< math >}}$|\mathcal{V}| \sim 50{,}000${{< /math >}}), exact ties between policies have probability zero under continuous distributions
+1. **Continuous parameter space**: The policy is parameterized by a continuous vector {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}. The objective function {{< math >}}$J(\theta; R_\xi)${{< /math >}} is a complex function on this high-dimensional space. For generic reward functions, the probability of {{< math >}}$J${{< /math >}} having multiple, distinct global maxima is measure zero
 
 2. **Strict concavity of objective**: If {{< math >}}$J(\pi; R_\xi)${{< /math >}} is strictly concave in the policy parameters {{< math >}}$\theta${{< /math >}}, there exists a unique maximizer
 
 3. **Lexicographic tie-breaking**: For discrete cases or when multiple optima exist mathematically, we can impose an arbitrary but consistent ordering (e.g., by parameter norm) to select a unique policy
 
-4. **Generic property**: For "most" reward functions (in a measure-theoretic sense), the optimal policy is unique. Exact degeneracies require special structure.
+4. **Generic property**: For "most" reward functions (in a measure-theoretic sense), the optimal policy is unique. Exact degeneracies require special structure
 
 **When this assumption might fail**:
 
@@ -1370,7 +1370,7 @@ It does **not** provide:
 
 ### Inspiration
 
-- ThinkingMachines.ai (2024). "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Blog post that inspired this analysis.
+- ThinkingMachines.ai (2025). "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Blog post that inspired this analysis.
 
 ---
 
