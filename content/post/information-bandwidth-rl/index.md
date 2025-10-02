@@ -62,9 +62,9 @@ This turns out to be both theoretically clean and practically relevant for under
 
 2. **Actor-critic potential**: Token-level TD errors could provide {{< math >}}$O(T)${{< /math >}} bits/episode, but only with well-trained critics (currently unsolved for LLMs)
 
-3. **LoRA success explained**: With only {{< math >}}$\sim 2{,}000${{< /math >}} bits accumulated over 1,000 episodes, LoRA's {{< math >}}$\sim 65{,}000${{< /math >}} parameters provide {{< math >}}$30\times${{< /math >}} more capacity than needed
+3. **LoRA success explained**: With only {{< math >}}$\sim 2{,}000${{< /math >}} bits accumulated over 1,000 episodes, LoRA's {{< math >}}$\sim 65{,}000${{< /math >}} degrees of freedom provide {{< math >}}$\sim 30\times${{< /math >}} more capacity than information bits
 
-4. **Research opportunity**: Developing stable value-based methods for LLMs could unlock {{< math >}}$50${{< /math >}}-{{< math >}}$1000\times${{< /math >}} sample efficiency improvements
+4. **Research opportunity**: Developing stable value-based methods for LLMs could unlock substantial sample efficiency improvements (theoretical upper bound of {{< math >}}$O(T) \sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} with {{< math >}}$T \sim 1000${{< /math >}} tokens, though practical speedups of {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} are more realistic based on traditional RL experience)
 
 ### Mathematical Framework
 
@@ -159,7 +159,7 @@ $$\pi^*_\xi = \arg\max_\pi J(\pi; R_\xi)$$
 
 **When this assumption holds**:
 
-1. **Continuous parameter space**: The policy is parameterized by a continuous vector {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}. The objective function {{< math >}}$J(\theta; R_\xi)${{< /math >}} is a complex function on this high-dimensional space. For generic reward functions, the probability of {{< math >}}$J${{< /math >}} having multiple, distinct global maxima is measure zero
+1. **Continuous parameter space with generic objectives**: The policy is parameterized by {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}. For "generic" smooth objective functions {{< math >}}$J(\theta; R_\xi)${{< /math >}} (in a measure-theoretic sense), the set of global maxima has measure zero in the parameter space. Multiple distinct global maxima require special structure (symmetries, flat regions) that occur with probability zero under typical priors {{< math >}}$p(\xi)${{< /math >}}
 
 2. **Strict concavity of objective**: If {{< math >}}$J(\pi; R_\xi)${{< /math >}} is strictly concave in the policy parameters {{< math >}}$\theta${{< /math >}}, there exists a unique maximizer
 
@@ -188,15 +188,6 @@ In real LLM fine-tuning:
 
 Therefore, **effective uniqueness holds in practice** for LLM RL, making this assumption reasonable.
 
-**Note on differential entropy**:
-
-For continuous policy parameterizations {{< math >}}$\pi_\theta${{< /math >}} where {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}, we use differential entropy {{< math >}}$h(\pi^*)${{< /math >}}, which may be infinite. However:
-- The mutual information {{< math >}}$I(S; \pi^*)${{< /math >}} remains well-defined and finite
-- It measures **reduction in uncertainty**, not absolute uncertainty
-- Our analysis relies on {{< math >}}$I(S; \pi^*)${{< /math >}}, not {{< math >}}$H(\pi^*)${{< /math >}} directly
-
-For discrete policy spaces or when working with finite {{< math >}}$\epsilon${{< /math >}}-nets of the policy space, all entropies are finite.
-
 Under this assumption, the prior {{< math >}}$p(\xi)${{< /math >}} induces a distribution {{< math >}}$p(\pi^*)${{< /math >}} where {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} and {{< math >}}$\xi \sim p(\xi)${{< /math >}}.
 
 **Critical Point**: This makes {{< math >}}$\pi^*${{< /math >}} a **random variable** with a well-defined probability distribution, allowing us to rigorously compute:
@@ -204,7 +195,7 @@ Under this assumption, the prior {{< math >}}$p(\xi)${{< /math >}} induces a dis
 - {{< math >}}$I(S; \pi^*)${{< /math >}}: Mutual information between learning signals and optimal policy
 - {{< math >}}$H(\pi^* | \mathcal{D})${{< /math >}}: Posterior entropy after observing data
 
-**Note on Entropy**: For continuous policy spaces (e.g., neural network parameters {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}), we use differential entropy. The key quantities {{< math >}}$I(S; \pi^*)${{< /math >}} remain well-defined and measure reduction in uncertainty, even if {{< math >}}$H(\pi^*)${{< /math >}} itself may be infinite in the continuous case.
+**Note on Differential Entropy**: For continuous policy parameterizations {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}, the entropy {{< math >}}$h(\pi^*)${{< /math >}} may be infinite. However, the mutual information {{< math >}}$I(S; \pi^*) = h(\pi^*) - h(\pi^*|S)${{< /math >}} remains well-defined and finite as long as the conditioning reduces entropy by a finite amount. This is the quantity we care about—it measures the reduction in uncertainty about {{< math >}}$\pi^*${{< /math >}} after observing {{< math >}}$S${{< /math >}}, which is finite even when absolute entropies are infinite. For discrete policy spaces or finite {{< math >}}$\epsilon${{< /math >}}-nets, all entropies are finite.
 
 **Learning Objective**: Reduce uncertainty about {{< math >}}$\pi^*${{< /math >}} by observing trajectories.
 
@@ -460,12 +451,24 @@ Therefore:
 $$I(G; \pi^*, \xi) = I(G; \xi)$$
 {{< /math >}}
 
-From the first equation, since mutual information is always non-negative:
+From the first chain rule equation:
 {{< math >}}
-$$I(G; \pi^*) \leq I(G; \pi^*) + I(G; \xi | \pi^*) = I(G; \pi^*, \xi)$$
+$$I(G; \pi^*) + I(G; \xi | \pi^*) = I(G; \pi^*, \xi)$$
 {{< /math >}}
 
-Combining these:
+Rearranging:
+{{< math >}}
+$$I(G; \pi^*) = I(G; \pi^*, \xi) - I(G; \xi | \pi^*)$$
+{{< /math >}}
+
+Since mutual information is always non-negative, {{< math >}}$I(G; \xi | \pi^*) \geq 0${{< /math >}}, therefore:
+{{< math >}}
+$$I(G; \pi^*) \leq I(G; \pi^*, \xi)$$
+{{< /math >}}
+
+From the second chain rule equation, we established that {{< math >}}$I(G; \pi^*, \xi) = I(G; \xi)${{< /math >}}.
+
+Combining these results:
 {{< math >}}
 $$I(G; \pi^*) \leq I(G; \pi^*, \xi) = I(G; \xi)$$
 {{< /math >}}
@@ -495,7 +498,25 @@ In practice, reward signals have **finite effective distinguishability** due to:
 3. **Noise**: Human judgments and reward model predictions have inherent variability
 4. **Limited sensitivity**: Different reward values may not meaningfully distinguish different optimal policies
 
-**Formalization via effective binning**:
+{{% callout warning %}}
+**Critical Assumption: Finite Effective Reward Distinguishability**
+
+The "{{< math >}}$O(1)${{< /math >}} bits per episode" result requires assuming that reward signals have **finite effective distinguishability** from the perspective of learning about {{< math >}}$\pi^*${{< /math >}}.
+
+**This is an assumption, not a theorem.**
+
+Mathematically, for arbitrary continuous reward functions with unbounded precision, {{< math >}}$H(G)${{< /math >}} could be unbounded. However, we argue this assumption is reasonable for practical LLM-RL systems based on:
+
+1. **Empirical grounding**: Real systems use binary preferences ({{< math >}}$B=2${{< /math >}}), Likert scales ({{< math >}}$B=4${{< /math >}}-{{< math >}}$5${{< /math >}}), or reward models with limited effective resolution
+2. **Practical limitations**: Human judgment noise, model uncertainty, and optimization constraints limit distinguishability
+3. **Information relevance**: Reward differences smaller than a threshold may not meaningfully distinguish optimal policies
+
+**What we prove**: *Given* the assumption of {{< math >}}$B = O(1)${{< /math >}} distinguishable levels, *then* {{< math >}}$H(G) \leq \log_2(B) = O(1)${{< /math >}} bits.
+
+**Status**: This is a **modeling assumption** motivated by practical systems, not a mathematical necessity.
+{{% /callout %}}
+
+**Given this assumption**, we can formalize it as follows:
 
 Assume that from the perspective of learning about {{< math >}}$\pi^*${{< /math >}}, the continuous reward values can be effectively discretized into {{< math >}}$B${{< /math >}} distinguishable levels. This means:
 
@@ -552,30 +573,36 @@ If rewards were arbitrarily precise and highly informative about subtle policy d
 The return {{< math >}}$G = R_\xi(s_T)${{< /math >}} provides information about {{< math >}}$\xi${{< /math >}} through the observed reward. Since {{< math >}}$G${{< /math >}} is a scalar observation:
 
 {{< math >}}
-$$I(G; \xi) \leq H(G) \leq \log_2(B) = O(1)$$
+$$I(G; \xi) \leq H(G)$$
 {{< /math >}}
 
-The first inequality is fundamental: mutual information cannot exceed the entropy of either variable. The second follows from our effective binning assumption in Step 3.
+This is a fundamental inequality (mutual information cannot exceed entropy of either variable).
 
-**Key point**: Even if the reward function {{< math >}}$R_\xi${{< /math >}} is continuous and {{< math >}}$\xi${{< /math >}} is high-dimensional, the **scalar observation** {{< math >}}$G${{< /math >}} provides only {{< math >}}$O(1)${{< /math >}} bits of information about {{< math >}}$\xi${{< /math >}} when effective distinguishability is limited to {{< math >}}$B = O(1)${{< /math >}} levels.
+**Under our assumption** from Step 3 that {{< math >}}$H(G) \leq \log_2(B) = O(1)${{< /math >}}, we have:
 
-In the best case (maximum information transmission), each episode distinguishes between {{< math >}}$B${{< /math >}} hypotheses about {{< math >}}$\xi${{< /math >}}, giving:
 {{< math >}}
-$$I(G; \xi) \approx \log_2(B) \text{ bits}$$
+$$I(G; \xi) \leq \log_2(B) = O(1)$$
 {{< /math >}}
+
+**Additional assumption needed**: We further assume that {{< math >}}$I(G; \xi) = O(1)${{< /math >}} (not just {{< math >}}$H(G) = O(1)${{< /math >}}). This requires that:
+- The prior {{< math >}}$p(\xi)${{< /math >}} doesn't make the reward signal arbitrarily informative about {{< math >}}$\xi${{< /math >}}
+- We're in a regime where scalar returns provide limited information about optimal behavior
+- The mapping from {{< math >}}$\xi${{< /math >}} to {{< math >}}$G${{< /math >}} through the policy {{< math >}}$\pi_\theta${{< /math >}} has limited sensitivity
+
+**Status**: Both {{< math >}}$H(G) = O(1)${{< /math >}} and {{< math >}}$I(G; \xi) = O(1)${{< /math >}} are **assumptions** motivated by practical LLM-RL systems, not proven bounds.
 
 **Step 5**: Calculate Effective Bandwidth.
 
-Using the DPI from Step 2:
+**Under our assumptions** (finite effective reward distinguishability with {{< math >}}$B = O(1)${{< /math >}} bins, and {{< math >}}$I(G; \xi) = O(1)${{< /math >}}), we have established:
 
 {{< math >}}
-$$\mathcal{B}_{\text{effective}} = I(G; \pi^*) \leq I(G; \xi) \leq H(G) = O(1)$$
+$$I(G; \pi^*) \leq I(G; \xi) \leq H(G) \leq \log_2(B)$$
 {{< /math >}}
 
-**The "1 bit per episode" result**: This is where the original claim becomes precise. With {{< math >}}$B = 2${{< /math >}} bins (basically "good" vs "bad"):
+**The "1 bit per episode" result**: **Under our assumptions**, with {{< math >}}$B = 2${{< /math >}} bins (binary preferences like "good" vs "bad"):
 
 {{< math >}}
-$$I(G; \pi^*) \leq \log_2(2) = 1 \text{ bit per episode}$$
+$$I(G; \pi^*) \leq 1 \text{ bit per episode}$$
 {{< /math >}}
 
 Literally one bit! And even with more granular feedback—say {{< math >}}$B = 4${{< /math >}} bins:
@@ -585,6 +612,8 @@ $$I(G; \pi^*) \leq \log_2(4) = 2 \text{ bits per episode}$$
 {{< /math >}}
 
 We're still talking about a trickle of information.
+
+**Status**: This is a **conditional result** that holds under the stated assumptions about reward distinguishability.
 
 ---
 
@@ -662,28 +691,21 @@ $$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
 
 This signal's informativeness about {{< math >}}$\xi${{< /math >}} depends critically on the reward structure and critic quality.
 
-**Case 1: Terminal states** (where {{< math >}}$t = T${{< /math >}} and we observe the actual reward):
+**Case 1: Terminal states** (where {{< math >}}$t = T${{< /math >}} and we observe actual reward):
 
-At the final timestep:
+At the final timestep with terminal state {{< math >}}$s_{T+1}${{< /math >}}:
 {{< math >}}
-$$\delta_T = R_\xi(s_T) + \gamma V_\phi(s_{T+1}) - V_\phi(s_T)$$
+$$\delta_T = R_\xi(s_T) - V_\phi(s_T) \quad \text{(assuming } V_\phi(s_{T+1}) = 0\text{)}$$
 {{< /math >}}
 
-If {{< math >}}$s_{T+1}${{< /math >}} is a terminal/absorbing state with {{< math >}}$V_\phi(s_{T+1}) = 0${{< /math >}}:
-{{< math >}}
-$$\delta_T = R_\xi(s_T) - V_\phi(s_T)$$
-{{< /math >}}
-
-This directly contains the reward signal {{< math >}}$R_\xi(s_T)${{< /math >}}, providing:
+This directly contains the reward signal {{< math >}}$R_\xi(s_T)${{< /math >}}. Under the same assumptions as policy gradient (finite effective reward distinguishability with {{< math >}}$B = O(1)${{< /math >}} bins):
 {{< math >}}
 $$I(\delta_T; \xi | s_T, \text{history}) = O(1) \text{ bits}$$
 {{< /math >}}
 
-(bounded by the same argument as policy gradient)
-
 **Case 2: Non-terminal states with sparse rewards** (where {{< math >}}$r_t = 0${{< /math >}}):
 
-This is the critical case for understanding actor-critic's potential advantage. When {{< math >}}$r_t = 0${{< /math >}}:
+When {{< math >}}$r_t = 0${{< /math >}}:
 {{< math >}}
 $$\delta_t = \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
 {{< /math >}}
@@ -694,94 +716,103 @@ $$\delta_t = \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
 
 **Information flow mechanism**:
 
-1. The value function {{< math >}}$V_\phi${{< /math >}} is trained on past episodes to approximate {{< math >}}$V^{\pi_\theta}_\xi(s)${{< /math >}} — the expected future reward under the current policy given reward parameter {{< math >}}$\xi${{< /math >}}
-
-2. As {{< math >}}$V_\phi${{< /math >}} learns, it accumulates information about {{< math >}}$\xi${{< /math >}} from observed terminal rewards in previous episodes
-
-3. The TD error {{< math >}}$\delta_t${{< /math >}} at non-terminal states reflects whether the current state is better or worse than expected according to the current estimate of {{< math >}}$\xi${{< /math >}}
-
+1. {{< math >}}$V_\phi${{< /math >}} is trained on past episodes to approximate {{< math >}}$V^{\pi_\theta}_\xi(s)${{< /math >}} (expected future reward under policy {{< math >}}$\pi_\theta${{< /math >}} given reward parameter {{< math >}}$\xi${{< /math >}})
+2. As {{< math >}}$V_\phi${{< /math >}} learns, it accumulates information about {{< math >}}$\xi${{< /math >}} from observed terminal rewards
+3. The TD error reflects whether the current state is better/worse than expected according to the current estimate of {{< math >}}$\xi${{< /math >}}
 4. This provides a **bootstrapped** learning signal even when {{< math >}}$r_t = 0${{< /math >}}
 
-**Rigorous bound on non-terminal information**:
+**What we can rigorously bound**:
 
-Let {{< math >}}$V_\phi${{< /math >}} be trained on {{< math >}}$M${{< /math >}} previous episodes. The information {{< math >}}$V_\phi${{< /math >}} contains about {{< math >}}$\xi${{< /math >}} is bounded by:
+Let {{< math >}}$V_\phi${{< /math >}} be trained on {{< math >}}$M${{< /math >}} previous episodes. The information {{< math >}}$V_\phi${{< /math >}} contains about {{< math >}}$\xi${{< /math >}} is bounded by the information from those episodes:
 {{< math >}}
-$$I(V_\phi; \xi) \leq M \cdot \log_2(B) = O(M)$$
+$$I(V_\phi; \xi) \leq M \cdot O(1) = O(M)$$
 {{< /math >}}
 
-Given this, the TD error at a non-terminal state can provide:
+(assuming each episode provides {{< math >}}$O(1)${{< /math >}} bits, as in policy gradient)
+
+Therefore:
 {{< math >}}
-$$I(\delta_t; \xi | s_t, s_{t+1}, V_\phi) \leq I(V_\phi; \xi) = O(M)$$
+$$I(\delta_t; \xi | s_t, s_{t+1}, \text{history}) \leq I(V_\phi; \xi) \leq O(M)$$
 {{< /math >}}
 
-However, this bound is too loose for practical analysis. The actual information depends on:
+**Critical limitation**: This bound is too loose for practical analysis. The actual information depends on:
+- **Critic quality**: How well {{< math >}}$V_\phi${{< /math >}} approximates {{< math >}}$V^{\pi_\theta}_\xi${{< /math >}}
+- **State informativeness**: Whether {{< math >}}$s_t${{< /math >}} and {{< math >}}$s_{t+1}${{< /math >}} differ meaningfully in expected rewards
+- **Learning stage**: Early vs late in training
 
-- **Critic quality**: How well {{< math >}}$V_\phi${{< /math >}} approximates the true value function
-- **State informativeness**: Whether {{< math >}}$s_t${{< /math >}} and {{< math >}}$s_{t+1}${{< /math >}} differ in their expected rewards
-- **Learning stage**: Early vs. late in training
+**What we CANNOT rigorously prove without additional assumptions**:
 
-**Practical information content**:
+We cannot prove that each {{< math >}}$\delta_t${{< /math >}} provides {{< math >}}$O(1)${{< /math >}} bits of information about {{< math >}}$\xi${{< /math >}} without assumptions about:
+1. Critic convergence properties
+2. Value function approximation error
+3. Correlation between successive TD errors
+4. The relationship between value differences and policy optimality
 
-In practice, we expect:
-{{< math >}}
-$$I(\delta_t; \xi | s_t, s_{t+1}, \text{history}) \approx c_{\text{critic}} \cdot O(1) \text{ bits}$$
-{{< /math >}}
+**Conjecture (not proven)**: With a well-trained critic that accurately estimates {{< math >}}$V^{\pi_\theta}_\xi(s)${{< /math >}}, each TD error {{< math >}}$\delta_t${{< /math >}} at a non-terminal state could provide up to {{< math >}}$O(1)${{< /math >}} bits of information about {{< math >}}$\xi${{< /math >}}, similar to terminal rewards.
 
-where {{< math >}}$c_{\text{critic}} \in [0, 1]${{< /math >}} is a critic quality factor:
-- {{< math >}}$c_{\text{critic}} \approx 0${{< /math >}}: Poorly trained critic (random initialization)
-- {{< math >}}$c_{\text{critic}} \approx 0.1${{< /math >}}-{{< math >}}$0.5${{< /math >}}: Moderately trained critic
-- {{< math >}}$c_{\text{critic}} \approx 1${{< /math >}}: Well-trained critic that accurately estimates {{< math >}}$V^{\pi_\theta}_\xi${{< /math >}}
-
-**Training phase dependence**:
-
-| Phase | Critic State | {{< math >}}$I(\delta_t; \xi)${{< /math >}} per non-terminal step | Effective info/episode |
-|-------|--------------|------------------------------------------|------------------------|
-| Early | Untrained {{< math >}}$V_\phi${{< /math >}} | {{< math >}}$\approx 0${{< /math >}} | {{< math >}}$\sim O(1)${{< /math >}} (terminal only) |
-| Mid | Improving {{< math >}}$V_\phi${{< /math >}} | {{< math >}}$\sim 0.1${{< /math >}}-{{< math >}}$0.5${{< /math >}} bits | {{< math >}}$\sim 0.1T${{< /math >}} to {{< math >}}$0.5T${{< /math >}} |
-| Late | Converged {{< math >}}$V_\phi${{< /math >}} | {{< math >}}$\sim O(1)${{< /math >}} bits | {{< math >}}$\sim O(T)${{< /math >}} |
-
-**Critical implication**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **asymptotic upper bound** achieved only when:
-1. The critic has converged to a good approximation of {{< math >}}$V^{\pi_\theta}_\xi${{< /math >}}
-2. TD errors at different timesteps provide non-redundant information
-3. The value function successfully propagates information from sparse terminal rewards back through the trajectory
-
-**Early training reality**: When {{< math >}}$V_\phi${{< /math >}} is poorly initialized or undertrained, actor-critic's effective bandwidth collapses toward {{< math >}}$O(1)${{< /math >}} bits per episode—similar to policy gradient! This explains why actor-critic methods require careful critic training to achieve their theoretical advantages.
+**Status**: The per-step information content {{< math >}}$I(\delta_t; \xi | \text{history})${{< /math >}} for non-terminal states is **conjectural** and depends on unproven assumptions about critic quality.
 
 **Step 5**: Sum over trajectory.
 
-Using the chain rule for mutual information:
+**Theoretical upper bound** (requires strong assumptions):
+
+If each TD error could provide independent information about {{< math >}}$\xi${{< /math >}}, using the chain rule:
 
 {{< math >}}
 $$I(\{\delta_t\}_{t=0}^{T-1}; \xi) = \sum_{t=0}^{T-1} I(\delta_t; \xi | \{\delta_k\}_{k < t})$$
 {{< /math >}}
 
-Each step can provide new information about {{< math >}}$\xi${{< /math >}}, but the total is bounded by:
+In the **most optimistic scenario** where:
+- Each {{< math >}}$\delta_t${{< /math >}} provides {{< math >}}$O(1)${{< /math >}} bits (requires well-trained critic)
+- Information is not redundant across timesteps (rarely true in practice)
 
+We would have:
 {{< math >}}
-$$I(\{\delta_t\}; \xi) \leq \sum_{t=0}^{T-1} H(\delta_t | \text{history}) = O(T)$$
+$$I(\{\delta_t\}; \xi) \leq T \cdot O(1) = O(T)$$
 {{< /math >}}
+
+**Critical limitations**:
+
+1. **Correlation**: Successive TD errors are highly correlated because consecutive states share most tokens
+2. **Critic dependency**: Requires {{< math >}}$V_\phi${{< /math >}} to be well-trained (not available in early training)
+3. **Independence violation**: Information across timesteps is not independent
+
+**Status**: {{< math >}}$O(T)${{< /math >}} is a **theoretical upper bound**, not an achievable guarantee.
 
 **Step 6**: Calculate Effective Bandwidth.
 
+**Theoretical upper bound**:
 {{< math >}}
 $$\mathcal{B}_{\text{effective}} = I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \xi) \leq O(T)$$
 {{< /math >}}
 
-**The role of the critic**: The effective bandwidth depends on critic quality:
+**Reality check**: This bound requires:
+1. ✗ Well-trained critic (unsolved for LLMs at scale)
+2. ✗ Independent information across timesteps (violated due to state overlap)
+3. ✗ Effective bootstrapping (requires convergence)
 
-| Training Phase | Critic State | {{< math >}}$I(\{\delta_t\}; \xi)${{< /math >}} | Effective Bandwidth |
-|----------------|--------------|------------------------|---------------------|
-| Early | Random {{< math >}}$V_\phi${{< /math >}} | Low | {{< math >}}$\ll O(T)${{< /math >}} |
-| Middle | Improving | Growing | {{< math >}}$\to O(T)${{< /math >}} |
-| Late | Converged | High | {{< math >}}$\approx O(T)${{< /math >}} |
+**Practical expectation**:
 
-When the critic is well-trained, {{< math >}}$V_\phi(s_t)${{< /math >}} approximates true expected rewards, and the TD errors become informative about {{< math >}}$\xi${{< /math >}} throughout the trajectory.
+Even with a perfect critic, successive TD errors are correlated because:
+- State {{< math >}}$s_t = (x_1, \ldots, x_t)${{< /math >}} and {{< math >}}$s_{t+1} = (x_1, \ldots, x_t, x_{t+1})${{< /math >}} share {{< math >}}$t${{< /math >}} tokens
+- Bootstrap targets {{< math >}}$V_\phi(s_{t+1})${{< /math >}} are correlated with {{< math >}}$V_\phi(s_t)${{< /math >}}
+- Information about {{< math >}}$\xi${{< /math >}} propagates slowly through value estimates
 
-**Important caveat**: The {{< math >}}$O(T)${{< /math >}} bandwidth is an **upper bound** that would require:
-1. Well-trained critic approximating true values
-2. **Independent information across timesteps** (violated in practice due to state overlap and bootstrapping)
+**Conjecture**: The achievable bandwidth is likely {{< math >}}$O(\alpha T)${{< /math >}} where {{< math >}}$\alpha \ll 1${{< /math >}} represents effective information density after accounting for correlation, even with a perfect critic.
 
-In practice, successive TD errors are highly correlated because consecutive states share most tokens. This correlation means the **achievable bandwidth is likely {{< math >}}$O(\alpha T)${{< /math >}} where {{< math >}}$\alpha \ll 1${{< /math >}}** represents the effective reduction due to correlation, even with a perfect critic. The theoretical speedup over policy gradient is therefore reduced from {{< math >}}$O(T)${{< /math >}} to {{< math >}}$O(\alpha T)${{< /math >}}, though still potentially substantial for long sequences.
+**Empirical grounding**:
+
+In traditional RL (Atari, MuJoCo), actor-critic methods achieve {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} speedup over policy gradient for episodes of length {{< math >}}$T \sim 100${{< /math >}}-{{< math >}}$1000${{< /math >}}. This suggests:
+- Naive bound: {{< math >}}$O(T) \sim 100${{< /math >}}-{{< math >}}$1000\times${{< /math >}}
+- Actual: {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}}
+- Implied {{< math >}}$\alpha \sim 0.1${{< /math >}}-{{< math >}}$1.0${{< /math >}}
+
+**Status**:
+- **Proven**: Upper bound of {{< math >}}$O(T)${{< /math >}} bits per episode
+- **Conjectural**: Achievable bandwidth {{< math >}}$O(\alpha T)${{< /math >}} with {{< math >}}$\alpha \ll 1${{< /math >}}
+- **Empirically supported**: {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} speedup in practice
+
+**For LLMs specifically**: Stable critic training at scale remains unsolved, so current systems cannot realize even the reduced {{< math >}}$O(\alpha T)${{< /math >}} bandwidth.
 
 ---
 
@@ -819,165 +850,101 @@ The key is matching capacity to information flow. Let's work through the numbers
 
 **Prior**: Pre-trained model gives us prior {{< math >}}$p(\xi)${{< /math >}} over reward functions (implicitly, from pre-training on diverse text data).
 
-**Information Accumulation with Saturation**:
+**Information Accumulation in Early/Mid Training**:
 
-After {{< math >}}$N${{< /math >}} episodes of policy gradient, the total information gained is:
+After {{< math >}}$N${{< /math >}} episodes of policy gradient, assuming we're in a regime where learning has not saturated:
+
 {{< math >}}
-$$I(\{G_1, \ldots, G_N\}; \pi^*) = \sum_{i=1}^{N} I(G_i; \pi^* | \{G_j\}_{j < i})$$
+$$I(\{G_1, \ldots, G_N\}; \pi^*) \approx N \cdot c \text{ bits}$$
 {{< /math >}}
 
-**Critical insight**: The marginal information {{< math >}}$I(G_i; \pi^* | \{G_j\}_{j<i})${{< /math >}} from episode {{< math >}}$i${{< /math >}} **decreases as training progresses**. This happens for three reasons:
+where {{< math >}}$c = O(1)${{< /math >}} is the per-episode information (e.g., {{< math >}}$c \approx 2${{< /math >}} bits with {{< math >}}$B=4${{< /math >}} reward bins).
 
-1. **Redundancy**: As the policy approaches {{< math >}}$\pi^*${{< /math >}}, it generates similar trajectories that observe similar rewards
-2. **Saturation**: There is limited total uncertainty to resolve ({{< math >}}$I_{\text{total}} \leq H(\pi^*)${{< /math >}})
-3. **Correlation**: Episodes from similar policies are not independent observations
+**Key assumption**: This linear approximation holds when {{< math >}}$N \cdot c \ll H(\pi^*)${{< /math >}}, i.e., when we haven't yet resolved most of the uncertainty about {{< math >}}$\pi^*${{< /math >}}.
 
-**Training phase analysis**:
+**Reality**: As training progresses, marginal information per episode decreases due to:
+- **Redundancy**: Similar trajectories from similar policies
+- **Correlation**: Episodes are not independent
+- **Saturation**: Eventually {{< math >}}$I_{\text{total}} \leq H(\pi^*)${{< /math >}}
 
-| Phase | Episode {{< math >}}$i${{< /math >}} | Marginal info {{< math >}}$I(G_i; \pi^* \mid \text{past})${{< /math >}} | Cumulative info |
-|-------|-------------|------------------------------------------------|-----------------|
-| **Early** | {{< math >}}$i \ll N^*${{< /math >}} | {{< math >}}$\approx c${{< /math >}} bits | {{< math >}}$I_{\text{total}} \approx i \cdot c${{< /math >}} |
-| **Mid** | {{< math >}}$i \sim N^*${{< /math >}} | Decreasing | Sublinear growth |
-| **Late** | {{< math >}}$i \gg N^*${{< /math >}} | {{< math >}}$\to 0${{< /math >}} | {{< math >}}$I_{\text{total}} \to H(\pi^*)${{< /math >}} |
+**For typical LLM fine-tuning** with {{< math >}}$N \sim 10^3${{< /math >}} to {{< math >}}$10^4${{< /math >}} episodes and large policy spaces (high {{< math >}}$H(\pi^*)${{< /math >}}), the linear approximation is reasonable.
 
-where {{< math >}}$N^* \approx H(\pi^*)/c${{< /math >}} is the **saturation point** at which most uncertainty has been resolved.
+**Status**: Linear accumulation is an **approximation** valid in early/mid training, not a precise model of learning dynamics.
 
-**Mathematical model** (illustrative):
+{{% callout note %}}
+**Scope of LoRA Analysis**: We analyze the regime where {{< math >}}$N \cdot c < H(\pi^*)${{< /math >}} (linear accumulation). Once {{< math >}}$I_{\text{total}}${{< /math >}} approaches {{< math >}}$H(\pi^*)${{< /math >}}, marginal learning slows. This is reasonable for practical fine-tuning scenarios where {{< math >}}$N \sim 10^3${{< /math >}}-{{< math >}}$10^4${{< /math >}}.
+{{% /callout %}}
 
-A simple model for information accumulation with saturation:
-{{< math >}}
-$$I_{\text{total}}(N) \approx H(\pi^*) \cdot \left(1 - e^{-cN/H(\pi^*)}\right)$$
-{{< /math >}}
-
-This captures:
-- Linear growth for {{< math >}}$N \ll H(\pi^*)/c${{< /math >}}: {{< math >}}$I_{\text{total}} \approx cN${{< /math >}}
-- Saturation for {{< math >}}$N \gg H(\pi^*)/c${{< /math >}}: {{< math >}}$I_{\text{total}} \to H(\pi^*)${{< /math >}}
-
-**For LoRA analysis**, we consider the **early/mid training regime** where:
-- {{< math >}}$N \ll N^* = H(\pi^*)/c${{< /math >}} (training has not saturated)
-- Linear approximation holds: {{< math >}}$I_{\text{total}} \approx N \cdot c${{< /math >}} bits
-- This is valid for typical fine-tuning where {{< math >}}$N \sim 10^3${{< /math >}} to {{< math >}}$10^4${{< /math >}} episodes
-
-**Concrete numbers** (assuming early/mid regime with {{< math >}}$c = 2${{< /math >}} bits/episode):
+**Concrete numbers** (assuming {{< math >}}$c = 2${{< /math >}} bits/episode in early/mid training):
 
 | Episodes {{< math >}}$N${{< /math >}} | Information accumulated | Approximate bytes |
 |--------------|------------------------|-------------------|
 | 100 | {{< math >}}$\sim 200${{< /math >}} bits | {{< math >}}$\sim 25${{< /math >}} bytes |
 | 1,000 | {{< math >}}$\sim 2{,}000${{< /math >}} bits | {{< math >}}$\sim 250${{< /math >}} bytes |
 | 10,000 | {{< math >}}$\sim 20{,}000${{< /math >}} bits | {{< math >}}$\sim 2.5${{< /math >}} KB |
-| 100,000 | Approaching saturation | Depends on {{< math >}}$H(\pi^*)${{< /math >}} |
-
-**Important caveat**: These are **upper bounds** on useful information. Actual information about {{< math >}}$\pi^*${{< /math >}} may be lower due to:
-- Noise in reward observations
-- Redundant episodes (correlated trajectories)
-- Information not directly relevant to finding {{< math >}}$\pi^*${{< /math >}}
-
-{{% callout note %}}
-**Key Assumption for LoRA Analysis**: We analyze the learning regime where fine-tuning has not yet saturated, i.e., {{< math >}}$N \cdot c < H(\pi^*)${{< /math >}}, so information accumulates approximately linearly: {{< math >}}$I_{\text{total}} \approx N \cdot c${{< /math >}} bits.
-
-This is reasonable for practical fine-tuning scenarios where {{< math >}}$N \sim 10^3${{< /math >}} to {{< math >}}$10^4${{< /math >}} episodes and the policy space is large (high {{< math >}}$H(\pi^*)${{< /math >}}). Once {{< math >}}$I_{\text{total}}${{< /math >}} approaches {{< math >}}$H(\pi^*)${{< /math >}}, marginal learning necessarily slows as there is less remaining uncertainty to resolve.
-{{% /callout %}}
 
 ### LoRA Capacity and Information Content: A Careful Comparison
 
 We've established that policy gradient provides limited information per episode. Now we want to understand: **Is LoRA's parameter capacity sufficient to represent the learned policy changes?**
 
-**Critical disclaimer upfront**: We must be careful here. **Storage bits** (how we represent parameters in memory) and **information bits** (uncertainty reduction about {{< math >}}$\pi^*${{< /math >}}) are fundamentally different quantities. A 1GB hard drive doesn't mean you've "learned 1GB of information." However, we can still make a meaningful argument about representational capacity.
+{{% callout warning %}}
+**Critical Disclaimer**: **Storage bits** (how we represent parameters in memory) and **information bits** (uncertainty reduction about {{< math >}}$\pi^*${{< /math >}}) are **fundamentally different quantities**.
 
-**The degrees of freedom argument**:
+A parameter stored as FP32 has 32 bits of storage, but this does NOT mean it encodes "32 bits of information" about the optimal policy. The following comparison is **qualitative**, not a rigorous equality.
+{{% /callout %}}
+
+**The degrees-of-freedom argument**:
 
 LoRA with rank {{< math >}}$r${{< /math >}} and dimension {{< math >}}$d${{< /math >}} provides:
-- **Number of parameters**: {{< math >}}$2rd${{< /math >}} (two low-rank matrices)
+- **Number of trainable parameters**: {{< math >}}$2rd${{< /math >}}
 - **Degrees of freedom**: {{< math >}}$2rd${{< /math >}} independent values to optimize
 
-The question is: **How much information about optimal policies can this parameter space represent?**
+The RL training process provides:
+- **Information to guide updates**: {{< math >}}$\mathcal{I} \approx N \cdot c${{< /math >}} bits (from {{< math >}}$N${{< /math >}} episodes)
+- With {{< math >}}$N = 1000${{< /math >}}, {{< math >}}$c = 2${{< /math >}}: {{< math >}}$\mathcal{I} \approx 2000${{< /math >}} bits
 
-**Lower bound on representational capacity** (informal):
-
-Consider a conservative estimate: each parameter can encode roughly {{< math >}}$\sim 1${{< /math >}} bit of independent information about the policy. This is extremely conservative because:
-- FP32 parameters have 32 bits of storage
-- Even with quantization, parameters typically use 8-16 bits
-- Neural network parameters can represent complex, nonlinear relationships
-
-Under this conservative estimate:
-- LoRA representational capacity: {{< math >}}$\gtrsim 2rd${{< /math >}} bits of policy-relevant information
-
-**Information requirements from RL**:
-
-Policy gradient over {{< math >}}$N${{< /math >}} episodes provides:
-- Total information: {{< math >}}$\mathcal{I} = 2N${{< /math >}} bits (with {{< math >}}$B = 4${{< /math >}} reward bins)
-
-**Comparison** (with {{< math >}}$r = 8${{< /math >}}, {{< math >}}$d = 4096${{< /math >}}, {{< math >}}$N = 1000${{< /math >}}):
-- LoRA degrees of freedom: {{< math >}}$2 \times 8 \times 4096 = 65{,}536${{< /math >}} parameters
-- Information to encode: {{< math >}}$\sim 2{,}000${{< /math >}} bits
-- **Ratio**: {{< math >}}$\sim 30\times${{< /math >}} more parameters than information bits
-
-Even if each parameter encodes only 0.1 bits of policy-relevant information (very pessimistic), LoRA still has {{< math >}}$3\times${{< /math >}} headroom.
-
-**What this comparison actually means**:
-
-The parameter update {{< math >}}$\Delta\theta${{< /math >}} from RL training must **encode** the policy-relevant information learned from episodes. If policy gradient provides only {{< math >}}$\sim 2N${{< /math >}} bits of information to guide this update, and LoRA provides {{< math >}}$2rd${{< /math >}} parameters to store it, then:
-
-{{< math >}}
-$$\text{Parameters per information bit} = \frac{2rd}{2N} = \frac{rd}{N}$$
-{{< /math >}}
+**Order-of-magnitude comparison**:
 
 With {{< math >}}$r = 8${{< /math >}}, {{< math >}}$d = 4096${{< /math >}}, {{< math >}}$N = 1000${{< /math >}}:
-{{< math >}}
-$$\frac{8 \times 4096}{1000} \approx 33 \text{ parameters per information bit}$$
-{{< /math >}}
+- LoRA parameters: {{< math >}}$2 \times 8 \times 4096 = 65{,}536${{< /math >}}
+- Information bits: {{< math >}}$\approx 2{,}000${{< /math >}}
+- **Ratio**: {{< math >}}$\sim 30\times${{< /math >}} more parameters than information bits
 
-**Practical interpretation**: The LoRA parameter space is **vastly overcomplete** for the information being learned. Even accounting for:
-- Inefficient parameter utilization
-- Redundancy in neural network representations
-- Optimization constraints
+**What this suggests** (not proves):
 
-...there is substantial headroom.
+1. LoRA provides far more degrees of freedom than the information requires
+2. Even if parameters are used inefficiently, there's substantial headroom
+3. Full fine-tuning ({{< math >}}$\sim 10^9${{< /math >}} parameters) is vastly overcomplete
 
-**Storage capacity perspective** (with all caveats):
+**What we CANNOT claim rigorously**:
 
-If we naively compare storage bits:
-- LoRA storage (FP32): {{< math >}}$32 \times 8 \times 4096 = 1{,}048{,}576${{< /math >}} bits {{< math >}}$= 128${{< /math >}} KB
-- Information from 1000 episodes: {{< math >}}$\sim 2000${{< /math >}} bits {{< math >}}$\approx 0.25${{< /math >}} KB
-- **Ratio**: {{< math >}}$\sim 500\times${{< /math >}}
+- We cannot equate "parameter DOF" with "information capacity" quantitatively
+- We cannot prove a specific conversion factor (e.g., "1 parameter = 1 bit")
+- We cannot make precise capacity calculations
 
-But this comparison is **not rigorous** because storage bits {{< math >}}$\neq${{< /math >}} information bits. We mention it only to illustrate the order-of-magnitude mismatch.
+**What we CAN claim**:
 
-**The key insight** (what we can rigorously claim):
+The qualitative conclusion holds: LoRA's parameter bottleneck ({{< math >}}$O(rd)${{< /math >}} DOF) naturally matches policy gradient's information bottleneck ({{< math >}}$O(N)${{< /math >}} bits) in order of magnitude, while full fine-tuning provides vastly more capacity than needed.
 
-Regardless of the exact conversion between storage bits and information content, the qualitative conclusion holds:
-
-1. Policy gradient provides {{< math >}}$O(N)${{< /math >}} bits of information about {{< math >}}$\pi^*${{< /math >}}
-2. LoRA provides {{< math >}}$O(rd)${{< /math >}} degrees of freedom to represent policy changes
-3. In typical settings: {{< math >}}$rd \gg N${{< /math >}}
-
-This **qualitatively explains** why low-rank adapters work well for policy gradient fine-tuning—the parameter bottleneck matches the information bottleneck.
-
-**Conclusion** (with appropriate epistemic humility):
-
-While we cannot rigorously quantify the exact relationship between parameter DOF and information capacity, the order-of-magnitude analysis strongly suggests that LoRA ({{< math >}}$r = 8${{< /math >}}-{{< math >}}$16${{< /math >}}) is well-matched to policy gradient's information rate, while full fine-tuning provides vastly more capacity than needed. This mismatch qualitatively explains empirical observations about LoRA's effectiveness—the low-rank bottleneck naturally matches the information bottleneck.
+**Status**: This comparison is **qualitative reasoning** about capacity matching, not a rigorous theorem.
 
 ---
 
 ### 4.3 Sample Complexity: An Information-Theoretic Perspective
 
 {{% callout warning %}}
-**Limitations of Information-Theoretic Sample Complexity Bounds**
+**What Information Theory Can and Cannot Tell Us About Sample Complexity**
 
-The bounds in this section are **information-theoretic lower bounds** that represent idealized conditions. They assume:
+**Information theory provides**:
+- **Lower bounds**: Necessary conditions for learning (you can't learn {{< math >}}$X${{< /math >}} bits with fewer than {{< math >}}$X/B${{< /math >}} samples if each sample provides {{< math >}}$B${{< /math >}} bits)
+- **Order-of-magnitude estimates**: Qualitative predictions about relative efficiency
 
-1. **Perfect information utilization**: No optimization barriers or gradient descent difficulties
-2. **Linear accumulation**: Minimal redundancy and correlation between episodes
-3. **Direct translation**: Information directly converts to convergence
+**Information theory does NOT provide**:
+- **Tight upper bounds**: Actual sample complexity depends on optimization, exploration, approximation errors
+- **Achievable guarantees**: A learning algorithm may require far more samples than the information-theoretic minimum
+- **Precise predictions**: Constants depend on problem structure, algorithm details, initialization, etc.
 
-These assumptions rarely hold in practice. Actual sample complexity depends on:
-- Optimization landscape and gradient descent dynamics
-- Redundancy and correlation between episodes
-- Approximation errors in policy/value representations
-- Exploration-exploitation tradeoffs
-- Neural network optimization challenges
-
-**Treat these as order-of-magnitude estimates** that explain qualitative differences between algorithms, not tight quantitative predictions for real training runs.
+**Use these bounds to understand qualitative differences between algorithms**, not as quantitative predictions for specific training runs.
 {{% /callout %}}
 
 **Information-theoretic perspective on sample complexity**:
@@ -988,24 +955,32 @@ $$\mathcal{I}_{\text{required}} = H(\pi^*) - \epsilon$$
 {{< /math >}}
 bits of information.
 
-**Necessary condition** (not sufficient): The algorithm must observe at least:
+**Necessary condition** (not sufficient): The algorithm must observe **at least**:
 {{< math >}}
 $$N \geq \frac{\mathcal{I}_{\text{required}}}{\mathcal{B}_{\text{effective}}}$$
 {{< /math >}}
 episodes to accumulate sufficient information.
 
-**For different algorithms** (under idealized conditions):
+This is a **lower bound**, not a prediction. Actual sample complexity may be much higher.
+
+**For different algorithms** (information-theoretic minimum):
 
 - **Policy gradient**: {{< math >}}$\mathcal{B}_{\text{effective}} = O(1)${{< /math >}} bits/episode
-  → {{< math >}}$N_{\text{PG}} = \Omega(\mathcal{I}_{\text{required}})${{< /math >}} episodes needed
+  → {{< math >}}$N_{\text{PG}} \geq \Omega(\mathcal{I}_{\text{required}})${{< /math >}} episodes needed (lower bound)
 
-- **Actor-critic**: {{< math >}}$\mathcal{B}_{\text{effective}} = O(T)${{< /math >}} bits/episode
-  → {{< math >}}$N_{\text{AC}} = \Omega(\mathcal{I}_{\text{required}}/T)${{< /math >}} episodes needed
+- **Actor-critic** (with well-trained critic): {{< math >}}$\mathcal{B}_{\text{effective}} = O(\alpha T)${{< /math >}} bits/episode where {{< math >}}$\alpha \ll 1${{< /math >}}
+  → {{< math >}}$N_{\text{AC}} \geq \Omega(\mathcal{I}_{\text{required}}/\alpha T)${{< /math >}} episodes needed (lower bound)
 
-**Theoretical speedup**:
+  (Note: The factor {{< math >}}$\alpha < 1${{< /math >}} accounts for correlation between successive TD errors. Its exact value is conjectural and problem-dependent.)
+
+**Theoretical speedup** (information-theoretic minimum):
 {{< math >}}
-$$\frac{N_{\text{PG}}}{N_{\text{AC}}} = O(T)$$
+$$\frac{N_{\text{PG}}}{N_{\text{AC}}} \geq O(\alpha T)$$
 {{< /math >}}
+
+where {{< math >}}$\alpha \in (0,1]${{< /math >}} accounts for correlation between successive TD errors.
+
+**Status**: These are **information-theoretic lower bounds** that assume perfect information utilization. Actual sample complexity is typically {{< math >}}$10\times${{< /math >}}-{{< math >}}$100\times${{< /math >}} higher due to optimization difficulties, exploration overhead, and approximation errors.
 
 **Why actual speedup is much smaller**:
 
@@ -1273,39 +1248,52 @@ Model-based methods can learn both simultaneously, potentially achieving higher 
 
 ## What This Analysis Does and Doesn't Prove
 
-Before the appendix, let's be crystal clear about the scope and limitations of our results:
+Let's be explicit about the scope and limitations of our results:
 
 {{% callout warning %}}
 ### Rigorous Results ✓
 
-What we've **mathematically proven**:
-- Policy gradient uses {{< math >}}$O(1)${{< /math >}} bit learning signals per episode
-- Actor-critic uses {{< math >}}$O(T)${{< /math >}} bit learning signals per episode
-- Qualitative conclusion: dense signals provide more information bandwidth
-- LoRA parameter capacity exceeds policy gradient information flow
+**What we've mathematically proven**:
+1. Policy gradient uses scalar signals: {{< math >}}$S = G${{< /math >}} with entropy bounded by reward distinguishability
+2. Actor-critic uses token-level signals: {{< math >}}$\{S_t = \delta_t\}${{< /math >}} with potential entropy {{< math >}}$O(T)${{< /math >}}
+3. Information flow inequality: {{< math >}}$I(S; \pi^*) \leq I(S; \xi)${{< /math >}} (from chain rule)
+4. Qualitative conclusion: Dense signals provide more potential information bandwidth than sparse signals
 
-### Results Requiring Assumptions ⚠
+### Results Requiring Explicit Assumptions ⚠
 
-What holds **under stated assumptions**:
-- "1-4 bits per episode" requires finite effective reward distinguishability ({{< math >}}$B = O(1)${{< /math >}} levels)
-- {{< math >}}$O(T)${{< /math >}} bandwidth requires well-trained critic that successfully propagates value information
-- Linear accumulation ({{< math >}}$I_{\text{total}} \approx Nc${{< /math >}}) requires early/mid training regime before saturation
-- Sample complexity bounds assume near-optimal information utilization
+**What holds under stated assumptions**:
+1. "{{< math >}}$O(1)${{< /math >}} bits per episode" for policy gradient requires:
+   - **Assumption**: Finite effective reward distinguishability ({{< math >}}$B = O(1)${{< /math >}} bins)
+   - **Assumption**: {{< math >}}$I(G; \xi) = O(1)${{< /math >}} (not just {{< math >}}$H(G) = O(1)${{< /math >}})
+   - **Status**: Motivated by practical systems, not proven necessity
+
+2. "{{< math >}}$O(T)${{< /math >}} bits per episode" for actor-critic requires:
+   - **Assumption**: Well-trained critic that approximates {{< math >}}$V^{\pi_\theta}_\xi${{< /math >}} accurately
+   - **Assumption**: TD errors at different timesteps provide non-redundant information
+   - **Status**: Theoretical upper bound, not achievable guarantee
+
+3. Linear accumulation {{< math >}}$I_{\text{total}} \approx Nc${{< /math >}} requires:
+   - **Assumption**: Early/mid training regime where {{< math >}}$Nc \ll H(\pi^*)${{< /math >}}
+   - **Status**: Approximation valid before saturation
+
+4. Sample complexity bounds assume:
+   - **Assumption**: Near-optimal information utilization (rarely true in practice)
+   - **Status**: Information-theoretic lower bounds, not predictions
 
 ### Qualitative/Suggestive Results ~
 
-What is **order-of-magnitude reasoning**:
-- LoRA storage capacity vs. information content comparison (storage bits {{< math >}}$\neq${{< /math >}} information bits)
-- Specific numerical predictions for sample complexity (depend on optimization dynamics)
-- Exact speedup factors (depend on correlation structure, critic quality, problem specifics)
-- Information saturation curves (simplified models of complex learning dynamics)
+**What is order-of-magnitude reasoning**:
+1. LoRA storage capacity vs information content comparison (storage bits ≠ information bits)
+2. Specific numerical predictions for sample complexity (depend on optimization dynamics, correlation structure)
+3. Exact speedup factors (depend on problem-specific details, critic quality, correlation)
+4. "{{< math >}}$30\times${{< /math >}} more capacity" calculation (qualitative capacity matching, not rigorous equivalence)
 
 ### What This Framework Provides
 
 This information-theoretic analysis offers:
 - **Qualitative insights**: Why certain methods work and where bottlenecks exist
-- **Order-of-magnitude estimates**: Rough predictions that align with empirical observations
-- **Research directions**: Identifying high-leverage opportunities (value-based methods)
+- **Order-of-magnitude estimates**: Rough predictions that align with empirical observations ({{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} speedups)
+- **Research directions**: Identifying high-leverage opportunities (value-based methods for LLMs)
 - **Conceptual clarity**: Understanding RL efficiency through information flow
 
 It does **not** provide:
@@ -1313,28 +1301,95 @@ It does **not** provide:
 - Guarantees about specific training runs
 - Prescriptive recipes for optimal hyperparameters
 - Replacement for empirical validation
+
+### Empirical Alignment
+
+The framework's predictions qualitatively match empirical observations:
+- Policy gradient requires {{< math >}}$10^3${{< /math >}}-{{< math >}}$10^4${{< /math >}} episodes for LLM fine-tuning ✓
+- LoRA with {{< math >}}$r = 8${{< /math >}}-{{< math >}}$16${{< /math >}} works well ✓
+- Actor-critic achieves {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} speedup in traditional RL ✓
+- Full fine-tuning wastes capacity for RL ✓
+
+This alignment suggests the information-theoretic lens captures real phenomena, even if not perfectly quantitative.
 {{% /callout %}}
 
 ---
 
-## Appendix: Technical Notes
+## Appendix: Technical Notes and Limitations
 
-**What this analysis rigorously establishes**:
-1. ✅ Policy gradient uses scalar signals with {{< math >}}$O(1)${{< /math >}} bit capacity per episode
-2. ✅ Actor-critic uses token-level signals with {{< math >}}$O(T)${{< /math >}} bit capacity per episode
-3. ✅ Dense signals provide {{< math >}}$T\times${{< /math >}} more information bandwidth (qualitative conclusion)
+### A.1 Summary of Rigorous vs Assumed Results
 
-**What requires assumptions** (see "What This Analysis Proves" section above for details):
-1. ⚠️ Finite reward distinguishability ({{< math >}}$B = O(1)${{< /math >}} levels)
-2. ⚠️ Well-trained critic for {{< math >}}$O(T)${{< /math >}} bandwidth
-3. ⚠️ Linear accumulation in early/mid training
-4. ⚠️ Near-optimal information utilization for sample complexity
+**Rigorous (proven from first principles)**:
+1. ✅ Chain rule bound: {{< math >}}$I(G; \pi^*) \leq I(G; \xi)${{< /math >}}
+2. ✅ DPI for deterministic functions: {{< math >}}$I(X; f(Y)) \leq I(X; Y)${{< /math >}}
+3. ✅ Potential bandwidth hierarchy: Policy gradient has {{< math >}}$O(1)${{< /math >}} signals, actor-critic has {{< math >}}$O(T)${{< /math >}} signals
+4. ✅ Qualitative conclusion: Dense signals provide more information capacity
 
-**Additional technical considerations**:
-- For continuous policy spaces, we use differential entropy; mutual information {{< math >}}$I(S; \pi^*)${{< /math >}} remains well-defined
-- Sample complexity bounds are information-theoretic lower bounds, not tight predictions
-- Storage bits ≠ information bits (see Section 4.2 for careful discussion)
-- Empirical speedups (10-100×) align with correlation-adjusted theoretical predictions
+**Assumed (modeling choices)**:
+1. ⚠️ Finite effective reward distinguishability: {{< math >}}$H(G) = O(1)${{< /math >}}
+2. ⚠️ Information bound: {{< math >}}$I(G; \xi) = O(1)${{< /math >}}
+3. ⚠️ Critic quality: {{< math >}}$V_\phi${{< /math >}} accurately estimates {{< math >}}$V^{\pi_\theta}_\xi${{< /math >}}
+4. ⚠️ Linear accumulation: {{< math >}}$I_{\text{total}} \approx Nc${{< /math >}} in early/mid training
+
+**Conjectural (not proven, but plausible)**:
+1. ~ Actor-critic achieves {{< math >}}$O(\alpha T)${{< /math >}} bits/episode with {{< math >}}$\alpha \ll 1${{< /math >}} (correlation reduces theoretical maximum)
+2. ~ Sample complexity speedup of {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} is achievable with good critic
+3. ~ LoRA parameters encode policy information efficiently (rough capacity matching)
+
+### A.2 Why These Assumptions Are Reasonable
+
+**For finite reward distinguishability**:
+- Binary preferences in InstructGPT: {{< math >}}$B = 2${{< /math >}}, {{< math >}}$H(G) = 1${{< /math >}} bit
+- Likert scales in Constitutional AI: {{< math >}}$B = 4${{< /math >}}-{{< math >}}$5${{< /math >}}, {{< math >}}$H(G) = 2${{< /math >}}-{{< math >}}$2.3${{< /math >}} bits
+- Continuous rewards with noise: Effective resolution limited by judgment variance
+
+**For critic quality**:
+- Traditional RL: PPO critics do converge with careful tuning
+- LLMs: Unsolved at scale, but not impossible in principle
+- Theoretical analysis: Shows what's possible with good critics
+
+**For linear accumulation**:
+- Valid when {{< math >}}$N \ll H(\pi^*)/c${{< /math >}}
+- Typical fine-tuning: {{< math >}}$N \sim 10^3${{< /math >}}-{{< math >}}$10^4${{< /math >}}, large policy space
+- Saturation occurs later, outside typical training regime
+
+### A.3 Additional Technical Considerations
+
+**Differential entropy**: For continuous {{< math >}}$\theta \in \mathbb{R}^d${{< /math >}}, {{< math >}}$h(\pi^*)${{< /math >}} may be infinite but {{< math >}}$I(S; \pi^*) = h(\pi^*) - h(\pi^*|S)${{< /math >}} remains finite (measures uncertainty reduction).
+
+**Sample complexity**: Information-theoretic bounds are **necessary conditions**, not sufficient. Actual complexity includes:
+- Optimization barriers (gradient descent difficulties)
+- Exploration overhead (not modeled here)
+- Function approximation errors
+- Algorithm-specific inefficiencies
+
+**Storage vs information**: 32-bit parameters have 32 bits of storage, but information content about {{< math >}}$\pi^*${{< /math >}} depends on prior, learning signal, and optimization. No rigorous conversion factor exists.
+
+**Correlation structure**: Successive states/TD errors are correlated (share tokens). Effective information density {{< math >}}$\alpha < 1${{< /math >}} even with perfect critic. Estimating {{< math >}}$\alpha${{< /math >}} requires problem-specific analysis.
+
+### A.4 When This Framework Applies
+
+**Applicable when**:
+- Stationary reward functions (fixed {{< math >}}$\xi${{< /math >}})
+- Pure policy learning (not exploration optimization)
+- Known dynamics (token-level MDPs)
+- Optimization is not the primary bottleneck
+
+**Not directly applicable when**:
+- Partial observability (need to infer hidden state)
+- Active exploration (information-directed sampling)
+- Multi-task interference (catastrophic forgetting)
+- Adversarial environments (game-theoretic considerations)
+
+### A.5 Empirical Validation
+
+The framework's qualitative predictions align with empirical observations:
+- **Prediction**: Policy gradient slow → **Observation**: {{< math >}}$10^3${{< /math >}}-{{< math >}}$10^4${{< /math >}} episodes needed ✓
+- **Prediction**: LoRA sufficient → **Observation**: {{< math >}}$r=8${{< /math >}}-{{< math >}}$16${{< /math >}} works ✓
+- **Prediction**: Actor-critic faster → **Observation**: {{< math >}}$10${{< /math >}}-{{< math >}}$100\times${{< /math >}} speedup in traditional RL ✓
+- **Prediction**: Full FT wasteful → **Observation**: Minimal gains over LoRA ✓
+
+This empirical alignment suggests the information-theoretic lens captures real learning dynamics, even if quantitative details require problem-specific analysis.
 
 ---
 
