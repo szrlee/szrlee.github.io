@@ -1281,7 +1281,7 @@ We've established a rigorous information-theoretic framework for RL in autoregre
 
 **4. LoRA Explained**
 - Policy gradient accumulates {{< math >}}$O(N)${{< /math >}} bits over {{< math >}}$N${{< /math >}} episodes
-- LoRA capacity: {{< math >}}$32rd${{< /math >}} bits ({{< math >}}$\sim 50{,}000\times${{< /math >}} more than needed)
+- LoRA capacity: {{< math >}}$32rd${{< /math >}} bits ({{< math >}}$\sim 500\times${{< /math >}} more storage capacity than information provided)
 - Perfect match between limited information and limited capacity
 
 **5. Sample Complexity Predictions**
