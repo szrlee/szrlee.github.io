@@ -40,14 +40,14 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## The Key Insight
 
-**TL;DR**: Policy gradient uses **sparse episode-level signals** (one scalar per episode), while actor-critic uses **dense token-level signals** (one per token). This fundamental difference in signal structure creates an information bandwidth ceiling that explains both why LoRA works and where future improvements lie.
+**TL;DR**: Policy gradient uses **sparse episode-level signals** (one scalar per episode), creating a hard information ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode. Actor-critic uses **dense token-level signals** (one per token), providing a theoretical ceiling {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially 1000× higher. However, correlation between TD errors and imperfect value functions mean practical speedups are 10-100×, not 1000×. This gap represents the frontier for improvement.
 
 | Algorithm | Signal Type | Bandwidth Upper Bound |
 |-----------|-------------|---------------------|
 | Policy Gradient | Episode return {{< math >}}$G${{< /math >}} | {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode |
 | Actor-Critic | TD errors {{< math >}}$\{\delta_t\}${{< /math >}} | {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode |
 
-*Note: These are upper bounds on information bandwidth based on signal structure. Actual information depends on signal quality and correlation.*
+*Note: These are upper bounds on information bandwidth based on signal structure. Actual information depends on signal quality, correlation, and how informative signals are about the optimal policy.*
 
 With binary preferences ({{< math >}}$B = 2${{< /math >}}), policy gradient is bounded by 1 bit per episode. With sequences of {{< math >}}$T \sim 1000${{< /math >}} tokens, actor-critic's theoretical ceiling is ~1000× higher.
 
@@ -100,7 +100,7 @@ Our rigorous results require two assumptions:
 
 ### Assumption A2 (Finite Effective Resolution)
 
-**Statement**: Returns {{< math >}}$G${{< /math >}} have effective resolution of {{< math >}}$B${{< /math >}} distinguishable values.
+**Statement**: Returns {{< math >}}$G${{< /math >}} have effective resolution of {{< math >}}$B${{< /math >}} distinguishable values. For TD errors, {{< math >}}$\delta_t${{< /math >}} have effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values from finite-precision arithmetic and gradient noise (typically {{< math >}}$B_\delta \sim 256${{< /math >}} in practical systems).
 
 **When it holds**:
 - *Exactly*: Binary preferences ({{< math >}}$B = 2${{< /math >}}), Likert scales ({{< math >}}$B = 4${{< /math >}}-{{< math >}}$7${{< /math >}})
@@ -290,15 +290,28 @@ $$I(\{\delta_t\}; \pi^*) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
 
 </details>
 
+### Understanding the Bound
+
+This bound assumes TD errors are maximally informative. In practice, three factors reduce realized information:
+
+**1. Correlation between TD errors**: Successive TD errors share temporal structure and value function biases. If perfectly correlated, all {{< math >}}$T${{< /math >}} TD errors collapse to one signal—no better than policy gradient. Typical RL achieves partial decorrelation.
+
+**2. Imperfect value functions**: We observe {{< math >}}$\hat{\delta}_t${{< /math >}} from approximate critic {{< math >}}$V_\phi${{< /math >}}, not true TD errors. Information about {{< math >}}$\pi^*${{< /math >}} must flow through value function quality: {{< math >}}$I(\{\hat{\delta}_t\}; \pi^*) \leq I(\{\hat{\delta}_t\}; \{\delta_t^*\})${{< /math >}}. Critic training instability limits this bottleneck.
+
+**3. Signal relevance**: Not all bits in TD errors reveal the optimal policy—much encodes environment noise or task-irrelevant features. The bound {{< math >}}$I(\{\delta_t\}; \pi^*)${{< /math >}} already accounts for this (mutual information measures only policy-relevant bits), but highlights that raw TD error entropy {{< math >}}$H(\{\delta_t\})${{< /math >}} overstates useful information.
+
+These factors explain why traditional RL achieves 10-100× speedups rather than 1000×. For LLMs, unstable critic training at scale compounds these challenges.
+
 ### The Gap
 
-For {{< math >}}$T = 1000${{< /math >}} tokens and binary feedback:
+For {{< math >}}$T = 1000${{< /math >}} tokens with {{< math >}}$B_\delta = 256${{< /math >}} (8-bit effective resolution):
 - Policy gradient: {{< math >}}$\leq 1${{< /math >}} bit/episode
-- Actor-critic: {{< math >}}$\leq 1000${{< /math >}} bits/episode
+- Actor-critic: {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling)
+- Actor-critic: ~10-100 bits/episode (practical, accounting for correlation and value quality)
 
-**Theoretical ceiling: 1000× higher.**
+**Theoretical ceiling: 8000× higher. Practical today: 10-100× higher.**
 
-**Critical caveat**: Realizing this requires well-trained critics and managing correlation between successive TD errors. Traditional RL achieves 10-100× speedups; LLM-RL lacks stable critic training recipes at scale.
+The gap between 100× (practical) and 8000× (theoretical) represents the frontier—stable critic training and decorrelation techniques could unlock another 10-100× improvement.
 
 ---
 
@@ -310,13 +323,15 @@ Typical setup:
 - Training episodes: {{< math >}}$N \sim 1000${{< /math >}}
 - LoRA rank: {{< math >}}$r = 8${{< /math >}}, dimension: {{< math >}}$d = 4096${{< /math >}}
 
-**LoRA capacity**: {{< math >}}$2rd \approx 65{,}000${{< /math >}} parameters
+**LoRA capacity**:
+- Parameters: {{< math >}}$2rd \approx 65{,}000${{< /math >}}
+- Information capacity (32-bit floats): {{< math >}}$\approx 2${{< /math >}} million bits
 
 **Information ceiling**: {{< math >}}$\leq 1000${{< /math >}} bits (binary preferences, 1000 episodes)
 
-**Capacity comparison**: ~65× more parameters than information ceiling bits.
+**Capacity comparison**: LoRA provides ~2000× more information capacity than the learning signal delivers.
 
-This suggests the parameter bottleneck isn't binding—we have far more capacity than the information ceiling allows us to use.
+This explains why LoRA works: **the parameter bottleneck isn't binding**—we have far more capacity than the information ceiling allows us to use. The bottleneck is signal sparsity, not parameter count.
 
 ### Why Full Fine-Tuning is Overkill
 
@@ -337,7 +352,7 @@ Policy gradient with LoRA dominates because:
 
 ### The Opportunity
 
-Actor-critic methods have a theoretical ceiling 1000× higher. Traditional RL achieves 10-100× practical speedups. **The bottleneck**: stable critic training for LLMs remains unsolved.
+Actor-critic methods have a theoretical ceiling 1000× higher, with practical speedups of 10-100× demonstrated in traditional RL. **The bottleneck**: stable critic training for LLMs remains unsolved. Closing the gap between 100× (current practice) and 1000× (theoretical ceiling) could reduce sample requirements by another 10×.
 
 ### Research Directions
 
@@ -345,7 +360,7 @@ Actor-critic methods have a theoretical ceiling 1000× higher. Traditional RL ac
 2. **Token-level reward design** for dense signals
 3. **Hybrid approaches** combining Monte Carlo and bootstrapping
 4. **Low-rank value functions** matching information requirements
-5. **Information-directed sampling** for efficient exploration
+5. **Decorrelation techniques** to maximize information per TD error
 
 ---
 
@@ -355,7 +370,7 @@ This information-theoretic framework establishes:
 
 **Policy gradient ceiling**: Compressing {{< math >}}$T \gg 1000${{< /math >}} tokens into scalars creates a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling (typically 1-3 bits). LoRA's capacity naturally matches this ceiling.
 
-**Actor-critic potential**: Token-level signals have a {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode ceiling—orders of magnitude higher. Unlocking this requires solving stable critic training for LLMs.
+**Actor-critic potential**: Token-level signals have a {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode ceiling—orders of magnitude higher. Unlocking this requires solving stable critic training for LLMs and managing correlation structure.
 
 **The path forward**: Future breakthroughs will come from raising the ceiling through effective value function learning, not from increasing adapter capacity.
 
@@ -373,8 +388,10 @@ These are hard upper bounds independent of sequence length, model complexity, or
 
 **What remains conjectural**:
 - How close algorithms get to these ceilings in practice
-- Correlation structure between successive TD errors
+- Correlation structure between successive TD errors and its quantitative impact
 - Sample complexity predictions (optimization dynamics matter)
+- Tightness of bounds: optimal algorithms may achieve {{< math >}}$\Theta(\log B)${{< /math >}} or only {{< math >}}$O(\log B)${{< /math >}}
+- What fraction of TD error entropy actually informs policy learning
 
 **Scope**: Stationary reward learning with known dynamics (autoregressive generation). Extensions needed for exploration, partial observability, or unknown environment dynamics.
 
