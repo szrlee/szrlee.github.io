@@ -296,7 +296,7 @@ This bound assumes TD errors are maximally informative. In practice, three facto
 
 **1. Correlation between TD errors**: Successive TD errors share temporal structure and value function biases. If perfectly correlated, all {{< math >}}$T${{< /math >}} TD errors collapse to one signal—no better than policy gradient. Typical RL achieves partial decorrelation.
 
-**2. Imperfect value functions**: We observe {{< math >}}$\hat{\delta}_t${{< /math >}} from approximate critic {{< math >}}$V_\phi${{< /math >}}, not true TD errors. Information about {{< math >}}$\pi^*${{< /math >}} must flow through value function quality: {{< math >}}$I(\{\hat{\delta}_t\}; \pi^*) \leq I(\{\hat{\delta}_t\}; \{\delta_t^*\})${{< /math >}}. Critic training instability limits this bottleneck.
+**2. Imperfect value functions**: We observe {{< math >}}$\hat{\delta}_t${{< /math >}} from approximate critic {{< math >}}$V_\phi${{< /math >}}, not true TD errors. By the data processing inequality, approximation errors can only lose information: {{< math >}}$I(\{\hat{\delta}_t\}; \pi^*) \leq I(\{\delta_t^*\}; \pi^*)${{< /math >}}. Critic training instability limits how much of the potential information we can extract.
 
 **3. Signal relevance**: Not all bits in TD errors reveal the optimal policy—much encodes environment noise or task-irrelevant features. The bound {{< math >}}$I(\{\delta_t\}; \pi^*)${{< /math >}} already accounts for this (mutual information measures only policy-relevant bits), but highlights that raw TD error entropy {{< math >}}$H(\{\delta_t\})${{< /math >}} overstates useful information.
 
