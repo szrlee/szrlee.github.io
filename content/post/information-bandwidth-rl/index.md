@@ -510,7 +510,7 @@ Our analysis reveals **two distinct types of barriers**:
 - Per-token human annotations increase signal granularity
 - Both approaches increase {{< math >}}$B${{< /math >}} directly, sidestepping the bootstrap issue entirely
 
-**Not needed**: More parameters. LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
+**Not needed**: More parameters. As shown in Part 4, LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
 
 ### Terminology: Two Senses of "Fundamental"
 
@@ -551,7 +551,7 @@ This information-theoretic analysis reveals why policy gradient + LoRA dominates
 
 **The 1-bit bottleneck**: Policy gradient's compression of rich token-level dynamics into scalar returns creates a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling. For binary feedback, this is {{< math >}}$\leq 1${{< /math >}} bit/episode—explaining both why 1000s of episodes are needed and why LoRA's modest capacity (300-500× excess) suffices.
 
-**Actor-critic's theoretical potential**: Bootstrap methods can theoretically achieve {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher. However, the structural correlation inherent to TD learning (all {{< math >}}$\delta_t${{< /math >}} share the same {{< math >}}$V_\phi${{< /math >}}) creates a gap between theoretical ceiling and achievable performance. How much of this gap is bridgeable remains an open empirical question.
+**Actor-critic's theoretical potential**: Bootstrap methods can theoretically achieve {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—orders of magnitude higher than policy gradient. However, the structural correlation inherent to TD learning (all {{< math >}}$\delta_t${{< /math >}} share the same {{< math >}}$V_\phi${{< /math >}}) creates a gap between theoretical ceiling and achievable performance. How much of this gap is bridgeable remains an open empirical question.
 
 **The path forward**: As detailed in Part 5, progress requires first empirically measuring what's achievable, then pursuing improvements through better critic training and decorrelation, non-bootstrap alternatives like Monte Carlo or model-based methods, or engineering denser supervision signals. Understanding these tradeoffs is essential for next-generation LLM fine-tuning methods.
 
