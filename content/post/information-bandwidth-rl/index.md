@@ -30,28 +30,26 @@ image:
 projects: []
 ---
 
-## Part 1: Introduction
+## Introduction
 
-### The Central Question
+When I first read the "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)" blog post, one claim stopped me in my tracks: policy gradient algorithms learn roughly **1 bit of information per episode**. Just one bit! And yet, this single insight elegantly explains why LoRA—with its mere thousands of trainable parameters—works so remarkably well for RL fine-tuning of large language models.
 
-The "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)" blog post makes a striking claim: policy gradient algorithms learn roughly **1 bit of information per episode**. This explains why low-rank adaptation (LoRA)—which adds only thousands of trainable parameters—works remarkably well for RL fine-tuning of large language models.
+But I had to ask: what does "1 bit per episode" actually mean in a rigorous sense? And if policy gradients learn so little per episode, how much do other RL algorithms learn? Are we leaving massive gains on the table?
 
-But what does "1 bit per episode" mean rigorously? How do different RL algorithms compare in their information-gathering capacity?
-
-This analysis provides a mathematically rigorous answer using the **Bayesian RL framework** applied to **autoregressive token generation**, where:
+In this post, I'll work through a mathematically rigorous answer to these questions. The key insight is to use the **Bayesian RL framework** applied specifically to **autoregressive token generation**—a setting where:
 - The MDP structure is explicit and concrete
-- Transitions are deterministic and known
-- The uncertainty is entirely in the reward function
+- Transitions are deterministic and known (just token concatenation!)
+- All the uncertainty lives in the reward function
 
-This setting is both theoretically clean and practically relevant for RL-based LLM fine-tuning.
+This turns out to be both theoretically clean and practically relevant for understanding RL-based LLM fine-tuning.
 
 ---
 
-## Part 2: The Token-Level MDP Framework
+## The Token-Level MDP Framework
 
-### 2.1 Autoregressive Generation as an MDP
+### Autoregressive Generation as an MDP
 
-**Setup**: Consider fine-tuning a language model using RL (e.g., for task optimization or preference learning).
+Let's start by being precise about what we're actually doing when we fine-tune a language model with RL. Consider a typical setup: you're using RL to optimize for some task performance or align with human preferences.
 
 **State Space**: {{< math >}}$\mathcal{S} = \mathcal{V}^*${{< /math >}} where {{< math >}}$\mathcal{V}${{< /math >}} is the vocabulary
 - A state {{< math >}}$s = (x_1, \ldots, x_t)${{< /math >}} is a sequence of tokens
@@ -91,9 +89,11 @@ Often simplified (sparse rewards): {{< math >}}$J(\theta; R_\xi) = \mathbb{E}_{\
 
 ---
 
-### 2.2 The Bayesian RL Formulation
+### The Bayesian RL Formulation
 
-**Prior over Reward Functions**: We have a prior distribution {{< math >}}$p(\xi)${{< /math >}} over reward parameters.
+Here's where things get interesting. Instead of treating the reward function as fixed and known, let's be honest: we're uncertain about what the "right" reward function is. Maybe we're learning human preferences, or trying to figure out what makes a good code completion, or optimizing for some task we only partially understand.
+
+So let's model this uncertainty explicitly with a **prior distribution** {{< math >}}$p(\xi)${{< /math >}} over reward parameters {{< math >}}$\xi${{< /math >}}.
 
 **Examples of** {{< math >}}$\xi${{< /math >}}:
 - **Preference learning**: {{< math >}}$\xi${{< /math >}} represents human preferences (parameters of a reward model)
@@ -124,7 +124,9 @@ Under this assumption, the prior {{< math >}}$p(\xi)${{< /math >}} induces a dis
 
 ---
 
-### 2.3 Information Theory Foundations
+### Information Theory Foundations
+
+Before diving into the analysis, let's review the information-theoretic tools we'll need. If you're comfortable with entropy and mutual information, feel free to skim this section—but I want to be explicit about the machinery we're using.
 
 **Entropy**: For discrete random variable {{< math >}}$X${{< /math >}}:
 
@@ -158,9 +160,11 @@ Amount of uncertainty reduction: how much learning {{< math >}}$Y${{< /math >}} 
 
 ---
 
-### 2.4 Data Processing Inequality
+### Data Processing Inequality: The Key Tool
 
-**Markov Chain**: Variables {{< math >}}$X \to Y \to Z${{< /math >}} satisfy:
+The Data Processing Inequality (DPI) is going to be our workhorse theorem. The intuition is beautiful: you can't create information by processing it. Every transformation, every function application, every summary—it can only lose information or preserve it, never create it from thin air.
+
+Let me state this precisely. For a **Markov chain** {{< math >}}$X \to Y \to Z${{< /math >}}, the variables satisfy:
 
 {{< math >}}
 $$p(z | x, y) = p(z | y)$$
@@ -202,19 +206,13 @@ Therefore: {{< math >}}$I(X; Z) \leq I(X; Y, Z) = I(X; Y)${{< /math >}}.
 
 **DPI for Deterministic Functions**:
 
-A special case that we'll use frequently: if {{< math >}}$Z = f(Y)${{< /math >}} is a deterministic function of {{< math >}}$Y${{< /math >}}, then:
+A special case that we'll use frequently is when {{< math >}}$Z = f(Y)${{< /math >}} is a deterministic function of {{< math >}}$Y${{< /math >}}. This implies the Markov chain {{< math >}}$X \to Y \to Z${{< /math >}}, because knowing {{< math >}}$Y${{< /math >}} fully determines {{< math >}}$Z${{< /math >}}, making {{< math >}}$Z${{< /math >}} conditionally independent of {{< math >}}$X${{< /math >}}. The Data Processing Inequality therefore applies directly:
 
 {{< math >}}
 $$I(X; f(Y)) \leq I(X; Y)$$
 {{< /math >}}
 
-**Proof**:
-
-Since {{< math >}}$f${{< /math >}} is deterministic, {{< math >}}$f(Y)${{< /math >}} is a function of {{< math >}}$Y${{< /math >}}, so we have the Markov chain: {{< math >}}$X - Y - f(Y)${{< /math >}} ({{< math >}}$X${{< /math >}} and {{< math >}}$f(Y)${{< /math >}} are conditionally independent given {{< math >}}$Y${{< /math >}}).
-
-By standard DPI: {{< math >}}$I(X; f(Y)) \leq I(X; Y)${{< /math >}}
-
-More simply: applying a deterministic function {{< math >}}$f${{< /math >}} can only reduce or preserve entropy, so it cannot increase mutual information.
+**Intuition**: Applying a deterministic function {{< math >}}$f${{< /math >}} can only reduce or preserve information, never create it.
 
 **Application to RL**: Since the optimal policy {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of the reward parameter {{< math >}}$\xi${{< /math >}}, we can establish:
 
@@ -274,9 +272,11 @@ This is the conditional entropy: the remaining uncertainty in {{< math >}}$S${{<
 
 ---
 
-## Part 3: Analysis of RL Algorithms
+## Analysis of RL Algorithms
 
-### 3.1 Policy Gradient (REINFORCE)
+Now we get to the heart of the matter: how much information do different RL algorithms actually gather per episode?
+
+### Policy Gradient (REINFORCE): The 1-Bit Bottleneck
 
 **Algorithm**:
 1. Sample trajectory: {{< math >}}$\tau = (s_0, a_0, \ldots, s_T)${{< /math >}} where {{< math >}}$s_t = (x_1, \ldots, x_t)${{< /math >}}
@@ -304,7 +304,8 @@ The dependencies form a directed acyclic graph (DAG):
 graph LR
     A[ξ] --> B[π*]
     A --> C[τ]
-    D[π_θ] --> C
+    A --> E[G]
+    D[π_θ] --> C[τ]
     C --> E[G]
 ```
 
@@ -343,12 +344,14 @@ This bound is rigorous and does not require a Markov chain assumption.
 
 **Step 3**: Calculate Potential Bandwidth.
 
-The return is a scalar that depends on:
+Here's the critical observation: the return {{< math >}}$G${{< /math >}} is just a single scalar! Your language model generates maybe 1000 tokens, forming a rich trajectory through sequence space, and at the end you compress all of that down to one number. How much information can possibly survive that brutal compression?
+
+The return depends on:
 - The prior {{< math >}}$\xi \sim p(\xi)${{< /math >}}
 - The policy {{< math >}}$\pi_\theta${{< /math >}} (determines which sequences are generated)
 - The generated sequence {{< math >}}$s_T${{< /math >}}
 
-The entropy:
+The entropy of this scalar signal is:
 
 {{< math >}}
 $$H(G) = H(R_\xi(s_T))$$
@@ -407,17 +410,19 @@ Using the DPI from Step 2:
 $$\mathcal{B}_{\text{effective}} = I(G; \pi^*) \leq I(G; \xi) \leq H(G) = O(1)$$
 {{< /math >}}
 
-**The "1 bit per episode" result**: With {{< math >}}$B = 2${{< /math >}} bins (good/bad):
+**The "1 bit per episode" result**: This is where the original claim becomes precise. With {{< math >}}$B = 2${{< /math >}} bins (basically "good" vs "bad"):
 
 {{< math >}}
 $$I(G; \pi^*) \leq \log_2(2) = 1 \text{ bit per episode}$$
 {{< /math >}}
 
-With {{< math >}}$B = 4${{< /math >}} bins:
+Literally one bit! And even with more granular feedback—say {{< math >}}$B = 4${{< /math >}} bins:
 
 {{< math >}}
 $$I(G; \pi^*) \leq \log_2(4) = 2 \text{ bits per episode}$$
 {{< /math >}}
+
+We're still talking about a trickle of information.
 
 ---
 
@@ -435,7 +440,9 @@ $$I(G; \pi^*) \leq \log_2(4) = 2 \text{ bits per episode}$$
 
 ---
 
-### 3.2 Actor-Critic (e.g. PPO)
+### Actor-Critic: Unlocking Token-Level Information
+
+So policy gradients learn 1-4 bits per episode. That's... not much. But what if we could get a learning signal at *every* token instead of just at the end? That's the promise of actor-critic methods.
 
 **Algorithm**:
 1. At each step {{< math >}}$t${{< /math >}}, given state {{< math >}}$s_t = (x_1, \ldots, x_t)${{< /math >}}:
@@ -465,9 +472,9 @@ The dependencies form a DAG:
 graph LR
     A[ξ] --> B[π*]
     A --> C[τ]
-    D[π_θ] --> C
+    D[π_θ] --> C[τ]
     C --> E[δ_t]
-    F[V_φ] --> E
+    F[V_φ] --> E[δ_t]
 ```
 
 Where {{< math >}}$V_\phi${{< /math >}} is the critic learned from past data.
@@ -589,9 +596,11 @@ While the asymptotic scaling remains {{< math >}}$O(T)${{< /math >}}, the reduce
 
 ---
 
-## Part 4: Synthesis and Implications
+## Synthesis and Implications
 
-### 4.1 Unified Comparison for Token-Level MDPs
+Let's step back and see what we've learned.
+
+### The Big Picture Comparison
 
 | Algorithm | Signal | Potential BW | Effective BW | Notes |
 |-----------|--------|--------------|--------------|-------|
@@ -611,9 +620,11 @@ While the asymptotic scaling remains {{< math >}}$O(T)${{< /math >}}, the reduce
 
 ---
 
-### 4.2 Why LoRA Works: Complete Explanation
+### Why LoRA Works: The Complete Picture
 
-**Setup**: Fine-tune a large language model using REINFORCE for {{< math >}}$N${{< /math >}} episodes.
+Now we can finally give a satisfying answer to the original question: why does LoRA work so well for RL fine-tuning?
+
+The key is matching capacity to information flow. Let's work through the numbers.
 
 **Prior**: Pre-trained model gives us prior {{< math >}}$p(\xi)${{< /math >}} over reward functions (implicitly, from pre-training on diverse text data).
 
@@ -677,21 +688,21 @@ Rank-{{< math >}}$r${{< /math >}} adapter for dimension-{{< math >}}$d${{< /math
 $$\frac{\text{LoRA storage capacity}}{\text{Information from RL}} = \frac{256 \text{ KB}}{2.5 \text{ KB}} \approx 100\times$$
 {{< /math >}}
 
-**Why this comparison is meaningful**: The LoRA parameters must *encode* the policy-relevant information learned through RL. While storage bits and information bits are different concepts, the argument remains valid: if LoRA can store {{< math >}}$64rd${{< /math >}} bits and policy gradient provides only {{< math >}}$\sim 2N${{< /math >}} bits of information, then LoRA's representational capacity far exceeds the information bandwidth constraint.
+LoRA has **100 times** more capacity than the information we're trying to store! And even after 10,000 episodes ({{< math >}}$\sim 20${{< /math >}} KB of information), LoRA still has {{< math >}}$\sim 10\times${{< /math >}} headroom.
 
-Even for {{< math >}}$N = 10{,}000${{< /math >}} episodes ({{< math >}}$\sim 20${{< /math >}} KB of information), LoRA still has {{< math >}}$\sim 10\times${{< /math >}} excess capacity.
+**Why this comparison is meaningful**: Sure, storage bits and information bits are different concepts—a 1GB hard drive doesn't mean you've learned 1GB of information. But the argument still holds: the **change** in the LoRA parameters from their initial state must *encode* the policy-relevant information learned through RL. If policy gradient provides only {{< math >}}$\sim 2N${{< /math >}} bits of information to guide this change, and LoRA provides a much larger parameter space ({{< math >}}$64rd${{< /math >}} bits) to store it, then the learning signal is the bottleneck, not the adapter's capacity.
 
 {{% callout note %}}
 **Conclusion**: LoRA provides orders of magnitude more representational capacity than policy gradient delivers information. This explains why such low-rank adapters suffice—the learning signal is the bottleneck, not the adapter capacity.
 {{% /callout %}}
 
-**Why full fine-tuning is wasteful**: A model with {{< math >}}$M${{< /math >}} parameters has capacity {{< math >}}$32M${{< /math >}} bits (FP32). For a 7B parameter model:
+**Why full fine-tuning is wasteful**: And if you thought the LoRA numbers were striking, look at full fine-tuning. A 7B parameter model has storage capacity {{< math >}}$7\text{B} \times 32 = 224${{< /math >}} GB (in FP32):
 
 {{< math >}}
 $$\frac{7\text{B} \times 32 \text{ bits}}{2000 \text{ bits}} \approx 100{,}000{,}000\times \text{ excess capacity}$$
 {{< /math >}}
 
-The model has 100 million times more capacity than policy gradient can fill!
+That's **100 million times** more capacity than policy gradient can fill in a typical training run. No wonder people were overfitting!
 
 ---
 
@@ -730,7 +741,9 @@ These are **order-of-magnitude estimates** that explain qualitative differences 
 
 ---
 
-### 4.4 Implications for LLM-RL
+### Implications for LLM-RL
+
+So what should we actually do with these insights? Let me highlight what I think are the most important practical implications.
 
 **1. Dense vs. Sparse Rewards**:
 - Sparse (outcome-based): Reward only at sequence end → {{< math >}}$O(1)${{< /math >}} bits/episode
@@ -740,9 +753,9 @@ These are **order-of-magnitude estimates** that explain qualitative differences 
 
 **2. The Value-Based RL Gap**:
 
-Our analysis reveals that actor-critic methods should theoretically achieve {{< math >}}$\sim T\times${{< /math >}} better sample efficiency than policy gradient. In traditional RL domains, PPO (actor-critic) requires {{< math >}}$\sim 100\times${{< /math >}} fewer samples than REINFORCE.
+Here's what keeps me up at night: our analysis shows that actor-critic methods should theoretically achieve {{< math >}}$\sim T\times${{< /math >}} better sample efficiency than policy gradient. In traditional RL domains, PPO (actor-critic) requires {{< math >}}$\sim 100\times${{< /math >}} fewer samples than REINFORCE. We have existence proofs that this works!
 
-**However, for LLMs:**
+**And yet, for LLMs:**
 - **Current state**: No established training recipes for value function learning at scale
 - **Key challenges**:
   - Value function training is unstable for large language models
@@ -848,11 +861,13 @@ This explains why multi-task RL may benefit from higher-rank adapters.
 
 ---
 
-## Part 5: Conclusion
+## Conclusion
+
+Let me summarize what we've learned and where I think this leaves us.
 
 ### Main Results
 
-We established a rigorous information-theoretic framework for RL in autoregressive generation:
+We've established a rigorous information-theoretic framework for RL in autoregressive generation:
 
 **1. Token-Level MDP Formulation**
 - States: Token sequences {{< math >}}$s = (x_1, \ldots, x_t)${{< /math >}}
@@ -880,9 +895,9 @@ We established a rigorous information-theoretic framework for RL in autoregressi
 - Actor-critic: {{< math >}}$\Omega(H(\pi^*)/T)${{< /math >}} episodes
 - Explains {{< math >}}$100${{< /math >}}-{{< math >}}$1000\times${{< /math >}} empirical differences
 
-### Open Questions
+### Open Questions and Research Directions
 
-Our rigorous information-theoretic framework reveals fundamental bottlenecks and opportunities in RL for LLMs:
+If I had to bet on where the next major breakthrough in LLM RL will come from, it would be solving these problems:
 
 **1. The Value Function Challenge** (Highest Priority):
 
