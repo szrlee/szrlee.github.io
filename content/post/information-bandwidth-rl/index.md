@@ -536,7 +536,7 @@ $$I(\delta_T; \xi | s_T) = O(1)$$
 Using the chain rule for mutual information:
 
 {{< math >}}
-$$I(\{\delta_t\}_{t=0}^{T-1}; \xi) = \sum_{t=0}^{T-1} I(\delta_t; \xi | \{\delta_k\}_{k<t})$$
+$$I(\{\delta_t\}_{t=0}^{T-1}; \xi) = \sum_{t=0}^{T-1} I(\delta_t; \xi | \{\delta_k\}_{k < t})$$
 {{< /math >}}
 
 Each step can provide new information about {{< math >}}$\xi${{< /math >}}, but the total is bounded by:
