@@ -40,20 +40,18 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## TL;DR: The Main Results
 
-**The fundamental bottleneck**: Policy gradient compresses 1000+ tokens into one scalar reward, creating a hard ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits per episode. For binary preferences, this is {{< math >}}$\leq 1${{< /math >}} bit/episode. This explains both why LoRA works (excess capacity matches the ceiling) and why training needs thousands of episodes.
+**Policy gradient's hard limit**: Compressing 1000+ tokens into one scalar reward creates an information ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits per episode. For binary feedback, this is {{< math >}}$\leq 1${{< /math >}} bit/episode—explaining why training needs thousands of episodes and why LoRA's modest capacity (300-500× excess) suffices.
 
-**The theoretical ceiling**: Actor-critic methods use a learned value function (the critic) to **transform sparse episode-level feedback into dense, internally-generated signals**, providing targeted feedback at every token by leveraging information from all past episodes. This gives a theoretical upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially **1000-10000× higher** under independence assumptions. For {{< math >}}$T=1000${{< /math >}} tokens and 8-bit TD errors, this bound is {{< math >}}$\leq 8000${{< /math >}} bits/episode. This ceiling is likely unachievable; empirical speedups are 10-100×.
+**Actor-critic's theoretical potential**: By bootstrapping historical knowledge through a learned critic, actor-critic methods generate dense per-token feedback. Under independence assumptions, this gives an upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode. For {{< math >}}$T=1000${{< /math >}} tokens and 8-bit TD errors, this ceiling is {{< math >}}$\leq 8000${{< /math >}} bits/episode—potentially 8000× higher than policy gradient.
 
-**The fundamental reality**: Correlation between TD errors (inherent to bootstrap methods) reduces this bound substantially. Empirical speedups are 10-100× over policy gradient. Much of this gap likely reflects inherent barriers in TD learning, not just algorithmic limitations.
+**The practical implication**: LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with substantial improvements in actor-critic methods, LoRA's capacity appears sufficient for foreseeable applications.
 
-**The actionable insight**: Future breakthroughs require solving stable value learning at scale—though fundamental correlation in bootstrap methods may limit achievable gains. LoRA already provides 300-500× excess capacity for current methods.
+| Algorithm | Signal Density | Information Upper Bound |
+|-----------|---------------|---------------------|
+| Policy Gradient | 1 scalar/episode | {{< math >}}$\leq 1${{< /math >}} bit/episode (binary) |
+| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling) |
 
-| Algorithm | Signal Density | Information Upper Bound | Sample Efficiency vs PG |
-|-----------|---------------|---------------------|-------------------|
-| Policy Gradient | 1 scalar/episode | {{< math >}}$\leq 1${{< /math >}} bit/episode (binary feedback) | 1× (baseline) |
-| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling, likely unachievable) | 10-100× (empirical) |
-
-**Note**: The theoretical ceiling assumes independent TD errors—an assumption violated in practice. Empirical speedups of 10-100× suggest effective information bandwidth may be 10-100 bits/episode, though this is an indirect inference. The large gap likely reflects fundamental correlation in TD learning.
+**Note**: The 8000 bits/episode ceiling assumes independent TD errors—an assumption violated in practice by bootstrap methods. The actual achievable information bandwidth remains an open empirical question.
 
 ---
 
@@ -246,7 +244,7 @@ Notice that **all TD errors share the same 1.2× bias**. If {{< math >}}$\delta_
 
 This correlation isn't a bug or implementation flaw. It's **inherent to bootstrap methods**: using the same approximate value function {{< math >}}$V_\phi${{< /math >}} across all states creates shared biases that induce correlation. Even as the critic improves, bootstrap methods maintain correlation structure because consecutive TD errors depend on overlapping value estimates.
 
-This structural correlation is why the independence-based bound of {{< math >}}$T \log_2(B_\delta)${{< /math >}} is loose, and why empirical speedups (10-100×) fall far short of the mathematical ceiling (8000×).
+This structural correlation is why the independence-based bound of {{< math >}}$T \log_2(B_\delta)${{< /math >}} is likely not achievable in practice—the actual achievable information bandwidth remains an open question.
 
 ### Extended Assumption
 
@@ -351,19 +349,18 @@ $$I(\{\delta_t\}; \pi^*) = I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log
 
 </details>
 
-**⚠️ Critical Caveat**: This bound assumes **independent TD errors**—an assumption fundamentally violated by bootstrap methods. Successive TD errors are structurally correlated: both {{< math >}}$\delta_t${{< /math >}} and {{< math >}}$\delta_{t+1}${{< /math >}} depend on {{< math >}}$V(s_{t+1})${{< /math >}}, sharing value function biases. This correlation is not merely an implementation issue but inherent to TD learning, preventing the {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound from being achievable. The actual achievable bound may be closer to what we observe empirically (10-100× speedup), with much of the gap representing fundamental rather than algorithmic barriers.
+**⚠️ Critical Caveat**: This bound assumes **independent TD errors**—an assumption fundamentally violated by bootstrap methods. Successive TD errors are structurally correlated: both {{< math >}}$\delta_t${{< /math >}} and {{< math >}}$\delta_{t+1}${{< /math >}} depend on {{< math >}}$V(s_{t+1})${{< /math >}}, sharing value function biases. This correlation is not merely an implementation issue but inherent to TD learning, preventing the {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound from being achievable. The actual achievable information bandwidth remains an open empirical question.
 
-### Theory vs Practice: Understanding the Gap
+### Understanding the Gap Between Theory and Practice
 
 For {{< math >}}$T=1000${{< /math >}}, {{< math >}}$B_\delta=256${{< /math >}}:
 
 - **Policy gradient** (binary): {{< math >}}$\leq 1${{< /math >}} bit/episode
-- **Actor-critic** (independence bound): {{< math >}}$\leq 8000${{< /math >}} bits/episode
-- **Actor-critic** (empirical): ~10-100 bits/episode [1,2,3]
+- **Actor-critic** (theoretical ceiling): {{< math >}}$\leq 8000${{< /math >}} bits/episode
 
-The large gap between the theoretical ceiling (8000×) and empirical speedups (10-100×) reflects that the theoretical bound, while correct, is unachievable due to inherent correlation in TD learning. Since correlation is inherent to bootstrap methods, the empirical 10-100× may be closer to the **achievable bound for TD learning with current approaches**, with only incremental improvements possible through better critic training.
+The theoretical ceiling represents what could be achieved with independent TD errors. In practice, the achievable information bandwidth is likely much lower due to inherent correlation in bootstrap methods.
 
-**Multiple factors contribute to the gap**:
+**Multiple factors contribute to this gap**:
 
 1. **TD error correlation** (our main focus): Bootstrap methods create structural dependencies between consecutive TD errors
 
@@ -376,30 +373,6 @@ The large gap between the theoretical ceiling (8000×) and empirical speedups (1
 5. **Information utilization efficiency**: Even with perfect TD signals, gradient descent may not efficiently extract all available information
 
 **Our hypothesis**: Correlation (factor 1) is a substantial barrier that accounts for a significant portion of the gap. However, disentangling these factors empirically is an important direction for future work.
-
-### Understanding Empirical Speedups
-
-**Important caveat**: The "~10-100 bits/episode" in our table is a **rough inference**, not a direct measurement. Here's our reasoning and its limitations:
-
-**The inference logic**:
-- References [1,2,3] show actor-critic methods achieve similar performance with 10-100× fewer episodes than policy gradient
-- If we assume the "information required to solve a task" is constant across algorithms
-- Then 10-100× sample efficiency suggests 10-100× higher information bandwidth
-- At 1 bit/episode for policy gradient, this implies 10-100 bits/episode
-
-**Critical limitations of this inference**:
-1. **Different algorithms may need different amounts of information** to solve the same task due to optimization landscape differences
-2. **Sample efficiency ≠ information bandwidth**: Algorithms differ in how efficiently they use information
-3. **The cited papers measure task performance**, not information-theoretic quantities
-4. **Variation across tasks** is substantial (some show 10× speedup, others 100×)
-
-**What we can conclude**: Actor-critic methods demonstrably achieve higher sample efficiency. This is **consistent with** higher information bandwidth, but the exact magnitude is uncertain. The gap between theoretical ceiling (8000 bits) and empirical speedups (10-100×) likely reflects:
-- TD error correlation (our main hypothesis)
-- Value function approximation error
-- Optimization challenges
-- Architectural limitations
-
-We use "10-100 bits/episode" as a **rough working estimate** to ground our theoretical analysis, while acknowledging substantial uncertainty.
 
 ---
 
@@ -458,19 +431,15 @@ Policy gradient + LoRA dominates because:
 
 ### The Path Forward
 
-The gap between the independence bound (8000×) and empirical speedups (10-100×) reveals important insights:
-
 **Terminology clarification**: We use "fundamental" in two senses:
 
 1. **Information-theoretic fundamentals**: The bounds in Theorems 1 and 2 are fundamental in that they cannot be exceeded by any algorithm using those signal types, regardless of computational resources
 
 2. **Fundamental to TD learning**: Correlation between TD errors appears fundamental to bootstrap methods specifically—using {{< math >}}$V(s')${{< /math >}} to estimate the target for {{< math >}}$V(s)${{< /math >}} creates structural dependencies. This may not be fundamental to RL in general (e.g., Monte Carlo methods avoid this)
 
-When we say "the empirical 10-100× may be closer to fundamental limits," we mean fundamental to TD learning (sense 2), not to RL in general (sense 1).
-
-**What's uncertain**:
-- How much of the gap is fundamental (inherent correlation) vs algorithmic (poor critics)?
-- Can methods reduce correlation beyond current 10-100× speedups?
+**Key open questions**:
+- How much of the gap between the theoretical ceiling and achievable performance is fundamental (inherent correlation) vs algorithmic (poor critics)?
+- Can methods substantially reduce TD error correlation?
 - Are there alternative formulations that avoid bootstrap correlation?
 
 **Research directions**:
@@ -480,7 +449,7 @@ When we say "the empirical 10-100× may be closer to fundamental limits," we mea
 4. **Non-bootstrap alternatives** (Monte Carlo methods, model-based approaches)
 
 **What's not needed**:
-- More parameters (LoRA already has 300× excess capacity even for 100× speedups)
+- More parameters (LoRA already has 300× excess capacity relative to policy gradient's ceiling)
 
 ---
 
@@ -492,9 +461,9 @@ When we say "the empirical 10-100× may be closer to fundamental limits," we mea
 3. We model algorithms using idealized Bayesian inference, which doesn't capture actual optimization dynamics
 
 **Empirical gaps**:
-1. We infer information bandwidth from sample efficiency rather than measuring it directly
-2. The "10-100 bits/episode" estimate has wide uncertainty and varies substantially across tasks
-3. We don't empirically validate the correlation hypothesis or quantify its contribution to the gap
+1. The achievable information bandwidth for actor-critic methods remains unmeasured
+2. We don't empirically validate the correlation hypothesis or quantify its contribution
+3. The practical gap between theoretical ceilings and actual performance needs experimental investigation
 
 **Future work could**:
 - Develop methods to directly measure information bandwidth in trained models
@@ -514,12 +483,10 @@ This information-theoretic analysis reveals fundamental structure in RL for LLMs
 - Sample inefficiency (1000s of episodes needed)
 - Why more parameters don't help (bottleneck is signal sparsity)
 
-**The dense signal bound**: By using a critic to **bootstrap historical information** into dense, token-level signals, actor-critic methods have a theoretical ceiling of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher than policy gradient. However, achieving substantially more than current empirical speedups (10-100×) may face inherent limitations from bootstrap correlation. The remaining gap to the theoretical ceiling likely represents inherent constraints of bootstrap methods rather than purely algorithmic opportunities.
+**The dense signal bound**: By using a critic to **bootstrap historical information** into dense, token-level signals, actor-critic methods have a theoretical ceiling of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher than policy gradient. However, bootstrap correlation makes this ceiling likely unachievable in practice, with the actual achievable information bandwidth remaining an open empirical question.
 
-**The path forward**: Future work should focus on understanding which parts of the 8000× gap are fundamental versus algorithmic. Better critic training may yield incremental improvements, but bootstrap correlation likely imposes a ceiling well below the independence bound. Progress requires either accepting this fundamental limit or exploring non-bootstrap alternatives.
-
-These ceilings are information-theoretic and fundamental. Progress requires either:
-1. **Accepting the limits**: Optimizing within the ~10-100 bits/episode ceiling of correlated TD learning
+**The path forward**: Future work should focus on empirically quantifying the achievable information bandwidth and understanding how much of the gap to the theoretical ceiling is fundamental versus algorithmic. Progress requires either:
+1. **Better utilizing existing signals**: Improving critic training and exploring decorrelation techniques
 2. **Circumventing bootstrap correlation**: Exploring Monte Carlo methods, model-based RL, or hybrid approaches that avoid systematic value function reuse
 3. **Denser ground truth**: Engineering process rewards or per-token feedback that increases {{< math >}}$B${{< /math >}} directly
 
@@ -528,14 +495,6 @@ Understanding these tradeoffs—between signal density, correlation, and approxi
 ---
 
 ## References
-
-**Empirical RL Speedups**:
-
-[1] Mnih, V., et al. (2016). "Asynchronous Methods for Deep Reinforcement Learning." *ICML*. (A3C demonstrates 2-3× wall-clock speedup, higher in sample efficiency)
-
-[2] Schulman, J., et al. (2015). "High-Dimensional Continuous Control Using Generalized Advantage Estimation." *ICLR*. (GAE shows 2-10× sample efficiency improvement)
-
-[3] Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press. (Chapter 13 discusses actor-critic speedups)
 
 **LLM Fine-Tuning**:
 - Ouyang, L., et al. (2022). "Training language models to follow instructions with human feedback." *NeurIPS*. (InstructGPT)
