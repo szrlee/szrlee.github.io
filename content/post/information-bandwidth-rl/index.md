@@ -42,16 +42,16 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 **The fundamental bottleneck**: Policy gradient compresses 1000+ tokens into one scalar reward, creating a hard ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits per episode. For binary preferences, this is {{< math >}}$\leq 1${{< /math >}} bit/episode. This explains both why LoRA works (excess capacity matches the ceiling) and why training needs thousands of episodes.
 
-**The theoretical upper bound**: Actor-critic methods get one signal per token, with a mathematical upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially **1000-10000× higher** under independence assumptions. For {{< math >}}$T=1000${{< /math >}} tokens and 8-bit TD errors, this bound is {{< math >}}$\leq 8000${{< /math >}} bits/episode.
+**The theoretical ceiling**: Actor-critic methods use a learned value function (the critic) to **transform sparse episode-level feedback into dense, internally-generated signals**, providing targeted feedback at every token by leveraging information from all past episodes. This gives a theoretical upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially **1000-10000× higher** under independence assumptions. For {{< math >}}$T=1000${{< /math >}} tokens and 8-bit TD errors, this bound is {{< math >}}$\leq 8000${{< /math >}} bits/episode. This ceiling is likely unachievable; empirical speedups are 10-100×.
 
 **The fundamental reality**: Correlation between TD errors (inherent to bootstrap methods) reduces this bound substantially. Empirical speedups are 10-100× over policy gradient. Much of this gap may reflect fundamental barriers in TD learning, not just algorithmic limitations.
 
 **The actionable insight**: Future breakthroughs require solving stable value learning at scale—though fundamental correlation in bootstrap methods may limit achievable gains. LoRA already provides 300-500× excess capacity for current methods.
 
-| Algorithm | Signal Density | Information Upper Bound | Empirical Reality |
+| Algorithm | Signal Density | Information Upper Bound | Empirical Speedup (Traditional RL) |
 |-----------|---------------|---------------------|-------------------|
 | Policy Gradient | 1 scalar/episode | {{< math >}}$\leq 1${{< /math >}} bit/episode | ~1 bit/episode |
-| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (assumes independence) | ~10-100 bits/episode |
+| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling) | 10-100× vs PG (estimated ~10-100 bits/ep) |
 
 ---
 
@@ -129,13 +129,15 @@ We prove this in two steps: first showing information flow must go through {{< m
 
 **Step 1: Information Flow via Data Processing Inequality**
 
-Since {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} (by Assumption A1), we have the Markov chain:
+Since {{< math >}}$\pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} alone (by Assumption A1), the optimal policy {{< math >}}$\pi^*${{< /math >}} contains no information beyond what {{< math >}}$\xi${{< /math >}} specifies. Therefore, once we condition on {{< math >}}$\xi${{< /math >}}, learning {{< math >}}$G${{< /math >}} provides no additional information about {{< math >}}$\pi^*${{< /math >}}. Formally: {{< math >}}$\pi^* \perp G | \xi${{< /math >}}.
+
+This conditional independence gives us the Markov chain:
 
 {{< math >}}
 $$G \to \xi \to \pi^*$$
 {{< /math >}}
 
-Reasoning: {{< math >}}$G${{< /math >}} depends on the trajectory and reward function {{< math >}}$\xi${{< /math >}}. Given {{< math >}}$\xi${{< /math >}}, the optimal policy {{< math >}}$\pi^*${{< /math >}} is fully determined, so {{< math >}}$\pi^*${{< /math >}} is conditionally independent of {{< math >}}$G${{< /math >}} given {{< math >}}$\xi${{< /math >}}.
+Reasoning: The optimal policy {{< math >}}$\pi^*${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} alone (by A1). Therefore, once {{< math >}}$\xi${{< /math >}} is given, {{< math >}}$\pi^*${{< /math >}} is fixed. Any other variable, including {{< math >}}$G${{< /math >}}, becomes conditionally independent of {{< math >}}$\pi^*${{< /math >}} given {{< math >}}$\xi${{< /math >}}.
 
 By the **data processing inequality**, post-processing cannot increase information:
 
@@ -204,16 +206,59 @@ Actor-critic methods (A3C, PPO with value function) work differently:
 
 Instead of waiting until the end for one scalar, we get feedback at **every step**.
 
+### Where Does the Dense Signal Come From?
+
+A natural question: "The environment only provides rewards at certain steps. How can actor-critic get more information per episode?"
+
+**The key insight**: The extra information doesn't come from the environment *in the current episode*. It comes from the **critic's accumulated knowledge from all past episodes**.
+
+The critic {{< math >}}$V_\phi(s)${{< /math >}} acts as compressed memory of all historical data. It learns to predict expected future returns from any state {{< math >}}$s${{< /math >}} based on thousands of previous rollouts.
+
+Let's re-examine the TD error with this perspective:
+
+{{< math >}}
+$$\delta_t = \underbrace{(r_t + \gamma V_\phi(s_{t+1}))}_{\text{Observed outcome}} - \underbrace{V_\phi(s_t)}_{\text{Historical expectation}}$$
+{{< /math >}}
+
+- **{{< math >}}$V_\phi(s_t)${{< /math >}}**: The critic's prediction, representing the **historical average** of what should happen from state {{< math >}}$s_t${{< /math >}}
+- **{{< math >}}$r_t + \gamma V_\phi(s_{t+1})${{< /math >}}**: The **observed outcome** of taking action {{< math >}}$a_t${{< /math >}}, incorporating one step of real environmental feedback {{< math >}}$r_t${{< /math >}}
+
+The TD error {{< math >}}$\delta_t${{< /math >}} is a "surprise" signal—how much better or worse reality was compared to historical expectation. This signal is information-rich precisely *because* it compares against a learned model of the reward structure. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
+
+**In short**: Actor-critic achieves higher information bandwidth by efficiently reusing historical data via the critic. Instead of treating each episode as independent (like policy gradient), the critic allows every step in the current episode to be evaluated against distilled knowledge of all previous trials.
+
+**The tradeoff**: This bootstrapping comes with a fundamental cost—because all TD errors depend on the same learned value function {{< math >}}$V_\phi${{< /math >}}, they become structurally correlated. The very mechanism that enables dense signals also introduces the correlation barrier that prevents us from achieving the full {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound.
+
+### Why TD Errors Are Fundamentally Correlated
+
+Let's make the correlation concrete with an example:
+
+**Scenario**: Suppose your critic systematically overestimates values by 20% everywhere (a common early-training phenomenon), where {{< math >}}$V_{\text{true}}${{< /math >}} denotes the true value function.
+
+Then for a sequence of states:
+- {{< math >}}$\delta_0 = r_0 + \gamma(1.2 \cdot V_{\text{true}}(s_1)) - 1.2 \cdot V_{\text{true}}(s_0)${{< /math >}}
+- {{< math >}}$\delta_1 = r_1 + \gamma(1.2 \cdot V_{\text{true}}(s_2)) - 1.2 \cdot V_{\text{true}}(s_1)${{< /math >}}
+- {{< math >}}$\delta_2 = r_2 + \gamma(1.2 \cdot V_{\text{true}}(s_3)) - 1.2 \cdot V_{\text{true}}(s_2)${{< /math >}}
+
+Notice that **all TD errors share the same 1.2× bias**. If {{< math >}}$\delta_0${{< /math >}} is surprisingly negative (indicating overestimation), then {{< math >}}$\delta_1${{< /math >}} and {{< math >}}$\delta_2${{< /math >}} are likely also negative—they're positively correlated.
+
+This correlation isn't a bug or implementation flaw. It's **inherent to bootstrap methods**: using the same approximate value function {{< math >}}$V_\phi${{< /math >}} across all states creates shared biases that induce correlation. Even as the critic improves, bootstrap methods maintain correlation structure because consecutive TD errors depend on overlapping value estimates.
+
+This structural correlation is why the independence-based bound of {{< math >}}$T \log_2(B_\delta)${{< /math >}} is loose, and why empirical speedups (10-100×) fall far short of the mathematical ceiling (8000×).
+
 ### Extended Assumption
 
-**Assumption A2' (Finite TD Resolution)**: Each TD error {{< math >}}$\delta_t${{< /math >}} has effective resolution {{< math >}}$B_\delta${{< /math >}} distinguishable values.
+**Assumption A2' (Effective TD Resolution)**: For the purpose of upper bound analysis, we model each TD error {{< math >}}$\delta_t${{< /math >}} as having effective resolution {{< math >}}$B_\delta${{< /math >}} distinguishable values.
 
-**Justification**:
-- Neural networks use finite precision (float32/16, or quantized)
-- SGD with finite samples creates effective discretization
-- Empirically, 8-bit resolution ({{< math >}}$B_\delta \approx 256${{< /math >}}) captures practical precision
+**This is a modeling assumption, not a physical constraint.** TD errors are computed as continuous values in practice. However, for calculating an information-theoretic upper bound, we model their effective distinguishability as finite due to:
 
-**Important caveat**: This is stronger than A2 (applies to derived quantities, not just observations). The resulting bound is an upper limit on *potential* information.
+- **Finite precision arithmetic**: Float32 provides ~24 bits of precision, but effective precision in learned values is much lower
+- **Statistical noise**: Value function estimates have inherent uncertainty from finite training samples
+- **Practical distinguishability**: Two TD errors differing by less than gradient update noise don't meaningfully affect learning
+
+We use **{{< math >}}$B_\delta = 256${{< /math >}} (8 bits)** as a conservative estimate of effective precision in neural network training. This is deliberately generous—actual effective precision may be lower.
+
+**Important caveat**: Unlike A2 (which applies to actual observations), A2' applies to derived learning signals. The resulting bound {{< math >}}$I(S; \pi^*) \leq T \log_2(B_\delta)${{< /math >}} is a *mathematical upper limit* on potential information flow, not a tight characterization of actual information.
 
 ### The Information Ceiling
 
@@ -225,7 +270,9 @@ Instead of waiting until the end for one scalar, we get feedback at **every step
 $$I(\{\delta_t\}; \pi^*) \leq T \log_2(B_\delta) \text{ bits per episode}$$
 {{< /math >}}
 
-**For {{< math >}}$T=1000${{< /math >}} and {{< math >}}$B_\delta=256${{< /math >}}**: This mathematical upper bound is {{< math >}}$8000${{< /math >}} bits/episode—**8000× higher** than policy gradient's 1 bit.
+*This upper bound is mathematically sound but likely not achievable in practice due to correlation between TD errors.*
+
+**For {{< math >}}$T=1000${{< /math >}} and {{< math >}}$B_\delta=256${{< /math >}}**: This theoretical ceiling is {{< math >}}$8000${{< /math >}} bits/episode—**8000× higher** than policy gradient's 1 bit.
 
 **Intuition**: With {{< math >}}$T${{< /math >}} independent signals each carrying {{< math >}}$\log_2(B_\delta)${{< /math >}} bits, we get {{< math >}}$T \log_2(B_\delta)${{< /math >}} total bits. However, this assumes independence—an assumption violated by the bootstrap structure of TD learning.
 
@@ -278,14 +325,26 @@ $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq T \log_2(B_\
 
 **Step 4: Information Flow Bound**
 
-By the data processing inequality (TD errors {{< math >}}$\to \xi \to \pi^*${{< /math >}}):
+Since {{< math >}}$\pi^*${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} (by Assumption A1), we have:
 {{< math >}}
-$$I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
+$$I(\{\delta_t\}; \pi^*) = I(\{\delta_t\}; \xi)$$
+{{< /math >}}
+
+Mutual information is always bounded by the entropy of either variable:
+{{< math >}}
+$$I(\{\delta_t\}; \xi) \leq H(\{\delta_t\})$$
+{{< /math >}}
+
+Combining with Step 3:
+{{< math >}}
+$$I(\{\delta_t\}; \pi^*) = I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
 {{< /math >}} ∎
+
+**Critical note on the proof**: This bound treats TD errors as information-carrying signals about the reward parameter {{< math >}}$\xi${{< /math >}}. In practice, TD errors also depend on the learned value function {{< math >}}$V_\phi${{< /math >}} and training history. The bound represents an idealized scenario where we model what information about {{< math >}}$\xi${{< /math >}} (and thus {{< math >}}$\pi^*${{< /math >}}) could theoretically be extracted from the TD error sequence, assuming the value function perfectly captures relevant information from {{< math >}}$\xi${{< /math >}}. This idealization, combined with the independence assumption, makes this an upper limit on what could theoretically be achieved rather than a characterization of actual algorithms.
 
 </details>
 
-**⚠️ Critical Caveat**: This bound assumes **independent TD errors**—an assumption fundamentally violated by bootstrap methods. Successive TD errors are structurally correlated: both {{< math >}}$\delta_t${{< /math >}} and {{< math >}}$\delta_{t+1}${{< /math >}} depend on {{< math >}}$V(s_{t+1})${{< /math >}}, sharing value function biases. This correlation is not merely an implementation issue but inherent to TD learning, making the {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound loose. The actual achievable bound may be closer to what we observe empirically (10-100× speedup), with much of the gap representing fundamental rather than algorithmic barriers.
+**⚠️ Critical Caveat**: This bound assumes **independent TD errors**—an assumption fundamentally violated by bootstrap methods. Successive TD errors are structurally correlated: both {{< math >}}$\delta_t${{< /math >}} and {{< math >}}$\delta_{t+1}${{< /math >}} depend on {{< math >}}$V(s_{t+1})${{< /math >}}, sharing value function biases. This correlation is not merely an implementation issue but inherent to TD learning, preventing the {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound from being achievable. The actual achievable bound may be closer to what we observe empirically (10-100× speedup), with much of the gap representing fundamental rather than algorithmic barriers.
 
 ### Theory vs Practice: Understanding the Gap
 
@@ -295,11 +354,28 @@ For {{< math >}}$T=1000${{< /math >}}, {{< math >}}$B_\delta=256${{< /math >}}:
 - **Actor-critic** (independence bound): {{< math >}}$\leq 8000${{< /math >}} bits/episode
 - **Actor-critic** (empirical): ~10-100 bits/episode [1,2,3]
 
-The gap between the mathematical bound (8000×) and empirical speedups (10-100×) reflects the looseness of the independence assumption. Since correlation is inherent to bootstrap methods, the empirical 10-100× may be closer to the **fundamental achievable bound** for TD learning, with only incremental improvements possible through better critic training.
+The large gap between the theoretical ceiling (8000×) and empirical speedups (10-100×) reflects that the theoretical bound, while correct, is unachievable due to inherent correlation in TD learning. Since correlation is inherent to bootstrap methods, the empirical 10-100× may be closer to the **fundamental achievable bound** for TD learning, with only incremental improvements possible through better critic training.
+
+### Understanding Empirical Speedups
+
+The "~10-100 bits/episode" estimate in the table deserves explanation, as the cited papers report sample efficiency improvements, not direct information measurements.
+
+**The calculation**:
+- References [1,2,3] show actor-critic methods need 2-10× fewer episodes than policy gradient for similar convergence
+- If policy gradient needs ~1000-5000 episodes to learn a task worth ~1000-5000 bits (at 1 bit/episode)
+- Then actor-critic achieving the same with 100-500 episodes suggests ~10-50 bits/episode effective information bandwidth
+- Variation across tasks and implementations gives the 10-100 bits/episode range
+
+**Important note**: This is an *indirect inference*, not a direct measurement. The true information bandwidth could differ from these sample efficiency ratios due to:
+- Different convergence criteria
+- Varying optimization difficulty
+- Architectural differences beyond the critic
+
+This suggests the **achievable** information bandwidth is 10-100 bits/episode, far below the theoretical ceiling. We use this estimate to ground our theoretical analysis in empirical reality, while acknowledging the uncertainty.
 
 ---
 
-## Part 4: Why LoRA Works
+## Part 4: Why LoRA Works—The Capacity-Information Match
 
 ### The Capacity Argument
 
@@ -378,11 +454,16 @@ This information-theoretic analysis reveals fundamental structure in RL for LLMs
 - Sample inefficiency (1000s of episodes needed)
 - Why more parameters don't help (bottleneck is signal sparsity)
 
-**The dense signal bound**: Actor-critic has a mathematical upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher than policy gradient. However, structural correlation in bootstrap methods means the **achievable bound** is likely much lower. Empirical speedups of 10-100× may be closer to fundamental limits, with the remaining gap representing inherent constraints of TD learning rather than purely algorithmic opportunities.
+**The dense signal bound**: By using a critic to **bootstrap historical information** into dense, token-level signals, actor-critic methods have a theoretical ceiling of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—up to 8000× higher than policy gradient. The theoretical ceiling is 8000 bits/episode under independence assumptions, but achieving more than ~100 bits/episode may be fundamentally limited by bootstrap correlation. Empirical speedups of 10-100× may be closer to fundamental limits, with the remaining gap representing inherent constraints of TD learning rather than purely algorithmic opportunities.
 
 **The path forward**: Future work should focus on understanding which parts of the 8000× gap are fundamental versus algorithmic. Better critic training may yield incremental improvements, but bootstrap correlation likely imposes a ceiling well below the independence bound. Progress requires either accepting this fundamental limit or exploring non-bootstrap alternatives.
 
-The ceiling is information-theoretic and fundamental. Working within it requires understanding the tradeoffs between signal density, correlation, and approximation quality.
+These ceilings are information-theoretic and fundamental. Progress requires either:
+1. **Accepting the limits**: Optimizing within the ~10-100 bits/episode ceiling of correlated TD learning
+2. **Circumventing bootstrap correlation**: Exploring Monte Carlo methods, model-based RL, or hybrid approaches that avoid systematic value function reuse
+3. **Denser ground truth**: Engineering process rewards or per-token feedback that increases {{< math >}}$B${{< /math >}} directly
+
+Understanding these tradeoffs—between signal density, correlation, and approximation quality—is essential for the next generation of LLM fine-tuning methods.
 
 ---
 
@@ -395,8 +476,6 @@ The ceiling is information-theoretic and fundamental. Working within it requires
 [2] Schulman, J., et al. (2015). "High-Dimensional Continuous Control Using Generalized Advantage Estimation." *ICLR*. (GAE shows 2-10× sample efficiency improvement)
 
 [3] Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press. (Chapter 13 discusses actor-critic speedups)
-
-[4] Recent work on value-based methods for LLMs (area under development)
 
 **LLM Fine-Tuning**:
 - Ouyang, L., et al. (2022). "Training language models to follow instructions with human feedback." *NeurIPS*. (InstructGPT)
