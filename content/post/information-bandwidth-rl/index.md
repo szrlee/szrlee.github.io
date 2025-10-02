@@ -102,7 +102,7 @@ This measures how many bits of uncertainty about the optimal policy {{< math >}}
 
 ### The Algorithm
 
-Policy gradient (REINFORCE, PPO) works as follows:
+Policy gradient (REINFORCE) works as follows:
 
 1. Sample trajectory {{< math >}}$\tau = (s_0, a_0, \ldots, s_T)${{< /math >}}
 2. Observe scalar return {{< math >}}$G = R_\xi(s_T)${{< /math >}}
