@@ -54,7 +54,7 @@ This turns out to be both theoretically clean and practically relevant for under
 | Algorithm | Information per Episode | Sample Efficiency | Current Status |
 |-----------|------------------------|-------------------|----------------|
 | **Policy Gradient** | 1-4 bits | Baseline (slow) | ✓ Works at scale |
-| **Actor-Critic** | Up to {{< math >}}$O(T) \sim 150${{< /math >}}-{{< math >}}$300${{< /math >}} bits | {{< math >}}$50${{< /math >}}-{{< math >}}$150\times${{< /math >}} faster (theoretical) | ✗ Unstable for LLMs |
+| **Actor-Critic** | Up to {{< math >}}$O(T)${{< /math >}} bits (100s-1000s) | {{< math >}}$50${{< /math >}}-{{< math >}}$1000\times${{< /math >}} faster (theoretical) | ✗ Unstable for LLMs |
 
 **Main Findings**:
 
@@ -861,14 +861,16 @@ Combining critic quality and correlation effects:
 $$\mathcal{B}_{\text{effective, AC}} = c_{\text{critic}} \cdot g(\rho) \cdot T \cdot O(1) \text{ bits per episode}$$
 {{< /math >}}
 
-With realistic values ({{< math >}}$c_{\text{critic}} \approx 0.5${{< /math >}}, {{< math >}}$g(\rho) \approx 0.3${{< /math >}}, {{< math >}}$T = 1000${{< /math >}}):
+With realistic values ({{< math >}}$c_{\text{critic}} \approx 0.5${{< /math >}}, {{< math >}}$g(\rho) \approx 0.3${{< /math >}}):
 {{< math >}}
-$$\mathcal{B}_{\text{effective, AC}} \approx 0.15 \cdot 1000 = 150 \text{ bits per episode}$$
+$$\mathcal{B}_{\text{effective, AC}} \approx 0.15 \cdot T \text{ bits per episode}$$
 {{< /math >}}
+
+For {{< math >}}$T \sim 1000${{< /math >}}-{{< math >}}$2000${{< /math >}} tokens, this gives {{< math >}}$150${{< /math >}}-{{< math >}}$300${{< /math >}} bits per episode.
 
 Compared to policy gradient ({{< math >}}$\sim 2${{< /math >}} bits per episode):
 {{< math >}}
-$$\text{Actual speedup} \approx 75\times$$
+$$\text{Actual speedup} \approx 75\times \text{ to } 150\times$$
 {{< /math >}}
 
 This is still substantial, but far from the naive {{< math >}}$1000\times${{< /math >}} suggested by ignoring correlation and critic quality.
