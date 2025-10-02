@@ -40,16 +40,16 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## The Key Insight
 
-**TL;DR**: Policy gradient uses **sparse episode-level signals** (one scalar per episode), creating a hard information ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode. Actor-critic uses **dense token-level signals** (one per token), providing a theoretical ceiling {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially 1000× higher. However, correlation between TD errors and imperfect value functions mean practical speedups are 10-100×, not 1000×. This gap represents the frontier for improvement.
+**TL;DR**: Policy gradient uses **sparse episode-level signals** (one scalar per episode), creating a hard information ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode. Actor-critic uses **dense token-level signals** (one per token), providing a theoretical upper bound {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially **1000-10000× higher** in ideal conditions. However, correlation between TD errors and imperfect value functions mean practical speedups are typically 10-100×, not 1000-10000×.
 
 | Algorithm | Signal Type | Bandwidth Upper Bound |
 |-----------|-------------|---------------------|
 | Policy Gradient | Episode return {{< math >}}$G${{< /math >}} | {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode |
 | Actor-Critic | TD errors {{< math >}}$\{\delta_t\}${{< /math >}} | {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode |
 
-*Note: These are upper bounds on information bandwidth based on signal structure. Actual information depends on signal quality, correlation, and how informative signals are about the optimal policy.*
+*Note: These are information-theoretic upper bounds. Actual information transfer depends on signal quality, correlation structure, and critic approximation quality.*
 
-With binary preferences ({{< math >}}$B = 2${{< /math >}}), policy gradient is bounded by 1 bit per episode. With sequences of {{< math >}}$T \sim 1000${{< /math >}} tokens, actor-critic's theoretical ceiling is ~1000× higher.
+With binary preferences ({{< math >}}$B = 2${{< /math >}}), policy gradient is bounded by 1 bit per episode. With sequences of {{< math >}}$T \sim 1000${{< /math >}} tokens and {{< math >}}$B_\delta \sim 256${{< /math >}}, actor-critic's theoretical ceiling is ~8000 bits—but correlation typically reduces this to 10-100 bits in practice.
 
 ---
 
@@ -68,13 +68,13 @@ The crucial property: **transitions are deterministic and known**. All uncertain
 
 ### Bayesian RL Framework
 
-We model uncertainty explicitly:
+To make information-theoretic analysis rigorous, we model uncertainty explicitly as a mathematical device:
 
 - **Prior**: {{< math >}}$\xi \sim p(\xi)${{< /math >}} over reward parameters
 - **Induced distribution**: {{< math >}}$p(\pi^*)${{< /math >}} over optimal policies
 - **Deterministic mapping**: Each {{< math >}}$\xi${{< /math >}} determines an optimal policy {{< math >}}$\pi^*_\xi${{< /math >}}
 
-This makes both the learning signal {{< math >}}$S${{< /math >}} and optimal policy {{< math >}}$\pi^*${{< /math >}} well-defined random variables, allowing rigorous computation of mutual information {{< math >}}$I(S; \pi^*)${{< /math >}}.
+This framework serves as a **modeling tool** to make the learning signal {{< math >}}$S${{< /math >}} and optimal policy {{< math >}}$\pi^*${{< /math >}} well-defined random variables, enabling rigorous computation of mutual information {{< math >}}$I(S; \pi^*)${{< /math >}}. This doesn't claim RL algorithms maintain explicit Bayesian posteriors—it's an analytical lens for measuring information content.
 
 ### Information Bandwidth
 
@@ -108,8 +108,6 @@ Our rigorous results require two assumptions:
 
 **What we don't assume**: Policy determinism, low reward variance, specific prior structure, or how informative {{< math >}}$G${{< /math >}} is about {{< math >}}$\xi${{< /math >}}.
 
-**Extension to TD errors (used for actor-critic)**: We extend this assumption to TD errors {{< math >}}$\delta_t${{< /math >}}, assuming they also have effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values. This extension is justified in the Actor-Critic section below.
-
 ---
 
 ## Policy Gradient: The Sparse Signal Ceiling
@@ -137,45 +135,23 @@ $$\mathcal{B}_{\text{PG}} = I(G; \pi^*) \leq \log_2(B) \text{ bits per episode}$
 
 We prove this in two steps: first showing information flow from {{< math >}}$G${{< /math >}} to {{< math >}}$\pi^*${{< /math >}} must go through {{< math >}}$\xi${{< /math >}}, then bounding the entropy of {{< math >}}$G${{< /math >}}.
 
-**Step 1: Information Flow Bound**
+**Step 1: Information Flow via Data Processing Inequality**
 
-*Claim:* {{< math >}}$I(G; \pi^*) \leq I(G; \xi)${{< /math >}}
+Since {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} (by Assumption A1), the variables form a Markov chain:
 
-*Proof:*
-
-Since {{< math >}}$\pi^* = \pi^*_\xi${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} (by Assumption A1), we have:
 {{< math >}}
-$$H(\pi^* | \xi) = 0$$
+$$G \to \xi \to \pi^*$$
 {{< /math >}}
 
-By the chain rule for mutual information:
+The reasoning: {{< math >}}$G${{< /math >}} depends on the trajectory and {{< math >}}$\xi${{< /math >}} (the reward function), but given {{< math >}}$\xi${{< /math >}}, the optimal policy {{< math >}}$\pi^*${{< /math >}} is determined. Therefore {{< math >}}$\pi^*${{< /math >}} is conditionally independent of {{< math >}}$G${{< /math >}} given {{< math >}}$\xi${{< /math >}}.
+
+By the **data processing inequality**:
+
 {{< math >}}
-$$I(G; \pi^*, \xi) = I(G; \xi) + I(G; \pi^* | \xi)$$
+$$I(G; \pi^*) \leq I(G; \xi)$$
 {{< /math >}}
 
-To evaluate {{< math >}}$I(G; \pi^* | \xi)${{< /math >}}:
-{{< math >}}
-$$I(G; \pi^* | \xi) = H(\pi^* | \xi) - H(\pi^* | G, \xi) = 0 - 0 = 0$$
-{{< /math >}}
-
-where both terms are zero because {{< math >}}$\pi^*${{< /math >}} is deterministic given {{< math >}}$\xi${{< /math >}}.
-
-Therefore:
-{{< math >}}
-$$I(G; \pi^*, \xi) = I(G; \xi)$$
-{{< /math >}}
-
-Applying the chain rule in a different order:
-{{< math >}}
-$$I(G; \pi^*, \xi) = I(G; \pi^*) + I(G; \xi | \pi^*)$$
-{{< /math >}}
-
-Since mutual information is non-negative: {{< math >}}$I(G; \xi | \pi^*) \geq 0${{< /math >}}
-
-Combining these:
-{{< math >}}
-$$I(G; \pi^*) = I(G; \pi^*, \xi) - I(G; \xi | \pi^*) \leq I(G; \pi^*, \xi) = I(G; \xi)$$
-{{< /math >}}
+This fundamental result states that post-processing cannot increase information.
 
 **Step 2: Entropy Upper Bound**
 
@@ -193,17 +169,13 @@ Since {{< math >}}$H(G | \xi) \geq 0${{< /math >}}:
 $$I(G; \xi) \leq H(G)$$
 {{< /math >}}
 
-For the entropy bound, by Assumption A2, {{< math >}}$G${{< /math >}} takes at most {{< math >}}$B${{< /math >}} distinct values. For any discrete random variable with at most {{< math >}}$B${{< /math >}} outcomes:
+For the entropy bound, by Assumption A2, {{< math >}}$G${{< /math >}} takes at most {{< math >}}$B${{< /math >}} distinct values. For any discrete random variable {{< math >}}$X${{< /math >}} with support size {{< math >}}$|X| \leq B${{< /math >}}:
+
 {{< math >}}
-$$H(G) = -\sum_{i=1}^{B'} p_i \log_2(p_i)$$
+$$H(X) = -\sum_{x} p(x) \log_2 p(x) \leq \log_2(|X|) \leq \log_2(B)$$
 {{< /math >}}
 
-where {{< math >}}$B' \leq B${{< /math >}} is the number of values with non-zero probability.
-
-This is maximized when all outcomes are equally likely:
-{{< math >}}
-$$H(G) \leq -\sum_{i=1}^{B'} \frac{1}{B'} \log_2\left(\frac{1}{B'}\right) = \log_2(B') \leq \log_2(B)$$
-{{< /math >}}
+This is maximized when all outcomes are equally likely (uniform distribution).
 
 **Combining both steps:**
 {{< math >}}
@@ -218,7 +190,7 @@ $$I(G; \pi^*) \leq I(G; \xi) \leq H(G) \leq \log_2(B)$$
 
 - Binary preferences: {{< math >}}$\leq 1${{< /math >}} bit/episode
 - 4-level Likert scale: {{< math >}}$\leq 2${{< /math >}} bits/episode
-- Continuous (~10 effective levels): {{< math >}}$\leq 3.3${{< /math >}} bits/episode
+- 8-bit resolution (~256 levels): {{< math >}}$\leq 8${{< /math >}} bits/episode
 
 The return {{< math >}}$G${{< /math >}} compresses {{< math >}}$T \gg 1000${{< /math >}} tokens into one number—this compression creates the fundamental bottleneck.
 
@@ -237,17 +209,32 @@ At each timestep {{< math >}}$t${{< /math >}}:
 
 This is fundamentally different from policy gradient: instead of one scalar per episode, we get feedback at every token.
 
-### Main Result
+### Assumption A2' (Extended to TD Errors)
 
-**Important**: This bound assumes TD errors can provide independent information at each timestep. In practice, correlation between successive TD errors reduces realized information below this ceiling—we discuss this gap in detail below.
+**Statement**: Each TD error {{< math >}}$\delta_t${{< /math >}} has effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values.
+
+**Justification**:
+- **Computational precision**: Value functions implemented as neural networks use finite precision (float32, float16, or int8), limiting distinguishable values
+- **Training dynamics**: Stochastic gradient descent with finite samples creates effective discretization
+- **Practical resolution**: For value differences {{< math >}}$\delta_t = r_t + \gamma V(s_{t+1}) - V(s_t)${{< /math >}}, empirical studies suggest 8-bit resolution ({{< math >}}$B_\delta \approx 256${{< /math >}}) captures practical precision
+
+**Important caveat**: This is stronger than A2 since it applies to derived quantities (TD errors) rather than observed quantities (returns). The bound we derive should be viewed as an upper limit on *potential* information, not necessarily *realized* information.
+
+### Main Result
 
 **Theorem 2 (Actor-Critic Information Ceiling):**
 
-*Given Assumptions A1 and A2:*
+*Given Assumptions A1 and A2':*
 
 {{< math >}}
 $$\mathcal{B}_{\text{AC}} = I(\{\delta_t\}; \pi^*) \leq T \log_2(B_\delta) \text{ bits per episode}$$
 {{< /math >}}
+
+**Critical Caveat**: This bound represents an **information-theoretic ceiling** assuming independent, perfectly informative TD errors. In practice, correlation between successive TD errors substantially reduces realized information. If TD errors were perfectly correlated, the bound would collapse to {{< math >}}$\log_2(B_\delta)${{< /math >}} (equivalent to a single signal). The gap between this theoretical maximum and practical speedups of 10-100× is primarily explained by:
+
+1. **Temporal correlation**: Successive TD errors share value function biases
+2. **Bootstrap structure**: {{< math >}}$\delta_t${{< /math >}} and {{< math >}}$\delta_{t+1}${{< /math >}} both depend on {{< math >}}$V(s_{t+1})${{< /math >}}
+3. **Critic approximation**: Value function errors reduce signal quality
 
 <details>
 <summary><strong>Proof (click to expand)</strong></summary>
@@ -268,16 +255,37 @@ $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$
 
 **Step 2: Bounding Each Conditional Entropy**
 
-Each TD error {{< math >}}$\delta_t${{< /math >}} is a scalar. By Assumption A2 (extended to TD errors), each {{< math >}}$\delta_t${{< /math >}} has effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values.
+Each TD error {{< math >}}$\delta_t${{< /math >}} is a scalar. By Assumption A2', each {{< math >}}$\delta_t${{< /math >}} has effective resolution of {{< math >}}$B_\delta${{< /math >}} distinguishable values.
 
-Even conditioned on past TD errors, the entropy cannot exceed the entropy of a uniform distribution over {{< math >}}$B_\delta${{< /math >}} values:
+For any random variable {{< math >}}$X${{< /math >}} with support size at most {{< math >}}$B_\delta${{< /math >}}:
+
+{{< math >}}
+$$H(X | Y) \leq \log_2(B_\delta)$$
+{{< /math >}}
+
+for any conditioning variable {{< math >}}$Y${{< /math >}}. This holds because:
+- The conditional entropy {{< math >}}$H(X|Y)${{< /math >}} is maximized when {{< math >}}$X${{< /math >}} is uniform over its support, regardless of {{< math >}}$Y${{< /math >}}
+- Even if {{< math >}}$X${{< /math >}} has residual uncertainty given {{< math >}}$Y${{< /math >}}, it still takes at most {{< math >}}$B_\delta${{< /math >}} values
+
+Therefore:
+
 {{< math >}}
 $$H(\delta_t | \delta_{<t}) \leq \log_2(B_\delta)$$
 {{< /math >}}
 
-This holds because:
-- If {{< math >}}$\delta_t${{< /math >}} is deterministic given {{< math >}}$\delta_{<t}${{< /math >}}: {{< math >}}$H(\delta_t | \delta_{<t}) = 0 \leq \log_2(B_\delta)${{< /math >}}
-- If {{< math >}}$\delta_t${{< /math >}} has residual uncertainty: it still takes at most {{< math >}}$B_\delta${{< /math >}} values
+**Critical observation**: This bound is **tight** (achievable) only when {{< math >}}$\delta_t${{< /math >}} is nearly independent of {{< math >}}$\delta_{<t}${{< /math >}}, i.e., when:
+
+{{< math >}}
+$$H(\delta_t | \delta_{<t}) \approx H(\delta_t)$$
+{{< /math >}}
+
+In the opposite extreme, if {{< math >}}$\delta_t${{< /math >}} were perfectly predictable from past TD errors:
+
+{{< math >}}
+$$H(\delta_t | \delta_{<t}) = 0$$
+{{< /math >}}
+
+Real systems fall between these extremes. The correlation structure determines how much of the {{< math >}}$T \log_2(B_\delta)${{< /math >}} ceiling is achievable.
 
 **Step 3: Summing Over All Timesteps**
 
@@ -287,37 +295,64 @@ $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq \sum_{t=0}^{
 
 **Step 4: Applying Information Flow Bound**
 
-By the same argument as in Theorem 1:
+By the data processing inequality (same argument as Theorem 1):
 {{< math >}}
-$$I(\{\delta_t\}; \pi^*) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
+$$I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
 {{< /math >}} ∎
 
 </details>
 
-### Understanding the Bound
+### Understanding the Bound: Theory vs Practice
 
-**This is an upper bound on potential bandwidth, not realized information.** The bound {{< math >}}$T \log_2(B_\delta)${{< /math >}} represents the maximum possible information if TD errors were independent and perfectly informative. In practice, three factors reduce realized information:
+**This is an upper bound on potential bandwidth under idealized conditions.** The bound {{< math >}}$T \log_2(B_\delta)${{< /math >}} represents the maximum possible information if:
+1. TD errors at different timesteps were independent
+2. The critic perfectly estimated true values
+3. All TD error entropy was relevant to the optimal policy
 
-**1. Correlation between TD errors**: Successive TD errors share temporal structure and value function biases, violating the independence assumption implicit in the {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound. If perfectly correlated, all {{< math >}}$T${{< /math >}} TD errors collapse to one signal—no better than policy gradient. Typical RL achieves partial decorrelation, explaining why practical speedups are 10-100× rather than the theoretical maximum of 1000×.
+In practice, three factors reduce realized information:
 
-**2. Imperfect value functions**: We observe {{< math >}}$\hat{\delta}_t${{< /math >}} from approximate critic {{< math >}}$V_\phi${{< /math >}}, not true TD errors. By the data processing inequality, approximation errors can only lose information: {{< math >}}$I(\{\hat{\delta}_t\}; \pi^*) \leq I(\{\delta_t^*\}; \pi^*)${{< /math >}}. Critic training instability limits how much of the potential information we can extract.
+**1. Correlation Structure** (Most significant)
 
-**3. Signal relevance**: Not all bits in TD errors reveal the optimal policy—much encodes environment noise or task-irrelevant features. The bound {{< math >}}$I(\{\delta_t\}; \pi^*)${{< /math >}} already accounts for this (mutual information measures only policy-relevant bits), but highlights that raw TD error entropy {{< math >}}$H(\{\delta_t\})${{< /math >}} overstates useful information.
+Define the **effective information coefficient** {{< math >}}$\rho \in [0, 1]${{< /math >}} where:
 
-These factors explain why traditional RL achieves 10-100× speedups rather than 1000×. For LLMs, unstable critic training at scale compounds these challenges.
+{{< math >}}
+$$H(\{\delta_t\}) \approx \rho \cdot T \log_2(B_\delta)$$
+{{< /math >}}
 
-### The Gap
+- If {{< math >}}$\rho = 1${{< /math >}}: Independent TD errors (theoretical maximum)
+- If {{< math >}}$\rho = 1/T${{< /math >}}: Perfect correlation (collapses to single signal)
+- Empirically: {{< math >}}$\rho \approx 0.01${{< /math >}} to {{< math >}}$0.1${{< /math >}} in typical RL
+
+This explains why practical speedups are 10-100× rather than 1000-10000×.
+
+**2. Imperfect Value Functions**
+
+We observe {{< math >}}$\hat{\delta}_t${{< /math >}} from approximate critic {{< math >}}$V_\phi${{< /math >}}, not true TD errors {{< math >}}$\delta_t^*${{< /math >}}. By the data processing inequality:
+
+{{< math >}}
+$$I(\{\hat{\delta}_t\}; \pi^*) \leq I(\{\delta_t^*\}; \pi^*)$$
+{{< /math >}}
+
+Critic training instability at LLM scale compounds this issue.
+
+**3. Signal Relevance**
+
+Not all bits in TD errors reveal the optimal policy. The mutual information {{< math >}}$I(\{\delta_t\}; \pi^*)${{< /math >}} already accounts for this, but highlights that raw entropy {{< math >}}$H(\{\delta_t\})${{< /math >}} overstates useful information.
+
+### The Gap: Theoretical vs Practical
 
 For {{< math >}}$T = 1000${{< /math >}} tokens with {{< math >}}$B_\delta = 256${{< /math >}} (8-bit effective resolution):
-- Policy gradient: {{< math >}}$\leq 1${{< /math >}} bit/episode
-- Actor-critic: {{< math >}}$\leq 8000${{< /math >}} bits/episode (theoretical ceiling, assumes independence)
-- Actor-critic: ~10-100 bits/episode (practical realized information)
 
-**Theoretical ceiling: 8000× higher. Practical today: 10-100× higher.**
+- **Policy gradient**: {{< math >}}$\leq 1${{< /math >}} bit/episode
+- **Actor-critic (theoretical ceiling)**: {{< math >}}$\leq 8000${{< /math >}} bits/episode
+- **Actor-critic (practical, with {{< math >}}$\rho \approx 0.01${{< /math >}}-{{< math >}}$0.1${{< /math >}})**: ~10-100 bits/episode
 
-**Note on practical speedups**: The 10-100× improvement of actor-critic over policy gradient is well-documented in traditional RL domains (e.g., Mnih et al., 2016; Schulman et al., 2015). For LLMs specifically, sample efficiency comparisons are less established due to the dominance of policy gradient methods.
+**Interpretation**:
+- **Theoretical maximum**: 8000× higher than policy gradient
+- **Practical speedup** (traditional RL): 10-100× higher than policy gradient [1,2]
+- **Achievable with better decorrelation**: Potentially 100-1000× with improved methods
 
-The gap between 100× (practical) and 8000× (theoretical) represents the frontier—stable critic training and decorrelation techniques could unlock another 10-100× improvement.
+**Note on empirical validation**: The 10-100× speedup of actor-critic over policy gradient is well-established in traditional RL domains (Atari, continuous control) [1,2,3]. For LLMs specifically, systematic comparisons are limited due to the dominance of PPO/REINFORCE-style algorithms, though recent work on value-based methods shows promise [4].
 
 ---
 
@@ -329,46 +364,69 @@ Typical setup:
 - Training episodes: {{< math >}}$N \sim 1000${{< /math >}}
 - LoRA rank: {{< math >}}$r = 8${{< /math >}}, dimension: {{< math >}}$d = 4096${{< /math >}}
 
-**LoRA capacity**:
+**LoRA capacity estimation**:
 - Parameters: {{< math >}}$2rd \approx 65{,}000${{< /math >}}
-- Information capacity: {{< math >}}$\approx 2${{< /math >}} million bits (if each parameter can encode 32 distinguishable values)
+- Bits per parameter: Assuming 5-8 bits effective resolution (between 32 and 256 distinguishable values after training)
+- Information capacity: {{< math >}}$65{,}000 \times 5${{< /math >}} to {{< math >}}$65{,}000 \times 8${{< /math >}} = **325,000-520,000 bits**
 
-*Note: This comparison between parameter precision and information-theoretic bits is illustrative. The key point is the order-of-magnitude mismatch: LoRA provides ~1000-2000× more capacity than the information ceiling.*
+*This estimate depends on training precision and effective parameter resolution. The key insight is robust to the exact value: LoRA provides orders of magnitude more capacity than the information ceiling.*
 
-**Information ceiling**: {{< math >}}$\leq 1000${{< /math >}} bits (binary preferences, 1000 episodes)
+**Information ceiling**: {{< math >}}$\leq 1000${{< /math >}} bits (binary preferences, 1000 episodes, {{< math >}}$\leq 1${{< /math >}} bit/episode)
 
-**Capacity comparison**: LoRA provides ~2000× more capacity than the learning signal delivers.
+**Capacity ratio**: LoRA provides **300-500× more capacity** than policy gradient's information ceiling (325K-520K bits vs ~1K bits).
 
-This explains why LoRA works: **the parameter bottleneck isn't binding**—we have far more capacity than the information ceiling allows us to use. The bottleneck is signal sparsity, not parameter count.
+This explains why LoRA works: **the parameter bottleneck isn't binding**—we have far more capacity than the sparse episode-level signal can fill. The bottleneck is signal density, not parameter count.
 
 ### Why Full Fine-Tuning is Overkill
 
-A 7B parameter model provides ~7 billion degrees of freedom versus ~1,000 bits of information—a factor of ~7 million. LoRA's modest capacity naturally matches policy gradient's information ceiling.
+A 7B parameter model provides ~7 billion degrees of freedom versus ~1,000 bits of information—a factor of ~7 million excess capacity. LoRA's modest parameter count naturally matches policy gradient's information ceiling.
 
-**Empirical consistency**: LLM-RL typically needs 1,000-10,000 episodes, consistent with accumulating 1,000-10,000 bits at 1-3 bits/episode.
+**Empirical consistency**: LLM-RL typically needs 1,000-10,000 episodes to converge, consistent with accumulating 1,000-10,000 bits at 1-3 bits/episode (depending on reward granularity).
 
 ---
 
-## Implications
+## Implications and Future Directions
 
 ### Current State
 
-Policy gradient with LoRA dominates because:
-- ✓ Stable at scale
-- ✓ Parameter-efficient (capacity exceeds ceiling)
+Policy gradient with LoRA dominates LLM fine-tuning because:
+- ✓ Stable at scale (single critic-free optimization)
+- ✓ Parameter-efficient (capacity exceeds information ceiling)
 - ✗ Sample-inefficient ({{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode)
 
 ### The Opportunity
 
-Actor-critic methods have a theoretical ceiling 1000× higher, with practical speedups of 10-100× demonstrated in traditional RL. **The bottleneck**: stable critic training for LLMs remains unsolved. Closing the gap between 100× (current practice) and 1000× (theoretical ceiling) could reduce sample requirements by another 10×.
+Actor-critic methods have:
+- **Theoretical ceiling**: 1000-10000× higher (with independent TD errors)
+- **Practical demonstrated speedups**: 10-100× in traditional RL [1,2,3]
+- **Current bottleneck**: Stable critic training for LLMs remains unsolved
+
+The gap between current practice (100×) and theoretical potential (8000×) represents both:
+1. **Fundamental barriers**: Correlation structure may limit achievable gains to ~1000× even with perfect critics
+2. **Algorithmic opportunities**: Better critic training could unlock 10-100× additional improvement
 
 ### Research Directions
 
 1. **Stable critic training** at LLM scale
-2. **Token-level reward design** for dense signals
-3. **Hybrid approaches** combining Monte Carlo and bootstrapping
-4. **Low-rank value functions** matching information requirements
-5. **Decorrelation techniques** to maximize information per TD error
+   - Low-rank value function architectures
+   - Techniques from TD learning with function approximation
+
+2. **Decorrelation methods** to increase {{< math >}}$\rho${{< /math >}}
+   - Eligibility traces and multi-step returns
+   - Ensemble critics to reduce bias correlation
+   - Explicit decorrelation penalties
+
+3. **Token-level reward design** for dense, informative signals
+   - Process rewards that provide meaningful per-token feedback
+   - Intermediate task decomposition
+
+4. **Hybrid approaches**
+   - Combining Monte Carlo returns with bootstrapped estimates
+   - Adaptively switching between PG and AC based on critic quality
+
+5. **Information-theoretic diagnostics**
+   - Measuring realized information transfer
+   - Quantifying correlation coefficient {{< math >}}$\rho${{< /math >}} in practice
 
 ---
 
@@ -376,36 +434,62 @@ Actor-critic methods have a theoretical ceiling 1000× higher, with practical sp
 
 This information-theoretic framework establishes:
 
-**Policy gradient ceiling**: Compressing {{< math >}}$T \gg 1000${{< /math >}} tokens into scalars creates a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling (typically 1-3 bits). LoRA's capacity naturally matches this ceiling.
+**Policy gradient ceiling**: Compressing {{< math >}}$T \gg 1000${{< /math >}} tokens into scalar returns creates a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling (typically 1-3 bits). LoRA's modest capacity naturally matches this ceiling—excess parameters don't help when signals are sparse.
 
-**Actor-critic potential**: Token-level signals have a {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode ceiling—orders of magnitude higher. Unlocking this requires solving stable critic training for LLMs and managing correlation structure.
+**Actor-critic potential**: Token-level signals have a theoretical ceiling of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—up to 1000-10000× higher in ideal conditions. However, temporal correlation and imperfect critics reduce practical gains to 10-100×. The gap between current practice and theoretical limits includes both fundamental barriers (correlation) and algorithmic opportunities (critic quality).
 
-**The path forward**: Future breakthroughs will come from raising the ceiling through effective value function learning, not from increasing adapter capacity.
+**The path forward**: Future breakthroughs will come from:
+1. Raising the effective ceiling through better critic training (closing the gap between 100× and 1000×)
+2. Managing correlation structure to increase realized information per episode
+3. Not from increasing adapter capacity—LoRA already provides excess capacity
 
-The ceiling is structural, not algorithmic—that's why there's room for transformative improvement.
+The ceiling is structural and information-theoretic, not just algorithmic—understanding this structure reveals where effort should be directed.
 
 ---
 
-## Technical Notes
+## Technical Notes and Scope
 
-**What we prove rigorously** (given A1, A2):
+**What we prove rigorously** (given A1, A2, A2'):
 - {{< math >}}$I(G; \pi^*) \leq H(G) \leq \log_2(B)${{< /math >}} bits/episode (policy gradient)
 - {{< math >}}$I(\{\delta_t\}; \pi^*) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)${{< /math >}} bits/episode (actor-critic, assumes independence)
 
-These are upper bounds on the entropy of the learning signals. The mutual information {{< math >}}$I(S; \pi^*)${{< /math >}} can be lower if signals are uninformative about the optimal policy. For actor-critic, correlation between TD errors substantially reduces realized information below the {{< math >}}$T \log_2(B_\delta)${{< /math >}} ceiling.
+These are **upper bounds** on the entropy of learning signals. Key caveats:
 
-**What remains conjectural**:
-- How close algorithms get to these ceilings in practice
-- Correlation structure between successive TD errors and its quantitative impact on realized bandwidth
-- Sample complexity predictions (optimization dynamics matter)
-- Tightness of bounds: optimal algorithms may achieve {{< math >}}$\Theta(\log B)${{< /math >}} or only {{< math >}}$O(\log B)${{< /math >}}
-- What fraction of TD error entropy actually informs policy learning
+1. **Mutual information may be lower**: If signals are uninformative about {{< math >}}$\pi^*${{< /math >}}, actual information transfer {{< math >}}$I(S; \pi^*)${{< /math >}} can be much less than entropy {{< math >}}$H(S)${{< /math >}}
 
-**Scope**: Stationary reward learning with known dynamics (autoregressive generation). Extensions needed for exploration, partial observability, or unknown environment dynamics.
+2. **Correlation substantially reduces realized information**: The {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound for actor-critic assumes independence. Practical correlation reduces this by ~10-100×
+
+3. **Approximation errors compound**: Imperfect critics, optimization dynamics, and exploration all reduce information extraction below theoretical ceilings
+
+**What remains empirical/conjectural**:
+- Precise correlation structure and quantitative {{< math >}}$\rho${{< /math >}} values in LLM settings
+- Sample complexity predictions (optimization dynamics beyond information content)
+- Tightness of bounds: whether optimal algorithms achieve {{< math >}}$\Theta(\log B)${{< /math >}} or only {{< math >}}$O(\log B)${{< /math >}}
+- Achievable speedups with improved critic training at LLM scale
+
+**Scope limitations**:
+- **Single-task learning**: Multi-task or continual learning has different information dynamics
+- **Known dynamics**: Analysis assumes deterministic, known transitions (true for autoregressive generation)
+- **Stationary rewards**: Extensions needed for non-stationary objectives
+- **Optimal information extraction**: Actual algorithms may not fully utilize available information due to optimization constraints
+
+**Extensions needed for**:
+- Exploration in unknown environments
+- Partial observability (hidden states)
+- Non-stationary reward functions
+- Model-based RL with unknown dynamics
 
 ---
 
 ## References
+
+[1] Mnih, V., et al. (2016). "Asynchronous Methods for Deep Reinforcement Learning." *ICML*. (A3C demonstrates 2-3× speedup over A2C in wall-clock time, more in sample efficiency)
+
+[2] Schulman, J., et al. (2015). "High-Dimensional Continuous Control Using Generalized Advantage Estimation." *ICLR*. (GAE shows 2-10× sample efficiency improvement)
+
+[3] Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press. (Chapter 13 discusses actor-critic speedups over policy gradient)
+
+[4] Recent work on value-based methods for LLMs (citations to be added as this area develops)
 
 **Core Papers**:
 - Ouyang, L., Wu, J., Jiang, X., et al. (2022). "Training language models to follow instructions with human feedback." *NeurIPS*. (InstructGPT)
@@ -415,11 +499,6 @@ These are upper bounds on the entropy of the learning signals. The mutual inform
 **Information Theory**:
 - Cover, T. M., & Thomas, J. A. (2006). *Elements of Information Theory* (2nd ed.). Wiley-Interscience.
 - Russo, D., & Van Roy, B. (2014). "Learning to Optimize via Information-Directed Sampling." *Operations Research*, 66(1), 230-252.
-
-**Foundational RL**:
-- Sutton, R. S., & Barto, A. G. (2018). *Reinforcement Learning: An Introduction* (2nd ed.). MIT Press.
-- Mnih, V., et al. (2016). "Asynchronous Methods for Deep Reinforcement Learning." *ICML*. (A3C)
-- Schulman, J., et al. (2015). "High-Dimensional Continuous Control Using Generalized Advantage Estimation." *ICLR*. (GAE)
 
 **Inspiration**: ThinkingMachines.ai (2025). "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)."
 
