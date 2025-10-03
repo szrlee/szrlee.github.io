@@ -53,13 +53,15 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 *Assumes independent TD errors—violated by bootstrap correlation in practice.
 
+The remainder of this post derives these bounds rigorously and explores their implications for algorithm design and parameter efficiency.
+
 ---
 
 ## Part 1: The Mathematical Framework
 
 ### Setup: Language Model Fine-Tuning as an MDP
 
-When fine-tuning an LLM with RL, we work with a specific type of MDP:
+When you fine-tune an LLM with RL, you're working with a special kind of problem:
 
 - **States** $s$: Token sequences $(x_1, \ldots, x_t)$
 - **Actions** $a$: Next token $x_{t+1}$ from vocabulary
@@ -70,13 +72,9 @@ When fine-tuning an LLM with RL, we work with a specific type of MDP:
 
 ### Information-Theoretic Lens
 
-To enable rigorous analysis, we use a Bayesian framework as a **mathematical modeling tool**:
+To analyze this rigorously, we need a mathematical trick. Put a prior $p(\xi)$ over reward parameters—this induces a distribution $p(\pi^\star)$ over optimal policies, where each $\xi$ determines a unique optimal policy $\pi^\star_\xi$.
 
-1. Put a prior $p(\xi)$ over reward parameters
-2. This induces a distribution $p(\pi^\star)$ over optimal policies
-3. Each $\xi$ determines a unique optimal policy $\pi^\star_\xi$
-
-We don't claim algorithms actually maintain Bayesian posteriors. Rather, this framework gives us a rigorous way to reason about information flow: it makes both the learning signal (the gradient) and the optimal policy $\pi^\star$ well-defined random variables, letting us compute their mutual information.
+We don't claim algorithms actually maintain Bayesian posteriors. This is just a modeling device that lets us reason about information flow: it makes both the learning signal (the gradient) and the optimal policy $\pi^\star$ well-defined random variables, so we can compute their mutual information.
 
 **Definition (Information Bandwidth)**:
 
@@ -86,41 +84,23 @@ $$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H})$$
 
 where $G$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
 
-**Interpretation**: This supremum represents the algorithm's capacity limit. Since our bounds $I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B)$ hold for **any** history $\mathcal{H}$:
+**Interpretation**: Think of it this way: $I(G; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" Early in training, each gradient is informative. Late in training, we've learned most patterns, so each gradient adds less. The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress.
 
-$$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B)$$
+Our goal is to find upper bounds on $\mathcal{B}$ that depend only on the **structure of the learning signal** (e.g., whether it's a scalar or a vector of scalars), not on the training state. If we can show that $I(G; \pi^\star \mid \mathcal{H}) \leq C$ for **every** possible history $\mathcal{H}$, then:
 
-This characterizes the algorithm's information capacity per episode, independent of training progress.
+$$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H}) \leq C$$
 
-**Note on $\theta$ and history**: In practice, history $\mathcal{H}$ is compressed into policy parameters $\theta$ through gradient descent. Our Bayesian framework conditions on complete history for rigor, but bounds apply regardless of how efficiently algorithms store historical information.
+This bound $C$ characterizes the algorithm's inherent information capacity.
+
+**Note on $\theta$ and history**: In practice, history gets compressed into parameters $\theta$. Our framework conditions on complete history for mathematical cleanliness, but the bounds apply either way.
 
 ### Connection to the Original Insight
 
-This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their analysis shows that for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$:
+This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the policy, so **all information about $R$ must flow through the scalar advantage**.
 
-$$I(G; R \mid \text{history}) \leq H(\text{Adv}) \leq \log_2(B)$$
+We're extending this in three ways. First, we measure information about the optimal policy directly—asking "what do we learn about $\pi^\star$?" rather than "what do we learn about $R$?". Second, we're explicit about history: the conditioning on $\mathcal{H}$ makes "what we already know" mathematically precise. Third, we formalize when the advantage has bounded entropy (Assumption A2).
 
-The key insight: Since $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the policy, all information about $R$ must flow through the scalar advantage.
-
-We adapt this by:
-1. **Measuring information about the optimal policy**: We compute $I(G; \pi^\star \mid \mathcal{H})$ rather than $I(G; R \mid \text{history})$, directly quantifying how much the gradient tells us about which policy is optimal
-2. **Using complete episode history**: We condition on $\mathcal{H}$ (the history of all previous episodes) to match the Bayesian framework, making "what we've already learned" mathematically precise
-3. **Explicit finite resolution assumption**: We formalize when $H(\text{Adv}) \leq \log_2(B)$ holds
-
-Since the optimal policy is a deterministic function of the reward parameters ($\pi^\star = f(\xi)$), learning about $\xi$ through the gradient is equivalent to learning about $\pi^\star$. The bound remains: $I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B)$ bits per episode.
-
-The core insight: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
-
-**Note on bandwidth vs. information gain**:
-
-The **information bandwidth** $\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H})$ represents the algorithm's capacity—the maximum information per episode it can convey. This is a property of the algorithm structure, not the training state.
-
-The **information gain** for a specific episode is $I(G_n; \pi^\star \mid \mathcal{H}_{n-1})$, measuring how much episode $n$ reduces uncertainty about $\pi^\star$ given prior episodes. This decreases as training progresses.
-
-Our theorems bound information gain for **any** history, thus also bounding bandwidth. The bounds apply regardless of training progress:
-- Early training: Information gain ≈ bandwidth
-- Late training: Information gain ≪ bandwidth
-- Always: Information gain ≤ bandwidth ≤ log₂(B)
+Since the optimal policy is a deterministic function of the reward parameters ($\pi^\star = f(\xi)$), learning about $\xi$ through the gradient is equivalent to learning about $\pi^\star$. The core insight remains: **scalar feedback creates an information bottleneck**. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
 
 ### Two Minimal Assumptions
 
@@ -138,7 +118,7 @@ Our theorems bound information gain for **any** history, thus also bounding band
 
 ### The Algorithm
 
-Policy gradient (REINFORCE) works as follows:
+Policy gradient (REINFORCE) works like this:
 
 1. Sample trajectory $\tau = (s_0, a_0, \ldots, s_T)$ using policy $\pi_\theta$
 2. Observe return $G_\tau = \sum_{t=0}^T r_t$
@@ -171,7 +151,7 @@ where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradien
 
 ---
 
-**Step 1: The Bayesian Framework and Random Variables**
+**Step 1: The Setup**
 
 Recall our Bayesian setup:
 - Prior over reward parameters: $p(\xi)$
@@ -185,11 +165,11 @@ At any given iteration, we have:
 - Observed advantage: $\text{Adv}$ (computed from rewards $R_\xi$)
 - Gradient: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
 
-**Key insight**: The history $\mathcal{H}$ and $\xi$ are dependent (past rewards came from $R_\xi$), and $\mathcal{H}$ determines the current policy $\theta$. However, within the current episode, given $\mathcal{H}$ (and thus given $\theta$), the trajectory sampling doesn't depend on $\xi$. Therefore $\nabla \log p_\theta(\tau)$ is independent of $\xi$ given $\mathcal{H}$.
+**Key insight**: The history $\mathcal{H}$ and $\xi$ are dependent (past rewards came from $R_\xi$), and $\mathcal{H}$ determines the current policy $\theta$. But within the current episode, given $\mathcal{H}$ (and thus given $\theta$), the trajectory sampling doesn't depend on $\xi$. So $\nabla \log p_\theta(\tau)$ is independent of $\xi$ given $\mathcal{H}$.
 
 ---
 
-**Step 2: Conditional Independence Structure**
+**Step 2: Conditional Independence**
 
 **Claim**: Given the history $\mathcal{H}$ of past episodes, the log-probability gradient is independent of the reward parameter $\xi$:
 
@@ -213,7 +193,7 @@ Therefore, conditioned on $\mathcal{H}$ (which determines $\theta$):
 
 ---
 
-**Step 3: Decomposing the Gradient**
+**Step 3: Decomposition**
 
 The gradient can be written as:
 $$G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$$
@@ -224,7 +204,7 @@ Let $X = \nabla \log p_\theta(\tau)$ and $Y = \text{Adv}$. We have:
 
 ---
 
-**Step 4: Bounding Conditional Mutual Information**
+**Step 4: Bounding MI**
 
 We bound the information in $G$ about $\xi$, conditioned on $\mathcal{H}$.
 
@@ -248,19 +228,21 @@ $$I(Y; \xi \mid \mathcal{H}) \leq H(Y \mid \mathcal{H})$$
 
 ---
 
-**Step 5: Removing Conditioning on $\mathcal{H}$**
+**Step 5: Simplifying the Bound**
 
-Since conditioning can only reduce entropy, we have:
+We've shown $I(G; \xi \mid \mathcal{H}) \leq H(Y \mid \mathcal{H})$ where $Y = \text{Adv}$.
+
+To obtain a bound independent of the specific history, we use the fact that conditioning can only reduce entropy:
 $$H(Y \mid \mathcal{H}) \leq H(Y)$$
 
 Therefore:
 $$I(G; \xi \mid \mathcal{H}) \leq H(Y) = H(\text{Adv})$$
 
-**Interpretation**: This bound holds for any history $\mathcal{H}$. The quantity $I(G; \xi \mid \mathcal{H})$ represents the **new information about $\xi$ gained from the current episode**, given what we've already learned from past episodes.
+**Interpretation**: This bound holds for **any** history $\mathcal{H}$. The quantity $I(G; \xi \mid \mathcal{H})$ represents the new information about $\xi$ gained from the current episode, given all past episodes. By removing the conditioning, we obtain a uniform bound that characterizes the algorithm's fundamental capacity.
 
 ---
 
-**Step 6: Bounding the Entropy of the Advantage**
+**Step 6: Bounding Entropy**
 
 By **Assumption A2** (Finite Resolution), the advantage takes at most $B$ distinct values.
 
@@ -274,7 +256,7 @@ $$H(\text{Adv}) \leq \log_2(B)$$
 
 ---
 
-**Step 7: From $\xi$ to $\pi^\star$**
+**Step 7: Data Processing**
 
 By **Assumption A1** (Unique Optimum), we have $\pi^\star = f(\xi)$ where $f$ is deterministic.
 
@@ -308,14 +290,14 @@ This ceiling holds regardless of sequence length $T$, model size, or computation
 
 ### Why This Matters
 
-**The scalar bottleneck**: A typical LLM generation has $T \sim 1000$ tokens, each chosen from hundreds of possibilities. The REINFORCE gradient compresses all this rich structure—which words worked well, where the response went wrong, which reasoning steps succeeded—into **one scalar** (the advantage) that modulates a fixed direction $\nabla \log p_\theta(\tau)$.
+A typical LLM generation has $T \sim 1000$ tokens, each chosen from hundreds of possibilities. The REINFORCE gradient compresses all this rich structure—which words worked well, where the response went wrong, which reasoning steps succeeded—into **one scalar** (the advantage) that modulates a fixed direction $\nabla \log p_\theta(\tau)$.
 
 This structural compression explains why:
 - **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, 1000 episodes gives $\leq 1000$ bits total
 - **LoRA works well**: LoRA provides 300-500× more capacity than this ceiling
 - **Adding parameters doesn't help**: The bottleneck is the scalar advantage, not model capacity or the dimensionality of $\nabla \log p_\theta(\tau)$
 
-**Note on high-dimensional updates**: The policy update $\Delta \theta = \alpha G$ happens in a high-dimensional space (the gradient $G$ has millions of dimensions). However, the **information content** of this update about the optimal policy is limited by the scalar advantage. The gradient direction $\nabla \log p_\theta(\tau)$ determines *where* the update points, but the scalar advantage determines *what we learn* about which policies are better.
+One subtlety: The policy update $\Delta \theta = \alpha G$ happens in a high-dimensional space (the gradient $G$ has millions of dimensions). But the **information content** of this update about the optimal policy is limited by the scalar advantage. The gradient direction $\nabla \log p_\theta(\tau)$ determines *where* the update points, but the scalar advantage determines *what we learn* about which policies are better.
 
 ---
 
@@ -356,27 +338,21 @@ This has the same structure as REINFORCE, but with $T$ terms instead of one. Eac
 
 $$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H})$$
 
-Therefore, to bound the information in the gradient, we can bound the information in the TD error sequence. This is the approach we take.
+So to bound the information in the gradient, we can bound the information in the TD error sequence. This is the approach we take.
 
 **Key difference from policy gradient**: Instead of one scalar advantage per episode, we get $T$ TD errors—one per timestep. This potentially allows much higher information bandwidth.
 
 ### Where Does the Dense Signal Come From?
 
-A natural question: "The environment only provides rewards at certain steps. How can actor-critic get more information per episode?"
+"The environment only provides rewards at certain steps. How can actor-critic get more information per episode?"
 
-**The key insight**: The extra information doesn't come from the environment *in the current episode*. It comes from the **critic's accumulated knowledge from all past episodes**.
+The extra information doesn't come from the environment *in the current episode*—it comes from the **critic's accumulated knowledge from all past episodes**. The critic $V_\phi(s)$ acts as compressed memory of historical data, learning to predict expected future returns based on thousands of previous rollouts.
 
-The critic $V_\phi(s)$ acts as compressed memory of all historical data. It learns to predict expected future returns from any state $s$ based on thousands of previous rollouts.
+The TD error:
 
-Let's re-examine the TD error:
-
-{{< math >}}
 $$\delta_t = \underbrace{(r_t + \gamma V_\phi(s_{t+1}))}_{\text{Observed outcome}} - \underbrace{V_\phi(s_t)}_{\text{Historical expectation}}$$
-{{< /math >}}
 
-Each TD error $\delta_t$ captures how much the observed outcome surprised the critic's learned expectations. This comparison against accumulated historical knowledge is what makes the signal information-rich. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
-
-**In short**: Actor-critic achieves higher information bandwidth by efficiently reusing historical data via the critic. Instead of treating each episode as independent (like policy gradient), the critic allows every step in the current episode to be evaluated against distilled knowledge of all previous trials.
+captures how much the observed outcome surprised the critic's learned expectations. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present. Instead of treating each episode as independent (like policy gradient), every step gets evaluated against distilled knowledge of all previous trials.
 
 ### Extended Assumption
 
@@ -402,14 +378,14 @@ where $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_
 
 **For $T=1000$ and $B_\delta=256$**: This theoretical ceiling is $8000$ bits/episode—**8000× higher** than policy gradient's 1 bit.
 
-**Intuition**: With $T$ independent signals each carrying $\log_2(B_\delta)$ bits, we get $T \log_2(B_\delta)$ total bits. However, this assumes independence—an assumption violated by the bootstrap structure of TD learning.
+**Intuition**: With $T$ independent signals each carrying $\log_2(B_\delta)$ bits, we get $T \log_2(B_\delta)$ total bits. But this assumes independence—an assumption violated by the bootstrap structure of TD learning.
 
 <details>
 <summary><strong>Detailed Proof (click to expand)</strong></summary>
 
 We bound the entropy of the TD error sequence.
 
-**Step 1: Chain Rule Decomposition**
+**Step 1: Chain Rule**
 
 By the chain rule for entropy:
 $$H(\delta_0, \delta_1, \ldots, \delta_{T-1}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_0, \ldots, \delta_{t-1})$$
@@ -417,7 +393,7 @@ $$H(\delta_0, \delta_1, \ldots, \delta_{T-1}) = \sum_{t=0}^{T-1} H(\delta_t | \d
 Using $\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})$:
 $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$
 
-**Step 2: Bounding Conditional Entropy**
+**Step 2: Bound Per Step**
 
 By Assumption A2', each $\delta_t$ takes at most $B_\delta$ values. For any random variable $X$ with $|X| \leq B_\delta$:
 
@@ -435,11 +411,11 @@ $$H(\delta_t | \delta_{<t}) \approx H(\delta_t)$$
 
 If perfectly correlated: $H(\delta_t | \delta_{<t}) = 0$. Reality falls between these extremes.
 
-**Step 3: Summing Over Time**
+**Step 3: Sum Over Time**
 
 $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq T \log_2(B_\delta)$$
 
-**Step 4: Information Flow Bound via Data Processing Inequality**
+**Step 4: Information Flow**
 
 We now relate the information in TD errors to information about $\pi^\star$, accounting for the conditioning on history $\mathcal{H}$.
 
@@ -457,12 +433,15 @@ This establishes the conditional independence $\pi^\star \perp \{\delta_t\} \mid
 $$\{\delta_t\} \to \xi \to \pi^\star$$
 
 By the **data processing inequality**:
-$$I(\{\delta_t\}; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \xi \mid \mathcal{H}) \leq H(\{\delta_t\} \mid \mathcal{H}) \leq T \log_2(B_\delta)$$
+$$I(\{\delta_t\}; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \xi \mid \mathcal{H})$$
 
-The final inequality uses:
-- $I(\{\delta_t\}; \xi \mid \mathcal{H}) \leq H(\{\delta_t\} \mid \mathcal{H})$ (fundamental bound)
-- $H(\{\delta_t\} \mid \mathcal{H}) \leq H(\{\delta_t\})$ (conditioning reduces entropy)
-- $H(\{\delta_t\}) \leq T \log_2(B_\delta)$ (from Steps 1-3)
+The full inequality chain:
+$$I(\{\delta_t\}; \xi \mid \mathcal{H}) \leq H(\{\delta_t\} \mid \mathcal{H}) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
+
+where:
+- First inequality: fundamental bound on mutual information
+- Second inequality: conditioning reduces entropy
+- Third inequality: from Steps 1-3 above
 
 Since the gradient $G$ is a deterministic function of the TD errors:
 $$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H})$$ ∎
