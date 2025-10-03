@@ -528,7 +528,7 @@ Our analysis reveals two distinct types of barriers:
 
 ### Why Current Practice Makes Sense
 
-**Most LLM RLHF uses terminal rewards**: With $H(\mathbf{r}) = 1$ bit, actor-critic has no theoretical advantage over policy gradient. This explains why simple policy gradient methods dominate—the complexity of actor-critic isn't justified when the information ceiling is the same.
+**Most LLM-RL uses terminal rewards**: With $H(\mathbf{r}) = 1$ bit, actor-critic has no theoretical advantage over policy gradient. This explains why simple policy gradient methods dominate—the complexity of actor-critic isn't justified when the information ceiling is the same.
 
 **Actor-critic's advantage requires dense rewards**: Only with independent or weakly correlated rewards at each timestep does actor-critic's ability to preserve temporal structure matter. But collecting dense, high-quality rewards is expensive.
 
