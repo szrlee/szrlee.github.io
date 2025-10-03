@@ -334,9 +334,11 @@ This has the same structure as REINFORCE, but with $T$ terms instead of one. Eac
 - $\nabla_\theta \log \pi_\theta(a_t|s_t)$: Independent of $\xi$ given the policy (like $\nabla \log p_\theta(\tau)$ in REINFORCE)
 - $\delta_t$: A scalar carrying reward-dependent information (like the advantage in REINFORCE)
 
-**Key observation**: Since the gradient $G$ is a deterministic function of the TD errors $\{\delta_t\}_{t=0}^{T-1}$, by the data processing inequality:
+**Key observation**: Since the gradient $G$ is a deterministic function of the TD errors {{< math >}} $\{\delta_t\}_{t=0}^{T-1}$ {{< /math >}}, by the data processing inequality:
 
+{{< math >}}
 $$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H})$$
+{{< /math >}}
 
 So to bound the information in the gradient, we can bound the information in the TD error sequence. This is the approach we take.
 
