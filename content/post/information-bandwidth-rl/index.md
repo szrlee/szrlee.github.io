@@ -86,7 +86,7 @@ $$\mathcal{B} = \sup_{\mathcal{H}} I(g; \pi^\star \mid \mathcal{H})$$
 
 where $g$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
 
-**Interpretation**: $I(g; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress.
+**Interpretation**: $I(g; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress. In practice, history gets compressed into parameters $\theta$, but conditioning on the complete history $\mathcal{H}$ makes the information-theoretic interpretation most transparent: it directly captures "what we've already learned" from all past episodes.
 
 ### Connection to the Original Insight
 
