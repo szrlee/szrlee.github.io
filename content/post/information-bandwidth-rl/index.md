@@ -350,7 +350,9 @@ The extra information doesn't come from the environment *in the current episode*
 
 The TD error:
 
+{{< math >}}
 $$\delta_t = \underbrace{(r_t + \gamma V_\phi(s_{t+1}))}_{\text{Observed outcome}} - \underbrace{V_\phi(s_t)}_{\text{Historical expectation}}$$
+{{< /math >}}
 
 captures how much the observed outcome surprised the critic's learned expectations. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present. Instead of treating each episode as independent (like policy gradient), every step gets evaluated against distilled knowledge of all previous trials.
 
