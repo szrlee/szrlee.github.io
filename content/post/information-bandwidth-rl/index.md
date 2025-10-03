@@ -53,7 +53,7 @@ But what does this actually mean? And if policy gradients learn so little per ep
 | Policy Gradient | Terminal only ($B=2$) | ≤ 1 bit/episode |
 | Actor-Critic | Terminal only ($B_r=2$) | ≤ 1 bit/episode |
 | Policy Gradient | Dense ($T=1000$, $B_r=3$) | ≤ 8 bits/episode |
-| Actor-Critic | Dense independent ($T=1000$, $B_r=3$) | ≤ 1580 bits/episode |
+| Actor-Critic | Dense independent ($T=1000$, $B_r=3$) | ≤ 1585 bits/episode |
 
 The remainder of this post derives these bounds rigorously and explores their implications.
 
@@ -236,7 +236,7 @@ $$H(\text{Adv} \mid \tau, \mathcal{H}) = H(r_{T-1} \mid \tau, \mathcal{H}) = 1 \
 **Available information**:
 $$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \mathcal{H}) = T \log_2(3) \approx 1.58T \text{ bits}$$
 
-For $T = 1000$: approximately 1580 bits available.
+For $T = 1000$: approximately 1585 bits available.
 
 **Return**: $G = \sum_{t=0}^{T-1} \gamma^t r_t$
 
@@ -251,7 +251,7 @@ $$H(G \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
 **Advantage**: With noise and finite precision (Assumption A2 with $B = 256$):
 $$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(256) = 8 \text{ bits}$$
 
-**Information loss**: Starting with 1580 bits, policy gradient retains only ~8 bits.
+**Information loss**: Starting with 1585 bits, policy gradient retains only ~8 bits.
 
 **Loss factor**: ~200× reduction
 
@@ -313,7 +313,7 @@ The answer is **not** that actor-critic gets more information from the environme
 $$\text{Adv} = \sum_{t=0}^{T-1} \gamma^t r_t - b$$
 
 This is a **many-to-one mapping**: different temporal patterns can give the same advantage. For $T=1000$ tokens with $r_t \in \{-1, 0, +1\}$:
-- Total available information: $H(\mathbf{r}) \approx 1000 \times 1.58 = 1580$ bits
+- Total available information: $H(\mathbf{r}) = 1000 \times \log_2(3) \approx 1585$ bits
 - After summation: $H(\text{Adv}) \leq 8$ bits
 - **Information lost**: ~99%
 
@@ -487,9 +487,9 @@ Only $\delta_{T-1} = r_{T-1} - V_\phi(s_{T-1})$ is random.
 $$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \mathcal{H}) = T \log_2(B_r)$$
 
 **Example** ($T=1000$, $r_t \in \{-1, 0, +1\}$ so $B_r=3$):
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1580 \text{ bits}$$
+$$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1585 \text{ bits}$$
 
-**Actor-critic information ceiling**: Up to 1580 bits/episode
+**Actor-critic information ceiling**: Up to 1585 bits/episode
 
 **Policy gradient information ceiling**: $\leq 8$ bits/episode (from aggregating into scalar advantage)
 
@@ -508,7 +508,7 @@ $$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1580 \tex
 | Policy Gradient | Terminal only | ≤ 1 bit | Scalar advantage with binary reward |
 | Actor-Critic | Terminal only | ≤ 1 bit | Only one TD error is random |
 | Policy Gradient | Dense independent | ≤ 8 bits | Aggregation loses temporal structure |
-| Actor-Critic | Dense independent | ≤ 1580 bits | Temporal structure preserved |
+| Actor-Critic | Dense independent | ≤ 1585 bits | Temporal structure preserved |
 
 ---
 
