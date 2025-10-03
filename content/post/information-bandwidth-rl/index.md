@@ -39,9 +39,9 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## TL;DR: The Main Results
 
-**Policy gradient's hard limit**: The REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has a structure where, given the training history, the direction term $\nabla \log p_\theta(\tau)$ is independent of the reward function—only the scalar advantage carries reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode.
+**Policy gradient's hard limit**: The REINFORCE gradient $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has a structure where, given the training history, the direction term $\nabla \log p_\theta(\tau)$ is independent of the reward function—only the scalar advantage carries reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode.
 
-**Actor-critic's reward-dependent bound**: Actor-critic methods preserve temporal structure through TD errors $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. Since this transformation is invertible, the information ceiling equals the reward entropy: $I(G; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$. For terminal rewards only, this reduces to $\leq 1$ bit (same as policy gradient). For dense, independent rewards with $T=1000$ timesteps, this can reach $\leq 1580$ bits/episode.
+**Actor-critic's reward-dependent bound**: Actor-critic methods preserve temporal structure through TD errors $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. Since this transformation is invertible, the information ceiling equals the reward entropy: $I(g; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$. For terminal rewards only, this reduces to $\leq 1$ bit (same as policy gradient). For dense, independent rewards with $T=1000$ timesteps, this can reach $\leq 1580$ bits/episode.
 
 **Why this matters**: 
 - Policy gradient loses information by aggregating $T$ rewards into one scalar
@@ -82,15 +82,15 @@ We don't claim algorithms actually maintain Bayesian posteriors. This is just a 
 
 The information bandwidth measures the maximum information that can be gained per episode:
 
-$$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H})$$
+$$\mathcal{B} = \sup_{\mathcal{H}} I(g; \pi^\star \mid \mathcal{H})$$
 
-where $G$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
+where $g$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
 
-**Interpretation**: $I(G; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress.
+**Interpretation**: $I(g; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress.
 
 ### Connection to the Original Insight
 
-This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the policy), so **all information about $R$ must flow through the scalar advantage**.
+This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the REINFORCE gradient $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the policy), so **all information about $R$ must flow through the scalar advantage**.
 
 We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
 
@@ -114,10 +114,10 @@ Policy gradient (REINFORCE) works like this:
 
 1. Sample trajectory $\tau = (s_0, a_0, \ldots, s_{T-1}, a_{T-1}, s_T)$ using policy $\pi_\theta$
 2. Observe rewards $\mathbf{r} = (r_0, r_1, \ldots, r_{T-1})$ where $r_t = R_\xi(s_t, a_t)$
-3. Compute **return**: $G_\tau = \sum_{t=0}^{T-1} \gamma^t r_t$
-4. Compute **advantage**: $\text{Adv} = G_\tau - b$ (where $b$ is a baseline)
-5. Compute **gradient**: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
-6. Update: $\theta \leftarrow \theta + \alpha G$
+3. Compute **return**: $G = \sum_{t=0}^{T-1} \gamma^t r_t$
+4. Compute **advantage**: $\text{Adv} = G - b$ (where $b$ is a baseline)
+5. Compute **gradient**: $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
+6. Update: $\theta \leftarrow \theta + \alpha g$
 
 **Key observation**: The gradient has two components:
 - $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the history $\mathcal{H}$
@@ -129,9 +129,9 @@ Policy gradient (REINFORCE) works like this:
 
 *Under assumptions A1 and A2, the information bandwidth of policy gradient satisfies:*
 
-$$I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$
 
-where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradient and $\mathcal{H}$ is the history of all previous episodes.
+where $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradient and $\mathcal{H}$ is the history of all previous episodes.
 
 **Intuition**: Given the history $\mathcal{H}$ (which determines the current policy $\theta$), the trajectory sampling doesn't depend on $\xi$. All new information must flow through the scalar advantage, creating a hard ceiling of $\log_2(B)$ bits.
 
@@ -140,8 +140,8 @@ where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradien
 
 **Step 1: Information Chain**
 
-By data processing inequality, since $G$ is a deterministic function of $(\tau, \text{Adv})$ given $\mathcal{H}$:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq I((\tau, \text{Adv}); \pi^\star \mid \mathcal{H})$$
+By data processing inequality, since $g$ is a deterministic function of $(\tau, \text{Adv})$ given $\mathcal{H}$:
+$$I(g; \pi^\star \mid \mathcal{H}) \leq I((\tau, \text{Adv}); \pi^\star \mid \mathcal{H})$$
 
 By chain rule for mutual information:
 $$I((\tau, \text{Adv}); \pi^\star \mid \mathcal{H}) = I(\tau; \pi^\star \mid \mathcal{H}) + I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H})$$
@@ -165,7 +165,7 @@ $$I(\tau; \pi^\star \mid \mathcal{H}) = 0$$
 **Step 3: All Information Flows Through Advantage**
 
 From Steps 1-2:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H})$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H})$$
 
 ---
 
@@ -198,7 +198,7 @@ $$I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H}) \leq I(\text{Adv}; \xi \mid \t
 **Final Result**
 
 Combining all steps:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(B)$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(B)$$
 
 ∎
 
@@ -216,7 +216,7 @@ $$\mathbf{r} \xrightarrow{\text{sum}} G_\tau \xrightarrow{\text{subtract baselin
 
 **Setup**: $r_t = 0$ for $t < T-1$, only $r_{T-1} \in \{-1, +1\}$ is non-zero
 
-**Return**: $G_\tau = \gamma^{T-1} r_{T-1}$
+**Return**: $G = \gamma^{T-1} r_{T-1}$
 
 **Advantage**: $\text{Adv} = \gamma^{T-1} r_{T-1} - b$
 
@@ -236,15 +236,15 @@ $$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \math
 
 For $T = 1000$: approximately 1580 bits available.
 
-**Return**: $G_\tau = \sum_{t=0}^{T-1} \gamma^t r_t$
+**Return**: $G = \sum_{t=0}^{T-1} \gamma^t r_t$
 
 This is a **many-to-one mapping**. Different temporal patterns give the same sum:
 - $(+1, -1, +1, -1, \ldots)$ → sum ≈ 0
 - $(-1, +1, -1, +1, \ldots)$ → sum ≈ 0
 - $(0, 0, 0, \ldots, 0)$ → sum = 0
 
-For $\gamma = 1$, the return $G_\tau \in \{-1000, -999, \ldots, 999, 1000\}$ has:
-$$H(G_\tau \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
+For $\gamma = 1$, the return $G \in \{-1000, -999, \ldots, 999, 1000\}$ has:
+$$H(G \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
 
 **Advantage**: With noise and finite precision (Assumption A2 with $B = 256$):
 $$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(256) = 8 \text{ bits}$$
@@ -271,7 +271,7 @@ This explains why:
 - **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, accumulating meaningful information takes many episodes
 - **Adding parameters doesn't help**: The bottleneck is the scalar advantage, not model capacity
 
-The policy update $\Delta \theta = \alpha G$ happens in a high-dimensional space, but the **information content** of this update about the optimal policy is limited by the scalar advantage.
+The policy update $\Delta \theta = \alpha g$ happens in a high-dimensional space, but the **information content** of this update about the optimal policy is limited by the scalar advantage.
 
 ---
 
@@ -297,7 +297,7 @@ Actor-critic methods (A3C, PPO with value function) maintain two components:
 4. **Update actor** using the gradient:
    $$\theta \leftarrow \theta + \alpha_\theta \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
 
-**Learning signal**: $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$
+**Learning signal**: $g = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$
 
 **Key difference from policy gradient**: Instead of one scalar advantage per episode, we get $T$ TD errors—one per timestep.
 
@@ -339,7 +339,7 @@ But the critic **doesn't create new information**—it redistributes the informa
 
 *Under assumptions A1 and A2 (applied to rewards with resolution $B_r$), actor-critic's information bandwidth satisfies:*
 
-$$I(G; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
 
 where $\mathbf{r} = (r_0, \ldots, r_{T-1})$ is the reward sequence.
 
@@ -359,7 +359,7 @@ where $\mathbf{r} = (r_0, \ldots, r_{T-1})$ is the reward sequence.
 **Step 1: From Gradient to TD Errors**
 
 The actor gradient is:
-$$G = \sum_{t=0}^{T-1} \nabla \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
+$$g = \sum_{t=0}^{T-1} \nabla \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
 
 Given $(\tau, \mathcal{H})$:
 - The policy $\theta = \theta(\mathcal{H})$ is deterministic
@@ -367,7 +367,7 @@ Given $(\tau, \mathcal{H})$:
 - The gradient is a deterministic function of $(\tau, \boldsymbol{\delta}, \mathcal{H})$ where $\boldsymbol{\delta} = (\delta_0, \ldots, \delta_{T-1})$
 
 By data processing:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq I((\tau, \boldsymbol{\delta}); \pi^\star \mid \mathcal{H})$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq I((\tau, \boldsymbol{\delta}); \pi^\star \mid \mathcal{H})$$
 
 By chain rule:
 $$I((\tau, \boldsymbol{\delta}); \pi^\star \mid \mathcal{H}) = I(\tau; \pi^\star \mid \mathcal{H}) + I(\boldsymbol{\delta}; \pi^\star \mid \tau, \mathcal{H})$$
@@ -376,7 +376,7 @@ As in policy gradient, $\tau \perp \xi \mid \mathcal{H}$, so:
 $$I(\tau; \pi^\star \mid \mathcal{H}) = 0$$
 
 Therefore:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq I(\boldsymbol{\delta}; \pi^\star \mid \tau, \mathcal{H})$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq I(\boldsymbol{\delta}; \pi^\star \mid \tau, \mathcal{H})$$
 
 ---
 
@@ -428,7 +428,7 @@ $$I(\mathbf{r}; \pi^\star \mid \tau, \mathcal{H}) \leq I(\mathbf{r}; \xi \mid \t
 **Final Result**
 
 Combining Steps 1-3:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
+$$I(g; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
 
 ∎
 
@@ -469,7 +469,7 @@ $$\delta_t = 0 + \gamma V_\phi(s_{t+1}) - V_\phi(s_t) \quad \text{(deterministic
 
 Only $\delta_{T-1} = r_{T-1} - V_\phi(s_{T-1})$ is random.
 
-**Information ceiling**: $I(G; \pi^\star \mid \mathcal{H}) \leq 1$ bit
+**Information ceiling**: $I(g; \pi^\star \mid \mathcal{H}) \leq 1$ bit
 
 **Conclusion**: Same as policy gradient! When there's only terminal reward, actor-critic has no information advantage.
 
@@ -532,7 +532,7 @@ Our analysis reveals two distinct types of barriers:
 
 **Actor-critic's advantage requires dense rewards**: Only with independent or weakly correlated rewards at each timestep does actor-critic's ability to preserve temporal structure matter. But collecting dense, high-quality rewards is expensive.
 
-**Parameter efficiency follows naturally**: The information bottleneck (1 bit/episode for binary preferences) explains why LoRA works—the bottleneck is signal density, not model capacity.
+**Signal density matters more than capacity**: The information bottleneck (1 bit/episode for binary preferences) suggests that for current methods, the fundamental constraint is signal density rather than model capacity. This helps explain why low-rank adaptation methods can be effective for RL fine-tuning.
 
 ### Open Questions
 
