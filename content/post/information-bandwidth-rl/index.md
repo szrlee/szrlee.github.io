@@ -46,12 +46,12 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 **The practical implication**: LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with substantial improvements in actor-critic methods, LoRA's capacity appears sufficient for foreseeable applications.
 
-| Algorithm | Signal Density | Information Upper Bound |
-|-----------|---------------|---------------------|
-| Policy Gradient | 1 scalar/episode | {{< math >}}$\leq 1${{< /math >}} bit/episode (binary) |
-| Actor-Critic | {{< math >}}$T${{< /math >}} scalars/episode | {{< math >}}$\leq 8000${{< /math >}} bits/episode (assumes independent signals) |
+| Algorithm | Signal Density | Information Upper Bound | Achievability |
+|-----------|---------------|---------------------|---------------|
+| Policy Gradient | 1 scalar/episode | ≤ 1 bit/episode (binary) | Tight bound |
+| Actor-Critic | T scalars/episode | ≤ 8000 bits/episode* | Theoretical ceiling only |
 
-**Note**: The 8000 bits/episode ceiling assumes independent TD errors—an assumption violated in practice by bootstrap methods. The actual achievable information bandwidth remains an open empirical question.
+*Assumes independent TD errors—fundamentally violated in practice. Actual achievable bandwidth unknown.
 
 ---
 
@@ -85,6 +85,18 @@ $$\mathcal{B} = I(S; \pi^*)$$
 {{< /math >}}
 
 This measures how many bits of uncertainty about the optimal policy {{< math >}}$\pi^*${{< /math >}} are resolved per episode by the learning signal {{< math >}}$S${{< /math >}}.
+
+### Connection to the Original Insight
+
+This formalization builds on the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key insight: the REINFORCE gradient {{< math >}}$G = \nabla \log p_\theta(\tau) \cdot \text{Adv}${{< /math >}} has only the scalar advantage as the reward-dependent component (since {{< math >}}$\nabla \log p_\theta(\tau)${{< /math >}} is independent of rewards given the current policy). By the data processing inequality, {{< math >}}$I(G; R \mid \text{history}) \leq H(\text{Adv}) \approx \log(B)${{< /math >}} bits per episode.
+
+Our framework makes this rigorous by:
+1. **Formalizing the target**: We analyze {{< math >}}$I(G; \pi^*)${{< /math >}} rather than {{< math >}}$I(G; R \mid \text{history})${{< /math >}}, focusing on learning the optimal policy
+2. **Explicit assumptions**: We introduce A1 (unique optimum) and A2 (finite resolution) to make the argument precise
+3. **Removing conditioning on history**: Instead of conditioning on history, we use a prior {{< math >}}$p(\xi)${{< /math >}} over reward parameters, making {{< math >}}$G${{< /math >}} and {{< math >}}$\pi^*${{< /math >}} well-defined random variables
+4. **Extension to actor-critic**: We derive bounds for dense TD signals, quantifying the theoretical advantage of bootstrap methods
+
+The core insight remains the same: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
 
 ### Two Minimal Assumptions
 
@@ -258,8 +270,6 @@ The TD error {{< math >}}$\delta_t${{< /math >}} is a "surprise" signal—how mu
 
 **In short**: Actor-critic achieves higher information bandwidth by efficiently reusing historical data via the critic. Instead of treating each episode as independent (like policy gradient), the critic allows every step in the current episode to be evaluated against distilled knowledge of all previous trials.
 
-**The tradeoff**: This bootstrapping comes with an inherent cost—because all TD errors depend on the same learned value function {{< math >}}$V_\phi${{< /math >}}, they become structurally correlated. The very mechanism that enables dense signals also introduces the correlation barrier that prevents us from achieving the full {{< math >}}$T \log_2(B_\delta)${{< /math >}} bound.
-
 ### Extended Assumption
 
 **Assumption A2' (Effective TD Resolution)**: For the purpose of upper bound analysis, we model each TD error {{< math >}}$\delta_t${{< /math >}} as having effective resolution {{< math >}}$B_\delta${{< /math >}} distinguishable values.
@@ -366,19 +376,23 @@ For {{< math >}}$T=1000${{< /math >}}, {{< math >}}$B_\delta=256${{< /math >}}:
 - **Actor-critic** (theoretical ceiling): {{< math >}}$\leq 8000${{< /math >}} bits/episode
 - **Actor-critic** (achievable): Unknown
 
-**The gap between theoretical ceiling and practical performance has two types of causes:**
+**The gap has two types of causes:**
 
-**Fundamental barrier (inherent to bootstrap methods):**
+**Primary barrier: Structural correlation (inherent to bootstrap methods)**
 
-**TD error correlation**: All {{< math >}}$\delta_t${{< /math >}} share the same learned {{< math >}}$V_\phi${{< /math >}}, creating systematic dependencies. For example, if the critic systematically overestimates values by 20% everywhere, then all TD errors share this 1.2× bias—if {{< math >}}$\delta_0${{< /math >}} is surprisingly negative, then {{< math >}}$\delta_1, \delta_2, \ldots${{< /math >}} are likely also negative. This correlation is not a bug but inherent to using the same approximate value function across all states.
+TD error correlation is not a bug—it's fundamental to how TD learning works. All TD errors share the same learned {{< math >}}$V_\phi${{< /math >}}, creating systematic dependencies.
 
-**Implementation limitations:**
-- **Value function approximation error**: Neural networks can't perfectly represent value functions
-- **Finite sample effects**: Each state is visited finitely often
-- **Optimization challenges**: Critic training is unstable and sensitive to hyperparameters
-- **Information utilization inefficiency**: Even with perfect TD signals, gradient descent may not extract all available information
+**Concrete example**: If the critic systematically overestimates values by 20% everywhere (a common early-training phenomenon), then all TD errors share this 1.2× bias. If {{< math >}}$\delta_0${{< /math >}} is surprisingly negative (indicating overestimation), then {{< math >}}$\delta_1, \delta_2, \ldots${{< /math >}} are likely also negative—they're positively correlated.
 
-**Our hypothesis**: The correlation barrier accounts for a substantial portion of the gap. However, the actual achievable information bandwidth remains an open empirical question.
+**Impact**: If TD errors have correlation {{< math >}}$\rho \approx 0.5${{< /math >}}, this alone could reduce bandwidth by 2× or more. With {{< math >}}$\rho \approx 0.8${{< /math >}}, reduction could be 5×+.
+
+**Secondary factors: Implementation and approximation**
+- Value function approximation error
+- Finite sample effects
+- Optimization instability
+- Gradient descent efficiency
+
+**Our hypothesis**: The correlation barrier (factor #1) accounts for most of the gap, but disentangling these empirically is critical future work.
 
 ---
 
