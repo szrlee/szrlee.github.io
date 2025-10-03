@@ -39,24 +39,23 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## TL;DR: The Main Results
 
-**Policy gradient's hard limit**: The REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has a structure where, given the training history, the direction term $\nabla \log p_\theta(\tau)$ is independent of the reward function—only the scalar advantage carries reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode—explaining why training needs thousands of episodes and why LoRA's modest capacity (300-500× excess) suffices.
+**Policy gradient's hard limit**: The REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has a structure where, given the training history, the direction term $\nabla \log p_\theta(\tau)$ is independent of the reward function—only the scalar advantage carries reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode.
 
-**Actor-critic's reward-dependent bound**: Actor-critic methods preserve temporal structure through TD errors $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. Since this transformation is invertible, the information ceiling equals the reward entropy: $I(G; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$. For terminal rewards only, this reduces to $\leq 1$ bit (same as policy gradient). For dense, independent rewards with $T=1000$ timesteps, this can reach $\leq 1580$ bits/episode—but reward correlation and optimization inefficiency reduce practical achievement to 10-100 bits.
+**Actor-critic's reward-dependent bound**: Actor-critic methods preserve temporal structure through TD errors $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. Since this transformation is invertible, the information ceiling equals the reward entropy: $I(G; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$. For terminal rewards only, this reduces to $\leq 1$ bit (same as policy gradient). For dense, independent rewards with $T=1000$ timesteps, this can reach $\leq 1580$ bits/episode.
 
 **Why this matters**: 
 - Policy gradient loses information by aggregating $T$ rewards into one scalar
 - Actor-critic preserves information by using rewards separately at each timestep
-- The advantage depends critically on reward structure (terminal vs. dense, correlated vs. independent)
-- LoRA provides 300-500× excess capacity for current methods and remains sufficient even for improved actor-critic
+- The advantage depends critically on reward structure (terminal vs. dense, independent vs. correlated)
 
-| Algorithm | Reward Structure | Information Upper Bound | Practical Achievable |
-|-----------|-----------------|---------------------|---------------------|
-| Policy Gradient | Terminal only ($B=2$) | ≤ 1 bit/episode | ~1 bit/episode |
-| Actor-Critic | Terminal only ($B_r=2$) | ≤ 1 bit/episode | ~1 bit/episode |
-| Policy Gradient | Dense ($T=1000$, $B_r=3$) | ≤ 8 bits/episode | ~8 bits/episode |
-| Actor-Critic | Dense independent ($T=1000$, $B_r=3$) | ≤ 1580 bits/episode | ~50-200 bits/episode |
+| Algorithm | Reward Structure | Information Upper Bound |
+|-----------|-----------------|---------------------|
+| Policy Gradient | Terminal only ($B=2$) | ≤ 1 bit/episode |
+| Actor-Critic | Terminal only ($B_r=2$) | ≤ 1 bit/episode |
+| Policy Gradient | Dense ($T=1000$, $B_r=3$) | ≤ 8 bits/episode |
+| Actor-Critic | Dense independent ($T=1000$, $B_r=3$) | ≤ 1580 bits/episode |
 
-The remainder of this post derives these bounds rigorously and explores their implications for algorithm design and parameter efficiency.
+The remainder of this post derives these bounds rigorously and explores their implications.
 
 ---
 
@@ -87,23 +86,13 @@ $$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H})$$
 
 where $G$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
 
-**Interpretation**: $I(G; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" Early in training, each gradient is informative. Late in training, we've learned most patterns, so each gradient adds less. The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress.
-
-Our goal is to find upper bounds on $\mathcal{B}$ that depend only on the **structure of the learning signal** (e.g., whether it's a scalar or a vector of scalars), not on the training state. If we can show that $I(G; \pi^\star \mid \mathcal{H}) \leq C$ for **every** possible history $\mathcal{H}$, then:
-
-$$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H}) \leq C$$
-
-This bound $C$ characterizes the algorithm's inherent information capacity.
-
-**Note on $\theta$ and history**: In practice, history gets compressed into parameters $\theta$. Our framework conditions on complete history for mathematical cleanliness, but the bounds apply either way.
+**Interpretation**: $I(G; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress.
 
 ### Connection to the Original Insight
 
 This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the policy), so **all information about $R$ must flow through the scalar advantage**.
 
-We're extending this in three ways. First, we measure information about the optimal policy directly—asking "what do we learn about $\pi^\star$?" rather than "what do we learn about $R$?". Second, we're explicit about history: the conditioning on $\mathcal{H}$ makes "what we already know" mathematically precise. Third, we formalize when the advantage has bounded entropy (Assumption A2).
-
-Since the optimal policy is a deterministic function of the reward parameters ($\pi^\star = f(\xi)$), learning about $\xi$ through the gradient is equivalent to learning about $\pi^\star$. The core insight remains: **scalar feedback creates an information bottleneck**. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
+We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
 
 ### Two Minimal Assumptions
 
@@ -117,7 +106,7 @@ Since the optimal policy is a deterministic function of the reward parameters ($
 
 ---
 
-## Part 2: Policy Gradient's 1-Bit Ceiling
+## Part 2: Policy Gradient's Information Ceiling
 
 ### The Algorithm
 
@@ -130,10 +119,8 @@ Policy gradient (REINFORCE) works like this:
 5. Compute **gradient**: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
 6. Update: $\theta \leftarrow \theta + \alpha G$
 
-**Learning signal**: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ (the gradient)
-
 **Key observation**: The gradient has two components:
-- $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the current policy $\theta$)
+- $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the history $\mathcal{H}$
 - $\text{Adv}$: A scalar that encodes all reward-dependent information
 
 ### The Information Ceiling
@@ -194,9 +181,7 @@ $$I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H}) \leq H(\text{Adv} \mid \tau, \
 By Assumption A2, the advantage takes at most $B$ distinct values. Therefore:
 $$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(B)$$
 
-This holds because:
-- Even conditioned on $\tau$ and $\mathcal{H}$, the advantage still has at most $B$ values in its support
-- Entropy is maximized when uniform: $H(X) \leq \log_2(|X|)$
+This holds because entropy is maximized when uniform: $H(X) \leq \log_2(|X|)$
 
 ---
 
@@ -204,8 +189,6 @@ This holds because:
 
 By Assumption A1, $\pi^\star = f(\xi)$ deterministically. This creates:
 $$\text{Adv} \to \xi \to \pi^\star$$
-
-(The advantage depends on rewards which depend on $\xi$, and $\pi^\star$ depends only on $\xi$)
 
 By data processing:
 $$I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H}) \leq I(\text{Adv}; \xi \mid \tau, \mathcal{H})$$
@@ -225,7 +208,7 @@ This ceiling holds regardless of sequence length $T$, model size, or computation
 
 ### Where Does Information Get Lost?
 
-The bound $\leq \log_2(B)$ is tight for some reward structures but loose for others. Let's trace where information is lost:
+The bound $\leq \log_2(B)$ is tight for some reward structures but loose for others:
 
 $$\mathbf{r} \xrightarrow{\text{sum}} G_\tau \xrightarrow{\text{subtract baseline}} \text{Adv} \xrightarrow{\text{finite resolution}} \text{bounded by } B$$
 
@@ -237,7 +220,7 @@ $$\mathbf{r} \xrightarrow{\text{sum}} G_\tau \xrightarrow{\text{subtract baselin
 
 **Advantage**: $\text{Adv} = \gamma^{T-1} r_{T-1} - b$
 
-Since the mapping $r_{T-1} \leftrightarrow \text{Adv}$ is bijective (one-to-one):
+Since the mapping $r_{T-1} \leftrightarrow \text{Adv}$ is bijective:
 $$H(\text{Adv} \mid \tau, \mathcal{H}) = H(r_{T-1} \mid \tau, \mathcal{H}) = 1 \text{ bit}$$
 
 **No information loss** from aggregation. The bound is **tight**.
@@ -266,7 +249,7 @@ $$H(G_\tau \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
 **Advantage**: With noise and finite precision (Assumption A2 with $B = 256$):
 $$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(256) = 8 \text{ bits}$$
 
-**Information loss**: Starting with 1580 bits, policy gradient retains only ~8 bits!
+**Information loss**: Starting with 1580 bits, policy gradient retains only ~8 bits.
 
 **Loss factor**: ~200× reduction
 
@@ -280,16 +263,15 @@ $$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(256) = 8 \text{ bits}$$
 - **Likert scale** ($B=5$): $\leq 2.3$ bits/episode
 - **8-bit resolution** ($B=256$): $\leq 8$ bits/episode
 
-### Why This Matters
+### Implications
 
-A typical LLM generation has $T \sim 1000$ tokens, each chosen from hundreds of possibilities. The REINFORCE gradient compresses all this rich structure—which words worked well, where the response went wrong, which reasoning steps succeeded—into **one scalar** (the advantage) that modulates a fixed direction $\nabla \log p_\theta(\tau)$.
+A typical LLM generation has $T \sim 1000$ tokens. The REINFORCE gradient compresses all this rich structure into **one scalar** (the advantage) that modulates a fixed direction $\nabla \log p_\theta(\tau)$.
 
-This structural compression explains why:
-- **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, 1000 episodes gives $\leq 1000$ bits total
-- **LoRA works well**: LoRA provides 300-500× more capacity than this ceiling
+This explains why:
+- **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, accumulating meaningful information takes many episodes
 - **Adding parameters doesn't help**: The bottleneck is the scalar advantage, not model capacity
 
-One subtlety: The policy update $\Delta \theta = \alpha G$ happens in a high-dimensional space (the gradient $G$ has millions of dimensions). But the **information content** of this update about the optimal policy is limited by the scalar advantage. The gradient direction $\nabla \log p_\theta(\tau)$ determines *where* the update points, but the scalar advantage determines *what we learn* about which policies are better.
+The policy update $\Delta \theta = \alpha G$ happens in a high-dimensional space, but the **information content** of this update about the optimal policy is limited by the scalar advantage.
 
 ---
 
@@ -325,14 +307,12 @@ Actor-critic methods (A3C, PPO with value function) maintain two components:
 
 The answer is **not** that actor-critic gets more information from the environment—the total information available is the same. Instead, actor-critic **preserves information** that policy gradient destroys.
 
-**The information source**: Current episode's rewards $\mathbf{r} = (r_0, \ldots, r_{T-1})$
-
 **Policy Gradient** aggregates all rewards into one scalar:
 $$\text{Adv} = \sum_{t=0}^{T-1} \gamma^t r_t - b$$
 
-This is a **many-to-one mapping**: different temporal patterns can give the same advantage. Consider $T=1000$ tokens with $r_t \in \{-1, 0, +1\}$:
+This is a **many-to-one mapping**: different temporal patterns can give the same advantage. For $T=1000$ tokens with $r_t \in \{-1, 0, +1\}$:
 - Total available information: $H(\mathbf{r}) \approx 1000 \times 1.58 = 1580$ bits
-- After summation: $H(\text{Adv}) \leq \log_2(2001) \approx 11$ bits
+- After summation: $H(\text{Adv}) \leq 8$ bits
 - **Information lost**: ~99%
 
 **Actor-Critic** transforms rewards into TD errors:
@@ -519,7 +499,7 @@ $$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1580 \tex
 
 ---
 
-### Comparison Table
+### Summary
 
 | Algorithm | Reward Structure | Information Ceiling | Why |
 |-----------|-----------------|---------------------|-----|
@@ -528,115 +508,9 @@ $$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1580 \tex
 | Policy Gradient | Dense independent | ≤ 8 bits | Aggregation loses temporal structure |
 | Actor-Critic | Dense independent | ≤ 1580 bits | Temporal structure preserved |
 
-### Practical Achievability
-
-The bound $H(\mathbf{r} \mid \tau, \mathcal{H})$ represents the **information-theoretic ceiling**—the maximum possible information gain per episode. This ceiling cannot be exceeded.
-
-Practical actor-critic methods typically achieve less than this ceiling due to **optimization inefficiency**:
-
-**Sources of inefficiency**:
-
-1. **Value function approximation error**: Neural network $V_\phi$ has finite capacity and generalization error. Even with perfect data, a function approximator cannot capture all nuances of the true value function.
-
-2. **Bootstrap correlation**: All TD errors share the same $V_\phi$. If the critic systematically overestimates everywhere, all TD errors become correlated, making gradients less effective even though the information is theoretically present.
-
-3. **Gradient descent limitations**: SGD may not extract all available information from TD errors due to:
-   - Local minima and saddle points
-   - Limited training time and learning rate constraints
-   - Batch size effects and sampling noise
-
-4. **Finite sample effects**: With limited episodes, the critic never perfectly learns the value function, introducing persistent bias.
-
-**Estimated practical extraction** (speculative):
-
-For dense rewards with typical correlation structure (rewards share some global components like overall quality, but retain local variations):
-- **Theoretical ceiling**: ~200-500 bits/episode (accounting for reward correlation)
-- **Practical extraction**: ~50-200 bits/episode (~20-40% efficiency)
-- **Empirical observations**: 2-10× speedup over policy gradient suggests ~10-100 bits/episode actually extracted
-
-These numbers are rough estimates based on typical speedup observations, not rigorous measurements. The gap between theory and practice remains an open empirical question.
-
 ---
 
-## Part 4: Why LoRA Works—The Capacity-Information Match
-
-### The Capacity Argument
-
-Consider typical RLHF setup:
-- Episodes: $N = 1000$
-- LoRA: rank $r=8$, dimension $d=4096$
-- Binary preferences: $B=2$
-
-**Information gained** (from policy gradient):
-
-Over $N = 1000$ episodes with binary preferences, policy gradient learns at most:
-$$N \times \log_2(B) = 1000 \times 1 = 1000 \text{ bits}$$
-
-of new information about the optimal policy $\pi^\star$.
-
-**LoRA capacity** (order-of-magnitude estimate):
-- Parameters: $2rd = 65{,}000$
-- Effective bits per parameter: **5-8**
-  - *Justification*: After training, parameters take on hundreds to thousands of distinguishable values that meaningfully affect behavior. This is much less than float32 precision (23 bits) but more than crude quantization (2-3 bits). We can bound this:
-    - **Upper bound**: Optimization noise and finite training limit effective precision to ~12-16 bits
-    - **Lower bound**: LoRA training demonstrably learns more than crude 2-3 bit quantization
-    - **Reasonable range**: 5-8 bits balances these constraints
-- Total capacity: $65{,}000 \times 5$ to $65{,}000 \times 8$ = **~300,000-500,000 bits**
-
-**The ratio**: LoRA provides **~300-500× more capacity** than the information conveyed by policy gradient's learning signals.
-
-Even if this estimate is off by 2-3×, the qualitative conclusion holds: LoRA has substantial excess capacity.
-
-### The Key Insight
-
-LoRA works because the parameter bottleneck isn't binding. With policy gradient's sparse learning signals (scalar advantages), you have far more capacity than information to store. The bottleneck is **signal density** (1 bit/episode), not model capacity.
-
-Full fine-tuning is overkill: with ~7 billion parameters trying to store ~1000 bits of information, you have 7 million times more capacity than needed. LoRA's parameter count naturally matches what policy gradient's learning signals can actually convey.
-
-**Empirical consistency**: LLM-RL needs 1,000-10,000 episodes to converge, consistent with accumulating 1,000-10,000 bits at 1-3 bits/episode (depending on reward granularity).
-
-### Implications for Actor-Critic
-
-If actor-critic could achieve substantially better information extraction (e.g., 100 bits/episode through dense process rewards with modest correlation):
-- **With 1000 episodes**: 100,000 bits of information
-- **LoRA capacity**: Still 3-5× excess capacity
-- **Conclusion**: LoRA remains sufficient even for efficient actor-critic
-
-Only with dramatic improvements approaching the theoretical ceiling (500-1000+ bits/episode) would LoRA capacity become limiting—but this requires:
-1. Dense rewards at every timestep (expensive to collect)
-2. Informationally independent or weakly correlated rewards (requires careful reward design)
-3. Near-perfect optimization efficiency (extracting most of the available $H(\mathbf{r})$)
-
-These conditions are difficult to achieve simultaneously in practice.
-
----
-
-## Part 5: Implications and Future Directions
-
-### Why Policy Gradient + LoRA Dominates
-
-Policy gradient + LoRA dominates current LLM fine-tuning because this combination achieves a practical equilibrium:
-- **Stable**: No critic training instability
-- **Parameter-efficient**: LoRA provides 300-500× excess capacity relative to the 1 bit/episode ceiling
-- **Simple**: One scalar advantage per episode, easy to implement and debug
-
-The tradeoff is sample efficiency: at ≤1 bit/episode with binary preferences, thousands of episodes are required. Yet practitioners accept this because the stability and simplicity advantages outweigh the sample cost.
-
-### Why Actor-Critic Methods Haven't Displaced Policy Gradient
-
-Despite the theoretical potential for 100-1000× higher information bandwidth, actor-critic methods typically achieve only 2-10× sample efficiency gains over policy gradient in practice.
-
-**Multiple barriers limit actor-critic**:
-
-1. **Terminal reward structure**: Most LLM RLHF uses only terminal preferences. With $H(\mathbf{r}) = 1$ bit, actor-critic has no theoretical advantage over policy gradient.
-
-2. **Reward correlation**: Even with dense rewards, if they share global components (overall quality, style, coherence), the effective information $H(\mathbf{r})$ is much less than $T \log_2(B_r)$. Partial correlation can reduce this by 5-10×.
-
-3. **Optimization inefficiency**: Bootstrap correlation (shared $V_\phi$), value function approximation error, and gradient descent limitations prevent extracting the full $H(\mathbf{r})$. Practical systems may extract only 20-40% of the theoretical ceiling.
-
-4. **Training instability**: Joint actor-critic training is more complex, requiring careful hyperparameter tuning, separate learning rates, and dealing with moving target problems.
-
-Combined, these factors explain why policy gradient + LoRA remains dominant despite its information-theoretic limitations.
+## Part 4: Implications
 
 ### Two Types of Barriers
 
@@ -646,64 +520,48 @@ Our analysis reveals two distinct types of barriers:
 - Policy gradient: $\leq \log_2(B)$ bits/episode—structural limit from scalar advantage
 - Actor-critic: $\leq H(\mathbf{r} \mid \tau, \mathcal{H})$—depends on reward structure
 
-**2. Practical implementation gaps** (engineering challenges, may be improvable):
-- Terminal vs. dense rewards (data collection cost and design)
+**2. Practical implementation challenges**:
+- Terminal vs. dense rewards (data collection and design)
 - Reward correlation structure (inherent to many tasks)
 - Optimization efficiency (value function approximation, gradient descent)
 - Training stability (hyperparameters, learning dynamics)
 
-### Research Directions
+### Why Current Practice Makes Sense
 
-**Priority 1: Engineer denser ground-truth signals**
-- **Process rewards**: Per-token human annotations or learned reward models providing feedback at each step
-- **Multi-resolution feedback**: Combine episode-level and step-level rewards
-- **Why this helps**: Directly increases $H(\mathbf{r})$, benefiting both policy gradient (via higher $B$) and actor-critic (via higher $T \times B_r$ with low correlation)
+**Most LLM RLHF uses terminal rewards**: With $H(\mathbf{r}) = 1$ bit, actor-critic has no theoretical advantage over policy gradient. This explains why simple policy gradient methods dominate—the complexity of actor-critic isn't justified when the information ceiling is the same.
 
-**Priority 2: Measure information flow empirically**
-- Estimate actual $H(\mathbf{r} \mid \tau, \mathcal{H})$ in real tasks by analyzing reward correlation
-- Measure optimization efficiency: what fraction of $H(\mathbf{r})$ is extracted?
-- Test whether sample efficiency scales with $H(\mathbf{r})$ as predicted
+**Actor-critic's advantage requires dense rewards**: Only with independent or weakly correlated rewards at each timestep does actor-critic's ability to preserve temporal structure matter. But collecting dense, high-quality rewards is expensive.
 
-**Priority 3: Improve actor-critic for LLM scale**
-- Low-rank value function architectures (matching LoRA structure)
-- Ensemble critics to reduce systematic bias and correlation
-- Better optimization techniques for joint training (e.g., separate replay buffers, careful learning rate schedules)
+**Parameter efficiency follows naturally**: The information bottleneck (1 bit/episode for binary preferences) explains why LoRA works—the bottleneck is signal density, not model capacity.
 
-**Priority 4: Reduce reward correlation**
-- Design reward functions with more independent components
-- Multi-aspect rewards (factorized across different quality dimensions)
-- Note: May have fundamental limits for tasks with inherent global quality
+### Open Questions
 
-**Priority 5: Alternative paradigms**
-- Monte Carlo methods (no bootstrapping → no TD correlation, but high variance)
-- Model-based RL (learn dynamics, plan without bootstrap)
-- Hybrid MC/TD approaches balancing bias and variance
+Several important questions remain:
 
-**Not needed**: More parameters. LoRA already provides 300-500× excess capacity relative to policy gradient's ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
+1. **Reward correlation in practice**: How much correlation exists in realistic reward functions? This determines the gap between $\log_2(B_r)$ and $T \log_2(B_r)$.
+
+2. **Optimization efficiency**: What fraction of the theoretical ceiling $H(\mathbf{r})$ do practical algorithms extract? This requires empirical measurement.
+
+3. **Alternative paradigms**: Can we design algorithms that circumvent these limitations? Model-based methods, Monte Carlo approaches, or hybrid algorithms may offer different trade-offs.
 
 ---
 
-## Limitations and Future Work
+## Limitations
 
 **Theoretical limitations**:
-1. Our bounds assume deterministic optimal policies (A1), which may not hold exactly in stochastic settings or with degenerate reward functions
-2. The "effective bits per parameter" (5-8 bits) for LoRA is an order-of-magnitude estimate, not precisely measured
-3. We model algorithms using idealized Bayesian inference, which doesn't capture actual optimization dynamics, local minima, or convergence issues
-4. The practical efficiency estimates (20-40% extraction of $H(\mathbf{r})$) are speculative, based on speedup observations rather than direct measurement
+1. Our bounds assume deterministic optimal policies (A1), which may not hold exactly in stochastic settings
+2. We model algorithms using idealized Bayesian inference, which doesn't capture actual optimization dynamics
+3. The finite resolution assumption (A2) is approximate for continuous rewards
 
 **Empirical gaps**:
 1. We do not empirically measure information gain per episode in real training runs
-2. The relationship between reward correlation structure and practical actor-critic performance is not validated
+2. The relationship between reward correlation structure and practical performance is not validated
 3. The actual effective resolution for advantages and TD errors is task-dependent and unmeasured
-4. The degree of bootstrap correlation and its impact on learning efficiency remains unquantified
 
 **Future work should**:
-- Measure information flow empirically: estimate $H(\mathbf{r} \mid \tau, \mathcal{H})$ and actual extraction efficiency in trained RL systems
-- Quantify reward correlation structure across different tasks and domains
-- Test whether sample efficiency improvements scale with signal density as predicted by the theory
-- Empirically determine effective parameter capacity in trained LoRA modules
-- Investigate the relationship between value function quality and information extraction efficiency
-- Explore whether the theory extends to other RL settings (model-based, offline RL, multi-agent systems)
+- Measure information flow empirically: estimate $H(\mathbf{r} \mid \tau, \mathcal{H})$ in real tasks
+- Test whether sample efficiency scales with signal density as predicted
+- Explore whether the theory extends to other RL settings (model-based, offline RL, multi-agent)
 
 ---
 
@@ -714,8 +572,8 @@ Our analysis reveals two distinct types of barriers:
 - Hu, E. J., et al. (2021). "LoRA: Low-Rank Adaptation of Large Language Models." *ICLR*.
 
 **Reinforcement Learning**:
-- Sutton, R. S., McAllester, D., Singh, S., & Mansour, Y. (1999). "Policy gradient methods for reinforcement learning with function approximation." *Advances in Neural Information Processing Systems*, 12.
-- Konda, V., & Tsitsiklis, J. (1999). "Actor-critic algorithms." *Advances in Neural Information Processing Systems*, 12.
+- Sutton, R. S., McAllester, D., Singh, S., & Mansour, Y. (1999). "Policy gradient methods for reinforcement learning with function approximation." *NIPS*, 12.
+- Konda, V., & Tsitsiklis, J. (1999). "Actor-critic algorithms." *NIPS*, 12.
 - Schulman, J., et al. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
 
 **Information Theory**:
