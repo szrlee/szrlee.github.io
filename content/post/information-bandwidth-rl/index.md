@@ -80,9 +80,19 @@ We don't claim algorithms actually maintain Bayesian posteriors. Rather, this fr
 
 **Definition (Information Bandwidth)**:
 
-$$\mathcal{B} = I(G; \pi^\star \mid \theta)$$
+The information bandwidth measures the maximum information that can be gained per episode:
 
-where $G$ is the gradient used to update the policy and $\theta$ represents the current policy parameters encoding all past learning. This measures how many bits of information about the optimal policy $\pi^\star$ are conveyed by each gradient update, **given what we already know from past training**.
+$$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H})$$
+
+where $G$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
+
+**Interpretation**: This supremum represents the algorithm's capacity limit. Since our bounds $I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B)$ hold for **any** history $\mathcal{H}$:
+
+$$\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B)$$
+
+This characterizes the algorithm's information capacity per episode, independent of training progress.
+
+**Note on $\theta$ and history**: In practice, history $\mathcal{H}$ is compressed into policy parameters $\theta$ through gradient descent. Our Bayesian framework conditions on complete history for rigor, but bounds apply regardless of how efficiently algorithms store historical information.
 
 ### Connection to the Original Insight
 
@@ -93,13 +103,24 @@ $$I(G; R \mid \text{history}) \leq H(\text{Adv}) \leq \log_2(B)$$
 The key insight: Since $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the policy, all information about $R$ must flow through the scalar advantage.
 
 We adapt this by:
-1. **Measuring information about the optimal policy**: We compute $I(G; \pi^\star \mid \theta)$ rather than $I(G; R \mid \text{history})$, directly quantifying how much the gradient tells us about which policy is optimal
-2. **Using policy parameters instead of "history"**: We condition on $\theta$ (the current policy parameters) rather than the vague notion of "history," making the framework mathematically precise
+1. **Measuring information about the optimal policy**: We compute $I(G; \pi^\star \mid \mathcal{H})$ rather than $I(G; R \mid \text{history})$, directly quantifying how much the gradient tells us about which policy is optimal
+2. **Using complete episode history**: We condition on $\mathcal{H}$ (the history of all previous episodes) to match the Bayesian framework, making "what we've already learned" mathematically precise
 3. **Explicit finite resolution assumption**: We formalize when $H(\text{Adv}) \leq \log_2(B)$ holds
 
-Since the optimal policy is a deterministic function of the reward parameters ($\pi^\star = f(\xi)$), learning about $\xi$ through the gradient is equivalent to learning about $\pi^\star$. The bound remains: $I(G; \pi^\star \mid \theta) \leq \log_2(B)$ bits per episode.
+Since the optimal policy is a deterministic function of the reward parameters ($\pi^\star = f(\xi)$), learning about $\xi$ through the gradient is equivalent to learning about $\pi^\star$. The bound remains: $I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B)$ bits per episode.
 
 The core insight: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
+
+**Note on bandwidth vs. information gain**:
+
+The **information bandwidth** $\mathcal{B} = \sup_{\mathcal{H}} I(G; \pi^\star \mid \mathcal{H})$ represents the algorithm's capacity—the maximum information per episode it can convey. This is a property of the algorithm structure, not the training state.
+
+The **information gain** for a specific episode is $I(G_n; \pi^\star \mid \mathcal{H}_{n-1})$, measuring how much episode $n$ reduces uncertainty about $\pi^\star$ given prior episodes. This decreases as training progresses.
+
+Our theorems bound information gain for **any** history, thus also bounding bandwidth. The bounds apply regardless of training progress:
+- Early training: Information gain ≈ bandwidth
+- Late training: Information gain ≪ bandwidth
+- Always: Information gain ≤ bandwidth ≤ log₂(B)
 
 ### Two Minimal Assumptions
 
@@ -137,16 +158,16 @@ Policy gradient (REINFORCE) works as follows:
 
 *Under assumptions A1 and A2, the information bandwidth of policy gradient satisfies:*
 
-$$I(G; \pi^\star \mid \theta) \leq \log_2(B) \text{ bits per episode}$$
+$$I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$
 
-where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradient (the learning signal) and $\theta$ represents the current policy parameters.
+where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradient (the learning signal) and $\mathcal{H}$ is the history of all previous episodes.
 
-**Intuition**: The quantity $I(G; \pi^\star \mid \theta)$ measures **information gain per episode**—how much we learn about the optimal policy from the current gradient, given what we already know from past training (encoded in $\theta$). Since $\nabla \log p_\theta(\tau)$ is independent of $\xi$ given $\theta$, all new information must flow through the scalar advantage, creating a hard ceiling of $\log_2(B)$ bits.
+**Intuition**: The quantity $I(G; \pi^\star \mid \mathcal{H})$ measures **information gain per episode**—how much we learn about the optimal policy from the current gradient, given what we've already learned from all past episodes. The key is that given the history $\mathcal{H}$ (which determines the current policy $\theta$), the trajectory sampling doesn't depend on $\xi$, so all new information must flow through the scalar advantage, creating a hard ceiling of $\log_2(B)$ bits.
 
 <details>
 <summary><strong>Detailed Proof (click to expand)</strong></summary>
 
-**Proof Strategy**: We work within the Bayesian framework where both the policy parameters $\theta$ and the reward parameter $\xi$ are random variables. The key is that within each gradient computation, the log-probability gradient component is independent of $\xi$ given the current policy $\theta$. All information about $\xi$ (and thus $\pi^\star$) learned in the current episode must flow through the scalar advantage.
+**Proof Strategy**: We work within the Bayesian framework where both the history $\mathcal{H}$ and the reward parameter $\xi$ are random variables. The key is that given the history (which determines the current policy), the trajectory sampling doesn't depend on $\xi$. All information about $\xi$ (and thus $\pi^\star$) learned in the current episode must flow through the scalar advantage.
 
 ---
 
@@ -155,23 +176,24 @@ where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradien
 Recall our Bayesian setup:
 - Prior over reward parameters: $p(\xi)$
 - This induces a prior over optimal policies: $p(\pi^\star)$ via $\pi^\star = f(\xi)$
-- During training, the policy parameters $\theta$ evolve based on observed data
+- During training, the policy parameters $\theta$ evolve based on observed episode history $\mathcal{H}$
 
 At any given iteration, we have:
-- Current policy parameters: $\theta$ (a random variable in the Bayesian view)
+- History of past episodes: $\mathcal{H} = \{(\tau_1, r_1), \ldots, (\tau_{n-1}, r_{n-1})\}$
+- Current policy parameters: $\theta$ (determined by $\mathcal{H}$ through gradient descent)
 - Sampled trajectory: $\tau \sim p_\theta(\tau)$
 - Observed advantage: $\text{Adv}$ (computed from rewards $R_\xi$)
 - Gradient: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
 
-**Key insight**: While $\theta$ and $\xi$ are dependent ($\theta$ was shaped by previous rewards from $R_\xi$), within a single gradient computation, the log-probability gradient $\nabla \log p_\theta(\tau)$ is independent of $\xi$ **given $\theta$**.
+**Key insight**: The history $\mathcal{H}$ and $\xi$ are dependent (past rewards came from $R_\xi$), and $\mathcal{H}$ determines the current policy $\theta$. However, within the current episode, given $\mathcal{H}$ (and thus given $\theta$), the trajectory sampling doesn't depend on $\xi$. Therefore $\nabla \log p_\theta(\tau)$ is independent of $\xi$ given $\mathcal{H}$.
 
 ---
 
 **Step 2: Conditional Independence Structure**
 
-**Claim**: Given the current policy parameters $\theta$, the log-probability gradient is independent of the reward parameter $\xi$:
+**Claim**: Given the history $\mathcal{H}$ of past episodes, the log-probability gradient is independent of the reward parameter $\xi$:
 
-$$\nabla \log p_\theta(\tau) \perp \xi \mid \theta$$
+$$\nabla \log p_\theta(\tau) \perp \xi \mid \mathcal{H}$$
 
 **Justification**:
 
@@ -184,10 +206,10 @@ This depends only on:
 
 The trajectory is sampled from $p_\theta(\tau)$, which is determined entirely by $\theta$ and the (known, deterministic) environment dynamics. The sampling distribution $p_\theta(\tau)$ does not depend on the reward function $R_\xi$.
 
-Therefore, conditioned on $\theta$:
+Therefore, conditioned on $\mathcal{H}$ (which determines $\theta$):
 - $\nabla \log p_\theta(\tau)$ is a function of $(\theta, \tau)$
 - $\tau$ is sampled from $p_\theta(\tau)$, which doesn't depend on $\xi$
-- Hence $\nabla \log p_\theta(\tau) \perp \xi \mid \theta$
+- Hence $\nabla \log p_\theta(\tau) \perp \xi \mid \mathcal{H}$
 
 ---
 
@@ -197,44 +219,44 @@ The gradient can be written as:
 $$G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$$
 
 Let $X = \nabla \log p_\theta(\tau)$ and $Y = \text{Adv}$. We have:
-- $X \perp \xi \mid \theta$ (from Step 2)
+- $X \perp \xi \mid \mathcal{H}$ (from Step 2)
 - $Y$ depends on $\xi$ (through rewards $R_\xi$)
 
 ---
 
 **Step 4: Bounding Conditional Mutual Information**
 
-We bound the information in $G$ about $\xi$, conditioned on $\theta$.
+We bound the information in $G$ about $\xi$, conditioned on $\mathcal{H}$.
 
 Since $G$ is a deterministic function of $(X, Y)$, by the data processing inequality:
-$$I(G; \xi \mid \theta) \leq I((X, Y); \xi \mid \theta)$$
+$$I(G; \xi \mid \mathcal{H}) \leq I((X, Y); \xi \mid \mathcal{H})$$
 
 By the chain rule for conditional mutual information:
-$$I((X, Y); \xi \mid \theta) = I(X; \xi \mid \theta) + I(Y; \xi \mid X, \theta)$$
+$$I((X, Y); \xi \mid \mathcal{H}) = I(X; \xi \mid \mathcal{H}) + I(Y; \xi \mid X, \mathcal{H})$$
 
-From Step 2, we have $X \perp \xi \mid \theta$, which means:
-$$I(X; \xi \mid \theta) = 0$$
+From Step 2, we have $X \perp \xi \mid \mathcal{H}$, which means:
+$$I(X; \xi \mid \mathcal{H}) = 0$$
 
 Therefore:
-$$I(G; \xi \mid \theta) \leq I(Y; \xi \mid X, \theta)$$
+$$I(G; \xi \mid \mathcal{H}) \leq I(Y; \xi \mid X, \mathcal{H})$$
 
 Since conditioning can only reduce mutual information:
-$$I(Y; \xi \mid X, \theta) \leq I(Y; \xi \mid \theta)$$
+$$I(Y; \xi \mid X, \mathcal{H}) \leq I(Y; \xi \mid \mathcal{H})$$
 
 And by the fundamental bound on mutual information:
-$$I(Y; \xi \mid \theta) \leq H(Y \mid \theta)$$
+$$I(Y; \xi \mid \mathcal{H}) \leq H(Y \mid \mathcal{H})$$
 
 ---
 
-**Step 5: Removing Conditioning on θ**
+**Step 5: Removing Conditioning on $\mathcal{H}$**
 
 Since conditioning can only reduce entropy, we have:
-$$H(Y \mid \theta) \leq H(Y)$$
+$$H(Y \mid \mathcal{H}) \leq H(Y)$$
 
 Therefore:
-$$I(G; \xi \mid \theta) \leq H(Y) = H(\text{Adv})$$
+$$I(G; \xi \mid \mathcal{H}) \leq H(Y) = H(\text{Adv})$$
 
-**Interpretation**: This bound holds for any value of $\theta$. The quantity $I(G; \xi \mid \theta)$ represents the **new information about $\xi$ gained from the current episode**, given what we already know from $\theta$.
+**Interpretation**: This bound holds for any history $\mathcal{H}$. The quantity $I(G; \xi \mid \mathcal{H})$ represents the **new information about $\xi$ gained from the current episode**, given what we've already learned from past episodes.
 
 ---
 
@@ -259,20 +281,20 @@ By **Assumption A1** (Unique Optimum), we have $\pi^\star = f(\xi)$ where $f$ is
 This creates a Markov chain:
 $$G \to \xi \to \pi^\star$$
 
-even when conditioning on $\theta$, since $\pi^\star$ depends only on $\xi$, not on $\theta$ or $G$.
+even when conditioning on $\mathcal{H}$, since $\pi^\star$ depends only on $\xi$, not on $\mathcal{H}$ or $G$.
 
 By the **data processing inequality**:
-$$I(G; \pi^\star \mid \theta) \leq I(G; \xi \mid \theta)$$
+$$I(G; \pi^\star \mid \mathcal{H}) \leq I(G; \xi \mid \mathcal{H})$$
 
 ---
 
 **Final Result**
 
 Combining Steps 4-7:
-$$I(G; \pi^\star \mid \theta) \leq I(G; \xi \mid \theta) \leq H(\text{Adv}) \leq \log_2(B)$$
+$$I(G; \pi^\star \mid \mathcal{H}) \leq I(G; \xi \mid \mathcal{H}) \leq H(\text{Adv}) \leq \log_2(B)$$
 
 Therefore:
-$$I(G; \pi^\star \mid \theta) \leq \log_2(B) \text{ bits per episode}$$ ∎
+$$I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$ ∎
 
 </details>
 
@@ -332,7 +354,7 @@ This has the same structure as REINFORCE, but with $T$ terms instead of one. Eac
 
 **Key observation**: Since the gradient $G$ is a deterministic function of the TD errors $\{\delta_t\}_{t=0}^{T-1}$, by the data processing inequality:
 
-$$I(G; \pi^\star) \leq I(\{\delta_t\}; \pi^\star)$$
+$$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H})$$
 
 Therefore, to bound the information in the gradient, we can bound the information in the TD error sequence. This is the approach we take.
 
@@ -370,13 +392,13 @@ The resulting bound represents a mathematical upper limit on potential informati
 
 *Under assumptions A1 and A2', actor-critic's information bandwidth satisfies:*
 
-$$I(G; \pi^\star) \leq I(\{\delta_t\}; \pi^\star) \leq T \log_2(B_\delta) \text{ bits per episode}$$
+$$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H}) \leq T \log_2(B_\delta) \text{ bits per episode}$$
 
-where $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$ is the actor gradient (the learning signal) and $\{\delta_t\}_{t=0}^{T-1}$ are the TD errors.
+where $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$ is the actor gradient (the learning signal), $\{\delta_t\}_{t=0}^{T-1}$ are the TD errors, and $\mathcal{H}$ is the history of all previous episodes.
 
-**Interpretation**: The first inequality follows from the data processing inequality (the gradient is a deterministic function of the TD errors). The second inequality bounds the information in the TD error sequence. We focus on deriving the second bound, which also bounds the gradient's information content.
+**Interpretation**: The conditioning on $\mathcal{H}$ represents what we've already learned from past episodes. The history determines both the current actor parameters $\theta$ and critic parameters $\phi$. The bound measures **information gained in the current episode**, given this accumulated knowledge. The first inequality follows from the data processing inequality (the gradient is a deterministic function of the TD errors). The second inequality bounds the information in the TD error sequence, conditioned on history. We focus on deriving the second bound, which also bounds the gradient's information content.
 
-**⚠️ Warning**: *This bound assumes independent TD errors—an assumption violated by bootstrap methods where all $\delta_t$ share the same learned $V_\phi$. This correlation is not a bug but fundamental to TD learning. The bound represents an unachievable theoretical ceiling, not a characterization of practical performance.*
+**⚠️ Warning**: *This bound assumes TD errors are independent **given** $\mathcal{H}$—an assumption violated by bootstrap methods. Even conditioned on history (which determines $V_\phi$), all TD errors $\delta_t$ share the same value function $V_\phi$, creating systematic dependencies. If the critic overestimates everywhere, all TD errors are correlated. This correlation is not a bug but fundamental to TD learning. The bound represents an unachievable theoretical ceiling, not a characterization of practical performance.*
 
 **For $T=1000$ and $B_\delta=256$**: This theoretical ceiling is $8000$ bits/episode—**8000× higher** than policy gradient's 1 bit.
 
@@ -419,24 +441,31 @@ $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq T \log_2(B_\
 
 **Step 4: Information Flow Bound via Data Processing Inequality**
 
-The TD error sequence $\{\delta_t\}$ depends on $\xi$ through the reward function $R_\xi(\cdot)$ that generates the immediate rewards $r_t$ in the formula $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. The optimal policy $\pi^\star$ is a deterministic function of $\xi$ alone (by Assumption A1).
+We now relate the information in TD errors to information about $\pi^\star$, accounting for the conditioning on history $\mathcal{H}$.
+
+The TD error sequence $\{\delta_t\}$ depends on $\xi$ through the reward function $R_\xi(\cdot)$ that generates the immediate rewards $r_t$ in the formula $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$.
+
+Even when conditioning on $\mathcal{H}$ (which determines both $\theta$ and $\phi$), the TD errors still provide information about $\xi$ through the observed rewards. The optimal policy $\pi^\star = f(\xi)$ is a deterministic function of $\xi$ alone (by Assumption A1), not of $\mathcal{H}$.
 
 These TD errors provide information about $\pi^\star$ only indirectly—by revealing information about the reward parameter $\xi$. More formally:
 - $\pi^\star = f(\xi)$ is deterministic given $\xi$
 - The TD errors $\{\delta_t\}$ depend on $\xi$ through the reward structure
-- Once $\xi$ is known, $\pi^\star$ is fully determined
-- Therefore, $\{\delta_t\}$ cannot provide additional information about $\pi^\star$ beyond what $\xi$ specifies
+- Given $\xi$, $\pi^\star$ is fully determined
+- Therefore, conditioned on $\xi$, the TD errors provide no additional information about $\pi^\star$
 
-This establishes the conditional independence $\pi^\star \perp \{\delta_t\} | \xi$, giving us the Markov chain:
+This establishes the conditional independence $\pi^\star \perp \{\delta_t\} \mid (\xi, \mathcal{H})$, giving us the Markov chain (even when conditioning on $\mathcal{H}$):
 $$\{\delta_t\} \to \xi \to \pi^\star$$
 
 By the **data processing inequality**:
-$$I(\{\delta_t\}; \pi^\star) \leq I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
+$$I(\{\delta_t\}; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \xi \mid \mathcal{H}) \leq H(\{\delta_t\} \mid \mathcal{H}) \leq T \log_2(B_\delta)$$
+
+The final inequality uses:
+- $I(\{\delta_t\}; \xi \mid \mathcal{H}) \leq H(\{\delta_t\} \mid \mathcal{H})$ (fundamental bound)
+- $H(\{\delta_t\} \mid \mathcal{H}) \leq H(\{\delta_t\})$ (conditioning reduces entropy)
+- $H(\{\delta_t\}) \leq T \log_2(B_\delta)$ (from Steps 1-3)
 
 Since the gradient $G$ is a deterministic function of the TD errors:
-$$I(G; \pi^\star) \leq I(\{\delta_t\}; \pi^\star)$$ ∎
-
-**Note on interpretation**: This bound models the theoretical information content that could be extracted from observing TD errors. Since the actor gradient is a deterministic function of the TD errors, the gradient's information content is bounded by the TD errors' information content. In practice, TD errors also depend on the current training state $(\theta, \phi)$, but we can view this as part of the signal generation mechanism. The bound represents an upper limit on potential information flow, assuming perfect extraction—actual algorithms face both approximation error and the fundamental correlation barrier from shared $V_\phi$.
+$$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H})$$ ∎
 
 </details>
 
@@ -444,9 +473,9 @@ $$I(G; \pi^\star) \leq I(\{\delta_t\}; \pi^\star)$$ ∎
 
 For $T=1000$, $B_\delta=256$:
 
-- **Policy gradient** (binary): $\leq 1$ bit/episode
-- **Actor-critic** (theoretical ceiling): $\leq 8000$ bits/episode
-- **Actor-critic** (achievable): Unknown
+- **Policy gradient** (binary): $I(G; \pi^\star \mid \mathcal{H}) \leq 1$ bit/episode
+- **Actor-critic** (theoretical ceiling): $I(G; \pi^\star \mid \mathcal{H}) \leq 8000$ bits/episode
+- **Actor-critic** (achievable): Unknown (likely 10-100 bits/episode due to TD correlation)
 
 **The gap has two types of causes:**
 
@@ -477,8 +506,12 @@ Consider typical RLHF setup:
 - LoRA: rank $r=8$, dimension $d=4096$
 - Binary preferences: $B=2$
 
-**Information available** (from policy gradient):
+**Information gained** (from policy gradient):
+
+Over $N = 1000$ episodes with binary preferences, policy gradient learns at most:
 $$N \times \log_2(B) = 1000 \times 1 = 1000 \text{ bits}$$
+
+of new information about the optimal policy $\pi^\star$.
 
 **LoRA capacity** (rough estimate):
 - Parameters: $2rd = 65{,}000$
