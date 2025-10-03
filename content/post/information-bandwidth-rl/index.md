@@ -210,7 +210,7 @@ This ceiling holds regardless of sequence length $T$, model size, or computation
 
 The bound $\leq \log_2(B)$ is tight for some reward structures but loose for others:
 
-$$\mathbf{r} \xrightarrow{\text{sum}} G_\tau \xrightarrow{\text{subtract baseline}} \text{Adv} \xrightarrow{\text{finite resolution}} \text{bounded by } B$$
+$$\mathbf{r} \xrightarrow{\text{sum}} G \xrightarrow{\text{subtract baseline}} \text{Adv} \xrightarrow{\text{finite resolution}} \text{bounded by } B$$
 
 #### Case 1: Terminal Reward Only
 
