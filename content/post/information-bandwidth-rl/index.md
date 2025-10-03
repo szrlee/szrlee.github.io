@@ -40,16 +40,16 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## TL;DR: The Main Results
 
-**Policy gradient's hard limit**: Compressing 1000+ tokens into one scalar reward creates an information ceiling of {{< math >}}$\leq \log_2(B)${{< /math >}} bits per episode. For binary feedback, this is {{< math >}}$\leq 1${{< /math >}} bit/episode—explaining why training needs thousands of episodes and why LoRA's modest capacity (300-500× excess) suffices.
+**Policy gradient's hard limit**: The REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has only a scalar advantage carrying reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode—explaining why training needs thousands of episodes and why LoRA's modest capacity (300-500× excess) suffices.
 
-**Actor-critic's theoretical potential**: By bootstrapping historical knowledge through a learned critic, actor-critic methods generate dense per-token feedback. Under independence assumptions, this gives an upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode. For {{< math >}}$T=1000${{< /math >}} tokens and 8-bit TD errors, this ceiling is {{< math >}}$\leq 8000${{< /math >}} bits/episode—potentially 8000× higher than policy gradient.
+**Actor-critic's theoretical potential**: By bootstrapping historical knowledge through a learned critic, actor-critic methods use $T$ scalar TD errors to construct gradients. Under independence assumptions, this gives an upper bound of $\leq T \log_2(B_\delta)$ bits/episode. For $T=1000$ tokens and 8-bit TD errors, this ceiling is $\leq 8000$ bits/episode—potentially 8000× higher than policy gradient.
 
 **Why this matters**: LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with substantial improvements in actor-critic methods, LoRA's capacity appears sufficient for foreseeable applications.
 
-| Algorithm | Signal Density | Information Upper Bound | Achievability |
-|-----------|---------------|---------------------|---------------|
-| Policy Gradient | 1 scalar/episode | ≤ 1 bit/episode (binary) | Tight bound |
-| Actor-Critic | T scalars/episode | ≤ 8000 bits/episode* | Upper bound only |
+| Algorithm | Learning Signal | Information Upper Bound | Achievability |
+|-----------|----------------|---------------------|---------------|
+| Policy Gradient | Gradient with 1 scalar advantage | ≤ 1 bit/episode (binary) | Tight bound |
+| Actor-Critic | Gradient with T scalar TD errors | ≤ 8000 bits/episode* | Upper bound only |
 
 *Assumes independent TD errors—violated by bootstrap correlation in practice.
 
@@ -61,52 +61,55 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 When fine-tuning an LLM with RL, we work with a specific type of MDP:
 
-- **States** {{< math >}}$s${{< /math >}}: Token sequences {{< math >}}$(x_1, \ldots, x_t)${{< /math >}}
-- **Actions** {{< math >}}$a${{< /math >}}: Next token {{< math >}}$x_{t+1}${{< /math >}} from vocabulary
-- **Transitions**: Deterministic (append token: {{< math >}}$s' = s \circ a${{< /math >}})
-- **Rewards** {{< math >}}$R_\xi${{< /math >}}: Determined by unknown parameter {{< math >}}$\xi${{< /math >}} (preferences, objectives)
+- **States** $s$: Token sequences $(x_1, \ldots, x_t)$
+- **Actions** $a$: Next token $x_{t+1}$ from vocabulary
+- **Transitions**: Deterministic (append token: $s' = s \circ a$)
+- **Rewards** $R_\xi$: Determined by unknown parameter $\xi$ (preferences, objectives)
 
-**Key property**: Transitions are known and deterministic. All uncertainty is in the reward function {{< math >}}$\xi${{< /math >}}.
+**Key property**: Transitions are known and deterministic. All uncertainty is in the reward function $\xi$.
 
 ### Information-Theoretic Lens
 
 To enable rigorous analysis, we use a Bayesian framework as a **mathematical modeling tool**:
 
-1. Put a prior {{< math >}}$p(\xi)${{< /math >}} over reward parameters
-2. This induces a distribution {{< math >}}$p(\pi^*)${{< /math >}} over optimal policies
-3. Each {{< math >}}$\xi${{< /math >}} determines a unique optimal policy {{< math >}}$\pi^*_\xi${{< /math >}}
+1. Put a prior $p(\xi)$ over reward parameters
+2. This induces a distribution $p(\pi^*)$ over optimal policies
+3. Each $\xi$ determines a unique optimal policy $\pi^*_\xi$
 
-We don't claim algorithms actually maintain Bayesian posteriors. Rather, this framework gives us a rigorous way to reason about information flow: it makes both the learning signal {{< math >}}$S${{< /math >}} and optimal policy {{< math >}}$\pi^*${{< /math >}} well-defined random variables, letting us compute their mutual information {{< math >}}$I(S; \pi^*)${{< /math >}}.
+We don't claim algorithms actually maintain Bayesian posteriors. Rather, this framework gives us a rigorous way to reason about information flow: it makes both the learning signal (the gradient) and the optimal policy $\pi^*$ well-defined random variables, letting us compute their mutual information.
 
 **Definition (Information Bandwidth)**:
 
-{{< math >}}
-$$\mathcal{B} = I(S; \pi^*)$$
-{{< /math >}}
+$$\mathcal{B} = I(G; \pi^*)$$
 
-This measures how many bits of uncertainty about the optimal policy {{< math >}}$\pi^*${{< /math >}} are resolved per episode by the learning signal {{< math >}}$S${{< /math >}}.
+where $G$ is the gradient used to update the policy. This measures how many bits of information about the optimal policy $\pi^*$ are conveyed by the gradient per episode.
 
 ### Connection to the Original Insight
 
-This formalization builds on the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key insight: the REINFORCE gradient {{< math >}}$G = \nabla \log p_\theta(\tau) \cdot \text{Adv}${{< /math >}} has only the scalar advantage as the reward-dependent component (since {{< math >}}$\nabla \log p_\theta(\tau)${{< /math >}} is independent of rewards given the current policy). By the data processing inequality, {{< math >}}$I(G; R \mid \text{history}) \leq H(\text{Adv}) \approx \log(B)${{< /math >}} bits per episode.
+This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their analysis shows that for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$:
 
-Our framework makes this rigorous by:
-1. **Formalizing the target**: We analyze {{< math >}}$I(G; \pi^*)${{< /math >}} rather than {{< math >}}$I(G; R \mid \text{history})${{< /math >}}, focusing on learning the optimal policy
-2. **Explicit assumptions**: We introduce A1 (unique optimum) and A2 (finite resolution) to make the argument precise
-3. **Removing conditioning on history**: Instead of conditioning on history, we use a prior {{< math >}}$p(\xi)${{< /math >}} over reward parameters, making {{< math >}}$G${{< /math >}} and {{< math >}}$\pi^*${{< /math >}} well-defined random variables
-4. **Extension to actor-critic**: We derive bounds for dense TD signals, quantifying the theoretical advantage of bootstrap methods
+$$I(G; R \mid \text{history}) \leq H(\text{Adv}) \leq \log_2(B)$$
 
-The core insight remains: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
+The key insight: Since $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the policy, all information about $R$ must flow through the scalar advantage.
+
+We adapt this by:
+1. **Measuring information about the optimal policy**: We compute $I(G; \pi^*)$ rather than $I(G; R \mid \text{history})$, directly quantifying how much the gradient tells us about which policy is optimal
+2. **Removing conditioning on history**: We use a Bayesian prior $p(\xi)$ over reward parameters to make both $G$ and $\pi^*$ well-defined random variables
+3. **Explicit finite resolution assumption**: We formalize when $H(\text{Adv}) \leq \log_2(B)$ holds
+
+Since the optimal policy is a deterministic function of the reward parameters ($\pi^* = f(\xi)$), learning about $\xi$ through the gradient is equivalent to learning about $\pi^*$. The bound remains: $I(G; \pi^*) \leq \log_2(B)$ bits per episode.
+
+The core insight: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
 
 ### Two Minimal Assumptions
 
-**Assumption A1 (Unique Optimum)**: Each {{< math >}}$\xi${{< /math >}} determines a unique optimal policy {{< math >}}$\pi^*_\xi${{< /math >}}.
+**Assumption A1 (Unique Optimum)**: Each $\xi$ determines a unique optimal policy $\pi^*_\xi$.
 
 *Justification*: Generic for neural networks with many parameters. Floating-point precision breaks ties; exact degeneracy is measure-zero.
 
-**Assumption A2 (Finite Resolution)**: The learning signal has finite effective resolution—it can take at most {{< math >}}$B${{< /math >}} distinguishable values.
+**Assumption A2 (Finite Resolution)**: The reward-dependent scalar(s) in the gradient have finite effective resolution—they can take at most $B$ distinguishable values each.
 
-*Justification*: Holds exactly for binary preferences ({{< math >}}$B=2${{< /math >}}) or Likert scales ({{< math >}}$B=4${{< /math >}}-{{< math >}}$7${{< /math >}}). Approximately true for continuous signals with noise, finite precision, or practical distinguishability limits.
+*Justification*: Holds exactly for binary preferences ($B=2$) or Likert scales ($B=4$-$7$). Approximately true for continuous signals with noise, finite precision, or practical distinguishability limits.
 
 ---
 
@@ -116,94 +119,96 @@ The core insight remains: scalar feedback creates an information bottleneck. We 
 
 Policy gradient (REINFORCE) works as follows:
 
-1. Sample trajectory {{< math >}}$\tau = (s_0, a_0, \ldots, s_T)${{< /math >}}
-2. Observe scalar return {{< math >}}$G = R_\xi(s_T)${{< /math >}}
-3. Update: {{< math >}}$\theta \leftarrow \theta + \alpha \nabla_\theta \log p_\theta(\tau) \cdot G${{< /math >}}
+1. Sample trajectory $\tau = (s_0, a_0, \ldots, s_T)$ using policy $\pi_\theta$
+2. Observe return $G_\tau = \sum_{t=0}^T r_t$
+3. Compute advantage: $\text{Adv} = G_\tau - b$ (where $b$ is a baseline)
+4. Compute gradient estimate: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
+5. Update: $\theta \leftarrow \theta + \alpha G$
 
-**Learning signal**: {{< math >}}$S = G${{< /math >}} (one scalar per episode)
+**Learning signal**: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ (the gradient)
+
+**Key observation**: The gradient has two components:
+- $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the current policy
+- $\text{Adv}$: A scalar that encodes all reward-dependent information
 
 ### The Information Ceiling
 
 **Theorem 1 (Policy Gradient Information Ceiling):**
 
-*Under assumptions A1 and A2, policy gradient's information bandwidth satisfies:*
+*Under assumptions A1 and A2, the information bandwidth of policy gradient satisfies:*
 
-{{< math >}}
 $$I(G; \pi^*) \leq \log_2(B) \text{ bits per episode}$$
-{{< /math >}}
 
-**Intuition**: Information about {{< math >}}$\pi^*${{< /math >}} must flow through {{< math >}}$\xi${{< /math >}} (by data processing inequality), and the scalar {{< math >}}$G${{< /math >}} has entropy bounded by its resolution {{< math >}}$\log_2(B)${{< /math >}}.
+where $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ is the REINFORCE gradient (the learning signal).
+
+**Intuition**: Since $\nabla \log p_\theta(\tau)$ is independent of $\xi$ given the policy, all information about $\pi^*$ (which is determined by $\xi$) must flow through the scalar advantage. The advantage has entropy bounded by $\log_2(B)$, creating a hard information ceiling.
 
 <details>
 <summary><strong>Detailed Proof (click to expand)</strong></summary>
 
-We prove this in two steps: first showing information flow must go through {{< math >}}$\xi${{< /math >}}, then bounding the entropy.
+We prove this in three steps: showing independence of the log-probability gradient, applying the data processing inequality, and bounding the entropy.
 
-**Step 1: Information Flow via Data Processing Inequality**
+**Step 1: Independence of Log-Probability Gradient**
 
-The return {{< math >}}$G = R_\xi(s_T)${{< /math >}} is determined by the reward parameter {{< math >}}$\xi${{< /math >}} and the trajectory {{< math >}}$\tau${{< /math >}}. The trajectory is generated by the current exploration policy {{< math >}}$\pi_\theta${{< /math >}}, not by {{< math >}}$\pi^*${{< /math >}}. The key observation is that {{< math >}}$G${{< /math >}} provides information about {{< math >}}$\pi^*${{< /math >}} only indirectly—by revealing information about the reward parameter {{< math >}}$\xi${{< /math >}} through the observed rewards.
+The REINFORCE gradient is:
+$$G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$$
 
-More formally, we establish the information flow chain:
-- {{< math >}}$\pi^* = f(\xi)${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} alone (by Assumption A1)
-- {{< math >}}$G${{< /math >}} depends on {{< math >}}$\xi${{< /math >}} through the reward function {{< math >}}$R_\xi(\cdot)${{< /math >}}
-- Once {{< math >}}$\xi${{< /math >}} is known, {{< math >}}$\pi^*${{< /math >}} is fully determined
-- Therefore, {{< math >}}$G${{< /math >}} cannot provide additional information about {{< math >}}$\pi^*${{< /math >}} beyond what {{< math >}}$\xi${{< /math >}} already specifies
+The log-probability gradient $\nabla \log p_\theta(\tau)$ depends only on:
+- The trajectory $\tau$ (which states and actions were taken)
+- The current policy parameters $\theta$
 
-This gives us the conditional independence {{< math >}}$\pi^* \perp G | \xi${{< /math >}}, establishing the Markov chain:
+It does **not** depend on the reward function $R_\xi$ given the trajectory. The trajectory is generated by the current policy $\pi_\theta$, independent of the true reward function we're trying to learn.
 
-{{< math >}}
-$$G \to \xi \to \pi^*$$
-{{< /math >}}
+Therefore, conditioned on the trajectory $\tau$ and policy $\theta$, we have:
+$$\nabla \log p_\theta(\tau) \perp \xi$$
 
-By the **data processing inequality**, post-processing cannot increase information:
+**Step 2: Information Flow via Data Processing Inequality**
 
-{{< math >}}
-$$I(G; \pi^*) \leq I(G; \xi)$$
-{{< /math >}}
+Since $\nabla \log p_\theta(\tau)$ is independent of $\xi$, all information about $\xi$ in the gradient $G$ must come from the advantage $\text{Adv}$.
 
-**Step 2: Entropy Upper Bound**
+We can write:
+$$I(G; \xi) = I(\nabla \log p_\theta(\tau), \text{Adv}; \xi)$$
 
-By definition of mutual information:
-{{< math >}}
-$$I(G; \xi) = H(G) - H(G|\xi)$$
-{{< /math >}}
+Since $\nabla \log p_\theta(\tau) \perp \xi$:
+$$I(G; \xi) = I(\text{Adv}; \xi \mid \nabla \log p_\theta(\tau)) = I(\text{Adv}; \xi)$$
 
-Since conditional entropy is non-negative {{< math >}}$H(G|\xi) \geq 0${{< /math >}}:
-{{< math >}}
-$$I(G; \xi) \leq H(G)$$
-{{< /math >}}
+By the **data processing inequality**, since the gradient is a function of the advantage:
+$$I(G; \xi) = I(\text{Adv}; \xi) \leq H(\text{Adv})$$
 
-By Assumption A2, {{< math >}}$G${{< /math >}} takes at most {{< math >}}$B${{< /math >}} distinct values. For any discrete random variable {{< math >}}$X${{< /math >}} with support size {{< math >}}$|X| \leq B${{< /math >}}:
+**Step 3: Entropy Upper Bound**
 
-{{< math >}}
+By Assumption A2, $\text{Adv}$ takes at most $B$ distinct values. For any discrete random variable $X$ with support size $|X| \leq B$:
+
 $$H(X) = -\sum_x p(x) \log_2 p(x) \leq \log_2(|X|) \leq \log_2(B)$$
-{{< /math >}}
 
-Equality holds when {{< math >}}$X${{< /math >}} is uniform over its support.
+Equality holds when $X$ is uniform over its support.
 
-**Combining both steps:**
-{{< math >}}
-$$I(G; \pi^*) \leq I(G; \xi) \leq H(G) \leq \log_2(B)$$
-{{< /math >}} ∎
+**Combining all steps:**
+$$I(G; \xi) \leq H(\text{Adv}) \leq \log_2(B)$$
+
+Since $\pi^* = f(\xi)$ is a deterministic function (Assumption A1), learning about $\xi$ is equivalent to learning about $\pi^*$:
+$$I(G; \pi^*) \leq I(G; \xi) \leq \log_2(B)$$ ∎
 
 </details>
 
-This ceiling holds regardless of sequence length {{< math >}}$T${{< /math >}}, model size, or computational budget—it's an inherent consequence of signal sparsity.
+This ceiling holds regardless of sequence length $T$, model size, or computational budget—it's an inherent consequence of the scalar advantage bottleneck.
 
 ### Concrete Examples
 
-- **Binary preferences** ({{< math >}}$B=2${{< /math >}}): {{< math >}}$\leq 1${{< /math >}} bit/episode
-- **Likert scale** ({{< math >}}$B=5${{< /math >}}): {{< math >}}$\leq 2.3${{< /math >}} bits/episode
-- **8-bit resolution** ({{< math >}}$B=256${{< /math >}}): {{< math >}}$\leq 8${{< /math >}} bits/episode
+- **Binary preferences** ($B=2$): $\leq 1$ bit/episode
+- **Likert scale** ($B=5$): $\leq 2.3$ bits/episode
+- **8-bit resolution** ($B=256$): $\leq 8$ bits/episode
 
 ### Why This Matters
 
-**The compression bottleneck**: A typical LLM generation has {{< math >}}$T \sim 1000${{< /math >}} tokens, each chosen from hundreds of possibilities. Policy gradient compresses all this rich structure—which words worked well, where the response went wrong, which reasoning steps succeeded—into **one number**.
+**The scalar bottleneck**: A typical LLM generation has $T \sim 1000$ tokens, each chosen from hundreds of possibilities. The REINFORCE gradient compresses all this rich structure—which words worked well, where the response went wrong, which reasoning steps succeeded—into **one scalar** (the advantage) that modulates a fixed direction $\nabla \log p_\theta(\tau)$.
 
 This structural compression explains why:
-- **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, 1000 episodes gives {{< math >}}$\leq 1000${{< /math >}} bits total
+- **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, 1000 episodes gives $\leq 1000$ bits total
 - **LoRA works well**: LoRA provides 300-500× more capacity than this ceiling
-- **Adding parameters doesn't help**: The bottleneck is signal sparsity, not model capacity
+- **Adding parameters doesn't help**: The bottleneck is the scalar advantage, not model capacity or the dimensionality of $\nabla \log p_\theta(\tau)$
+
+**Note on high-dimensional updates**: The policy update $\Delta \theta = \alpha G$ happens in a high-dimensional space (the gradient $G$ has millions of dimensions). However, the **information content** of this update about the optimal policy is limited by the scalar advantage. The gradient direction $\nabla \log p_\theta(\tau)$ determines *where* the update points, but the scalar advantage determines *what we learn* about which policies are better.
 
 ---
 
@@ -215,39 +220,38 @@ This structural compression explains why:
 
 Actor-critic methods (A3C, PPO with value function) maintain two components:
 
-- **Actor** {{< math >}}$\pi_\theta(a|s)${{< /math >}}: The policy with parameters {{< math >}}$\theta${{< /math >}}
-- **Critic** {{< math >}}$V_\phi(s)${{< /math >}}: Value function estimating expected return from state {{< math >}}$s${{< /math >}}, with parameters {{< math >}}$\phi${{< /math >}}
+- **Actor** $\pi_\theta(a|s)$: The policy with parameters $\theta$
+- **Critic** $V_\phi(s)$: Value function estimating expected return from state $s$, with parameters $\phi$
 
 **Training loop**: For each episode, perform updates at each timestep:
 
-1. **Rollout**: Generate trajectory {{< math >}}$\tau = (s_0, a_0, r_0, s_1, a_1, r_1, \ldots, s_T)${{< /math >}} using current policy {{< math >}}$\pi_\theta${{< /math >}}
+1. **Rollout**: Generate trajectory $\tau = (s_0, a_0, r_0, s_1, a_1, r_1, \ldots, s_T)$ using current policy $\pi_\theta$
 
-2. **Compute TD errors** at each timestep {{< math >}}$t${{< /math >}}:
-   {{< math >}}
+2. **Compute TD errors** at each timestep $t$:
    $$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
-   {{< /math >}}
 
    This measures how much better/worse the observed outcome was compared to the critic's expectation.
 
 3. **Update critic** toward the TD target:
-   {{< math >}}
    $$\phi \leftarrow \phi + \alpha_\phi \cdot \delta_t \cdot \nabla_\phi V_\phi(s_t)$$
-   {{< /math >}}
 
-   This semi-gradient update moves {{< math >}}$V_\phi(s_t)${{< /math >}} toward the bootstrap target {{< math >}}$r_t + \gamma V_\phi(s_{t+1})${{< /math >}}, treating {{< math >}}$V_\phi(s_{t+1})${{< /math >}} as fixed.
+4. **Update actor** using the gradient:
+   $$\theta \leftarrow \theta + \alpha_\theta \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
 
-4. **Update actor** (policy gradient with advantage):
-   {{< math >}}
-   $$\theta \leftarrow \theta + \alpha_\theta \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
-   {{< /math >}}
+**Learning signal structure**: The actor gradient is:
+$$G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
 
-   Move probability toward actions with positive {{< math >}}$\delta_t${{< /math >}} (better than expected), away from negative {{< math >}}$\delta_t${{< /math >}}.
+This has the same structure as REINFORCE, but with $T$ terms instead of one. Each term has:
+- $\nabla_\theta \log \pi_\theta(a_t|s_t)$: Independent of $\xi$ given the policy (like $\nabla \log p_\theta(\tau)$ in REINFORCE)
+- $\delta_t$: A scalar carrying reward-dependent information (like the advantage in REINFORCE)
 
-**Key difference from policy gradient**: Instead of one scalar return {{< math >}}$G${{< /math >}} per episode, we get {{< math >}}$T${{< /math >}} TD errors {{< math >}}$\{\delta_t\}_{t=0}^{T-1}${{< /math >}}—one feedback signal per timestep.
+**Key observation**: Since the gradient $G$ is a deterministic function of the TD errors $\{\delta_t\}_{t=0}^{T-1}$, by the data processing inequality:
 
-**Learning signal**: {{< math >}}$S = \{\delta_t\}_{t=0}^{T-1}${{< /math >}} (one signal per token)
+$$I(G; \pi^*) \leq I(\{\delta_t\}; \pi^*)$$
 
-Instead of waiting until the end for one scalar, we get feedback at every step.
+Therefore, to bound the information in the gradient, we can bound the information in the TD error sequence. This is the approach we take.
+
+**Key difference from policy gradient**: Instead of one scalar advantage per episode, we get $T$ TD errors—one per timestep. This potentially allows much higher information bandwidth.
 
 ### Where Does the Dense Signal Come From?
 
@@ -255,28 +259,23 @@ A natural question: "The environment only provides rewards at certain steps. How
 
 **The key insight**: The extra information doesn't come from the environment *in the current episode*. It comes from the **critic's accumulated knowledge from all past episodes**.
 
-The critic {{< math >}}$V_\phi(s)${{< /math >}} acts as compressed memory of all historical data. It learns to predict expected future returns from any state {{< math >}}$s${{< /math >}} based on thousands of previous rollouts.
+The critic $V_\phi(s)$ acts as compressed memory of all historical data. It learns to predict expected future returns from any state $s$ based on thousands of previous rollouts.
 
 Let's re-examine the TD error:
 
-{{< math >}}
 $$\delta_t = \underbrace{(r_t + \gamma V_\phi(s_{t+1}))}_{\text{Observed outcome}} - \underbrace{V_\phi(s_t)}_{\text{Historical expectation}}$$
-{{< /math >}}
 
-- **{{< math >}}$V_\phi(s_t)${{< /math >}}**: The critic's prediction, representing the historical average of what should happen from state {{< math >}}$s_t${{< /math >}}
-- **{{< math >}}$r_t + \gamma V_\phi(s_{t+1})${{< /math >}}**: The observed outcome of taking action {{< math >}}$a_t${{< /math >}}, incorporating one step of real environmental feedback {{< math >}}$r_t${{< /math >}}
-
-Each TD error {{< math >}}$\delta_t${{< /math >}} captures how much the observed outcome surprised the critic's learned expectations. This comparison against accumulated historical knowledge is what makes the signal information-rich. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
+Each TD error $\delta_t$ captures how much the observed outcome surprised the critic's learned expectations. This comparison against accumulated historical knowledge is what makes the signal information-rich. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
 
 **In short**: Actor-critic achieves higher information bandwidth by efficiently reusing historical data via the critic. Instead of treating each episode as independent (like policy gradient), the critic allows every step in the current episode to be evaluated against distilled knowledge of all previous trials.
 
 ### Extended Assumption
 
-**Assumption A2' (Effective TD Resolution)**: For the purpose of upper bound analysis, we model each TD error {{< math >}}$\delta_t${{< /math >}} as having effective resolution {{< math >}}$B_\delta${{< /math >}} distinguishable values.
+**Assumption A2' (Effective TD Resolution)**: For the purpose of upper bound analysis, we model each TD error $\delta_t$ as having effective resolution $B_\delta$ distinguishable values.
 
-This is a mathematical modeling device, not a claim about actual TD error statistics. Unlike A2 (which applies to actual observations like binary preferences), A2' applies to derived learning signals. We use {{< math >}}$B_\delta = 256${{< /math >}} (8 bits) as an illustrative example based on finite precision arithmetic (float32: ~7 significant digits), neural network optimization noise, and gradient update granularity.
+This is a mathematical modeling device, not a claim about actual TD error statistics. Unlike A2 (which applies to actual observations like binary preferences), A2' applies to derived signals. We use $B_\delta = 256$ (8 bits) as an illustrative example based on finite precision arithmetic (float32: ~7 significant digits), neural network optimization noise, and gradient update granularity.
 
-The resulting bound {{< math >}}$I(S; \pi^*) \leq T \log_2(B_\delta)${{< /math >}} represents a mathematical upper limit on potential information flow, demonstrating the order-of-magnitude advantage (hundreds to thousands of times higher than policy gradient) rather than a precise quantitative prediction.
+The resulting bound represents a mathematical upper limit on potential information flow, demonstrating the order-of-magnitude advantage (hundreds to thousands of times higher than policy gradient) rather than a precise quantitative prediction.
 
 ### The Information Ceiling
 
@@ -284,15 +283,17 @@ The resulting bound {{< math >}}$I(S; \pi^*) \leq T \log_2(B_\delta)${{< /math >
 
 *Under assumptions A1 and A2', actor-critic's information bandwidth satisfies:*
 
-{{< math >}}
-$$I(\{\delta_t\}; \pi^*) \leq T \log_2(B_\delta) \text{ bits per episode}$$
-{{< /math >}}
+$$I(G; \pi^*) \leq I(\{\delta_t\}; \pi^*) \leq T \log_2(B_\delta) \text{ bits per episode}$$
 
-**⚠️ Warning**: *This bound assumes independent TD errors—an assumption violated by bootstrap methods where all {{< math >}}$\delta_t${{< /math >}} share the same learned {{< math >}}$V_\phi${{< /math >}}. This correlation is not a bug but fundamental to TD learning. The bound represents an unachievable theoretical ceiling, not a characterization of practical performance.*
+where $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$ is the actor gradient (the learning signal) and $\{\delta_t\}_{t=0}^{T-1}$ are the TD errors.
 
-**For {{< math >}}$T=1000${{< /math >}} and {{< math >}}$B_\delta=256${{< /math >}}**: This theoretical ceiling is {{< math >}}$8000${{< /math >}} bits/episode—**8000× higher** than policy gradient's 1 bit.
+**Interpretation**: The first inequality follows from the data processing inequality (the gradient is a deterministic function of the TD errors). The second inequality bounds the information in the TD error sequence. We focus on deriving the second bound, which also bounds the gradient's information content.
 
-**Intuition**: With {{< math >}}$T${{< /math >}} independent signals each carrying {{< math >}}$\log_2(B_\delta)${{< /math >}} bits, we get {{< math >}}$T \log_2(B_\delta)${{< /math >}} total bits. However, this assumes independence—an assumption violated by the bootstrap structure of TD learning.
+**⚠️ Warning**: *This bound assumes independent TD errors—an assumption violated by bootstrap methods where all $\delta_t$ share the same learned $V_\phi$. This correlation is not a bug but fundamental to TD learning. The bound represents an unachievable theoretical ceiling, not a characterization of practical performance.*
+
+**For $T=1000$ and $B_\delta=256$**: This theoretical ceiling is $8000$ bits/episode—**8000× higher** than policy gradient's 1 bit.
+
+**Intuition**: With $T$ independent signals each carrying $\log_2(B_\delta)$ bits, we get $T \log_2(B_\delta)$ total bits. However, this assumes independence—an assumption violated by the bootstrap structure of TD learning.
 
 <details>
 <summary><strong>Detailed Proof (click to expand)</strong></summary>
@@ -302,86 +303,73 @@ We bound the entropy of the TD error sequence.
 **Step 1: Chain Rule Decomposition**
 
 By the chain rule for entropy:
-{{< math >}}
 $$H(\delta_0, \delta_1, \ldots, \delta_{T-1}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_0, \ldots, \delta_{t-1})$$
-{{< /math >}}
 
-Using {{< math >}}$\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})${{< /math >}}:
-{{< math >}}
+Using $\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})$:
 $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$
-{{< /math >}}
 
 **Step 2: Bounding Conditional Entropy**
 
-By Assumption A2', each {{< math >}}$\delta_t${{< /math >}} takes at most {{< math >}}$B_\delta${{< /math >}} values. For any random variable {{< math >}}$X${{< /math >}} with {{< math >}}$|X| \leq B_\delta${{< /math >}}:
+By Assumption A2', each $\delta_t$ takes at most $B_\delta$ values. For any random variable $X$ with $|X| \leq B_\delta$:
 
-{{< math >}}
 $$H(X | Y) \leq \log_2(B_\delta)$$
-{{< /math >}}
 
-for any conditioning variable {{< math >}}$Y${{< /math >}}. This holds because:
-- Conditional entropy is maximized when {{< math >}}$X${{< /math >}} is uniform over its support
-- Even with conditioning, {{< math >}}$X${{< /math >}} still has at most {{< math >}}$B_\delta${{< /math >}} values
+for any conditioning variable $Y$. This holds because:
+- Conditional entropy is maximized when $X$ is uniform over its support
+- Even with conditioning, $X$ still has at most $B_\delta$ values
 
 Therefore:
-{{< math >}}
 $$H(\delta_t | \delta_{<t}) \leq \log_2(B_\delta)$$
-{{< /math >}}
 
-**Critical observation**: This bound is tight only when {{< math >}}$\delta_t${{< /math >}} is nearly independent of {{< math >}}$\delta_{<t}${{< /math >}}:
-{{< math >}}
+**Critical observation**: This bound is tight only when $\delta_t$ is nearly independent of $\delta_{<t}$:
 $$H(\delta_t | \delta_{<t}) \approx H(\delta_t)$$
-{{< /math >}}
 
-If perfectly correlated: {{< math >}}$H(\delta_t | \delta_{<t}) = 0${{< /math >}}. Reality falls between these extremes.
+If perfectly correlated: $H(\delta_t | \delta_{<t}) = 0$. Reality falls between these extremes.
 
 **Step 3: Summing Over Time**
 
-{{< math >}}
 $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq T \log_2(B_\delta)$$
-{{< /math >}}
 
 **Step 4: Information Flow Bound via Data Processing Inequality**
 
-The TD error sequence {{< math >}}$\{\delta_t\}${{< /math >}} depends on {{< math >}}$\xi${{< /math >}} through the reward function {{< math >}}$R_\xi(\cdot)${{< /math >}} that generates the immediate rewards {{< math >}}$r_t${{< /math >}} in the formula {{< math >}}$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)${{< /math >}}. The optimal policy {{< math >}}$\pi^*${{< /math >}} is a deterministic function of {{< math >}}$\xi${{< /math >}} alone (by Assumption A1).
+The TD error sequence $\{\delta_t\}$ depends on $\xi$ through the reward function $R_\xi(\cdot)$ that generates the immediate rewards $r_t$ in the formula $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$. The optimal policy $\pi^*$ is a deterministic function of $\xi$ alone (by Assumption A1).
 
-These TD errors provide information about {{< math >}}$\pi^*${{< /math >}} only indirectly—by revealing information about the reward parameter {{< math >}}$\xi${{< /math >}}. More formally:
-- {{< math >}}$\pi^* = f(\xi)${{< /math >}} is deterministic given {{< math >}}$\xi${{< /math >}}
-- The TD errors {{< math >}}$\{\delta_t\}${{< /math >}} depend on {{< math >}}$\xi${{< /math >}} through the reward structure
-- Once {{< math >}}$\xi${{< /math >}} is known, {{< math >}}$\pi^*${{< /math >}} is fully determined
-- Therefore, {{< math >}}$\{\delta_t\}${{< /math >}} cannot provide additional information about {{< math >}}$\pi^*${{< /math >}} beyond what {{< math >}}$\xi${{< /math >}} specifies
+These TD errors provide information about $\pi^*$ only indirectly—by revealing information about the reward parameter $\xi$. More formally:
+- $\pi^* = f(\xi)$ is deterministic given $\xi$
+- The TD errors $\{\delta_t\}$ depend on $\xi$ through the reward structure
+- Once $\xi$ is known, $\pi^*$ is fully determined
+- Therefore, $\{\delta_t\}$ cannot provide additional information about $\pi^*$ beyond what $\xi$ specifies
 
-This establishes the conditional independence {{< math >}}$\pi^* \perp \{\delta_t\} | \xi${{< /math >}}, giving us the Markov chain:
-{{< math >}}
+This establishes the conditional independence $\pi^* \perp \{\delta_t\} | \xi$, giving us the Markov chain:
 $$\{\delta_t\} \to \xi \to \pi^*$$
-{{< /math >}}
 
 By the **data processing inequality**:
-{{< math >}}
 $$I(\{\delta_t\}; \pi^*) \leq I(\{\delta_t\}; \xi) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
-{{< /math >}} ∎
 
-**Note on interpretation**: This bound models the theoretical information content that could be extracted from observing TD errors, treating them as signals about the underlying reward parameter {{< math >}}$\xi${{< /math >}}. In practice, TD errors also depend on the current training state {{< math >}}$(\theta, \phi)${{< /math >}}, but we can view this as part of the observation mechanism. The bound represents an upper limit on potential information flow, assuming perfect extraction—actual algorithms face both approximation error and the fundamental correlation barrier from shared {{< math >}}$V_\phi${{< /math >}}.
+Since the gradient $G$ is a deterministic function of the TD errors:
+$$I(G; \pi^*) \leq I(\{\delta_t\}; \pi^*)$$ ∎
+
+**Note on interpretation**: This bound models the theoretical information content that could be extracted from observing TD errors. Since the actor gradient is a deterministic function of the TD errors, the gradient's information content is bounded by the TD errors' information content. In practice, TD errors also depend on the current training state $(\theta, \phi)$, but we can view this as part of the signal generation mechanism. The bound represents an upper limit on potential information flow, assuming perfect extraction—actual algorithms face both approximation error and the fundamental correlation barrier from shared $V_\phi$.
 
 </details>
 
 ### Understanding the Gap Between Theory and Practice
 
-For {{< math >}}$T=1000${{< /math >}}, {{< math >}}$B_\delta=256${{< /math >}}:
+For $T=1000$, $B_\delta=256$:
 
-- **Policy gradient** (binary): {{< math >}}$\leq 1${{< /math >}} bit/episode
-- **Actor-critic** (theoretical ceiling): {{< math >}}$\leq 8000${{< /math >}} bits/episode
+- **Policy gradient** (binary): $\leq 1$ bit/episode
+- **Actor-critic** (theoretical ceiling): $\leq 8000$ bits/episode
 - **Actor-critic** (achievable): Unknown
 
 **The gap has two types of causes:**
 
 **Primary barrier: Structural correlation (inherent to bootstrap methods)**
 
-TD error correlation is not a bug—it's fundamental to how TD learning works. All TD errors share the same learned {{< math >}}$V_\phi${{< /math >}}, creating systematic dependencies.
+TD error correlation is not a bug—it's fundamental to how TD learning works. All TD errors share the same learned $V_\phi$, creating systematic dependencies.
 
-**Concrete example**: If the critic systematically overestimates values by 20% everywhere (a common early-training phenomenon), then all TD errors share this 1.2× bias. If {{< math >}}$\delta_0${{< /math >}} is surprisingly negative (indicating overestimation), then {{< math >}}$\delta_1, \delta_2, \ldots${{< /math >}} are likely also negative—they're positively correlated.
+**Concrete example**: If the critic systematically overestimates values by 20% everywhere (a common early-training phenomenon), then all TD errors share this 1.2× bias. If $\delta_0$ is surprisingly negative (indicating overestimation), then $\delta_1, \delta_2, \ldots$ are likely also negative—they're positively correlated.
 
-**Impact**: If TD errors have correlation {{< math >}}$\rho \approx 0.5${{< /math >}}, this alone could reduce bandwidth by 2× or more. With {{< math >}}$\rho \approx 0.8${{< /math >}}, reduction could be 5×+.
+**Impact**: If TD errors have correlation $\rho \approx 0.5$, this alone could reduce bandwidth by 2× or more. With $\rho \approx 0.8$, reduction could be 5×+.
 
 **Secondary factors: Implementation and approximation**
 - Value function approximation error
@@ -398,30 +386,28 @@ We hypothesize that the correlation barrier likely accounts for most of the gap,
 ### The Capacity Argument
 
 Consider typical RLHF setup:
-- Episodes: {{< math >}}$N = 1000${{< /math >}}
-- LoRA: rank {{< math >}}$r=8${{< /math >}}, dimension {{< math >}}$d=4096${{< /math >}}
-- Binary preferences: {{< math >}}$B=2${{< /math >}}
+- Episodes: $N = 1000$
+- LoRA: rank $r=8$, dimension $d=4096$
+- Binary preferences: $B=2$
 
-**Information available**:
-{{< math >}}
+**Information available** (from policy gradient):
 $$N \times \log_2(B) = 1000 \times 1 = 1000 \text{ bits}$$
-{{< /math >}}
 
 **LoRA capacity** (rough estimate):
-- Parameters: {{< math >}}$2rd = 65{,}000${{< /math >}}
+- Parameters: $2rd = 65{,}000$
 - Effective bits per parameter: **5-8 (rough estimate)**
   - *Justification*: After training, parameters likely take on hundreds to thousands of distinguishable values that meaningfully affect behavior. This is much less than float32 precision (23 bits) but more than crude quantization (2-3 bits). The 5-8 bit range represents an educated guess rather than a measured quantity.
-- Total capacity: {{< math >}}$65{,}000 \times 5${{< /math >}} to {{< math >}}$65{,}000 \times 8${{< /math >}} = **~300,000-500,000 bits**
+- Total capacity: $65{,}000 \times 5$ to $65{,}000 \times 8$ = **~300,000-500,000 bits**
 
-**The ratio**: LoRA provides **~300-500× more capacity** than policy gradient's 1000-bit ceiling.
+**The ratio**: LoRA provides **~300-500× more capacity** than the information conveyed by policy gradient's learning signals.
 
 Even if our "bits per parameter" estimate is off by 2-3×, the qualitative conclusion holds: LoRA has substantial excess capacity relative to policy gradient's information ceiling.
 
 ### The Key Insight
 
-LoRA works because the parameter bottleneck isn't binding. With policy gradient's sparse signals, you have far more capacity than information to store. The bottleneck is **signal density** (1 bit/episode), not model capacity.
+LoRA works because the parameter bottleneck isn't binding. With policy gradient's sparse learning signals (scalar advantages), you have far more capacity than information to store. The bottleneck is **signal density** (1 bit/episode), not model capacity.
 
-Full fine-tuning is overkill: with ~7 billion parameters trying to store ~1000 bits of information, you have 7 million times more capacity than needed. LoRA's parameter count naturally matches what policy gradient can actually teach.
+Full fine-tuning is overkill: with ~7 billion parameters trying to store ~1000 bits of information, you have 7 million times more capacity than needed. LoRA's parameter count naturally matches what policy gradient's learning signals can actually convey.
 
 **Empirical consistency**: LLM-RL needs 1,000-10,000 episodes to converge, consistent with accumulating 1,000-10,000 bits at 1-3 bits/episode (depending on reward granularity).
 
@@ -440,7 +426,7 @@ Only with dramatic improvements approaching the theoretical ceiling would LoRA c
 
 ### Why Policy Gradient + LoRA Dominates
 
-Policy gradient + LoRA dominates current LLM fine-tuning because this combination achieves a practical equilibrium. It's stable—no critic training instability—and parameter-efficient, with LoRA providing 300-500× more capacity than needed. The tradeoff is sample efficiency: at ≤1 bit/episode with binary preferences, thousands of episodes are required. Yet practitioners accept this because the stability advantage outweighs the sample cost.
+Policy gradient + LoRA dominates current LLM fine-tuning because this combination achieves a practical equilibrium. It's stable—no critic training instability—and parameter-efficient, with LoRA providing 300-500× more capacity than the information conveyed by policy gradient's learning signals. The tradeoff is sample efficiency: at ≤1 bit/episode with binary preferences, thousands of episodes are required. Yet practitioners accept this because the stability advantage outweighs the sample cost.
 
 ### Why Actor-Critic Methods Haven't Displaced Policy Gradient
 
@@ -451,12 +437,12 @@ Despite the theoretical ceiling being 8000× higher, actor-critic methods typica
 Our analysis reveals two distinct barriers:
 
 **1. Information-theoretic ceilings** (provably unavoidable):
-- Policy gradient: {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode—cannot be exceeded by any algorithm that learns from scalar episode returns
-- Actor-critic: {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—cannot be exceeded by any algorithm that learns from {{< math >}}$T${{< /math >}} signals with resolution {{< math >}}$B_\delta${{< /math >}}
+- Policy gradient: $\leq \log_2(B)$ bits/episode—cannot be exceeded by any algorithm using scalar advantages
+- Actor-critic: $\leq T \log_2(B_\delta)$ bits/episode—cannot be exceeded by any algorithm using $T$ TD errors with resolution $B_\delta$
 
 **2. Bootstrap correlation barrier** (specific to TD methods):
-- The {{< math >}}$T \log_2(B_\delta)${{< /math >}} ceiling assumes independent TD errors
-- Bootstrap methods inherently violate this: all {{< math >}}$\delta_t${{< /math >}} share the same learned {{< math >}}$V_\phi${{< /math >}}
+- The $T \log_2(B_\delta)$ ceiling assumes independent TD errors
+- Bootstrap methods inherently violate this: all $\delta_t$ share the same learned $V_\phi$
 - The actual achievable information bandwidth remains unmeasured
 
 **Key open question**: How much of the gap between 1 bit/episode (policy gradient) and 8000 bits/episode (theoretical ceiling) is bridgeable? Is there a practical middle ground, or does bootstrap correlation prevent substantial improvements?
@@ -466,7 +452,7 @@ Our analysis reveals two distinct barriers:
 **Priority 1: Test the framework's predictions empirically**
 - Measure TD error correlation in trained actor-critic models
 - Test whether decorrelation techniques (e.g., eligibility traces) improve sample efficiency
-- Quantify the relationship between signal density and convergence rates
+- Quantify the relationship between learning signal density and convergence rates
 
 **Priority 2: Improve actor-critic stability at LLM scale**
 - Low-rank value function architectures (matching LoRA structure)
@@ -474,7 +460,7 @@ Our analysis reveals two distinct barriers:
 - Better optimization techniques for joint actor-critic training
 
 **Priority 3: Explore decorrelation techniques**
-- Eligibility traces ({{< math >}}$\lambda${{< /math >}}-returns) to diversify bootstrap targets
+- Eligibility traces ($\lambda$-returns) to diversify bootstrap targets
 - Multi-step returns with varying horizons
 - Note: These may have fundamental limits due to bootstrap structure
 
@@ -486,7 +472,7 @@ Our analysis reveals two distinct barriers:
 **Priority 5: Engineer denser ground-truth signals**
 - Process rewards provide intermediate feedback beyond just outcomes
 - Per-token human annotations increase signal granularity
-- Both approaches increase {{< math >}}$B${{< /math >}} directly, sidestepping the bootstrap issue entirely
+- Both approaches increase $B$ directly, generating richer learning signals
 
 **Not needed**: More parameters. LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
 
@@ -496,7 +482,7 @@ Our analysis reveals two distinct barriers:
 
 **Theoretical limitations**:
 1. Our bounds assume deterministic optimal policies (A1), which may not hold exactly in stochastic or degenerate settings
-2. Assumption A2' (effective TD resolution) is not empirically validated—the choice of {{< math >}}$B_\delta = 256${{< /math >}} is illustrative
+2. Assumption A2' (effective TD resolution) is not empirically validated—the choice of $B_\delta = 256$ is illustrative
 3. We model algorithms using idealized Bayesian inference, which doesn't capture actual optimization dynamics
 
 **Empirical gaps**:
@@ -506,7 +492,7 @@ Our analysis reveals two distinct barriers:
 
 **Future work should**:
 - Measure TD error correlation in real training runs to validate the bootstrap correlation barrier
-- Test whether sample efficiency improvements scale with signal density as predicted
+- Test whether sample efficiency improvements scale with learning signal density as predicted
 - Empirically determine effective parameter capacity in trained LoRA modules
 - Explore whether the theory extends to other RL settings (model-based, offline, multi-agent)
 - Investigate the relationship between value function approximation quality and achievable information bandwidth
@@ -518,6 +504,10 @@ Our analysis reveals two distinct barriers:
 **LLM Fine-Tuning**:
 - Ouyang, L., et al. (2022). "Training language models to follow instructions with human feedback." *NeurIPS*. (InstructGPT)
 - Hu, E. J., et al. (2021). "LoRA: Low-Rank Adaptation of Large Language Models." *ICLR*.
+
+**Reinforcement Learning**:
+- Sutton, R. S., McAllester, D., Singh, S., & Mansour, Y. (1999). "Policy gradient methods for reinforcement learning with function approximation." *Advances in Neural Information Processing Systems*, 12.
+- Konda, V., & Tsitsiklis, J. (1999). "Actor-critic algorithms." *Advances in Neural Information Processing Systems*, 12.
 - Schulman, J., et al. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
 
 **Information Theory**:
