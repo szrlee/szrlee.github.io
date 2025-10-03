@@ -263,7 +263,9 @@ The critic $V_\phi(s)$ acts as compressed memory of all historical data. It lear
 
 Let's re-examine the TD error:
 
+{{< math >}}
 $$\delta_t = \underbrace{(r_t + \gamma V_\phi(s_{t+1}))}_{\text{Observed outcome}} - \underbrace{V_\phi(s_t)}_{\text{Historical expectation}}$$
+{{< /math >}}
 
 Each TD error $\delta_t$ captures how much the observed outcome surprised the critic's learned expectations. This comparison against accumulated historical knowledge is what makes the signal information-rich. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
 
