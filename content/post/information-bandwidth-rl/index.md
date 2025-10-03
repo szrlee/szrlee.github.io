@@ -228,35 +228,25 @@ $$I(Y; \xi \mid \mathcal{H}) \leq H(Y \mid \mathcal{H})$$
 
 ---
 
-**Step 5: Simplifying the Bound**
+**Step 5: The Bound Holds for Any History**
 
 We've shown $I(G; \xi \mid \mathcal{H}) \leq H(Y \mid \mathcal{H})$ where $Y = \text{Adv}$.
 
-To obtain a bound independent of the specific history, we use the fact that conditioning can only reduce entropy:
-$$H(Y \mid \mathcal{H}) \leq H(Y)$$
+By Assumption A2, the advantage takes at most $B$ distinct values. This holds for binary preferences ($B=2$: thumbs up/down giving ±1), Likert scales ($B=5$: ratings 1-5), or continuous rewards with effective finite resolution ($B=256$: distinguishable reward levels accounting for noise and precision).
 
-Therefore:
-$$I(G; \xi \mid \mathcal{H}) \leq H(Y) = H(\text{Adv})$$
+For any random variable with at most $B$ values, even when conditioned on another variable, the conditional entropy satisfies:
+$$H(Y \mid \mathcal{H}) \leq \log_2(B)$$
 
-**Interpretation**: This bound holds for **any** history $\mathcal{H}$. The quantity $I(G; \xi \mid \mathcal{H})$ represents the new information about $\xi$ gained from the current episode, given all past episodes. By removing the conditioning, we obtain a uniform bound that characterizes the algorithm's fundamental capacity.
+This holds because the advantage still takes at most $B$ values conditioned on $\mathcal{H}$, and entropy is maximized when uniform over the support.
 
----
+Therefore, for ANY history $\mathcal{H}$:
+$$I(G; \xi \mid \mathcal{H}) \leq H(Y \mid \mathcal{H}) \leq \log_2(B)$$
 
-**Step 6: Bounding Entropy**
-
-By **Assumption A2** (Finite Resolution), the advantage takes at most $B$ distinct values.
-
-For any discrete random variable $X$ with $|\text{support}(X)| \leq B$:
-$$H(X) = -\sum_{x} p(x) \log_2 p(x) \leq \log_2(|\text{support}(X)|) \leq \log_2(B)$$
-
-This bound holds because entropy is maximized when $X$ is uniformly distributed.
-
-Therefore:
-$$H(\text{Adv}) \leq \log_2(B)$$
+**Interpretation**: This bound applies uniformly to every possible history $\mathcal{H}$—whether early in training (little accumulated knowledge) or late in training (policy nearly converged). The information gain per episode is always limited by the scalar advantage bottleneck.
 
 ---
 
-**Step 7: Data Processing**
+**Step 6: Data Processing**
 
 By **Assumption A1** (Unique Optimum), we have $\pi^\star = f(\xi)$ where $f$ is deterministic.
 
@@ -272,8 +262,8 @@ $$I(G; \pi^\star \mid \mathcal{H}) \leq I(G; \xi \mid \mathcal{H})$$
 
 **Final Result**
 
-Combining Steps 4-7:
-$$I(G; \pi^\star \mid \mathcal{H}) \leq I(G; \xi \mid \mathcal{H}) \leq H(\text{Adv}) \leq \log_2(B)$$
+Combining Steps 4-6:
+$$I(G; \pi^\star \mid \mathcal{H}) \leq I(G; \xi \mid \mathcal{H}) \leq \log_2(B)$$
 
 Therefore:
 $$I(G; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$ ∎
