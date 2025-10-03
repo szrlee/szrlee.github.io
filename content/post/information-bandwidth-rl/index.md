@@ -44,14 +44,14 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 **Actor-critic's theoretical potential**: By bootstrapping historical knowledge through a learned critic, actor-critic methods generate dense per-token feedback. Under independence assumptions, this gives an upper bound of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode. For {{< math >}}$T=1000${{< /math >}} tokens and 8-bit TD errors, this ceiling is {{< math >}}$\leq 8000${{< /math >}} bits/episode—potentially 8000× higher than policy gradient.
 
-**The practical implication**: LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with substantial improvements in actor-critic methods, LoRA's capacity appears sufficient for foreseeable applications.
+**Why this matters**: LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with substantial improvements in actor-critic methods, LoRA's capacity appears sufficient for foreseeable applications.
 
 | Algorithm | Signal Density | Information Upper Bound | Achievability |
 |-----------|---------------|---------------------|---------------|
 | Policy Gradient | 1 scalar/episode | ≤ 1 bit/episode (binary) | Tight bound |
-| Actor-Critic | T scalars/episode | ≤ 8000 bits/episode* | Theoretical ceiling only |
+| Actor-Critic | T scalars/episode | ≤ 8000 bits/episode* | Upper bound only |
 
-*Assumes independent TD errors—fundamentally violated in practice. Actual achievable bandwidth unknown.
+*Assumes independent TD errors—violated by bootstrap correlation in practice.
 
 ---
 
@@ -76,7 +76,7 @@ To enable rigorous analysis, we use a Bayesian framework as a **mathematical mod
 2. This induces a distribution {{< math >}}$p(\pi^*)${{< /math >}} over optimal policies
 3. Each {{< math >}}$\xi${{< /math >}} determines a unique optimal policy {{< math >}}$\pi^*_\xi${{< /math >}}
 
-This doesn't claim algorithms maintain explicit posteriors—it's an analytical device that makes the learning signal {{< math >}}$S${{< /math >}} and optimal policy {{< math >}}$\pi^*${{< /math >}} well-defined random variables, enabling computation of mutual information {{< math >}}$I(S; \pi^*)${{< /math >}}.
+We don't claim algorithms actually maintain Bayesian posteriors. Rather, this framework gives us a rigorous way to reason about information flow: it makes both the learning signal {{< math >}}$S${{< /math >}} and optimal policy {{< math >}}$\pi^*${{< /math >}} well-defined random variables, letting us compute their mutual information {{< math >}}$I(S; \pi^*)${{< /math >}}.
 
 **Definition (Information Bandwidth)**:
 
@@ -96,7 +96,7 @@ Our framework makes this rigorous by:
 3. **Removing conditioning on history**: Instead of conditioning on history, we use a prior {{< math >}}$p(\xi)${{< /math >}} over reward parameters, making {{< math >}}$G${{< /math >}} and {{< math >}}$\pi^*${{< /math >}} well-defined random variables
 4. **Extension to actor-critic**: We derive bounds for dense TD signals, quantifying the theoretical advantage of bootstrap methods
 
-The core insight remains the same: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
+The core insight remains: scalar feedback creates an information bottleneck. We extend this to show what's theoretically possible with denser signals and why current practice makes sense.
 
 ### Two Minimal Assumptions
 
@@ -188,7 +188,7 @@ $$I(G; \pi^*) \leq I(G; \xi) \leq H(G) \leq \log_2(B)$$
 
 </details>
 
-**This is a hard ceiling** regardless of sequence length {{< math >}}$T${{< /math >}}, model complexity, or computational resources.
+This ceiling holds regardless of sequence length {{< math >}}$T${{< /math >}}, model size, or computational budget—it's an inherent consequence of signal sparsity.
 
 ### Concrete Examples
 
@@ -200,16 +200,16 @@ $$I(G; \pi^*) \leq I(G; \xi) \leq H(G) \leq \log_2(B)$$
 
 **The compression bottleneck**: A typical LLM generation has {{< math >}}$T \sim 1000${{< /math >}} tokens, each chosen from hundreds of possibilities. Policy gradient compresses all this rich structure—which words worked well, where the response went wrong, which reasoning steps succeeded—into **one number**.
 
-This structural compression is why:
+This structural compression explains why:
 - **Training needs thousands of episodes**: With 1 bit/episode and binary feedback, 1000 episodes gives {{< math >}}$\leq 1000${{< /math >}} bits total
-- **LoRA works well**: As we'll see, LoRA provides 300-500× more capacity than this ceiling
+- **LoRA works well**: LoRA provides 300-500× more capacity than this ceiling
 - **Adding parameters doesn't help**: The bottleneck is signal sparsity, not model capacity
 
 ---
 
 ## Part 3: Actor-Critic's Dense Signal Upper Bound
 
-**Important caveat**: The upper bound we derive assumes independent TD errors—an assumption fundamentally violated by bootstrap methods. This analysis establishes the theoretical ceiling, not what current algorithms achieve. The actual achievable information bandwidth remains an open question.
+**Scope of this analysis**: We derive an information-theoretic upper bound for actor-critic methods under an independence assumption that bootstrap methods fundamentally violate. This bound establishes the theoretical ceiling—showing what's mathematically possible with dense signals—rather than characterizing practical performance. The gap between this ceiling (≤8000 bits/episode) and policy gradient's hard limit (≤1 bit/episode) frames an open question: how much of this theoretical advantage can be realized in practice?
 
 ### The Algorithm
 
@@ -247,7 +247,7 @@ Actor-critic methods (A3C, PPO with value function) maintain two components:
 
 **Learning signal**: {{< math >}}$S = \{\delta_t\}_{t=0}^{T-1}${{< /math >}} (one signal per token)
 
-Instead of waiting until the end for one scalar, we get feedback at **every step**.
+Instead of waiting until the end for one scalar, we get feedback at every step.
 
 ### Where Does the Dense Signal Come From?
 
@@ -257,16 +257,16 @@ A natural question: "The environment only provides rewards at certain steps. How
 
 The critic {{< math >}}$V_\phi(s)${{< /math >}} acts as compressed memory of all historical data. It learns to predict expected future returns from any state {{< math >}}$s${{< /math >}} based on thousands of previous rollouts.
 
-Let's re-examine the TD error with this perspective:
+Let's re-examine the TD error:
 
 {{< math >}}
 $$\delta_t = \underbrace{(r_t + \gamma V_\phi(s_{t+1}))}_{\text{Observed outcome}} - \underbrace{V_\phi(s_t)}_{\text{Historical expectation}}$$
 {{< /math >}}
 
-- **{{< math >}}$V_\phi(s_t)${{< /math >}}**: The critic's prediction, representing the **historical average** of what should happen from state {{< math >}}$s_t${{< /math >}}
-- **{{< math >}}$r_t + \gamma V_\phi(s_{t+1})${{< /math >}}**: The **observed outcome** of taking action {{< math >}}$a_t${{< /math >}}, incorporating one step of real environmental feedback {{< math >}}$r_t${{< /math >}}
+- **{{< math >}}$V_\phi(s_t)${{< /math >}}**: The critic's prediction, representing the historical average of what should happen from state {{< math >}}$s_t${{< /math >}}
+- **{{< math >}}$r_t + \gamma V_\phi(s_{t+1})${{< /math >}}**: The observed outcome of taking action {{< math >}}$a_t${{< /math >}}, incorporating one step of real environmental feedback {{< math >}}$r_t${{< /math >}}
 
-The TD error {{< math >}}$\delta_t${{< /math >}} is a "surprise" signal—how much better or worse reality was compared to historical expectation. This signal is information-rich precisely *because* it compares against a learned model of the reward structure. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
+Each TD error {{< math >}}$\delta_t${{< /math >}} captures how much the observed outcome surprised the critic's learned expectations. This comparison against accumulated historical knowledge is what makes the signal information-rich. The critic **bootstraps** knowledge from the past to provide dense, step-by-step feedback in the present.
 
 **In short**: Actor-critic achieves higher information bandwidth by efficiently reusing historical data via the critic. Instead of treating each episode as independent (like policy gradient), the critic allows every step in the current episode to be evaluated against distilled knowledge of all previous trials.
 
@@ -274,12 +274,9 @@ The TD error {{< math >}}$\delta_t${{< /math >}} is a "surprise" signal—how mu
 
 **Assumption A2' (Effective TD Resolution)**: For the purpose of upper bound analysis, we model each TD error {{< math >}}$\delta_t${{< /math >}} as having effective resolution {{< math >}}$B_\delta${{< /math >}} distinguishable values.
 
-**This is a mathematical modeling device, not a claim about actual TD error statistics.** Unlike A2 (which applies to actual observations like binary preferences), A2' applies to derived learning signals. We use {{< math >}}$B_\delta = 256${{< /math >}} (8 bits) as an illustrative example based on:
-- Finite precision arithmetic (float32: ~7 significant digits)
-- Neural network optimization noise
-- Gradient update granularity
+This is a mathematical modeling device, not a claim about actual TD error statistics. Unlike A2 (which applies to actual observations like binary preferences), A2' applies to derived learning signals. We use {{< math >}}$B_\delta = 256${{< /math >}} (8 bits) as an illustrative example based on finite precision arithmetic (float32: ~7 significant digits), neural network optimization noise, and gradient update granularity.
 
-**The resulting bound {{< math >}}$I(S; \pi^*) \leq T \log_2(B_\delta)${{< /math >}} represents a mathematical upper limit on potential information flow**, demonstrating the order-of-magnitude advantage (hundreds to thousands of times higher than policy gradient) rather than a precise quantitative prediction. The actual effective resolution is task-dependent and empirically unmeasured.
+The resulting bound {{< math >}}$I(S; \pi^*) \leq T \log_2(B_\delta)${{< /math >}} represents a mathematical upper limit on potential information flow, demonstrating the order-of-magnitude advantage (hundreds to thousands of times higher than policy gradient) rather than a precise quantitative prediction.
 
 ### The Information Ceiling
 
@@ -331,7 +328,7 @@ Therefore:
 $$H(\delta_t | \delta_{<t}) \leq \log_2(B_\delta)$$
 {{< /math >}}
 
-**Critical observation**: This bound is **tight** only when {{< math >}}$\delta_t${{< /math >}} is nearly independent of {{< math >}}$\delta_{<t}${{< /math >}}:
+**Critical observation**: This bound is tight only when {{< math >}}$\delta_t${{< /math >}} is nearly independent of {{< math >}}$\delta_{<t}${{< /math >}}:
 {{< math >}}
 $$H(\delta_t | \delta_{<t}) \approx H(\delta_t)$$
 {{< /math >}}
@@ -392,7 +389,7 @@ TD error correlation is not a bug—it's fundamental to how TD learning works. A
 - Optimization instability
 - Gradient descent efficiency
 
-**Our hypothesis**: The correlation barrier (factor #1) accounts for most of the gap, but disentangling these empirically is critical future work.
+We hypothesize that the correlation barrier likely accounts for most of the gap, reducing achievable bandwidth by perhaps 10-100×. This hypothesis is not tested in this work and remains speculative.
 
 ---
 
@@ -418,13 +415,13 @@ $$N \times \log_2(B) = 1000 \times 1 = 1000 \text{ bits}$$
 
 **The ratio**: LoRA provides **~300-500× more capacity** than policy gradient's 1000-bit ceiling.
 
-**Interpretation**: Even if our "bits per parameter" estimate is off by 2-3×, the qualitative conclusion holds: LoRA has substantial excess capacity relative to policy gradient's information ceiling. This explains why LoRA works well despite its parameter efficiency.
+Even if our "bits per parameter" estimate is off by 2-3×, the qualitative conclusion holds: LoRA has substantial excess capacity relative to policy gradient's information ceiling.
 
 ### The Key Insight
 
-**LoRA works because the parameter bottleneck isn't binding.** With policy gradient's sparse signals, you have far more capacity than information to store. The bottleneck is **signal density** (1 bit/episode), not model capacity.
+LoRA works because the parameter bottleneck isn't binding. With policy gradient's sparse signals, you have far more capacity than information to store. The bottleneck is **signal density** (1 bit/episode), not model capacity.
 
-**Why full fine-tuning is overkill**: A 7B model has ~7 billion parameters versus ~1000 bits of information—a factor of **7 million** excess capacity. LoRA's modest parameter count naturally matches policy gradient's information ceiling.
+Full fine-tuning is overkill: with ~7 billion parameters trying to store ~1000 bits of information, you have 7 million times more capacity than needed. LoRA's parameter count naturally matches what policy gradient can actually teach.
 
 **Empirical consistency**: LLM-RL needs 1,000-10,000 episodes to converge, consistent with accumulating 1,000-10,000 bits at 1-3 bits/episode (depending on reward granularity).
 
@@ -443,28 +440,15 @@ Only with dramatic improvements approaching the theoretical ceiling would LoRA c
 
 ### Why Policy Gradient + LoRA Dominates
 
-The current state of LLM fine-tuning is dominated by policy gradient + LoRA because this combination achieves a practical equilibrium:
+Policy gradient + LoRA dominates current LLM fine-tuning because this combination achieves a practical equilibrium. It's stable—no critic training instability—and parameter-efficient, with LoRA providing 300-500× more capacity than needed. The tradeoff is sample efficiency: at ≤1 bit/episode with binary preferences, thousands of episodes are required. Yet practitioners accept this because the stability advantage outweighs the sample cost.
 
-- ✅ **Stable**: Single optimization target, no critic training instability
-- ✅ **Parameter-efficient**: LoRA provides 300-500× excess capacity relative to policy gradient's information ceiling
-- ❌ **Sample-inefficient**: {{< math >}}$\leq 1${{< /math >}} bit/episode with binary preferences requires thousands of episodes
+### Why Actor-Critic Methods Haven't Displaced Policy Gradient
 
-This explains why practitioners default to this approach despite its sample inefficiency—the stability-efficiency tradeoff favors it over alternatives.
+Despite the theoretical ceiling being 8000× higher, actor-critic methods typically achieve only 2-10× sample efficiency gains over policy gradient in practice. Bootstrap correlation—where all TD errors share the same learned value function—substantially reduces achievable information bandwidth. Combined with optimization instabilities in joint actor-critic training, this explains why policy gradient + LoRA remains dominant despite its information-theoretic limitations.
 
-### The Theoretical vs. Practical Gap for Actor-Critic
+### Two Types of Barriers
 
-Our analysis shows that actor-critic methods have a theoretical ceiling of {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode—potentially thousands of times higher than policy gradient. However, **this does not mean actor-critic methods achieve thousands of times better sample efficiency in practice.**
-
-The theoretical ceiling assumes independent TD errors. In reality:
-- Bootstrap correlation substantially reduces achievable information bandwidth
-- Current actor-critic implementations face optimization instabilities
-- The actual achieved sample efficiency improvements are typically 2-10× over policy gradient, not 1000×
-
-This gap between theory and practice is precisely why policy gradient + LoRA remains dominant despite its information-theoretic limitations.
-
-### Understanding the Limitations
-
-Our analysis reveals **two distinct types of barriers**:
+Our analysis reveals two distinct barriers:
 
 **1. Information-theoretic ceilings** (provably unavoidable):
 - Policy gradient: {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode—cannot be exceeded by any algorithm that learns from scalar episode returns
@@ -479,10 +463,10 @@ Our analysis reveals **two distinct types of barriers**:
 
 ### Research Directions
 
-**Priority 1: Empirically measure the achievable information bandwidth**
-- Develop methods to quantify {{< math >}}$I(S; \pi^*)${{< /math >}} in trained models
-- Measure TD error correlation across architectures and tasks
-- Establish empirical baselines for what's actually achievable vs theoretical ceilings
+**Priority 1: Test the framework's predictions empirically**
+- Measure TD error correlation in trained actor-critic models
+- Test whether decorrelation techniques (e.g., eligibility traces) improve sample efficiency
+- Quantify the relationship between signal density and convergence rates
 
 **Priority 2: Improve actor-critic stability at LLM scale**
 - Low-rank value function architectures (matching LoRA structure)
@@ -504,17 +488,7 @@ Our analysis reveals **two distinct types of barriers**:
 - Per-token human annotations increase signal granularity
 - Both approaches increase {{< math >}}$B${{< /math >}} directly, sidestepping the bootstrap issue entirely
 
-**Not needed**: More parameters. As shown in Part 4, LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
-
-### Terminology: Two Senses of "Fundamental"
-
-We use "fundamental" to describe barriers at different levels:
-
-1. **Information-theoretic fundamentals**: Theorems 1 and 2 establish ceilings that cannot be exceeded by *any* algorithm using those signal types, regardless of computational resources or algorithmic sophistication
-
-2. **Fundamental to bootstrap methods**: TD error correlation appears inherent to methods that use {{< math >}}$V(s')${{< /math >}} to estimate targets for {{< math >}}$V(s)${{< /math >}}—this creates structural dependencies. However, this may not be fundamental to RL in general (Monte Carlo methods avoid it)
-
-The distinction matters: information-theoretic barriers are absolute, while bootstrap correlation might be circumventable with alternative RL paradigms.
+**Not needed**: More parameters. LoRA already provides 300-500× excess capacity relative to policy gradient's information ceiling. Even with 100× improved actor-critic (100 bits/episode × 1000 episodes = 100,000 bits), LoRA would still have 3-5× excess capacity.
 
 ---
 
@@ -526,28 +500,16 @@ The distinction matters: information-theoretic barriers are absolute, while boot
 3. We model algorithms using idealized Bayesian inference, which doesn't capture actual optimization dynamics
 
 **Empirical gaps**:
-1. The achievable information bandwidth for actor-critic methods remains unmeasured
-2. We don't empirically validate the correlation hypothesis or quantify its contribution
-3. The practical gap between theoretical ceilings and actual performance needs experimental investigation
+1. We do not empirically validate the TD error correlation hypothesis
+2. The "effective bits per parameter" (5-8 bits) for LoRA is a rough estimate, not measured
+3. The actual effective resolution for TD errors is task-dependent and unmeasured
 
-**Future work could**:
-- Develop methods to directly measure information bandwidth in trained models
-- Empirically quantify TD error correlation across different architectures and tasks
-- Test whether decorrelation techniques (e.g., eligibility traces) improve information utilization
+**Future work should**:
+- Measure TD error correlation in real training runs to validate the bootstrap correlation barrier
+- Test whether sample efficiency improvements scale with signal density as predicted
+- Empirically determine effective parameter capacity in trained LoRA modules
 - Explore whether the theory extends to other RL settings (model-based, offline, multi-agent)
 - Investigate the relationship between value function approximation quality and achievable information bandwidth
-
----
-
-## Conclusion
-
-This information-theoretic analysis reveals why policy gradient + LoRA dominates current LLM fine-tuning and what barriers limit potential improvements:
-
-**The 1-bit bottleneck**: Policy gradient's compression of rich token-level dynamics into scalar returns creates a {{< math >}}$\leq \log_2(B)${{< /math >}} bits/episode ceiling. For binary feedback, this is {{< math >}}$\leq 1${{< /math >}} bit/episode—explaining both why 1000s of episodes are needed and why LoRA's modest capacity (300-500× excess) suffices.
-
-**Actor-critic's theoretical potential**: Bootstrap methods can theoretically achieve {{< math >}}$\leq T \log_2(B_\delta)${{< /math >}} bits/episode under independence assumptions—orders of magnitude higher than policy gradient. However, the structural correlation inherent to TD learning (all {{< math >}}$\delta_t${{< /math >}} share the same {{< math >}}$V_\phi${{< /math >}}) creates a gap between theoretical ceiling and achievable performance. How much of this gap is bridgeable remains an open empirical question.
-
-**The path forward**: As detailed in Part 5, progress requires first empirically measuring what's achievable, then pursuing improvements through better critic training and decorrelation, non-bootstrap alternatives like Monte Carlo or model-based methods, or engineering denser supervision signals. Understanding these tradeoffs is essential for next-generation LLM fine-tuning methods.
 
 ---
 
