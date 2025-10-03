@@ -420,24 +420,28 @@ If perfectly correlated: $H(\delta_t | \delta_{<t}) = 0$. Reality falls between 
 
 **Step 3: Sum Over Time**
 
+{{< math >}}
 $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t}) \leq T \log_2(B_\delta)$$
+{{< /math >}}
 
 **Step 4: Information Flow**
 
 We now relate the information in TD errors to information about $\pi^\star$, accounting for the conditioning on history $\mathcal{H}$.
 
-The TD error sequence $\{\delta_t\}$ depends on $\xi$ through the reward function $R_\xi(\cdot)$ that generates the immediate rewards $r_t$ in the formula $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$.
+The TD error sequence {{< math >}}$\{\delta_t\}$ {{< /math >}} depends on $\xi$ through the reward function $R_\xi(\cdot)$ that generates the immediate rewards $r_t$ in the formula $\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$.
 
 Even when conditioning on $\mathcal{H}$ (which determines both $\theta$ and $\phi$), the TD errors still provide information about $\xi$ through the observed rewards. The optimal policy $\pi^\star = f(\xi)$ is a deterministic function of $\xi$ alone (by Assumption A1), not of $\mathcal{H}$.
 
 These TD errors provide information about $\pi^\star$ only indirectly—by revealing information about the reward parameter $\xi$. More formally:
 - $\pi^\star = f(\xi)$ is deterministic given $\xi$
-- The TD errors $\{\delta_t\}$ depend on $\xi$ through the reward structure
+- The TD errors {{< math >}} $\{\delta_t\}$ {{< /math >}} depend on $\xi$ through the reward structure
 - Given $\xi$, $\pi^\star$ is fully determined
 - Therefore, conditioned on $\xi$, the TD errors provide no additional information about $\pi^\star$
 
-This establishes the conditional independence $\pi^\star \perp \{\delta_t\} \mid (\xi, \mathcal{H})$, giving us the Markov chain (even when conditioning on $\mathcal{H}$):
+This establishes the conditional independence {{< math >}} $\pi^\star \perp \{\delta_t\} \mid (\xi, \mathcal{H})$ {{< /math >}}, giving us the Markov chain (even when conditioning on {{< math >}} $\mathcal{H}$ {{< /math >}}):
+{{< math >}}
 $$\{\delta_t\} \to \xi \to \pi^\star$$
+{{< /math >}}
 
 By the **data processing inequality**:
 {{< math >}}
@@ -455,7 +459,9 @@ where:
 - Third inequality: from Steps 1-3 above
 
 Since the gradient $G$ is a deterministic function of the TD errors:
+{{< math >}}
 $$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H})$$ ∎
+{{< /math >}}
 
 </details>
 
