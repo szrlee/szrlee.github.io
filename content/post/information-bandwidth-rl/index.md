@@ -40,7 +40,7 @@ But what does this actually mean? And if policy gradients learn so little per ep
 
 ## TL;DR: The Main Results
 
-**Policy gradient's hard limit**: The REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has only a scalar advantage carrying reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode—explaining why training needs thousands of episodes and why LoRA's modest capacity (300-500× excess) suffices.
+**Policy gradient's hard limit**: The REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ has a structure where, given the training history, the direction term $\nabla \log p_\theta(\tau)$ is independent of the reward function—only the scalar advantage carries reward information. This creates an information ceiling of $\leq \log_2(B)$ bits per episode. For binary feedback, this is $\leq 1$ bit/episode—explaining why training needs thousands of episodes and why LoRA's modest capacity (300-500× excess) suffices.
 
 **Actor-critic's theoretical potential**: By bootstrapping historical knowledge through a learned critic, actor-critic methods use $T$ scalar TD errors to construct gradients. Under independence assumptions, this gives an upper bound of $\leq T \log_2(B_\delta)$ bits/episode. For $T=1000$ tokens and 8-bit TD errors, this ceiling is $\leq 8000$ bits/episode—potentially 8000× higher than policy gradient.
 
@@ -96,7 +96,7 @@ This bound $C$ characterizes the algorithm's inherent information capacity.
 
 ### Connection to the Original Insight
 
-This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the policy, so **all information about $R$ must flow through the scalar advantage**.
+This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the REINFORCE gradient $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the policy), so **all information about $R$ must flow through the scalar advantage**.
 
 We're extending this in three ways. First, we measure information about the optimal policy directly—asking "what do we learn about $\pi^\star$?" rather than "what do we learn about $R$?". Second, we're explicit about history: the conditioning on $\mathcal{H}$ makes "what we already know" mathematically precise. Third, we formalize when the advantage has bounded entropy (Assumption A2).
 
@@ -108,7 +108,7 @@ Since the optimal policy is a deterministic function of the reward parameters ($
 
 *Justification*: Generic for neural networks with many parameters. Floating-point precision breaks ties; exact degeneracy is measure-zero.
 
-**Assumption A2 (Finite Resolution)**: The reward-dependent scalar(s) in the gradient have finite effective resolution—they can take at most $B$ distinguishable values each.
+**Assumption A2 (Finite Resolution)**: The reward-dependent scalar(s) in the gradient (the advantage in REINFORCE, or TD errors in actor-critic) have finite effective resolution—they can take at most $B$ distinguishable values each.
 
 *Justification*: Holds exactly for binary preferences ($B=2$) or Likert scales ($B=4$-$7$). Approximately true for continuous signals with noise, finite precision, or practical distinguishability limits.
 
@@ -129,7 +129,7 @@ Policy gradient (REINFORCE) works like this:
 **Learning signal**: $G = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ (the gradient)
 
 **Key observation**: The gradient has two components:
-- $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the current policy
+- $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the current policy $\theta$)
 - $\text{Adv}$: A scalar that encodes all reward-dependent information
 
 ### The Information Ceiling
@@ -321,7 +321,7 @@ Actor-critic methods (A3C, PPO with value function) maintain two components:
 $$G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$$
 
 This has the same structure as REINFORCE, but with $T$ terms instead of one. Each term has:
-- $\nabla_\theta \log \pi_\theta(a_t|s_t)$: Independent of $\xi$ given the policy (like $\nabla \log p_\theta(\tau)$ in REINFORCE)
+- $\nabla_\theta \log \pi_\theta(a_t|s_t)$: Independent of $\xi$ given the history $\mathcal{H}$ (which determines policy $\theta$), similar to REINFORCE
 - $\delta_t$: A scalar carrying reward-dependent information (like the advantage in REINFORCE)
 
 **Key observation**: Since the gradient $G$ is a deterministic function of the TD errors {{< math >}} $\{\delta_t\}_{t=0}^{T-1}$ {{< /math >}}, by the data processing inequality:
