@@ -440,10 +440,14 @@ This establishes the conditional independence $\pi^\star \perp \{\delta_t\} \mid
 $$\{\delta_t\} \to \xi \to \pi^\star$$
 
 By the **data processing inequality**:
+{{< math >}}
 $$I(\{\delta_t\}; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \xi \mid \mathcal{H})$$
+{{< /math >}}
 
 The full inequality chain:
+{{< math >}}
 $$I(\{\delta_t\}; \xi \mid \mathcal{H}) \leq H(\{\delta_t\} \mid \mathcal{H}) \leq H(\{\delta_t\}) \leq T \log_2(B_\delta)$$
+{{< /math >}}
 
 where:
 - First inequality: fundamental bound on mutual information
