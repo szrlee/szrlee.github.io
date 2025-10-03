@@ -157,7 +157,9 @@ This distribution depends only on $\theta$ (and the known, deterministic environ
 
 Therefore: $\tau \perp \xi \mid \mathcal{H}$
 
-By the Markov chain $\tau \to \xi \to \pi^\star$ (conditioned on $\mathcal{H}$):
+Since $\xi$ determines $\pi^\star$ deterministically by Assumption A1, we also have $\tau \perp \pi^\star \mid \mathcal{H}$.
+
+Therefore:
 $$I(\tau; \pi^\star \mid \mathcal{H}) = 0$$
 
 ---
