@@ -372,9 +372,12 @@ The resulting bound represents a mathematical upper limit on potential informati
 
 *Under assumptions A1 and A2', actor-critic's information bandwidth satisfies:*
 
+{{< math >}}
 $$I(G; \pi^\star \mid \mathcal{H}) \leq I(\{\delta_t\}; \pi^\star \mid \mathcal{H}) \leq T \log_2(B_\delta) \text{ bits per episode}$$
+{{< /math >}}
 
-where $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$ is the actor gradient (the learning signal), $\{\delta_t\}_{t=0}^{T-1}$ are the TD errors, and $\mathcal{H}$ is the history of all previous episodes.
+where $G = \sum_{t=0}^{T-1} \nabla_\theta \log \pi_\theta(a_t|s_t) \cdot \delta_t$ is the actor gradient (the learning signal), {{< math >}} $\{\delta_t\}_{t=0}^{T-1}$ {{< /math >}}
+ are the TD errors, and $\mathcal{H}$ is the history of all previous episodes.
 
 **Interpretation**: The conditioning on $\mathcal{H}$ represents what we've already learned from past episodes. The history determines both the current actor parameters $\theta$ and critic parameters $\phi$. The bound measures **information gained in the current episode**, given this accumulated knowledge. The first inequality follows from the data processing inequality (the gradient is a deterministic function of the TD errors). The second inequality bounds the information in the TD error sequence, conditioned on history. We focus on deriving the second bound, which also bounds the gradient's information content.
 
@@ -394,8 +397,8 @@ We bound the entropy of the TD error sequence.
 By the chain rule for entropy:
 $$H(\delta_0, \delta_1, \ldots, \delta_{T-1}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_0, \ldots, \delta_{t-1})$$
 
-Using $\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})$:
-$$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$
+Using $\delta_{<t} = (\delta_0, \ldots, \delta_{t-1})$: 
+{{< math >}} $$H(\{\delta_t\}) = \sum_{t=0}^{T-1} H(\delta_t | \delta_{<t})$$ {{< /math >}}
 
 **Step 2: Bound Per Step**
 
