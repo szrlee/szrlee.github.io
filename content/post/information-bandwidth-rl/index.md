@@ -216,7 +216,7 @@ $$\mathbf{r} \xrightarrow{\text{sum}} G \xrightarrow{\text{subtract baseline}} \
 
 #### Case 1: Terminal Reward Only
 
-**Setup**: $r_t = 0$ for $t < T-1$, only $r_{T-1} \in \{-1, +1\}$ is non-zero
+**Setup**: $r_t = 0$ for {{< math >}} $t < T-1$, only $r_{T-1} \in \{-1, +1\}$ {{< /math >}}  is non-zero
 
 **Return**: $G = \gamma^{T-1} r_{T-1}$
 
@@ -231,7 +231,7 @@ $$H(\text{Adv} \mid \tau, \mathcal{H}) = H(r_{T-1} \mid \tau, \mathcal{H}) = 1 \
 
 #### Case 2: Dense Independent Rewards
 
-**Setup**: $r_t \in \{-1, 0, +1\}$ at each timestep, with factorized $\xi = (\xi_0, \xi_1, \ldots, \xi_{T-1})$ where each $\xi_t$ is independent
+**Setup**: {{< math >}}  $r_t \in \{-1, 0, +1\}$ {{< /math >}}  at each timestep, with factorized $\xi = (\xi_0, \xi_1, \ldots, \xi_{T-1})$ where each $\xi_t$ is independent
 
 **Available information**:
 $$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \mathcal{H}) = T \log_2(3) \approx 1.58T \text{ bits}$$
@@ -245,7 +245,7 @@ This is a **many-to-one mapping**. Different temporal patterns give the same sum
 - $(-1, +1, -1, +1, \ldots)$ → sum ≈ 0
 - $(0, 0, 0, \ldots, 0)$ → sum = 0
 
-For $\gamma = 1$, the return $G \in \{-1000, -999, \ldots, 999, 1000\}$ has:
+For $\gamma = 1$, the return {{< math >}} $G \in \{-1000, -999, \ldots, 999, 1000\}$ {{< /math >}}  has:
 $$H(G \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
 
 **Advantage**: With noise and finite precision (Assumption A2 with $B = 256$):
@@ -312,7 +312,7 @@ The answer is **not** that actor-critic gets more information from the environme
 **Policy Gradient** aggregates all rewards into one scalar:
 $$\text{Adv} = \sum_{t=0}^{T-1} \gamma^t r_t - b$$
 
-This is a **many-to-one mapping**: different temporal patterns can give the same advantage. For $T=1000$ tokens with $r_t \in \{-1, 0, +1\}$:
+This is a **many-to-one mapping**: different temporal patterns can give the same advantage. For $T=1000$ tokens with {{< math >}}  $r_t \in \{-1, 0, +1\}$ {{< /math >}} :
 - Total available information: $H(\mathbf{r}) = 1000 \times \log_2(3) \approx 1585$ bits
 - After summation: $H(\text{Adv}) \leq 8$ bits
 - **Information lost**: ~99%
@@ -486,7 +486,7 @@ Only $\delta_{T-1} = r_{T-1} - V_\phi(s_{T-1})$ is random.
 **Reward entropy**:
 $$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \mathcal{H}) = T \log_2(B_r)$$
 
-**Example** ($T=1000$, $r_t \in \{-1, 0, +1\}$ so $B_r=3$):
+**Example** ($T=1000$, {{< math >}} $r_t \in \{-1, 0, +1\}$ {{< /math >}}  so $B_r=3$):
 $$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1585 \text{ bits}$$
 
 **Actor-critic information ceiling**: Up to 1585 bits/episode
