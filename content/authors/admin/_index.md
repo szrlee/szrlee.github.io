@@ -21,14 +21,13 @@ organizations:
   - name: ByteDance, Singapore
 
 # Short bio (displayed in user profile at end of posts)
-bio: Research scientist developing intelligent agents through advances in reinforcement learning, optimization, and LLM reasoning.
+bio: My research focuses on building intelligent agents by advancing reinforcement learning, large-scale optimization, and LLM reasoning.
 
 # Interests to show in About widget
 interests:
-  - Large-Scale Machine Learning
-  - LLM Reasoning & Agents
   - Reinforcement Learning
-  - Probability & Optimization
+  - Large-Scale Optimization
+  - LLM Reasoning and Agents
 
 # Education to show in About widget
 education:
@@ -48,7 +47,7 @@ social:
   - icon: twitter
     icon_pack: fab
     link: https://x.com/RichardYRLi
-    label: Follow me on Twitter
+    label: Follow me on X
     display:
       header: true
   - icon: graduation-cap
@@ -65,10 +64,12 @@ social:
 highlight_name: true
 ---
 
-I am a Research Scientist at ByteDance, Singapore. I obtained my Ph.D. in Computer Science from The Chinese University of Hong Kong (CUHK) under the supervision of [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/). Previously, I was a research intern at Microsoft Research and Tencent AI & Robotics X.
+I am a Research Scientist at ByteDance in Singapore. I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hong Kong (CUHK), where I had the privilege of being advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/).
+
+During my  studies, I was a research intern at Microsoft Research and the Tencent AI & Robotics X Lab. I also had the valuable opportunity to collaborate with [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
 
 ### Research Vision
-I develop intelligent **agents** that reliably interact with complex environments. Through advances in reinforcement learning, optimization, and LLM reasoning & planning, I bridge foundational **theory** with **scalable algorithms** for trustworthy decision-making.
+My research aims to develop intelligent **agents** capable of reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance reinforcement learning, optimization, and large language model (LLM) reasoning to create systems for trustworthy decision-making.
 
 ### Recent Honors
 - Presidential PhD Fellowship
@@ -79,6 +80,7 @@ I develop intelligent **agents** that reliably interact with complex environment
 ---
 
 📄 View my [CV/resumé](uploads/resume.pdf)
-🐦 Follow me on [Twitter/X](https://twitter.com/RichardYRLi) for latest updates
+&nbsp; &nbsp;
+🐦 Follow me on [X (formerly Twitter)](https://twitter.com/RichardYRLi) for updates.
 
 {style="text-align: justify;"}
