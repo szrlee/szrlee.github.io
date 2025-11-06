@@ -51,10 +51,12 @@ Both preserve information because the mappings $\{A_t\} \leftrightarrow \{\mathb
 - Terminal rewards only: $H(\mathbf{r}) \leq 1$ bit → all formulations achieve ≤ 1 bit
 - Dense independent rewards ($T=1000$, ternary): $H(\mathbf{r}) \approx 1585$ bits → scalar achieves ≤ 8 bits, per-timestep achieves ≤ 1585 bits
 
-| Gradient Formulation | Terminal Reward | Dense Independent Rewards |
-|---------------------|----------------|---------------------------|
-| Scalar advantage | ≤ 1 bit | ≤ 8 bits |
-| Per-timestep advantages | ≤ 1 bit | ≤ 1585 bits |
+| Gradient Formulation | Terminal Reward | Dense Independent Rewards | Asymptotic (Dense) |
+|---------------------|----------------|---------------------------|-------------------|
+| Scalar advantage | ≤ 1 bit | ≤ 8 bits | $O(\log T)$* |
+| Per-timestep advantages | ≤ 1 bit | ≤ 1585 bits | $O(T)$ |
+
+*$O(\log T)$ without finite precision; saturates to $O(1)$ for large $T$ with finite precision
 
 The remainder of this post derives these bounds rigorously.
 
@@ -105,6 +107,8 @@ We extend this by analyzing how different gradient structures preserve or destro
 
 *Justification*: Holds exactly for binary preferences ($B=2$) or Likert scales ($B=4$-$7$). Approximately true for continuous signals with noise, finite precision, or practical distinguishability limits.
 
+*Note on asymptotic behavior*: For scalar advantages with dense rewards, $B$ effectively equals $\min(2T+1, B_{\text{max}})$ where $B_{\text{max}}$ is the precision limit. This gives $O(\log T)$ bits for small $T$ and $O(1)$ bits for large $T \gg B_{\text{max}}$. Examples below use large $T$ where saturation applies.
+
 ---
 
 ## Part 2: Scalar Advantage Information Ceiling
@@ -135,6 +139,8 @@ $$I(g; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$
 where $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ with $\text{Adv} = G - b$ is the gradient and $\mathcal{H}$ is the history of all previous episodes.
 
 **Intuition**: Given the history $\mathcal{H}$ (which determines the current policy $\theta$), the trajectory sampling doesn't depend on $\xi$. All new information must flow through the scalar advantage, creating a hard ceiling of $\log_2(B)$ bits.
+
+**Asymptotic interpretation**: For dense rewards without Assumption A2, the return can take up to $2T+1$ values, giving $O(\log T)$ bits. With finite precision $B_{\text{max}}$, the bound becomes $O(\min(\log T, \log B_{\text{max}}))$. For typical LLM fine-tuning with large $T \gg B_{\text{max}}$, this saturates at $O(1)$ bits.
 
 <details>
 <summary><strong>Detailed Proof (click to expand)</strong></summary>
@@ -239,8 +245,12 @@ This is a **many-to-one mapping**. Different temporal patterns give the same sum
 For $\gamma = 1$, the return {{< math >}} $G \in \{-1000, -999, \ldots, 999, 1000\}$ {{< /math >}}  has:
 $$H(G \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
 
+This is the $O(\log T)$ regime before finite precision effects.
+
 **Advantage**: With noise and finite precision (Assumption A2 with $B = 256$):
 $$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(256) = 8 \text{ bits}$$
+
+Since $2001 > 256$, the advantage saturates at the precision limit—the $O(1)$ regime for large $T$.
 
 **Information loss**: Starting with 1585 bits, the scalar advantage retains only ~8 bits.
 
@@ -472,12 +482,14 @@ $$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1585 \tex
 
 ### Summary
 
-| Gradient Formulation | Reward Structure | Information Ceiling | Why |
-|---------------------|-----------------|---------------------|-----|
-| Scalar advantage | Terminal only | ≤ 1 bit | Single scalar with binary reward |
-| Per-timestep advantages | Terminal only | ≤ 1 bit | Only one timestep is random |
-| Scalar advantage | Dense independent | ≤ 8 bits | Aggregation loses temporal structure |
-| Per-timestep advantages | Dense independent | ≤ 1585 bits | Temporal structure preserved |
+| Gradient Formulation | Reward Structure | Information Ceiling | Asymptotic | Why |
+|---------------------|-----------------|---------------------|------------|-----|
+| Scalar advantage | Terminal only | ≤ 1 bit | $O(1)$ | Single scalar with binary reward |
+| Per-timestep advantages | Terminal only | ≤ 1 bit | $O(1)$ | Only one timestep is random |
+| Scalar advantage | Dense independent | ≤ 8 bits | $O(\log T)$* | Aggregation loses temporal structure |
+| Per-timestep advantages | Dense independent | ≤ 1585 bits | $O(T)$ | Temporal structure preserved |
+
+*Saturates to $O(1)$ for large $T$ with finite precision
 
 ---
 
@@ -487,10 +499,10 @@ $$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1585 \tex
 
 The information ceiling depends on two factors:
 
-1. **Gradient structure**: Scalar advantage (≤ log₂(B) bits) vs per-timestep advantages (≤ H(r) bits)
-2. **Reward structure**: Terminal (≤ log₂(B_r) bits) vs dense independent (≤ T log₂(B_r) bits)
+1. **Gradient structure**: Scalar advantage (≤ log₂(B) bits, $O(\log T)$ asymptotically) vs per-timestep advantages (≤ H(r) bits, $O(T)$ asymptotically for dense independent rewards)
+2. **Reward structure**: Terminal (≤ log₂(B_r) bits, $O(1)$) vs dense independent (≤ T log₂(B_r) bits, $O(T)$)
 
-**Key observation**: With terminal rewards only, scalar and per-timestep formulations have the **same information ceiling** (both ≤ 1 bit for binary rewards). This is why simple scalar-advantage methods dominate in LLM fine-tuning—the added complexity of per-timestep formulations provides no information-theoretic benefit.
+**Key observation**: With terminal rewards only, scalar and per-timestep formulations have the **same information ceiling** (both $O(1)$ bits). This is why simple scalar-advantage methods dominate in LLM fine-tuning—the added complexity of per-timestep formulations provides no information-theoretic benefit when rewards are sparse.
 
 ### When Structure Matters
 
@@ -498,9 +510,11 @@ Per-timestep advantages only help when rewards are dense and informative at each
 - **Temporal density**: How many timesteps provide informative rewards
 - **Independence**: How much correlation exists between rewards at different timesteps
 
-For fully independent rewards: ceiling increases from ≤ 8 bits (scalar) to ≤ 1585 bits (per-timestep) for T=1000.
+**Asymptotic comparison**:
+- Dense independent rewards: $O(\log T)$ bits (scalar) vs $O(T)$ bits (per-timestep)
+- Terminal rewards only: $O(1)$ bits (both formulations)
 
-For terminal rewards only: both formulations achieve ≤ 1 bit regardless of T.
+**Concrete example** (T=1000): ceiling increases from ≤ 8 bits (scalar) to ≤ 1585 bits (per-timestep) for fully independent dense rewards.
 
 ### Open Questions
 
