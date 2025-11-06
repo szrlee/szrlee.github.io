@@ -13,7 +13,7 @@ categories:
   - Research
   - Theory
 date: '2025-10-01T00:00:00Z'
-lastmod: '2025-10-01T00:00:00Z'
+lastmod: '2025-11-04T00:00:00Z'
 featured: true
 draft: false
 math: true
@@ -540,6 +540,12 @@ For terminal rewards only: both formulations achieve ≤ 1 bit regardless of T.
 - Russo, D., & Van Roy, B. (2014). "Learning to Optimize via Information-Directed Sampling." *Operations Research*, 66(1), 230-252.
 
 **Inspiration**: ThinkingMachines.ai (2025). "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)."
+
+---
+
+## Acknowledgements
+
+I am grateful to [@mgostIH](https://x.com/mgostIH) for the insightful conversation about per-timestep advantages in REINFORCE. Their observation that using $\text{Adv}_t = G_t - b$ (where $G_t$ is the return from timestep $t$ onward) preserves the bijective mapping $\{G_t\} \leftrightarrow \{r_t\}$ and thus avoids the information collapse was the key insight that led to revising this paper to include the return-based policy gradient formulation. The original version only analyzed scalar advantages and actor-critic TD errors; the discussion clarified that REINFORCE with per-timestep returns also preserves full reward information.
 
 ---
 
