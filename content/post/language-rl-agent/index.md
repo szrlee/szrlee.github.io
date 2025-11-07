@@ -64,7 +64,7 @@ Every agent-environment interaction reduces to a sequence of events. The key ins
 **Internal Thought** ($th_k$): At turn $k$, the agent generates free-form reasoning, planning, or intermediate text based on its internal state. This is the agent's private, internal information—the first step in its decision-making process.
 
 **External Action** ($A_k$): The structured instruction extracted from $th_k$ through a deterministic Parser function that will affect the external world:
-$$A_k = \text{Parser}(th_k)$$
+{{< math >}}$$A_k = \text{Parser}(th_k)$${{< /math >}}
 
 **External Observation** ($O_k$): After action $A_{k-1}$ acts on the environment, the information returned to the agent.
 
@@ -76,13 +76,13 @@ $$A_k = \text{Parser}(th_k)$$
 
 The objectively occurring, externally observable event sequence—the "ground truth" of world evolution:
 
-$$H_k^{\text{ext}} = (A_0, O_1, A_1, O_2, \ldots, A_{k-1}, O_k)$$
+{{< math >}}$$H_k^{\text{ext}} = (A_0, O_1, A_1, O_2, \ldots, A_{k-1}, O_k)$${{< /math >}}
 
 **2. Agent-Centric History** ($H_k^{\text{agent}}$):
 
 The complete information accessible to the agent during decision-making, including its internal thought process:
 
-$$H_k^{\text{agent}} = (\text{system\_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$$
+{{< math >}}$$H_k^{\text{agent}} = (\text{system\_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$${{< /math >}}
 
 This history is the complete information foundation for the agent's learning and construction of its internal mental model.
 
@@ -90,7 +90,7 @@ This history is the complete information foundation for the agent's learning and
 
 **Environment** ($\mathcal{E}$): The external environment's behavior is characterized by a probabilistic transition function $\rho$, which gives the probability of the next observation based on external history and the agent's action:
 
-$$\rho(O_{k+1} | H_k^{\text{ext}}, A_k)$$
+{{< math >}}$$\rho(O_{k+1} | H_k^{\text{ext}}, A_k)$${{< /math >}}
 
 In our framework, $\rho$ is externally given and typically unknown—a "black box."
 
@@ -144,17 +144,17 @@ This is why language is a universal interface: it unifies expressiveness (vocabu
 
 To make decisions possible, the agent **must** compress the infinitely growing agent-centric history $H_k^{\text{agent}}$ into a fixed-size internal representation. We call this representation the **agent state** $X_k$:
 
-$$X_k \approx \text{compress}(H_k^{\text{agent}})$$
+{{< math >}}$$X_k \approx \text{compress}(H_k^{\text{agent}})$${{< /math >}}
 
 This state $X_k$ is the agent's "mental model" or "working memory" of the world that it relies on for decision-making. From this point, the agent's policy is based on this computable state:
 
-$$\pi(A_k | X_k)$$
+{{< math >}}$$\pi(A_k | X_k)$${{< /math >}}
 
 #### The Critical Function: State Update ($f_{\text{agent}}$)
 
 State must evolve as new information arrives:
 
-$$X_{k+1} = f_{\text{agent}}(X_k, th_k, A_k, O_{k+1})$$
+{{< math >}}$$X_{k+1} = f_{\text{agent}}(X_k, th_k, A_k, O_{k+1})$${{< /math >}}
 
 **This function is the agent's memory policy**—deciding what to remember and what to forget. Its design is as crucial as the action policy $\pi$ itself. In fact, optimizing $f_{\text{agent}}$ is a **meta-learning problem**: learning a compression policy that preserves task-relevant information to maximize the primary policy's expected return.
 
@@ -180,17 +180,17 @@ The agent's behavior is not random—it's driven by a clear objective: maximizin
 
 The agent's ultimate goal is to maximize a long-term value called **return** ($G_k$), which is the cumulative sum of all future rewards considering time discount factor $\gamma \in [0, 1]$:
 
-$$G_k = \sum_{t=0}^{\infty} \gamma^t R_{k+t+1} = R_{k+1} + \gamma R_{k+2} + \gamma^2 R_{k+3} + \ldots$$
+{{< math >}}$$G_k = \sum_{t=0}^{\infty} \gamma^t R_{k+t+1} = R_{k+1} + \gamma R_{k+2} + \gamma^2 R_{k+3} + \ldots$${{< /math >}}
 
 The optimal policy $\pi^*$ aims to maximize the expected value of this return:
 
-$$\pi^* = \arg\max_{\pi} \mathbb{E}[G_k | \pi]$$
+{{< math >}}$$\pi^* = \arg\max_{\pi} \mathbb{E}[G_k | \pi]$${{< /math >}}
 
 #### Reward Formulation
 
 In any practically operational system, reward $R_{k+1}$ calculation must rely on information the agent can access. We define reward formation as a reward function $r$, with the most general form:
 
-$$R_{k+1} = r(X_k, th_k, A_k, O_{k+1})$$
+{{< math >}}$$R_{k+1} = r(X_k, th_k, A_k, O_{k+1})$${{< /math >}}
 
 **This definition is crucial** because it reveals the dual core role of state $X_k$ and thought $th_k$: they are not only decision inputs but also evaluation (reward function $r$) inputs. A low-quality state $X_k$ (poor compression of $H_k^{\text{agent}}$) means the reward $R_{k+1} = r(X_k, th_k, A_k, O_{k+1})$ is computed from **partially observed information**. This creates a **non-Markovian reward signal**—the observed reward becomes a biased estimate of the true reward $r(H_k^{\text{agent}}, th_k, A_k, O_{k+1})$ that would be computed from complete history. This is analogous to the classic POMDP problem, but applied to the reward function itself: poor state compression degrades not just the policy, but the learning signal that guides it.
 
@@ -220,7 +220,7 @@ This layer's core function is to **implement** the macro policy $\pi$. It descri
 
 **Generation Process**: This process is controlled by LLM parameters $\theta$, defining the probability of generating a specific token sequence $\mathbf{v}_k$ given state $X_k$. For autoregressive models:
 
-$$p_{\theta}(\mathbf{v}_k | X_k) = \prod_{t=1}^{T_k} p_{\theta}(v_{k,t} | X_k, v_{k,1:t-1})$$
+{{< math >}}$$p_{\theta}(\mathbf{v}_k | X_k) = \prod_{t=1}^{T_k} p_{\theta}(v_{k,t} | X_k, v_{k,1:t-1})$${{< /math >}}
 
 where $v_{k,1:t-1} = (v_{k,1}, \ldots, v_{k,t-1})$ denotes the token history up to position $t-1$ in turn $k$.
 
@@ -228,7 +228,7 @@ where $v_{k,1:t-1} = (v_{k,1}, \ldots, v_{k,t-1})$ denotes the token history up 
 
 The macro policy connects to micro generation through the following core equation. This equation is built on token sequence probabilities, precisely handling the characteristic that "one action can be implemented by multiple thoughts (multiple token sequences)":
 
-$$\pi(A_k | X_k) \equiv \sum_{\mathbf{v} \in \mathcal{V}^*} \mathbf{1} [ \text{Parser}(\text{Decode}(\mathbf{v})) = A_k ] \cdot p_{\theta}(\mathbf{v} | X_k)$$
+{{< math >}}$$\pi(A_k | X_k) \equiv \sum_{\mathbf{v} \in \mathcal{V}^*} \mathbf{1} [ \text{Parser}(\text{Decode}(\mathbf{v})) = A_k ] \cdot p_{\theta}(\mathbf{v} | X_k)$${{< /math >}}
 
 where $\mathcal{V}^*$ represents all possible token sequence sets. This formula shows that a macro action's probability is the sum of probabilities of all "token sequences that can be decoded and parsed into that action."
 
@@ -271,7 +271,7 @@ Other steps, such as parsing action $A_k$ from thought $\mathbf{v}_k$ (through `
 
 First, we define a trajectory $\tau$ of length $T$ turns as a sequence of core events starting from the initial state:
 
-$$\tau = (X_0, \mathbf{v}_0, A_0, O_1, X_1, \mathbf{v}_1, A_1, O_2, \ldots, X_T, \mathbf{v}_T, A_T, O_{T+1})$$
+{{< math >}}$$\tau = (X_0, \mathbf{v}_0, A_0, O_1, X_1, \mathbf{v}_1, A_1, O_2, \ldots, X_T, \mathbf{v}_T, A_T, O_{T+1})$${{< /math >}}
 
 where:
 - $X_k$ is the agent's state at turn $k$ (compressed representation of history)
@@ -281,21 +281,21 @@ where:
 
 #### Trajectory Probability
 
-$$P(\tau | \theta, \rho) = p(X_0) \prod_{k=0}^{T} \left[ \underbrace{p_{\theta}(\mathbf{v}_k | X_k)}_{\text{Agent's Policy}} \cdot \underbrace{\rho(O_{k+1} | H_k^{\text{ext}}, A_k)}_{\text{Environment's Dynamics}} \right]$$
+{{< math >}}$$P(\tau | \theta, \rho) = p(X_0) \prod_{k=0}^{T} \left[ \underbrace{p_{\theta}(\mathbf{v}_k | X_k)}_{\text{Agent's Policy}} \cdot \underbrace{\rho(O_{k+1} | H_k^{\text{ext}}, A_k)}_{\text{Environment's Dynamics}} \right]$${{< /math >}}
 
 where:
 
-$$p_{\theta}(\mathbf{v}_k | X_k) = \prod_{t=1}^{|\mathbf{v}_k|}p_{\theta}(v_{k,t} | X_k, v_{k,1:t-1})$$
+{{< math >}}$$p_{\theta}(\mathbf{v}_k | X_k) = \prod_{t=1}^{|\mathbf{v}_k|}p_{\theta}(v_{k,t} | X_k, v_{k,1:t-1})$${{< /math >}}
 
 #### Trajectory Probability Ratio
 
 The trajectory probability ratio of two models $\theta, \theta'$ is:
 
-$$\frac{P(\tau | \theta, \rho)}{P(\tau| \theta', \rho)} = \frac{p(X_0) \prod_{k=0}^{T} \left[ {p_{\theta}(\mathbf{v}_k | X_k)} \cdot {\rho(O_{k+1} | H_k^{\text{ext}}, A_k)} \right]} {p(X_0) \prod_{k=0}^{T} \left[ {p_{\theta'}(\mathbf{v}_k | X_k)} \cdot {\rho(O_{k+1} | H_k^{\text{ext}}, A_k)} \right]}$$
+{{< math >}}$$\frac{P(\tau | \theta, \rho)}{P(\tau| \theta', \rho)} = \frac{p(X_0) \prod_{k=0}^{T} \left[ {p_{\theta}(\mathbf{v}_k | X_k)} \cdot {\rho(O_{k+1} | H_k^{\text{ext}}, A_k)} \right]} {p(X_0) \prod_{k=0}^{T} \left[ {p_{\theta'}(\mathbf{v}_k | X_k)} \cdot {\rho(O_{k+1} | H_k^{\text{ext}}, A_k)} \right]}$${{< /math >}}
 
 After canceling common terms:
 
-$$\frac{P(\tau | \theta, \rho)}{P(\tau| \theta', \rho)} = \prod_{k = 0}^T \frac{p_{\theta}(\mathbf{v}_k | X_k)}{p_{\theta'}(\mathbf{v}_k | X_k)} = \prod_{k=0}^T \prod_{t = 1}^{|\mathbf{v}_k|} \frac{p_{\theta}(v_{k,t} | X_k, v_{k,1:t-1})}{p_{\theta'}(v_{k,t} | X_k, v_{k,1:t-1})}$$
+{{< math >}}$$\frac{P(\tau | \theta, \rho)}{P(\tau| \theta', \rho)} = \prod_{k = 0}^T \frac{p_{\theta}(\mathbf{v}_k | X_k)}{p_{\theta'}(\mathbf{v}_k | X_k)} = \prod_{k=0}^T \prod_{t = 1}^{|\mathbf{v}_k|} \frac{p_{\theta}(v_{k,t} | X_k, v_{k,1:t-1})}{p_{\theta'}(v_{k,t} | X_k, v_{k,1:t-1})}$${{< /math >}}
 
 This factorization enables RL algorithms (PPO, GRPO, etc.) to optimize $\theta$ by computing importance weights at either the turn level or token level.
 
@@ -461,7 +461,7 @@ Let's look at the utils module, which seems to handle parameter parsing:
 
 - **Agent-Centric History** ($H_k^{\text{agent}}$): This is the complete information source for agent decision-making. In SWE-Benchmark practice, it's usually organized as a dialogue-style record:
 
-$$H_k^{\text{agent}} = (\text{system\_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$$
+{{< math >}}$$H_k^{\text{agent}} = (\text{system\_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$${{< /math >}}
 
 where $O_0$ contains the initial task description (Problem Statement) and environment introduction.
 
