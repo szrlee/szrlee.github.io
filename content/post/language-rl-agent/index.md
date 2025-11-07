@@ -38,7 +38,7 @@ This post establishes a mathematical framework revealing that **language serves 
 
 1. **Active vocabulary management** ($\mathcal{V}$): Agents design their own "language" for expressing actions, not constrained to fixed action spaces
 2. **Active context management** ($f_{\text{agent}}$): Agents control what information to retain through learned state compression (memory management)
-3. **Two-layer decision structure**: Macro policy $\pi(A_k | X_k)$ implemented through micro token generation $p_{\theta}(\mathbf{v} | X_k)$, enabling Chain-of-Thought reasoning
+3. **Two-layer decision structure**: Macro policy $\pi(A_k | X_k)$ implemented through micro token generation $p_{\theta}(\mathbf{v}_k | X_k)$, enabling Chain-of-Thought reasoning
 
 These aren't implementation details—they're the fundamental architectural differences that determine agent capability.
 
@@ -68,6 +68,8 @@ $$A_k = \text{Parser}(th_k)$$
 
 **External Observation** ($O_k$): After action $A_{k-1}$ acts on the environment, the information returned to the agent.
 
+**Vocabulary** ($\mathcal{V}$): The set of all tokens available to the language model for generating thoughts. Unlike traditional RL where action spaces are fixed, language agents can actively design and extend their vocabulary.
+
 #### Two Types of History
 
 **1. External History** ($H_k^{\text{ext}}$):
@@ -92,50 +94,6 @@ $$\rho(O_{k+1} | H_k^{\text{ext}}, A_k)$$
 
 In our framework, $\rho$ is externally given and typically unknown—a "black box."
 
-#### Notation Summary
-
-The table below summarizes the key notation introduced in this section and used throughout the post:
-
-| Symbol | Type | Definition | First Use |
-|--------|------|------------|-----------|
-| $k$ | Index | Turn/step index in the interaction | §1.1 |
-| $th_k$ | Text | Internal thought at turn $k$ (free-form reasoning) | §1.1 |
-| $A_k$ | Action | External action at turn $k$ (structured command) | §1.1 |
-| $O_k$ | Observation | External observation at turn $k$ (environment feedback) | §1.1 |
-| $H_k^{\text{ext}}$ | Sequence | External history: $(A_0, O_1, \ldots, A_{k-1}, O_k)$ | §1.1 |
-| $H_k^{\text{agent}}$ | Sequence | Agent-centric history: includes thoughts $th_i$ | §1.1 |
-| $\mathcal{E}$ | Environment | The external world/task environment | §1.1 |
-| $\rho$ | Function | Environment transition: $\rho(O_{k+1} \| H_k^{\text{ext}}, A_k)$ | §1.1 |
-| $\text{Parser}$ | Function | Deterministic mapping: $th_k \to A_k$ | §1.1 |
-| $X_k$ | State | Agent state at turn $k$ (compressed history) | §1.2 |
-| $f_{\text{agent}}$ | Function | State update: $X_{k+1} = f_{\text{agent}}(X_k, th_k, A_k, O_{k+1})$ | §1.2 |
-| $\pi$ | Policy | Macro policy: $\pi(A_k \| X_k)$ | §1.2 |
-| $R_{k+1}$ | Scalar | Reward received after action $A_k$ | §1.3 |
-| $G_k$ | Scalar | Return: $\sum_{t=0}^{\infty} \gamma^t R_{k+t+1}$ | §1.3 |
-| $\gamma$ | Scalar | Discount factor, $\gamma \in [0, 1]$ | §1.3 |
-| $r$ | Function | Reward function: $R_{k+1} = r(X_k, th_k, A_k, O_{k+1})$ | §1.3 |
-| $\pi^*$ | Policy | Optimal policy maximizing expected return | §1.3 |
-| $\mathbf{v}_k$ | Sequence | Token sequence at turn $k$: $(v_{k,1}, \ldots, v_{k,T_k})$ | §1.4 |
-| $v_{k,t}$ | Token | The $t$-th token in turn $k$'s sequence | §1.4 |
-| $T_k$ | Integer | Length of token sequence at turn $k$ | §1.4 |
-| $p_{\theta}$ | Distribution | LLM policy (micro): $p_{\theta}(\mathbf{v}_k \| X_k)$ | §1.4 |
-| $\theta$ | Parameters | LLM model parameters | §1.4 |
-| $\text{Decode}$ | Function | Token sequence to string: $th_k = \text{Decode}(\mathbf{v}_k)$ | §1.4 |
-| $\mathcal{V}$ | Set | Vocabulary: set of all tokens (active design choice) | §1.1 |
-| $\mathcal{V}^*$ | Set | All possible token sequences (Kleene star over $\mathcal{V}$) | §1.4 |
-| $\mathcal{A}$ | Set | Action space (set of all possible actions) | §1.4 |
-| $\tau$ | Trajectory | Complete interaction sequence | §1.5 |
-| $T$ | Integer | Final turn index in trajectory (trajectory has turns $0, \ldots, T$) | §1.5 |
-| $P(\tau \| \theta, \rho)$ | Probability | Probability of trajectory $\tau$ under policy $\theta$ and environment $\rho$ | §1.5 |
-
-**Notation Conventions**:
-- **Subscript $k$**: Refers to turn/step index in the interaction sequence
-- **Subscript $t$**: Refers to token position within a single turn's generation
-- **Uppercase** ($A, O, R, G, X$): Random variables or their realizations
-- **Lowercase** ($th, r, f$): Functions or deterministic quantities
-- **Bold** ($\mathbf{v}$): Sequences or vectors
-- **Calligraphic** ($\mathcal{E}, \mathcal{A}, \mathcal{V}$): Sets or abstract spaces
-
 #### Key Design Choices: Why Language Changes Everything
 
 **Here's what traditional RL agents cannot do:** In classic RL, the action space $\mathcal{A}$ is fixed. In Atari, you have {up, down, left, right, fire}. In chess, you have legal moves. The agent optimizes policy $\pi(a|s)$ over this frozen set.
@@ -152,16 +110,16 @@ Unlike fixed action spaces in traditional RL, language agents can **actively des
 
 The vocabulary $\mathcal{V}$ directly determines what can be expressed in $th_k$, which through the Parser determines the effective action space $\mathcal{A}$. This is a **learnable design choice**, not a fixed constraint.
 
-**2. Active Context Management ($X_k$ via $f_{\text{agent}}$)**
+**2. Active Context Management (via agent state)**
 
-Language agents must **actively manage what information to retain** in their state $X_k$ at each turn. The state update function $f_{\text{agent}}$ is not just a passive compression—it's an **active policy** for context management:
+Language agents must **actively manage what information to retain** in their internal state at each turn. As we'll see in §1.2, agents compress the growing history $H_k^{\text{agent}}$ into a finite state representation. This state management function is not just passive compression—it's an **active policy** for context management:
 
 - **What to remember**: Selecting which past observations, thoughts, and actions to retain
 - **What to forget**: Discarding irrelevant information to stay within context limits
 - **How to compress**: Choosing representations (verbatim, summarized, structured)
 - **When to retrieve**: Deciding when to access external memory vs. internal context
 
-The design of $f_{\text{agent}}$ is as important as the policy $\pi$ itself—poor context management creates an information bottleneck that no amount of model capacity can overcome.
+The design of this state management function is as important as the action policy itself—poor context management creates an information bottleneck that no amount of model capacity can overcome.
 
 **Why this matters**: Both vocabulary and context are expressed in natural language—the same medium humans use. This makes language agents uniquely:
 - **Interpretable**: You can read what the agent thinks and why
@@ -258,7 +216,7 @@ This layer's core function is to **implement** the macro policy $\pi$. It descri
 
 - **Thought string** ($th_k$): The human-readable text string converted from token sequence $\mathbf{v}_k$ through decode function: $th_k = \text{Decode}(\mathbf{v}_k)$
 
-**Note**: When referring to $th_k$, without special indication, it can refer to either the thought string or the $\mathbf{v}_k$ generated by the LLM at that time. The mapping from token to thought string is many-to-one, which may present technical issues.
+**Note**: When referring to $th_k$, without special indication, it can refer to either the thought string or the $\mathbf{v}_k$ generated by the LLM at that time. The Decode function is typically deterministic (one token sequence maps to one string), but the inverse mapping (text to tokens) can be many-to-one due to different tokenization schemes.
 
 **Generation Process**: This process is controlled by LLM parameters $\theta$, defining the probability of generating a specific token sequence $\mathbf{v}_k$ given state $X_k$. For autoregressive models:
 
@@ -316,7 +274,7 @@ First, we define a trajectory $\tau$ of length $T$ turns as a sequence of core e
 $$\tau = (X_0, \mathbf{v}_0, A_0, O_1, X_1, \mathbf{v}_1, A_1, O_2, \ldots, X_T, \mathbf{v}_T, A_T, O_{T+1})$$
 
 where:
-- $X_k$ is the agent's state at turn $k$ (e.g., all history prefixes)
+- $X_k$ is the agent's state at turn $k$ (compressed representation of history)
 - $\mathbf{v}_k$ is the token sequence generated by the LLM at turn $k$: $\mathbf{v}_k = (v_{k,1}, \ldots, v_{k, |\mathbf{v}_k|})$
 - $A_k$ is the action parsed from $\mathbf{v}_k$: $A_k = \text{Parser}(\text{Decode}(\mathbf{v}_k))$
 - $O_{k+1}$ is the environment's observation response to action $A_k$
@@ -387,7 +345,7 @@ The agent is the system's core, integrating five major functions: **perception, 
 
 - **Implements**: Encapsulates the complete decision chain from state to action
 - **Internal flow**:
-  1. **Thought Generation**: Call micro generation layer $p_{\theta}(th_k | X_k)$ to generate coherent thought text $th_k$
+  1. **Thought Generation**: Sample token sequence $\mathbf{v}_k$ from micro generation layer $p_{\theta}(\mathbf{v}_k | X_k)$, then decode to thought text $th_k = \text{Decode}(\mathbf{v}_k)$
   2. **Action Parsing**: Call deterministic $\text{Parser}(th_k)$ function to extract structured macro action $A_k$ from thought
 - **Returns**: $(th_k, A_k)$ tuple—complete thought chain and final action for this decision
 
@@ -464,7 +422,7 @@ In SWE-Benchmark settings, the environment $\mathcal{E}$ is a highly isolated an
 
 #### Agent-Environment Interface Correspondence
 
-**2.1 Macro Action ($A_k$) and Action Space ($\mathcal{A}$)**
+**Macro Action ($A_k$) and Action Space ($\mathcal{A}$)**
 
 The agent's macro actions $A_k$ are a series of predefined, structured tool calls. Action space $\mathcal{A}$ is the set of all these legal tool calls. Typical tools include:
 
@@ -480,7 +438,7 @@ The agent's macro actions $A_k$ are a series of predefined, structured tool call
 - **submit**: Terminate task and submit final solution
   - Formal representation: $A_k = (\text{submit}, \{\})$
 
-**2.2 Thought ($th_k$), Action Parsing (Parser), and Observation ($O_k$)**
+**Thought ($th_k$), Action Parsing (Parser), and Observation ($O_k$)**
 
 This is the core link connecting micro generation with macro interaction.
 
@@ -535,6 +493,52 @@ where $O_0$ contains the initial task description (Problem Statement) and enviro
 This process perfectly interprets our definition: reward $R_{k+1}$ is generated by the agent (its evaluation module) after action $A_k$ acts on the environment and produces observation $O_{k+1}$ (here referring to test results). This sparse reward characteristic also brings enormous credit assignment challenges to reinforcement learning algorithms (like PPO, ReMax).
 
 **A prescriptive insight from our framework:** This sparse reward design is suboptimal. Our framework suggests a more effective agent could leverage its `evaluate_step` capability to **generate denser, intermediate rewards**. For example, after an `edit` action, the agent could self-evaluate by running a linter, static type-checker, or unit tests on modified functions—generating internal reward signals $R_{k+1} > 0$ for syntactically correct code or passing local tests, even before the final submission. This demonstrates how our framework provides not just a descriptive model, but a blueprint for designing more sample-efficient agents.
+
+---
+
+## Notation Summary
+
+The table below summarizes the key notation introduced throughout this post:
+
+| Symbol | Type | Definition | First Use |
+|--------|------|------------|-----------|
+| $k$ | Index | Turn/step index in the interaction | §1.1 |
+| $th_k$ | Text | Internal thought at turn $k$ (free-form reasoning) | §1.1 |
+| $A_k$ | Action | External action at turn $k$ (structured command) | §1.1 |
+| $O_k$ | Observation | External observation at turn $k$ (environment feedback) | §1.1 |
+| $H_k^{\text{ext}}$ | Sequence | External history: $(A_0, O_1, \ldots, A_{k-1}, O_k)$ | §1.1 |
+| $H_k^{\text{agent}}$ | Sequence | Agent-centric history: includes thoughts $th_i$ | §1.1 |
+| $\mathcal{E}$ | Environment | The external world/task environment | §1.1 |
+| $\rho$ | Function | Environment transition: $\rho(O_{k+1} \| H_k^{\text{ext}}, A_k)$ | §1.1 |
+| $\text{Parser}$ | Function | Deterministic mapping: $th_k \to A_k$ | §1.1 |
+| $X_k$ | State | Agent state at turn $k$ (compressed history) | §1.2 |
+| $f_{\text{agent}}$ | Function | State update: $X_{k+1} = f_{\text{agent}}(X_k, th_k, A_k, O_{k+1})$ | §1.2 |
+| $\pi$ | Policy | Macro policy: $\pi(A_k \| X_k)$ | §1.2 |
+| $R_{k+1}$ | Scalar | Reward received after action $A_k$ | §1.3 |
+| $G_k$ | Scalar | Return: $\sum_{t=0}^{\infty} \gamma^t R_{k+t+1}$ | §1.3 |
+| $\gamma$ | Scalar | Discount factor, $\gamma \in [0, 1]$ | §1.3 |
+| $r$ | Function | Reward function: $R_{k+1} = r(X_k, th_k, A_k, O_{k+1})$ | §1.3 |
+| $\pi^*$ | Policy | Optimal policy maximizing expected return | §1.3 |
+| $\mathbf{v}_k$ | Sequence | Token sequence at turn $k$: $(v_{k,1}, \ldots, v_{k,T_k})$ | §1.4 |
+| $v_{k,t}$ | Token | The $t$-th token in turn $k$'s sequence | §1.4 |
+| $T_k$ | Integer | Length of token sequence at turn $k$ | §1.4 |
+| $p_{\theta}$ | Distribution | LLM policy (micro): $p_{\theta}(\mathbf{v}_k \| X_k)$ | §1.4 |
+| $\theta$ | Parameters | LLM model parameters | §1.4 |
+| $\text{Decode}$ | Function | Token sequence to string: $th_k = \text{Decode}(\mathbf{v}_k)$ | §1.4 |
+| $\mathcal{V}$ | Set | Vocabulary: set of all tokens (active design choice) | §1.1 |
+| $\mathcal{V}^*$ | Set | All possible token sequences (Kleene star over $\mathcal{V}$) | §1.4 |
+| $\mathcal{A}$ | Set | Action space (set of all possible actions) | §1.4 |
+| $\tau$ | Trajectory | Complete interaction sequence | §1.5 |
+| $T$ | Integer | Final turn index in trajectory (trajectory has turns $0, \ldots, T$) | §1.5 |
+| $P(\tau \| \theta, \rho)$ | Probability | Probability of trajectory $\tau$ under policy $\theta$ and environment $\rho$ | §1.5 |
+
+**Notation Conventions**:
+- **Subscript $k$**: Refers to turn/step index in the interaction sequence
+- **Subscript $t$**: Refers to token position within a single turn's generation
+- **Uppercase** ($A, O, R, G, X$): Random variables or their realizations
+- **Lowercase** ($th, r, f$): Functions or deterministic quantities
+- **Bold** ($\mathbf{v}$): Sequences or vectors
+- **Calligraphic** ($\mathcal{E}, \mathcal{A}, \mathcal{V}$): Sets or abstract spaces
 
 ---
 
