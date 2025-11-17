@@ -15,8 +15,8 @@ categories:
   - Research
   - Theory
   - Documentation
-date: '2024-11-04T00:00:00Z'
-lastmod: '2024-11-04T00:00:00Z'
+date: '2025-11-04T00:00:00Z'
+lastmod: '2025-11-04T00:00:00Z'
 featured: true
 draft: false
 external_link: 'https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html'
