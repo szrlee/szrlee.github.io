@@ -13,7 +13,7 @@ categories:
   - Research
   - Theory
 date: '2025-10-01T00:00:00Z'
-lastmod: '2025-11-04T00:00:00Z'
+lastmod: '2025-10-01T00:00:00Z'
 featured: true
 draft: false
 math: true
@@ -572,3 +572,8 @@ I am grateful to [@mgostIH](https://x.com/mgostIH) for the insightful conversati
   year    = {2025},
   url     = {https://richardli.xyz/post/information-bandwidth-rl/}
 }
+```
+
+---
+
+*Last updated: November 4, 2025*

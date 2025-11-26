@@ -15,7 +15,7 @@ categories:
   - Research
   - Theory
   - Documentation
-date: '2025-10-01T00:00:00Z'
+date: '2025-11-04T00:00:00Z'
 lastmod: '2025-11-04T00:00:00Z'
 featured: true
 draft: false
@@ -78,7 +78,3 @@ Rollout correction provides a unified framework to handle **general off-policy p
 - [Rollout Correction Usage Guide](https://verl.readthedocs.io/en/latest/algo/rollout_corr.html) - Practical implementation guide
 - [VeRL GitHub Repository](https://github.com/volcengine/verl)
 
----
-
-*First published: October 1, 2025*
-*Last updated: November 4, 2025*
