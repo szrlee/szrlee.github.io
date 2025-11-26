@@ -64,7 +64,7 @@ social:
 highlight_name: true
 ---
 
-I am a Research Scientist at ByteDance in Singapore. I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hong Kong (CUHK), where I had the privilege of being advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/).
+I am a Research Scientist at ByteDance in Singapore. I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hong Kong (CUHK), where I had the privilege of being advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) on my thesis committee.
 
 During my  studies, I was a research intern at Microsoft Research and the Tencent AI & Robotics X Lab. I also had the valuable opportunity to collaborate with [Prof. Tong Zhang](https://tongzhang-ml.org/) and [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
 
