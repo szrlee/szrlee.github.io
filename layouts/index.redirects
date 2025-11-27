@@ -1,8 +1,0 @@
-# Netlify redirects
-# Automatically generated
-
-# Custom redirects
-/post/rl-collapse-train-infer-mismatch https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda 301!
-/post/rl-collapse-train-infer-mismatch/ https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda 301!
-
-# Documentation: https://docs.netlify.com/routing/redirects/

@@ -1,5 +1,5 @@
 [build]
-  command = "hugo --gc --minify -b $URL"
+  command = "hugo --gc --minify -b $URL && echo '/post/rl-collapse-train-infer-mismatch https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda 301!' >> public/_redirects && echo '/post/rl-collapse-train-infer-mismatch/ https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda 301!' >> public/_redirects"
   publish = "public"
 
 [build.environment]
