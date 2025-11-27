@@ -23,6 +23,7 @@ lastmod: '2025-09-17T00:00:00Z'
 featured: true
 draft: false
 external_link: 'https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda'
+url: /post/rl-collapse-train-infer-mismatch
 
 # Featured image
 image:
