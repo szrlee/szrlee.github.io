@@ -1,5 +1,18 @@
+# Redirects must come FIRST
+[[redirects]]
+  from = "/post/rl-collapse-train-infer-mismatch"
+  to = "https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda"
+  status = 301
+  force = true
+
+[[redirects]]
+  from = "/post/rl-collapse-train-infer-mismatch/"
+  to = "https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda"
+  status = 301
+  force = true
+
 [build]
-  command = "hugo --gc --minify -b $URL && echo '/post/rl-collapse-train-infer-mismatch https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda 301!' >> public/_redirects && echo '/post/rl-collapse-train-infer-mismatch/ https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda 301!' >> public/_redirects"
+  command = "hugo --gc --minify -b $URL"
   publish = "public"
 
 [build.environment]
