@@ -12,7 +12,6 @@ tags:
   - Bandits
 categories:
   - Research
-  - NeurIPS 2025
 date: '2025-11-30T00:00:00Z'
 lastmod: '2025-11-30T00:00:00Z'
 featured: true
@@ -20,14 +19,12 @@ draft: false
 math: true
 toc: true
 
-# Featured image
-image:
-  caption: 'Ensemble++ Poster'
-  focal_point: ''
-  preview_only: false
+# # Featured image
+# image:
+#   caption: 'Ensemble++ Poster'
+#   focal_point: ''
+#   preview_only: false
 
-# Projects (optional)
-projects: []
 ---
 
 ## The Exploration Challenge in Deep RL
