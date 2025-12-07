@@ -118,35 +118,35 @@ At a discontinuity, the classical subgradient is not defined. The *Clarke Genera
 
 ## Part 2: The Trust Region Violation
 
-### The Trust Region Assumption
+### The Trust Region Framework
 
-Modern RL algorithms like PPO and TRPO are built on the **Trust Region** principle. They assume that constraining the update step size in parameter space ({{< math >}}$\theta${{< /math >}}) ensures a bounded change in policy space ({{< math >}}$\pi${{< /math >}}).
-
-Mathematically, they rely on:
-
-**1. Taylor Expansion of the Objective:**
+Modern RL algorithms like PPO and TRPO are built on the **Trust Region** principle. The key theoretical result is the **monotonic improvement theorem** from [Schulman et al. (2015)](https://arxiv.org/abs/1502.05477):
 
 {{< math >}}
-$$J(\theta + \Delta \theta) \approx J(\theta) + \nabla J(\theta)^T \Delta \theta + O(\|\Delta \theta\|^2)$$
+$$\eta(\tilde{\pi}) \geq L_{\pi}(\tilde{\pi}) - C \cdot D_{KL}^{max}(\pi, \tilde{\pi})$$
 {{< /math >}}
 
-**2. KL Divergence Bound:**
+where {{< math >}}$\eta(\tilde{\pi})${{< /math >}} is the true expected return, {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is the surrogate objective, and {{< math >}}$C${{< /math >}} is a constant depending on the maximum advantage.
+
+This leads to the practical optimization:
 
 {{< math >}}
-$$D_{KL}(\pi_\theta \| \pi_{\theta+\Delta\theta}) \le \delta$$
+$$\max_{\theta} L_{\pi_{\theta_{old}}}(\pi_\theta) \quad \text{subject to} \quad D_{KL}(\pi_{\theta_{old}} \| \pi_\theta) \le \delta$$
 {{< /math >}}
 
-**3. Lipschitz Continuity:**
+The framework implicitly assumes:
 
-{{< math >}}
-$$\|\pi_{\theta} - \pi_{\theta+\Delta\theta}\| \le L \|\Delta\theta\|$$
-{{< /math >}}
+**1. Continuity of the surrogate objective** {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} in policy parameters
+
+**2. Continuity of KL divergence** {{< math >}}$D_{KL}(\pi_\theta \| \pi_{\theta'})${{< /math >}} as a function of {{< math >}}$\theta'${{< /math >}}
+
+**3. Smoothness for optimization:** gradients exist and vary continuously, enabling gradient-based constraint satisfaction
 
 ### How Top-K Violates This
 
 Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< math >}}$\theta \in \Theta${{< /math >}} to the policy {{< math >}}$\pi_\theta \in \Pi${{< /math >}}.
 
-**In standard dense networks:** {{< math >}}$f${{< /math >}} is typically Lipschitz continuous (for bounded activations)—small parameter changes yield small policy changes.
+**In standard dense networks:** {{< math >}}$f${{< /math >}} is continuous—both the surrogate objective {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} and KL divergence {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} vary smoothly with {{< math >}}$\theta${{< /math >}}.
 
 **In Top-K MoE:** {{< math >}}$f${{< /math >}} is **piecewise smooth but globally discontinuous**—smooth within each routing region, but with jump discontinuities at region boundaries.
 
@@ -156,36 +156,35 @@ At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings 
 $$\lim_{t \to 0^+} \pi_{\theta^* + tv} \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}$$
 {{< /math >}}
 
-Because the routing function is discontinuous at decision boundaries, an infinitesimal step in parameter space can trigger a hard switch in active experts:
-
-{{< math >}}
-$$\exists v: \lim_{t \to 0^+} \| \pi_{\theta^* - tv} - \pi_{\theta^* + tv} \| > 0$$
-{{< /math >}}
+This discontinuity breaks all three assumptions:
+- The **surrogate objective** {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} jumps discontinuously
+- The **KL divergence** {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} jumps discontinuously
+- **Gradients** are undefined at the boundary, making constraint satisfaction impossible
 
 ### The Consequences
 
 When the router crosses a decision boundary:
 
-**1. KL Divergence Explosion:**
-The policy distribution changes radically. For {{< math >}}$\theta${{< /math >}} near a boundary and {{< math >}}$\Delta\theta${{< /math >}} crossing it, even with arbitrarily small {{< math >}}$\|\Delta \theta\|${{< /math >}}:
+**1. KL Divergence Jumps:**
+The policy distribution changes discontinuously. For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesimal step crossing it causes:
 
 {{< math >}}
-$$D_{KL}(\pi_\theta \| \pi_{\theta + \Delta\theta}) \gg \delta$$
+$$\lim_{\epsilon \to 0^+} D_{KL}(\pi_{\theta} \| \pi_{\theta + \epsilon v}) > 0$$
 {{< /math >}}
 
-The trust region constraint is violated despite the small step size.
+The KL divergence doesn't smoothly approach zero—it has a positive lower bound at the discontinuity. This makes the trust region constraint {{< math >}}$D_{KL} \le \delta${{< /math >}} impossible to satisfy smoothly.
 
-**2. Taylor Approximation Failure:**
-The first-order approximation used by PPO becomes invalid. For any {{< math >}}$\theta${{< /math >}} near a switching boundary, the approximation error when crossing the boundary is {{< math >}}$O(1)${{< /math >}} rather than {{< math >}}$O(\|\Delta\theta\|^2)${{< /math >}}:
+**2. Surrogate Objective Discontinuity:**
+The surrogate objective {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} used by PPO/TRPO also jumps at boundaries. The monotonic improvement guarantee:
 
 {{< math >}}
-$$|J(\theta + \Delta\theta) - J(\theta) - \nabla J(\theta)^T \Delta\theta| = O(1) \quad \text{when } \Delta\theta \text{ crosses boundary}$$
+$$\eta(\pi_{new}) \geq L_{\pi_{old}}(\pi_{new}) - C \cdot D_{KL}^{max}$$
 {{< /math >}}
 
-The "new" policy is structurally different from the "old" policy—different experts are active, producing entirely different outputs.
+breaks down because {{< math >}}$L_{\pi_{old}}${{< /math >}} is discontinuous—there's no smooth path to optimize along.
 
 **3. Chattering Behavior:**
-The optimizer oscillates violently around switching points. It takes a step, crosses the boundary, the objective changes dramatically, it steps back, crosses again, and so on. This is the training instability frequently observed in MoE-RL experiments.
+The optimizer oscillates around switching points. It takes a step, crosses the boundary, the objective jumps, the KL constraint is violated, the step is rejected or reversed, it crosses back, and so on. This is the training instability frequently observed in MoE-RL experiments.
 
 ---
 
