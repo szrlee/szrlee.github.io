@@ -41,7 +41,7 @@ This discreteness introduces two fundamental mathematical pathologies that break
 
 ## TL;DR: The Two Pathologies
 
-**Challenge 1: Gradient Blackout.** The gradient of the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{<t})${{< /math >}} with respect to unselected experts' logits is exactly zero almost everywhere. Unlike non-smooth convex functions where subgradients guide optimization, the Top-K landscape offers no directional information on how to switch to a better expert.
+**Challenge 1: Gradient Blackout.** The gradient of the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} with respect to unselected experts' logits is exactly zero almost everywhere. Unlike non-smooth convex functions where subgradients guide optimization, the Top-K landscape offers no directional information on how to switch to a better expert.
 
 **Challenge 2: Trust Region Violation.** Modern LLM-RL algorithms (PPO, GRPO) optimize a surrogate objective under a KL divergence constraint. This requires differentiability for gradient computation and continuity for constraint satisfaction. Top-K routing violates both—an infinitesimal parameter change can cause a discrete expert switch, making both the surrogate and KL divergence jump discontinuously.
 
@@ -59,11 +59,11 @@ This discreteness introduces two fundamental mathematical pathologies that break
 
 Consider an autoregressive language model generating a response {{< math >}}$y = (y_1, y_2, \ldots, y_T)${{< /math >}} given a prompt {{< math >}}$x${{< /math >}}. At each timestep {{< math >}}$t${{< /math >}}, the model predicts the next token {{< math >}}$y_t${{< /math >}} given the context:
 
-- **State:** {{< math >}}$s_t = (x, y_{<t})${{< /math >}} — the prompt concatenated with previously generated tokens
+- **State:** {{< math >}}$s_t = (x, y_{\lt t})${{< /math >}} — the prompt concatenated with previously generated tokens
 - **Action:** {{< math >}}$a_t = y_t${{< /math >}} — the next token to generate
-- **Policy:** {{< math >}}$\pi_\theta(a_t | s_t) = \pi_\theta(y_t | x, y_{<t})${{< /math >}} — the token probability distribution
+- **Policy:** {{< math >}}$\pi_\theta(a_t | s_t) = \pi_\theta(y_t | x, y_{\lt t})${{< /math >}} — the token probability distribution
 
-In an MoE transformer, each MoE layer has a router that computes logits {{< math >}}$h \in \mathbb{R}^N${{< /math >}} for {{< math >}}$N${{< /math >}} experts based on the hidden state. For a fixed {{< math >}}$K < N${{< /math >}}, the Top-K operator selects the indices of the {{< math >}}$K${{< /math >}} largest logits:
+In an MoE transformer, each MoE layer has a router that computes logits {{< math >}}$h \in \mathbb{R}^N${{< /math >}} for {{< math >}}$N${{< /math >}} experts based on the hidden state. For a fixed {{< math >}}$K \lt N${{< /math >}}, the Top-K operator selects the indices of the {{< math >}}$K${{< /math >}} largest logits:
 
 {{< math >}}
 $$\mathcal{K}(h) = \{j : h_j \text{ is among the } K \text{ largest elements of } h\}$$
@@ -75,13 +75,13 @@ The MoE layer output is:
 $$\text{MoE}(z) = \sum_{j \in \mathcal{K}(h)} \frac{e^{h_j}}{\sum_{k \in \mathcal{K}(h)} e^{h_k}} E_j(z)$$
 {{< /math >}}
 
-where {{< math >}}$z${{< /math >}} is the hidden state, {{< math >}}$E_j${{< /math >}} is expert {{< math >}}$j${{< /math >}}'s FFN, and {{< math >}}$h = h(z; \theta_r)${{< /math >}} depends on router parameters {{< math >}}$\theta_r${{< /math >}}. The final token distribution {{< math >}}$\pi_\theta(y_t | x, y_{<t})${{< /math >}} depends on outputs from all MoE layers.
+where {{< math >}}$z${{< /math >}} is the hidden state, {{< math >}}$E_j${{< /math >}} is expert {{< math >}}$j${{< /math >}}'s FFN, and {{< math >}}$h = h(z; \theta_r)${{< /math >}} depends on router parameters {{< math >}}$\theta_r${{< /math >}}. The final token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} depends on outputs from all MoE layers.
 
 ### The Zero Gradient Problem
 
-When training with RL, we optimize the policy {{< math >}}$\pi_\theta(y_t | x, y_{<t})${{< /math >}} to maximize reward. Consider the gradient with respect to an **unselected** expert's logit {{< math >}}$h_u${{< /math >}}, where {{< math >}}$u \notin \mathcal{K}(h)${{< /math >}}.
+When training with RL, we optimize the policy {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} to maximize reward. Consider the gradient with respect to an **unselected** expert's logit {{< math >}}$h_u${{< /math >}}, where {{< math >}}$u \notin \mathcal{K}(h)${{< /math >}}.
 
-**Step 1: Locally Constant Set.** Let {{< math >}}$h_{(K)}${{< /math >}} denote the {{< math >}}$K${{< /math >}}-th largest element of {{< math >}}$h${{< /math >}}, and let {{< math >}}$e_u${{< /math >}} be the {{< math >}}$u${{< /math >}}-th standard basis vector. Assuming no ties (which holds almost everywhere), since {{< math >}}$u \notin \mathcal{K}(h)${{< /math >}}, we have {{< math >}}$h_u < h_{(K)}${{< /math >}}. For any scalar perturbation {{< math >}}$\epsilon${{< /math >}} with {{< math >}}$h_u + \epsilon < h_{(K)}${{< /math >}}:
+**Step 1: Locally Constant Set.** Let {{< math >}}$h_{(K)}${{< /math >}} denote the {{< math >}}$K${{< /math >}}-th largest element of {{< math >}}$h${{< /math >}}, and let {{< math >}}$e_u${{< /math >}} be the {{< math >}}$u${{< /math >}}-th standard basis vector. Assuming no ties (which holds almost everywhere), since {{< math >}}$u \notin \mathcal{K}(h)${{< /math >}}, we have {{< math >}}$h_u \lt h_{(K)}${{< /math >}}. For any scalar perturbation {{< math >}}$\epsilon${{< /math >}} with {{< math >}}$h_u + \epsilon \lt h_{(K)}${{< /math >}}:
 
 {{< math >}}
 $$\mathcal{K}(h + \epsilon \cdot e_u) = \mathcal{K}(h)$$
@@ -96,7 +96,7 @@ The set of selected experts remains unchanged as long as {{< math >}}$h_u${{< /m
 **Result:** The gradient of the token probability with respect to unselected expert logits is zero:
 
 {{< math >}}
-$$\frac{\partial \pi_\theta(y_t | x, y_{<t})}{\partial h_u} = 0 \quad \text{almost everywhere}$$
+$$\frac{\partial \pi_\theta(y_t | x, y_{\lt t})}{\partial h_u} = 0 \quad \text{almost everywhere}$$
 {{< /math >}}
 
 ### Why Subgradients Don't Help
@@ -116,7 +116,7 @@ Normally, we handle non-smooth points (like ReLU at 0) using subgradients. Howev
 At a discontinuity, the classical subgradient is not defined. The *Clarke Generalized Gradient* can be defined for locally Lipschitz functions, but the MoE layer output {{< math >}}$\text{MoE}(z)${{< /math >}} is not locally Lipschitz at switching boundaries—it has jump discontinuities.
 
 **Key insight:** The pathology is not that gradients are "undefined" at boundaries, but rather:
-1. Away from boundaries: {{< math >}}$\frac{\partial \pi_\theta(y_t | x, y_{<t})}{\partial h_u} = 0${{< /math >}} exactly (no signal)
+1. Away from boundaries: {{< math >}}$\frac{\partial \pi_\theta(y_t | x, y_{\lt t})}{\partial h_u} = 0${{< /math >}} exactly (no signal)
 2. At boundaries: the function jumps discontinuously, so no first-order approximation is valid
 
 **Bottom line:** During LLM-RL training, the router receives no gradient signal about whether switching to a different expert would generate better responses. The model cannot learn to route tokens to more suitable experts based on reward feedback.
@@ -130,9 +130,9 @@ At a discontinuity, the classical subgradient is not defined. The *Clarke Genera
 Modern LLM-RL algorithms like PPO and GRPO are built on the **Trust Region** principle from [Schulman et al. (2015)](https://arxiv.org/abs/1502.05477). The key idea is to derive a **lower bound** on the true objective that can be optimized safely.
 
 In the LLM setting, we use the autoregressive MDP formulation:
-- **State:** {{< math >}}$s_t = (x, y_{<t})${{< /math >}} — prompt plus tokens generated so far
+- **State:** {{< math >}}$s_t = (x, y_{\lt t})${{< /math >}} — prompt plus tokens generated so far
 - **Action:** {{< math >}}$a_t = y_t${{< /math >}} — the next token
-- **Policy:** {{< math >}}$\pi_\theta(y_t | x, y_{<t})${{< /math >}} — the LLM's token distribution
+- **Policy:** {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} — the LLM's token distribution
 
 **The True Objective:** The expected reward under policy {{< math >}}$\tilde{\pi}${{< /math >}}:
 
@@ -140,7 +140,7 @@ In the LLM setting, we use the autoregressive MDP formulation:
 $$\eta(\tilde{\pi}) = \eta(\pi) + \mathbb{E}_{(x,y) \sim \tilde{\pi}}\left[\sum_{t=1}^{T} \gamma^{t-1} A^{\pi}(s_t, y_t)\right]$$
 {{< /math >}}
 
-where {{< math >}}$A^\pi(s_t, y_t)${{< /math >}} is the advantage of generating token {{< math >}}$y_t${{< /math >}} in context {{< math >}}$s_t = (x, y_{<t})${{< /math >}}.
+where {{< math >}}$A^\pi(s_t, y_t)${{< /math >}} is the advantage of generating token {{< math >}}$y_t${{< /math >}} in context {{< math >}}$s_t = (x, y_{\lt t})${{< /math >}}.
 
 **The Surrogate Objective:** Replace the state distribution under {{< math >}}$\tilde{\pi}${{< /math >}} with that under {{< math >}}$\pi${{< /math >}}:
 
@@ -169,7 +169,7 @@ $$\max_{\theta} L_{\pi_{\theta_{old}}}(\pi_\theta) \quad \text{subject to} \quad
 
 ### How Top-K Violates This in MoE LLMs
 
-Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< math >}}$\theta \in \Theta${{< /math >}} to the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{<t}) \in \Pi${{< /math >}}.
+Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< math >}}$\theta \in \Theta${{< /math >}} to the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t}) \in \Pi${{< /math >}}.
 
 **In dense LLMs (GPT, LLaMA, etc.):** {{< math >}}$f${{< /math >}} is continuous—both {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} and {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} vary smoothly with {{< math >}}$\theta${{< /math >}}, and the first-order approximation {{< math >}}$\nabla_\theta L_{\pi} = \nabla_\theta \eta${{< /math >}} is valid.
 
@@ -178,7 +178,7 @@ Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< 
 At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings swap for some token), consider a direction {{< math >}}$v${{< /math >}} crossing the decision boundary. Approaching from opposite sides yields different token distributions:
 
 {{< math >}}
-$$\lim_{t \to 0^+} \pi_{\theta^* + tv}(y_t | x, y_{<t}) \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}(y_t | x, y_{<t})$$
+$$\lim_{t \to 0^+} \pi_{\theta^* + tv}(y_t | x, y_{\lt t}) \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}(y_t | x, y_{\lt t})$$
 {{< /math >}}
 
 This discontinuity **breaks the optimization**:
@@ -197,7 +197,7 @@ PPO/GRPO compute {{< math >}}$\nabla_\theta L_{\pi}${{< /math >}} to find an imp
 For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesimal step crossing it causes:
 
 {{< math >}}
-$$\lim_{\epsilon \to 0^+} D_{KL}(\pi_{\theta}(\cdot | x, y_{<t}) \| \pi_{\theta + \epsilon v}(\cdot | x, y_{<t})) > 0$$
+$$\lim_{\epsilon \to 0^+} D_{KL}(\pi_{\theta}(\cdot | x, y_{\lt t}) \| \pi_{\theta + \epsilon v}(\cdot | x, y_{\lt t})) > 0$$
 {{< /math >}}
 
 The KL divergence has a positive lower bound at the discontinuity. The line search, which tries to find the largest step satisfying {{< math >}}$D_{KL} \le \delta${{< /math >}}, cannot smoothly approach the boundary.
