@@ -113,7 +113,7 @@ Normally, we handle non-smooth points (like ReLU at 0) using subgradients. Howev
 - **On the plateau:** The gradient is exactly {{< math >}}$\mathbf{0}${{< /math >}}—no signal at all
 - **At the cliff:** Where {{< math >}}$h_i = h_j${{< /math >}} for the {{< math >}}$K${{< /math >}}-th and {{< math >}}$(K+1)${{< /math >}}-th ranked experts, the output jumps discontinuously as they swap positions
 
-At a discontinuity, the classical subgradient is not defined. The *Clarke Generalized Gradient* can be defined for locally Lipschitz functions, but the Top-K output {{< math >}}$y(h)${{< /math >}} is not locally Lipschitz at switching boundaries—it has jump discontinuities.
+At a discontinuity, the classical subgradient is not defined. The *Clarke Generalized Gradient* can be defined for locally Lipschitz functions, but the MoE layer output {{< math >}}$\text{MoE}(z)${{< /math >}} is not locally Lipschitz at switching boundaries—it has jump discontinuities.
 
 **Key insight:** The pathology is not that gradients are "undefined" at boundaries, but rather:
 1. Away from boundaries: {{< math >}}$\frac{\partial \pi_\theta(y_t | x, y_{<t})}{\partial h_u} = 0${{< /math >}} exactly (no signal)
