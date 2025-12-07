@@ -120,33 +120,44 @@ At a discontinuity, the classical subgradient is not defined. The *Clarke Genera
 
 ### The Trust Region Framework
 
-Modern RL algorithms like PPO and TRPO are built on the **Trust Region** principle. The key theoretical result is the **monotonic improvement theorem** from [Schulman et al. (2015)](https://arxiv.org/abs/1502.05477):
+Modern RL algorithms like PPO and TRPO are built on the **Trust Region** principle from [Schulman et al. (2015)](https://arxiv.org/abs/1502.05477). The key idea is to derive a **lower bound** on the true objective that can be optimized safely.
+
+**The True Objective:** The expected return under policy {{< math >}}$\tilde{\pi}${{< /math >}}:
 
 {{< math >}}
-$$\eta(\tilde{\pi}) \geq L_{\pi}(\tilde{\pi}) - C \cdot D_{KL}^{max}(\pi, \tilde{\pi})$$
+$$\eta(\tilde{\pi}) = \eta(\pi) + \mathbb{E}_{\tau \sim \tilde{\pi}}\left[\sum_{t=0}^{\infty} \gamma^t A^{\pi}(s_t, a_t)\right]$$
 {{< /math >}}
 
-where {{< math >}}$\eta(\tilde{\pi})${{< /math >}} is the true expected return, {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is the surrogate objective, and {{< math >}}$C${{< /math >}} is a constant depending on the maximum advantage.
+**The Surrogate Objective:** Replace the state distribution under {{< math >}}$\tilde{\pi}${{< /math >}} with that under {{< math >}}$\pi${{< /math >}}:
 
-This leads to the practical optimization:
+{{< math >}}
+$$L_{\pi}(\tilde{\pi}) = \eta(\pi) + \sum_s \rho_{\pi}(s) \sum_a \tilde{\pi}(a|s) A^{\pi}(s, a)$$
+{{< /math >}}
+
+This surrogate matches the true objective to **first order**: {{< math >}}$\nabla_\theta L_{\pi}|_{\theta_{old}} = \nabla_\theta \eta|_{\theta_{old}}${{< /math >}}.
+
+**The Monotonic Improvement Theorem:** The surrogate provides a lower bound:
+
+{{< math >}}
+$$\eta(\tilde{\pi}) \geq L_{\pi}(\tilde{\pi}) - \frac{4\epsilon\gamma}{(1-\gamma)^2} \cdot D_{KL}^{max}(\pi, \tilde{\pi})$$
+{{< /math >}}
+
+where {{< math >}}$\epsilon = \max_{s,a}|A^{\pi}(s,a)|${{< /math >}} is the maximum absolute advantage. This leads to the practical optimization:
 
 {{< math >}}
 $$\max_{\theta} L_{\pi_{\theta_{old}}}(\pi_\theta) \quad \text{subject to} \quad D_{KL}(\pi_{\theta_{old}} \| \pi_\theta) \le \delta$$
 {{< /math >}}
 
-The framework implicitly assumes:
-
-**1. Continuity of the surrogate objective** {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} in policy parameters
-
-**2. Continuity of KL divergence** {{< math >}}$D_{KL}(\pi_\theta \| \pi_{\theta'})${{< /math >}} as a function of {{< math >}}$\theta'${{< /math >}}
-
-**3. Smoothness for optimization:** gradients exist and vary continuously, enabling gradient-based constraint satisfaction
+**Critical assumption:** The bound relies on the surrogate {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} being a valid first-order approximation to {{< math >}}$\eta(\tilde{\pi})${{< /math >}}. This requires:
+1. {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is **continuous** in the policy parameters
+2. {{< math >}}$D_{KL}${{< /math >}} is **continuous** so the constraint can be satisfied smoothly
+3. **Gradients exist** for optimization
 
 ### How Top-K Violates This
 
 Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< math >}}$\theta \in \Theta${{< /math >}} to the policy {{< math >}}$\pi_\theta \in \Pi${{< /math >}}.
 
-**In standard dense networks:** {{< math >}}$f${{< /math >}} is continuous—both the surrogate objective {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} and KL divergence {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} vary smoothly with {{< math >}}$\theta${{< /math >}}.
+**In standard dense networks:** {{< math >}}$f${{< /math >}} is continuous—both {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} and {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} vary smoothly with {{< math >}}$\theta${{< /math >}}, and the first-order approximation {{< math >}}$\nabla_\theta L_{\pi} = \nabla_\theta \eta${{< /math >}} is valid.
 
 **In Top-K MoE:** {{< math >}}$f${{< /math >}} is **piecewise smooth but globally discontinuous**—smooth within each routing region, but with jump discontinuities at region boundaries.
 
@@ -156,35 +167,29 @@ At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings 
 $$\lim_{t \to 0^+} \pi_{\theta^* + tv} \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}$$
 {{< /math >}}
 
-This discontinuity breaks all three assumptions:
-- The **surrogate objective** {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} jumps discontinuously
-- The **KL divergence** {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} jumps discontinuously
-- **Gradients** are undefined at the boundary, making constraint satisfaction impossible
+This discontinuity **invalidates the lower bound**:
+- The surrogate {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is **not** a first-order approximation at the boundary—it jumps discontinuously
+- The penalty term {{< math >}}$\frac{4\epsilon\gamma}{(1-\gamma)^2} D_{KL}^{max}${{< /math >}} also jumps, making the bound vacuous
+- There is no smooth path to optimize along—gradients don't exist at the boundary
 
 ### The Consequences
 
 When the router crosses a decision boundary:
 
-**1. KL Divergence Jumps:**
-The policy distribution changes discontinuously. For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesimal step crossing it causes:
+**1. The Lower Bound Becomes Vacuous:**
+The monotonic improvement guarantee {{< math >}}$\eta(\tilde{\pi}) \geq L_{\pi}(\tilde{\pi}) - C \cdot D_{KL}^{max}${{< /math >}} relies on {{< math >}}$L_{\pi}${{< /math >}} being a first-order approximation to {{< math >}}$\eta${{< /math >}}. At a discontinuity, the approximation error is {{< math >}}$O(1)${{< /math >}}, not {{< math >}}$O(\|\Delta\theta\|^2)${{< /math >}}—the bound provides no useful guarantee.
+
+**2. KL Constraint Cannot Be Satisfied Smoothly:**
+For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesimal step crossing it causes:
 
 {{< math >}}
 $$\lim_{\epsilon \to 0^+} D_{KL}(\pi_{\theta} \| \pi_{\theta + \epsilon v}) > 0$$
 {{< /math >}}
 
-The KL divergence doesn't smoothly approach zero—it has a positive lower bound at the discontinuity. This makes the trust region constraint {{< math >}}$D_{KL} \le \delta${{< /math >}} impossible to satisfy smoothly.
-
-**2. Surrogate Objective Discontinuity:**
-The surrogate objective {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} used by PPO/TRPO also jumps at boundaries. The monotonic improvement guarantee:
-
-{{< math >}}
-$$\eta(\pi_{new}) \geq L_{\pi_{old}}(\pi_{new}) - C \cdot D_{KL}^{max}$$
-{{< /math >}}
-
-breaks down because {{< math >}}$L_{\pi_{old}}${{< /math >}} is discontinuous—there's no smooth path to optimize along.
+The KL divergence has a positive lower bound at the discontinuity. This means you cannot smoothly satisfy {{< math >}}$D_{KL} \le \delta${{< /math >}} for arbitrarily small {{< math >}}$\delta${{< /math >}}.
 
 **3. Chattering Behavior:**
-The optimizer oscillates around switching points. It takes a step, crosses the boundary, the objective jumps, the KL constraint is violated, the step is rejected or reversed, it crosses back, and so on. This is the training instability frequently observed in MoE-RL experiments.
+The optimizer oscillates around switching points. It takes a step, crosses the boundary, both {{< math >}}$L_{\pi}${{< /math >}} and {{< math >}}$D_{KL}${{< /math >}} jump, the step is rejected or reversed, it crosses back, and so on. This is the training instability frequently observed in MoE-RL experiments.
 
 ---
 
