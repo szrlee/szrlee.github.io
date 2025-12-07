@@ -42,13 +42,13 @@ This discreteness introduces two fundamental mathematical pathologies that break
 
 **Challenge 1: Gradient Blackout.** The gradient of the output with respect to unselected experts' logits is exactly zero almost everywhere. Unlike non-smooth convex functions where subgradients guide optimization, the Top-K landscape offers no directional information on how to switch to a better expert.
 
-**Challenge 2: Trust Region Violation.** Modern RL algorithms (PPO, TRPO) assume policy changes are Lipschitz continuous in parameters. Top-K routing violates this—an infinitesimal parameter change can cause a discrete expert switch, making KL divergence explode and invalidating the Taylor approximation that underlies trust region methods.
+**Challenge 2: Trust Region Violation.** Modern RL algorithms (PPO, TRPO) optimize a surrogate objective under a KL divergence constraint. This requires differentiability for gradient computation and continuity for constraint satisfaction. Top-K routing violates both—an infinitesimal parameter change can cause a discrete expert switch, making both the surrogate and KL divergence jump discontinuously.
 
 | Pathology | Dense Networks | Top-K MoE |
 |-----------|---------------|-----------|
 | Gradient flow | Smooth, non-zero almost everywhere | Zero almost everywhere for unselected experts' logits |
-| Policy continuity | Lipschitz continuous | Discontinuous at routing boundaries |
-| Trust region validity | Taylor approximation holds | Taylor approximation fails at switch points |
+| Policy mapping | Continuous and differentiable | Discontinuous at routing boundaries |
+| Trust region validity | Surrogate optimization works | Surrogate jumps at switch points |
 
 ---
 
@@ -148,10 +148,10 @@ where {{< math >}}$\epsilon = \max_{s,a}|A^{\pi}(s,a)|${{< /math >}} is the maxi
 $$\max_{\theta} L_{\pi_{\theta_{old}}}(\pi_\theta) \quad \text{subject to} \quad D_{KL}(\pi_{\theta_{old}} \| \pi_\theta) \le \delta$$
 {{< /math >}}
 
-**Critical assumption:** The bound relies on the surrogate {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} being a valid first-order approximation to {{< math >}}$\eta(\tilde{\pi})${{< /math >}}. This requires:
-1. {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is **continuous** in the policy parameters
-2. {{< math >}}$D_{KL}${{< /math >}} is **continuous** so the constraint can be satisfied smoothly
-3. **Gradients exist** for optimization
+**Key property:** The bound holds for any two policies, but **practical optimization** relies on:
+1. {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is **differentiable** in policy parameters (to compute gradients)
+2. {{< math >}}$D_{KL}${{< /math >}} is **continuous** so the constraint can be satisfied via line search
+3. The first-order approximation {{< math >}}$\nabla_\theta L_{\pi} = \nabla_\theta \eta${{< /math >}} guides optimization toward improvement
 
 ### How Top-K Violates This
 
@@ -167,17 +167,17 @@ At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings 
 $$\lim_{t \to 0^+} \pi_{\theta^* + tv} \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}$$
 {{< /math >}}
 
-This discontinuity **invalidates the lower bound**:
-- The surrogate {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is **not** a first-order approximation at the boundary—it jumps discontinuously
-- The penalty term {{< math >}}$\frac{4\epsilon\gamma}{(1-\gamma)^2} D_{KL}^{max}${{< /math >}} also jumps, making the bound vacuous
-- There is no smooth path to optimize along—gradients don't exist at the boundary
+This discontinuity **breaks the optimization**:
+- The surrogate {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} jumps discontinuously—gradients don't exist at the boundary
+- The KL divergence {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} also jumps—line search cannot satisfy the constraint smoothly
+- The lower bound {{< math >}}$\eta \geq L_{\pi} - C \cdot D_{KL}^{max}${{< /math >}} still holds, but provides no optimization guidance across the discontinuity
 
 ### The Consequences
 
 When the router crosses a decision boundary:
 
-**1. The Lower Bound Becomes Vacuous:**
-The monotonic improvement guarantee {{< math >}}$\eta(\tilde{\pi}) \geq L_{\pi}(\tilde{\pi}) - C \cdot D_{KL}^{max}${{< /math >}} relies on {{< math >}}$L_{\pi}${{< /math >}} being a first-order approximation to {{< math >}}$\eta${{< /math >}}. At a discontinuity, the approximation error is {{< math >}}$O(1)${{< /math >}}, not {{< math >}}$O(\|\Delta\theta\|^2)${{< /math >}}—the bound provides no useful guarantee.
+**1. Gradient-Based Optimization Fails:**
+TRPO/PPO compute {{< math >}}$\nabla_\theta L_{\pi}${{< /math >}} to find an improving direction. At a discontinuity, this gradient doesn't exist—there's no local information about how to improve across the boundary.
 
 **2. KL Constraint Cannot Be Satisfied Smoothly:**
 For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesimal step crossing it causes:
@@ -186,7 +186,7 @@ For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesi
 $$\lim_{\epsilon \to 0^+} D_{KL}(\pi_{\theta} \| \pi_{\theta + \epsilon v}) > 0$$
 {{< /math >}}
 
-The KL divergence has a positive lower bound at the discontinuity. This means you cannot smoothly satisfy {{< math >}}$D_{KL} \le \delta${{< /math >}} for arbitrarily small {{< math >}}$\delta${{< /math >}}.
+The KL divergence has a positive lower bound at the discontinuity. TRPO's line search, which tries to find the largest step satisfying {{< math >}}$D_{KL} \le \delta${{< /math >}}, cannot smoothly approach the boundary.
 
 **3. Chattering Behavior:**
 The optimizer oscillates around switching points. It takes a step, crosses the boundary, both {{< math >}}$L_{\pi}${{< /math >}} and {{< math >}}$D_{KL}${{< /math >}} jump, the step is rejected or reversed, it crosses back, and so on. This is the training instability frequently observed in MoE-RL experiments.
@@ -228,8 +228,8 @@ The instability of MoE-RL training is not a bug to be fixed with hyperparameter 
 | Property | Effect on Optimization |
 |----------|----------------------|
 | Discrete expert selection | Zero gradient for unselected experts' logits |
-| Jump discontinuities at boundaries | First-order approximations invalid |
-| Non-Lipschitz policy mapping | Trust region assumptions violated |
+| Jump discontinuities at boundaries | Surrogate objective jumps, optimization fails |
+| Non-differentiable policy mapping | Gradient-based constraint satisfaction breaks |
 | No gradient signal for switching | No guidance for which expert to try |
 
 Until routing mechanisms are developed that preserve gradient information while maintaining sparsity, MoE-RL will remain fundamentally more challenging than dense-model RL.
