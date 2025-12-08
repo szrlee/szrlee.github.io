@@ -62,7 +62,7 @@ as our target function, where the true gradient is $g = \mathbb{E}_\pi[f(y)]$.
 
 This is the most direct estimator in theory. It corrects for the mismatch by re-weighting every sample by the full sequence-level ratio, $\rho(y) = \pi(y) / \mu(y)$.
 
-- **The Estimator:** $\hat{g}_{\text{seq}} = \rho(y) \cdot f(y)$
+- **The Estimator:** {{< math >}}$\hat{g}_{\text{seq}} = \rho(y) \cdot f(y)${{< /math >}}
 
 ### The Analysis
 
@@ -187,7 +187,7 @@ So while SNIS is "stable" (it doesn't explode), it becomes incredibly inefficien
 
 This family of estimators "solves" the exponential variance problem by avoiding the full sequence-level product $\rho = \prod_t \rho_t$. The Naive estimator ignores it entirely, and Token-Level IS (Token-IS) handles each token's ratio $\rho_t$ independently.
 
-- **The Estimator (Naive):** $\hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)$
+- **The Estimator (Naive):** {{< math >}}$\hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)${{< /math >}}
 - **The Estimator (Token-IS / PPO-like):**
 
 {{< math >}}
@@ -518,7 +518,7 @@ The key insight is this:
 2. Why? Because *rare* samples can have an *enormous* sequence ratio $\rho \to \infty$.
 3. What's the simplest fix? **Just clip the full sequence ratio** $\rho$**.**
 
-- **The Estimator:** $\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}, C\right) \cdot f(y)$
+- **The Estimator:** {{< math >}}$\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}, C\right) \cdot f(y)${{< /math >}}
 
 ### The Analysis
 

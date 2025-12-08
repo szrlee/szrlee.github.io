@@ -350,8 +350,8 @@ This is the **sample average of the per-token log-ratios** along trajectory $y$.
 
 **Connection to KL Divergence:** Let $s_t = (x, y_{\lt t})$ denote the state (context) at step $t$. Recall that:
 
-- **Forward KL:** $D_{KL}(\pi \| \mu) = \mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]$
-- **Reverse KL:** $D_{KL}(\mu \| \pi) = \mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|s_t)}{\pi(y_t|s_t)}\right] = -\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]$
+- **Forward KL:** {{< math >}}$D_{KL}(\pi \| \mu) = \mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]${{< /math >}}
+- **Reverse KL:** {{< math >}}$D_{KL}(\mu \| \pi) = \mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|s_t)}{\pi(y_t|s_t)}\right] = -\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]${{< /math >}}
 
 Since samples are drawn from $\mu$ (the behavior policy), each term $\log \rho_t = \log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}$ is a single-sample estimate of the **negative reverse KL**:
 
