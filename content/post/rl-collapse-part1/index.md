@@ -162,10 +162,13 @@ $$
 Using $\mathbb{E}[\hat{g}] = \nabla J + \mathbf{Bias}(\hat{g})$:
 
 $$
-\begin{aligned}
-\mathbb{E}[\|\hat{g}\|^2] &= \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2 \\\\
-&= \mathbf{Var}(\hat{g}) + \|\nabla J\|^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \|\mathbf{Bias}(\hat{g})\|^2
-\end{aligned}
+\mathbb{E}[\|\hat{g}\|^2] = \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2
+$$
+
+Expanding the squared term:
+
+$$
+= \mathbf{Var}(\hat{g}) + \|\nabla J\|^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \|\mathbf{Bias}(\hat{g})\|^2
 $$
 
 **5. Collect terms:**
@@ -346,11 +349,10 @@ where:
 The error between surrogate and true objective is:
 
 $$
-\begin{aligned}
-|J(\pi) - L_\mu(\pi)| &= \left| \sum_s (d_\pi(s) - d_\mu(s)) \cdot \mathbb{E}_{a \sim \pi} [A_\mu(s,a)] \right| \\\\
-&= O(\|d_\pi - d_\mu\|_1)
-\end{aligned}
+|J(\pi) - L_\mu(\pi)| = \left| \sum_s (d_\pi(s) - d_\mu(s)) \cdot \mathbb{E}_{a \sim \pi} [A_\mu(s,a)] \right|
 $$
+
+This simplifies to $O(\|d_\pi - d_\mu\|_1)$.
 
 **2. The Simulation Lemma**
 
@@ -373,10 +375,10 @@ Let $\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 = 2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu
 **Inductive step:** Using the recursive state distribution:
 
 $$
-\delta_t \leq \underbrace{\delta_{t-1}}\_{\text{propagated}} + \underbrace{\epsilon\_{\max}}\_{\text{new}}
+\delta_t \leq \delta_{t-1} + \epsilon_{\max}
 $$
 
-where $\epsilon_{\max} = 2 \cdot D_{TV}^{\max}$.
+where $\delta_{t-1}$ is the propagated divergence, $\epsilon_{\max} = 2 \cdot D_{TV}^{\max}$ is the new divergence added at step $t$.
 
 Unrolling: $\delta_t \leq t \cdot \epsilon_{\max}$.
 
