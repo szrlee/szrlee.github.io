@@ -596,8 +596,8 @@ This is the fundamental limit. We have found an estimator that achieves this lim
 The analysis is complete.
 
 - **Seq-IS** is theoretically unbiased but impractical due to exponential variance.
-- **Naive/Token-IS/Token-TIS** have bias that grows with sequence length.
-- **Seq-TIS** is the only estimator that correctly identifies the sequence-level trade-off and provides a knob ($C$) to provably balance bias and variance.
+- **Naive/Token-IS/Token-TIS** have polynomial variance but bias that grows quadratically with sequence length.
+- **Seq-TIS** correctly addresses the sequence-level trade-off and provides a tunable parameter ($C$) to balance bias and variance.
 
 | **Estimator** | **Bias (Term B)** | **Variance (Term C)** |
 | --- | --- | --- |
@@ -607,15 +607,15 @@ The analysis is complete.
 
 ---
 
-## Teaser for Part 3: When Math Meets Reality
+## Preview: Part 3 — Trust Region Optimization via Sequence Masking
 
-We have mathematically "solved" the problem. We found **Seq-TIS**, the estimator that provably optimizes the bias-variance trade-off in a standard statistical setting.
+We have mathematically "solved" the problem. We found **Seq-TIS**, the estimator that achieves a controllable bias-variance trade-off in a standard statistical setting.
 
 But as we deploy RL to **Reasoning Models (CoT)** and **Long-Horizon Agents**, we encounter two phenomena that break our clean theoretical assumptions:
 
-1. **Out-of-Distribution High-Weight Samples:** In theory, a sample with a massive weight ($\rho = 10,000$) is a "highly informative" signal. In reality, such extreme ratios typically arise when $\mu(y)$ is near the numerical precision floor—these are Out-of-Distribution (OOD) samples caused by numerical precision artifacts, reward exploitation, or distribution shift beyond the valid IS regime. **Clipping** only limits the weight while the problematic sample still participates in gradient updates. We need to **Reject** it.
-2. **The Length Trap:** Standard importance sampling systematically penalizes long sequences. If we use Seq-TIS on a Chain-of-Thought model, it will crush "deep thinking" and force the model to collapse into short, shallow answers.
+1. **Out-of-Distribution (OOD) High-Weight Samples:** In theory, a sample with a massive weight ($\rho = 10,000$) is a "highly informative" signal. In reality, such extreme ratios typically arise when $\mu(y)$ is near the numerical precision floor—these are OOD samples caused by numerical precision artifacts, reward exploitation, or distribution shift beyond the valid IS regime. **Clipping** only limits the weight while the problematic sample still participates in gradient updates. We need to **Reject** it.
+2. **Length-Dependent Rejection Bias:** Standard importance sampling systematically penalizes long sequences. If we use Seq-TIS on a Chain-of-Thought model, it will suppress long reasoning chains and bias the model toward short, shallow answers.
 
-In [**Part 3**](https://richardli.xyz/rl-collapse-3), we move from theoretical analysis to practical application. We will introduce **Sequence-Level Masked IS (Seq-MIS)** and **Geometric-Level Rejection (Geo-RS)**—the technical improvements needed to stabilize Agentic RL.
+In [**Part 3**](https://richardli.xyz/rl-collapse-3), we move from theoretical analysis to practical application. We will introduce **Sequence-Level Masked IS (Seq-MIS)** and **Geometric Rejection Sampling (Geo-RS)**—the technical improvements needed to stabilize Agentic RL.
 
 **[[Read Part 3: Trust Region Optimization via Sequence Masking](https://richardli.xyz/rl-collapse-3)]**
