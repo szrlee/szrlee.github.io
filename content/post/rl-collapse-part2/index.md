@@ -12,6 +12,9 @@ tags:
   - Importance Sampling
 categories:
   - Research
+series:
+  - RL Collapse
+series_order: 2
 ---
 
 **Authors:** [Yingru Li](http://richardli.xyz), [Jiacai Liu](https://www.jiacailiu.cn/)

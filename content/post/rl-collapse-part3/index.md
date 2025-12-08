@@ -12,6 +12,9 @@ tags:
   - Chain-of-Thought
 categories:
   - Research
+series:
+  - RL Collapse
+series_order: 3
 ---
 
 **Authors:** [Yingru Li](http://richardli.xyz), [Jiacai Liu](https://www.jiacailiu.cn/)

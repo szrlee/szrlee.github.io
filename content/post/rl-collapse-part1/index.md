@@ -12,6 +12,9 @@ tags:
   - TRPO
 categories:
   - Research
+series:
+  - RL Collapse
+series_order: 1
 ---
 
 **Authors:** [Yingru Li](http://richardli.xyz), [Jiacai Liu](https://www.jiacailiu.cn/)
