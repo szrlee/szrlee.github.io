@@ -200,7 +200,7 @@ $$
 $$
 {{< /math >}}
 
-Only samples within this region contribute to the gradient. Samples with $\rho(y) > C$ are treated as unreliable and excluded.
+Only samples within this region contribute to the gradient. Samples with $\rho(y) \gt C$ are treated as unreliable and excluded.
 
 **Connection to TRPO:** This implements the trust region concept from TRPO theory ([Part 1](https://richardli.xyz/rl-collapse-1)), where the trust region constraint $D_{TV}(\pi \| \mu) \le \delta$ must be enforced to guarantee improvement. Seq-MIS enforces this constraint via **rejection** (hard trust region) rather than **penalization** (soft trust region), ensuring that gradient updates only use samples from the valid trust region.
 
@@ -263,7 +263,7 @@ $$
 
 Even when the per-token mismatch is small, this product grows (or shrinks) exponentially with sequence length $T$.
 
-**Formal Analysis:** Let $\bar{\rho} = \mathbb{E}[\rho_t]$ denote the expected per-token ratio. If we assume (for simplicity) that the $\rho_t$ are independent with $\bar{\rho} > 1$, then:
+**Formal Analysis:** Let $\bar{\rho} = \mathbb{E}[\rho_t]$ denote the expected per-token ratio. If we assume (for simplicity) that the $\rho_t$ are independent with $\bar{\rho} \gt 1$, then:
 
 {{< math >}}
 $$
@@ -279,7 +279,7 @@ $$
 $$
 {{< /math >}}
 
-If each $\log \rho_t$ has mean $\delta > 0$ (i.e., $\pi$ assigns slightly higher probability than $\mu$ on average), then:
+If each $\log \rho_t$ has mean $\delta \gt 0$ (i.e., $\pi$ assigns slightly higher probability than $\mu$ on average), then:
 
 {{< math >}}
 $$
@@ -372,7 +372,7 @@ $$
 **Interpretation:** $\log \rho_{\text{geo}}(y)$ measures the average per-step log-likelihood ratio along the specific trajectory $y$. Unlike the sequence-level ratio, this quantity:
 
 1. **Does not grow with $T$** (it's an average, not a sum)
-2. **Can be positive or negative** ($\log \rho_{\text{geo}} > 0$ when $\pi$ assigns higher probability, $< 0$ when $\mu$ assigns higher probability)
+2. **Can be positive or negative** ($\log \rho_{\text{geo}} \gt 0$ when $\pi$ assigns higher probability, $\lt 0$ when $\mu$ assigns higher probability)
 3. **Detects both directions of drift** ($\rho_{\text{geo}} \ll 1$: policy forgetting; $\rho_{\text{geo}} \gg 1$: policy collapse)
 
 {{% callout note %}}
@@ -417,8 +417,8 @@ $$
 
 | Condition | Meaning | Detection |
 | --- | --- | --- |
-| $\rho_{\text{geo}} < C_{\text{low}}$ | $\pi$ assigns much lower probability than $\mu$ on average | Policy has drifted away from high-likelihood regions of $\mu$ |
-| $\rho_{\text{geo}} > C_{\text{high}}$ | $\pi$ assigns much higher probability than $\mu$ on average | Policy may be collapsing/overfitting to specific patterns |
+| $\rho_{\text{geo}} \lt C_{\text{low}}$ | $\pi$ assigns much lower probability than $\mu$ on average | Policy has drifted away from high-likelihood regions of $\mu$ |
+| $\rho_{\text{geo}} \gt C_{\text{high}}$ | $\pi$ assigns much higher probability than $\mu$ on average | Policy may be collapsing/overfitting to specific patterns |
 
 **Typical Values:** $C_{\text{low}} = 0.5$, $C_{\text{high}} = 2.0$ (or equivalently, $|\log \rho_{\text{geo}}| \le \log 2 \approx 0.69$).
 
@@ -504,7 +504,7 @@ We have developed a hierarchy of estimators, each addressing specific failure mo
 
 The core distinction of this part is between **soft** and **hard** trust regions:
 
-| Trust Region Type | Mechanism | Behavior for $\rho > C$ |
+| Trust Region Type | Mechanism | Behavior for $\rho \gt C$ |
 | --- | --- | --- |
 | **Soft (Clipping)** | $\min(\rho, C)$ | Sample included with weight $C$ |
 | **Hard (Rejection)** | $\mathbb{I}(\rho \le C)$ | Sample excluded entirely |

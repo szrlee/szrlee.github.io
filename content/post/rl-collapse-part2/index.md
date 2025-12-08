@@ -122,7 +122,7 @@ $$
 \mathbb{E}\_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2\_{\max}
 $$
 
-Let $\bar{\chi}^2\_{\max} = \max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} > 0$.
+Let $\bar{\chi}^2\_{\max} = \max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} \gt 0$.
 This gives the exponential upper bound:
 
 $$
@@ -544,7 +544,7 @@ $$
 $$
 {{< /math >}}
 
-- This bias is $\mathbf{Bias} = \mathbb{E}_\mu[(\min(\rho, C) - \rho) f(y)]$*. This term is only non-zero for the tail (*$\rho > C$*), and **it can be shown that** this bias is inversely proportional to* $C$*:*
+- This bias is $\mathbf{Bias} = \mathbb{E}_\mu[(\min(\rho, C) - \rho) f(y)]$*. This term is only non-zero for the tail (*$\rho \gt C$*), and **it can be shown that** this bias is inversely proportional to* $C$*:*
 
 {{< math >}}
 $$
