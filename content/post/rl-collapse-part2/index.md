@@ -227,23 +227,23 @@ The variance is definitively polynomial.
 
 **2. Token-Level IS (Token-IS) Estimator:**
 This estimator is a sum of $T$ terms: $\hat{g}\_{\text{tok}} = \sum\_{t=0}^{T-1} X\_t$.
-The variance of a sum is $\mathbf{Var}(\sum_t X_t) = \sum_t \mathbf{Var}(X_t) + \sum_{t \neq t'} \mathbf{Cov}(X_t, X_{t'})$.
+The variance of a sum is $\mathbf{Var}(\sum\_t X\_t) = \sum\_t \mathbf{Var}(X\_t) + \sum\_{t \neq t'} \mathbf{Cov}(X\_t, X\_{t'})$.
 This has $T$ diagonal (variance) terms and $T(T-1) \approx O(T^2)$ off-diagonal (covariance) terms.
 
-**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X_t\|^2]$.
+**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t\|^2]$.
 
 $$
 \mathbb{E}[|X_t|^2] = \mathbb{E}\left[\left\| \frac{\pi_t}{\mu_t} A_t \nabla\_\theta \log \pi_t \right\|^2\right] \le (\sup \|A_t \nabla\_\theta \log \pi_t\|)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
 $$
 
-The $A_t$ and $\nabla_\theta \log \pi_t$ terms are bounded by constants. The expectation is $\mathbb{E}[\rho_t^2] \le (1+\bar{\chi}^2)$.
+The $A\_t$ and $\nabla\_\theta \log \pi\_t$ terms are bounded by constants. The expectation is $\mathbb{E}[\rho\_t^2] \le (1+\bar{\chi}^2)$.
 So, each diagonal term is $O(1+\bar{\chi}^2)$. The sum of all $T$ diagonal terms is $O(T(1+\bar{\chi}^2))$.
 
-**Cross Terms ($O(T^2)$ of them):** We bound $\mathbf{Cov}(X_t, X_{t'})$.
+**Cross Terms ($O(T^2)$ of them):** We bound $\mathbf{Cov}(X\_t, X\_{t'})$.
 
-By the Cauchy-Schwarz inequality, $|\mathbb{E}[X_t^\top X_{t'}]| \le \sqrt{\mathbb{E}[\|X_t\|^2] \mathbb{E}[\|X_{t'}\|^2]}$.
+By the Cauchy-Schwarz inequality, $|\mathbb{E}[X\_t^\top X\_{t'}]| \le \sqrt{\mathbb{E}[\|X\_t\|^2] \mathbb{E}[\|X\_{t'}\|^2]}$.
 
-Since we just showed $\mathbb{E}[\|X_t\|^2]$ is $O(1+\bar{\chi}^2)$, the covariance/cross-term is also $O(1+\bar{\chi}^2)$.
+Since we just showed $\mathbb{E}[\|X\_t\|^2]$ is $O(1+\bar{\chi}^2)$, the covariance/cross-term is also $O(1+\bar{\chi}^2)$.
 
 The sum of all $O(T^2)$ cross terms is $O(T^2(1+\bar{\chi}^2))$.
 
@@ -271,7 +271,7 @@ $$
 \text{Bias}(\hat{g}\_{\text{naive}}) = \mathbb{E}\_\mu[f(y)] - \mathbb{E}\_\pi[f(y)]
 $$
 
-where $f(y) = \hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)$.
+where $f(y) = \hat{g}\_{\text{naive}}(y) = R(y|x) \cdot \nabla\_\theta \log \pi(y|x)$.
 
 This is the difference in the expectation of the same function $f(y)$ under two different distributions, $\mu$ and $\pi$. We can bound this difference:
 
@@ -293,15 +293,15 @@ The $O(T^2)$ bias comes from the fact that both of these terms scale linearly wi
 
 ---
 
-**Factor 1: Bounding the Function,** $\sup_y \|f(y)\| = O(T)$
+**Factor 1: Bounding the Function,** $\sup\_y \|f(y)\| = O(T)$
 
-Our function $f(y)$ is the product of the reward (bounded by $R_{\max}$) and the full-sequence score function. The score function is a sum of $T$ per-token score functions:
+Our function $f(y)$ is the product of the reward (bounded by $R\_{\max}$) and the full-sequence score function. The score function is a sum of $T$ per-token score functions:
 
 $$
 \nabla\_\theta \log \pi(y|x) = \sum_{t=0}^{T-1} \nabla\_\theta \log \pi(y_t|x, y_{<t})
 $$
 
-Since each per-token score is bounded (let's say by a constant $K_t$) for softmax parameterization, the full sequence score is bounded by $O(T \cdot K_t)$. Therefore:
+Since each per-token score is bounded (let's say by a constant $K\_t$) for softmax parameterization, the full sequence score is bounded by $O(T \cdot K\_t)$. Therefore:
 
 $$
 \sup_y \|f(y)\| \le R\_{\max} \cdot O(T) = O(T)
@@ -309,7 +309,7 @@ $$
 
 ---
 
-**Factor 2: Bounding the Divergence,** $D_{TV}(\mu \| \pi) = O(T \Delta_{\max})$
+**Factor 2: Bounding the Divergence,** $D\_{TV}(\mu \| \pi) = O(T \Delta\_{\max})$
 
 This is the **Simulation Lemma** (or hybrid argument). It proves that the total sequence-level TV distance is bounded by the *sum* of the per-token TV distances.
 
@@ -317,9 +317,9 @@ a. Define Hybrid Distributions:
 
 We create a "bridge" of distributions from $\pi$ to $\mu$, swapping one token at a time.
 
-- $H_0(y) = \pi(y)$
-- $H_t(y) = \left( \prod_{i=0}^{t-1} \mu(y_i|s_i) \right) \cdot \left( \prod_{j=t}^{T-1} \pi(y_j|s_j) \right)$ (First $t$ tokens from $\mu$, the rest from $\pi$)
-- $H_T(y) = \mu(y)$
+- $H\_0(y) = \pi(y)$
+- $H\_t(y) = \left( \prod\_{i=0}^{t-1} \mu(y\_i|s\_i) \right) \cdot \left( \prod\_{j=t}^{T-1} \pi(y\_j|s\_j) \right)$ (First $t$ tokens from $\mu$, the rest from $\pi$)
+- $H\_T(y) = \mu(y)$
 
 b. Use the Triangle Inequality (Telescoping Sum):
 
@@ -329,27 +329,27 @@ $$
 D_{TV}(\pi \| \mu) = D_{TV}(H_0 \| H_T) \le \sum_{t=0}^{T-1} D_{TV}(H_t \| H_{t+1})
 $$
 
-**c. Analyze a Single Step** $D_{TV}(H_t \| H_{t+1})$:
+**c. Analyze a Single Step** $D\_{TV}(H\_t \| H\_{t+1})$:
 
-$H_t$ and $H_{t+1}$ are identical *except* at token $t$, where one uses $\pi(y_t|s_t)$ and the other uses $\mu(y_t|s_t)$.
+$H\_t$ and $H\_{t+1}$ are identical *except* at token $t$, where one uses $\pi(y\_t|s\_t)$ and the other uses $\mu(y\_t|s\_t)$.
 
 $$
 D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_y |H_t(y) - H_{t+1}(y)|
 $$
 
-Let's call the common prefix $q(s_t) = \prod_{i<t} \mu(y_i|s_i)$ and the common suffix $p(y_{>t}) = \prod_{j>t} \pi(y_j|s_j)$.
+Let's call the common prefix $q(s\_t) = \prod\_{i<t} \mu(y\_i|s\_i)$ and the common suffix $p(y\_{>t}) = \prod\_{j>t} \pi(y\_j|s\_j)$.
 
 $$
 D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \sum_{y_{>t}} p(y_{>t})
 $$
 
-Factor out the common terms. The innermost sum $\sum_{y_{>t}} p(y_{>t})$ is 1 (it's the probability of all possible futures):
+Factor out the common terms. The innermost sum $\sum\_{y\_{>t}} p(y\_{>t})$ is 1 (it's the probability of all possible futures):
 
 $$
 D_{TV}(H_t \| H_{t+1}) = \sum_{s_t} q(s_t) \cdot D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))
 $$
 
-We recognize: $q(s_t)$ is $d_t^\mu(s_t)$, the probability of being in state $s_t$ under $\mu$. This gives:
+We recognize: $q(s\_t)$ is $d\_t^\mu(s\_t)$, the probability of being in state $s\_t$ under $\mu$. This gives:
 
 $$
 D_{TV}(H_t \| H_{t+1}) = \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
@@ -363,7 +363,7 @@ $$
 D_{TV}(\pi \| \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
 $$
 
-Let $\Delta_{\max} = \max_{t,s_t} D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))$. The bound becomes:
+Let $\Delta\_{\max} = \max\_{t,s\_t} D\_{TV}(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. The bound becomes:
 
 $$
 D_{TV}(\pi \| \mu) \le T \cdot \Delta\_{\max}
@@ -373,7 +373,7 @@ $$
 
 **Final Conclusion: The $O(T^2)$ Bias Applies to Both**
 
-We have just proved that the **Naive estimator** has a bias of $O(T^2 \Delta_{\max})$:
+We have just proved that the **Naive estimator** has a bias of $O(T^2 \Delta\_{\max})$:
 
 $$
 \|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 \le (2 \cdot O(T)) \cdot (O(T \Delta\_{\max})) = O(T^2 \Delta\_{\max})
@@ -381,14 +381,14 @@ $$
 
 **Why does this also apply to the Token-Level IS (PPO-like) estimator?**
 
-Because the $O(T^2 \Delta_{\max})$ bias doesn't come from the specific *form* of the estimator (like using $R(y)$ vs $A(s_t, y_t)$). It comes from the **sampling distribution** itself.
+Because the $O(T^2 \Delta\_{\max})$ bias doesn't come from the specific *form* of the estimator (like using $R(y)$ vs $A(s\_t, y\_t)$). It comes from the **sampling distribution** itself.
 
-1. The **true gradient** $g = \nabla J(\pi)$ is an expectation over the *new* policy's state distribution, $d_\pi$.
-2. *Both* $\hat{g}_{\text{naive}}$ and $\hat{g}_{\text{tok}}$ are computed on samples from $\mu$, so their expectations are taken over the *old* policy's state distribution, $d_\mu$.
+1. The **true gradient** $g = \nabla J(\pi)$ is an expectation over the *new* policy's state distribution, $d\_\pi$.
+2. *Both* $\hat{g}\_{\text{naive}}$ and $\hat{g}\_{\text{tok}}$ are computed on samples from $\mu$, so their expectations are taken over the *old* policy's state distribution, $d\_\mu$.
 
-The $O(T \Delta_{\max})$ error from the Simulation Lemma is the *fundamental difference* between the true state distribution $d_\pi$ and the sampling distribution $d_\mu$. Any estimator that computes its expectation under $d_\mu$ (like Naive and Token-IS) is optimizing a surrogate objective $L_\mu(\pi)$, not the true objective $J(\pi)$.
+The $O(T \Delta\_{\max})$ error from the Simulation Lemma is the *fundamental difference* between the true state distribution $d\_\pi$ and the sampling distribution $d\_\mu$. Any estimator that computes its expectation under $d\_\mu$ (like Naive and Token-IS) is optimizing a surrogate objective $L\_\mu(\pi)$, not the true objective $J(\pi)$.
 
-Therefore, both estimators are biased relative to the true gradient $g$, and this bias is $O(T^2 \Delta_{\max})$.
+Therefore, both estimators are biased relative to the true gradient $g$, and this bias is $O(T^2 \Delta\_{\max})$.
 
 {{< /spoiler >}}
 
@@ -419,21 +419,21 @@ This estimator is perfectly stable. By clipping each per-token ratio $\rho_t \le
 
 This proof is nearly identical to the variance proof for Token-IS in Analysis 2.
 
-The estimator is a sum of $T$ terms: $\hat{g}_{\text{tl-tis}} = \sum_{t=0}^{T-1} X_t'$, where $X_t' = \min(\rho_t, C) A_t \nabla_\theta \log \pi_t$.
+The estimator is a sum of $T$ terms: $\hat{g}\_{\text{tl-tis}} = \sum\_{t=0}^{T-1} X\_t'$, where $X\_t' = \min(\rho\_t, C) A\_t \nabla\_\theta \log \pi\_t$.
 
-The variance is $\mathbf{Var}(\sum_t X_t') = \sum_t \mathbf{Var}(X_t') + \sum_{t \neq t'} \mathbf{Cov}(X_t', X_{t'})$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
+The variance is $\mathbf{Var}(\sum\_t X\_t') = \sum\_t \mathbf{Var}(X\_t') + \sum\_{t \neq t'} \mathbf{Cov}(X\_t', X\_{t'})$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
 
-**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X_t'\|^2]$.
+**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t'\|^2]$.
 
 $$
 \mathbb{E}[|X_t'|^2] = \mathbb{E}\left[\left| \min(\rho_t, C) A_t \nabla\_\theta \log \pi_t \right|^2\right] \le (\sup |A_t \nabla\_\theta \log \pi_t|)^2 \cdot \mathbb{E}\left[\min(\rho_t, C)^2\right]
 $$
 
-Since $\min(\rho_t, C)^2 \le C^2$ by definition, the expectation is bounded by $C^2$. This is even *better* than the $O(1+\bar{\chi}^2)$ bound for the unclipped Token-IS. Each diagonal term is $O(C^2)$. The sum of $T$ terms is $O(T C^2)$.
+Since $\min(\rho\_t, C)^2 \le C^2$ by definition, the expectation is bounded by $C^2$. This is even *better* than the $O(1+\bar{\chi}^2)$ bound for the unclipped Token-IS. Each diagonal term is $O(C^2)$. The sum of $T$ terms is $O(T C^2)$.
 
 **Cross Terms ($O(T^2)$ of them):**
 
-By Cauchy-Schwarz, $|\mathbb{E}[X_t'^\top X_{t'}']| \le \sqrt{\mathbb{E}[\|X_t'\|^2] \mathbb{E}[\|X_{t'}'\|^2]}$. Since the second moments are $O(C^2)$, each cross-term is also $O(C^2)$. The sum of all $O(T^2)$ cross terms is $O(T^2 C^2)$.
+By Cauchy-Schwarz, $|\mathbb{E}[X\_t'^\top X\_{t'}']| \le \sqrt{\mathbb{E}[\|X\_t'\|^2] \mathbb{E}[\|X\_{t'}'\|^2]}$. Since the second moments are $O(C^2)$, each cross-term is also $O(C^2)$. The sum of all $O(T^2)$ cross terms is $O(T^2 C^2)$.
 
 **Total Variance:**
 
@@ -449,11 +449,11 @@ The variance is successfully controlled. This is why PPO is widely used—it rar
 
 **Term B (Bias):**
 
-This is the critical insight. This estimator does not fix the $O(T^2 \Delta_{\max})$ bias we proved in Analysis 2.
+This is the critical insight. This estimator does not fix the $O(T^2 \Delta\_{\max})$ bias we proved in Analysis 2.
 
-Why? Because that bias comes from the **state distribution mismatch** ($d_\mu \neq d_\pi$), not from the variance of the individual importance weights $\rho_t$.
+Why? Because that bias comes from the **state distribution mismatch** ($d\_\mu \neq d\_\pi$), not from the variance of the individual importance weights $\rho\_t$.
 
-Clipping $\rho_t$ is a *variance reduction* technique, but it doesn't fix the underlying *objective*. This estimator just introduces a new, *secondary* truncation bias on top of the *existing,* $O(T^2 \Delta_{\max})$ bias.
+Clipping $\rho\_t$ is a *variance reduction* technique, but it doesn't fix the underlying *objective*. This estimator just introduces a new, *secondary* truncation bias on top of the *existing,* $O(T^2 \Delta\_{\max})$ bias.
 
 {{< spoiler text="Derivation: The 'Bias-on-Bias' Problem" >}}
 
@@ -461,7 +461,7 @@ Let's be precise about the two sources of bias.
 
 **1. The Bias (from Analysis 2):**
 
-This is the bias we already have, before we even add clipping. It's the difference between the true gradient $g$ and the expectation of the unclipped token-level estimator $\hat{g}_{\text{tok}}$. This bias is large because it comes from optimizing on the wrong state distribution $d_\mu$.
+This is the bias we already have, before we even add clipping. It's the difference between the true gradient $g$ and the expectation of the unclipped token-level estimator $\hat{g}\_{\text{tok}}$. This bias is large because it comes from optimizing on the wrong state distribution $d\_\mu$.
 
 $$
 B\_{\text{fatal}} = \mathbb{E}[\hat{g}\_{\text{tok}}] - g = O(T^2 \Delta\_{\max})
@@ -469,7 +469,7 @@ $$
 
 **2. The "New" Truncation Bias:**
 
-Our new estimator, $\hat{g}_{\text{tl-tis}}$, isn't an unbiased estimator for $g$. It's not even an unbiased estimator for $\mathbb{E}[\hat{g}_{\text{tok}}]$. By clipping $\rho_t \to \min(\rho_t, C)$, we have introduced a *new* bias, which is the difference between the expectation of the clipped estimator and the unclipped one:
+Our new estimator, $\hat{g}\_{\text{tl-tis}}$, isn't an unbiased estimator for $g$. It's not even an unbiased estimator for $\mathbb{E}[\hat{g}\_{\text{tok}}]$. By clipping $\rho\_t \to \min(\rho\_t, C)$, we have introduced a *new* bias, which is the difference between the expectation of the clipped estimator and the unclipped one:
 
 $$
 B\_{\text{trunc}} = \mathbb{E}[\hat{g}\_{\text{tl-tis}}] - \mathbb{E}[\hat{g}\_{\text{tok}}]
@@ -483,7 +483,7 @@ $$
 \text{Total Bias} = \mathbb{E}[\hat{g}\_{\text{tl-tis}}] - g
 $$
 
-We can add and subtract $\mathbb{E}[\hat{g}_{\text{tok}}]$ (the unclipped estimator's expectation) to see both parts:
+We can add and subtract $\mathbb{E}[\hat{g}\_{\text{tok}}]$ (the unclipped estimator's expectation) to see both parts:
 
 $$
 \text{Total Bias} = \underbrace{(\mathbb{E}[\hat{g}\_{\text{tl-tis}}] - \mathbb{E}[\hat{g}\_{\text{tok}}])}\_{B\_{\text{trunc}}} + \underbrace{(\mathbb{E}[\hat{g}\_{\text{tok}}] - g)}\_{B\_{\text{fatal}}}
@@ -495,7 +495,7 @@ $$
 
 **Conclusion:**
 
-The total bias is still dominated by the $O(T^2 \Delta_{\max})$ term. All we've done is add more bias ($B_{\text{trunc}}$) in an attempt to solve a variance problem, without ever addressing the fundamental $O(T^2)$ bias.
+The total bias is still dominated by the $O(T^2 \Delta\_{\max})$ term. All we've done is add more bias ($B\_{\text{trunc}}$) in an attempt to solve a variance problem, without ever addressing the fundamental $O(T^2)$ bias.
 
 This proves that **the problem cannot be solved at the token level if either the sequence length or off-policiness is large.** PPO is a variance control method that prevents explosion but cannot address the true sequence-level objective optimization problem. The bias is a sequence-level problem, and it requires a sequence-level solution.
 
