@@ -1,7 +1,7 @@
 ---
 title: 'The Stability Gap: Why Top-K Routing Breaks RL Optimization'
 subtitle: 'How Discrete Expert Selection Creates Pathological Optimization Landscapes'
-summary: 'A rigorous mathematical analysis showing that Top-K expert routing in Mixture of Experts creates two fundamental pathologies: gradient blackout (zero gradients almost everywhere) and trust region violation (discontinuous policy changes), explaining the notorious instability of MoE-RL training.'
+summary: 'A rigorous mathematical analysis showing that Top-K expert routing in Mixture of Experts creates two fundamental pathologies: gradient blackout (zero gradients almost everywhere) and first-order approximation failure (discontinuous policy mapping), explaining why MoE-RL training can be unstable.'
 authors:
   - admin
 tags:
@@ -33,7 +33,7 @@ projects: []
 
 ## The Problem
 
-Training Mixture of Experts (MoE) language models with Reinforcement Learning is notoriously unstable. While dense LLMs enjoy smooth optimization landscapes, MoE-based models like Mixtral, DeepSeek-MoE, and Qwen-MoE introduce the **Top-K operator**—a discrete switching mechanism that creates discontinuities in the optimization landscape.
+Training Mixture of Experts (MoE) language models with Reinforcement Learning can be unstable. While dense LLMs enjoy smooth optimization landscapes, MoE-based models like Mixtral, DeepSeek-MoE, and Qwen-MoE introduce the **Top-K operator**—a discrete switching mechanism that creates discontinuities in the optimization landscape.
 
 This discreteness introduces two fundamental mathematical pathologies that break standard RL assumptions used in PPO, GRPO, and other LLM-RL algorithms.
 
@@ -43,13 +43,13 @@ This discreteness introduces two fundamental mathematical pathologies that break
 
 **Challenge 1: Gradient Blackout.** The gradient of the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} with respect to unselected experts' logits is exactly zero almost everywhere. Unlike non-smooth convex functions where subgradients guide optimization, the Top-K landscape offers no directional information on how to switch to a better expert.
 
-**Challenge 2: Trust Region Violation.** Modern LLM-RL algorithms (PPO, GRPO) optimize a surrogate objective under a KL divergence constraint. This requires differentiability for gradient computation and continuity for constraint satisfaction. Top-K routing violates both—an infinitesimal parameter change can cause a discrete expert switch, making both the surrogate and KL divergence jump discontinuously.
+**Challenge 2: First-Order Approximation Failure.** Modern LLM-RL algorithms (PPO, GRPO) rely on a surrogate objective that approximates the true objective to first order. This approximation requires the policy mapping to be smooth. Top-K routing violates this—an infinitesimal parameter change can cause a discrete expert switch, making the surrogate jump discontinuously and invalidating the gradient-based optimization entirely.
 
 | Pathology | Dense LLMs | MoE LLMs with Top-K |
 |-----------|---------------|-----------|
 | Gradient flow | Smooth, non-zero almost everywhere | Zero almost everywhere for unselected experts' logits |
 | Token distribution mapping | Continuous and differentiable | Discontinuous at routing boundaries |
-| Trust region validity | Surrogate optimization works | Surrogate jumps at switch points |
+| First-order approximation | Valid: {{< math >}}$\nabla L_\mu \approx \nabla J${{< /math >}} | Invalid at routing boundaries |
 
 ---
 
@@ -123,87 +123,94 @@ At a discontinuity, the classical subgradient is not defined. The *Clarke Genera
 
 ---
 
-## Part 2: The Trust Region Violation
+## Part 2: The First-Order Approximation Failure
 
-### The Trust Region Framework for LLM-RL
+### The Trust Region Principle and Its Practical Approximations
 
-Modern LLM-RL algorithms like PPO and GRPO are built on the **Trust Region** principle from [Schulman et al. (2015)](https://arxiv.org/abs/1502.05477). The key idea is to derive a **lower bound** on the true objective that can be optimized safely.
+The theoretical foundation of modern LLM-RL comes from **Trust Region Policy Optimization (TRPO)** ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)). However, practical algorithms like PPO and GRPO do not implement actual trust region optimization—they use **clipping mechanisms** to *mimic* the trust region principle. Understanding this distinction is crucial.
 
 In the LLM setting, we use the autoregressive MDP formulation:
 - **State:** {{< math >}}$s_t = (x, y_{\lt t})${{< /math >}} — prompt plus tokens generated so far
 - **Action:** {{< math >}}$a_t = y_t${{< /math >}} — the next token
 - **Policy:** {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} — the LLM's token distribution
 
-**The True Objective:** The expected reward under policy {{< math >}}$\tilde{\pi}${{< /math >}}:
+### The Surrogate Objective and Why It Works
+
+The key insight of TRPO is optimizing a **surrogate objective** {{< math >}}$L_\mu(\pi)${{< /math >}} instead of the true objective {{< math >}}$J(\pi)${{< /math >}} directly:
 
 {{< math >}}
-$$\eta(\tilde{\pi}) = \eta(\pi) + \mathbb{E}_{(x,y) \sim \tilde{\pi}}\left[\sum_{t=1}^{T} \gamma^{t-1} A^{\pi}(s_t, y_t)\right]$$
+$$L_{\mu}(\pi) = J(\mu) + \mathbb{E}_{s \sim d_\mu} \mathbb{E}_{a \sim \pi(\cdot|s)} [A_\mu(s, a)]$$
 {{< /math >}}
 
-where {{< math >}}$A^\pi(s_t, y_t)${{< /math >}} is the advantage of generating token {{< math >}}$y_t${{< /math >}} in context {{< math >}}$s_t = (x, y_{\lt t})${{< /math >}}.
+where {{< math >}}$d_\mu${{< /math >}} is the state visitation distribution under the sampling policy {{< math >}}$\mu${{< /math >}}, and {{< math >}}$A_\mu${{< /math >}} is the advantage function.
 
-**The Surrogate Objective:** Replace the state distribution under {{< math >}}$\tilde{\pi}${{< /math >}} with that under {{< math >}}$\pi${{< /math >}}:
+This surrogate is useful because it satisfies two critical conditions **at** {{< math >}}$\pi = \mu${{< /math >}}:
+
+1. **Equal values:** {{< math >}}$L_\mu(\mu) = J(\mu)${{< /math >}}
+2. **Equal gradients:** {{< math >}}$\nabla_\theta L_\mu|_{\pi_\theta=\mu} = \nabla_\theta J|_{\pi_\theta=\mu}${{< /math >}}
+
+The surrogate is a **first-order Taylor approximation** of the true objective—it matches both value and gradient at the point of tangency. Away from {{< math >}}$\pi = \mu${{< /math >}}, the approximation degrades.
+
+### The TRPO Lower Bound
+
+TRPO quantifies exactly how much the approximation degrades:
 
 {{< math >}}
-$$L_{\pi}(\tilde{\pi}) = \eta(\pi) + \sum_{s_t} \rho_{\pi}(s_t) \sum_{y_t} \tilde{\pi}(y_t|s_t) A^{\pi}(s_t, y_t)$$
+$$J(\pi) \geq L_{\mu}(\pi) - C \cdot T^2 \cdot D_{TV}^{\max}(\pi, \mu)$$
 {{< /math >}}
 
-This surrogate matches the true objective to **first order**: {{< math >}}$\nabla_\theta L_{\pi}|_{\theta_{old}} = \nabla_\theta \eta|_{\theta_{old}}${{< /math >}}.
+where {{< math >}}$T${{< /math >}} is the sequence length and {{< math >}}$D_{TV}^{\max}${{< /math >}} is the maximum per-token TV distance. The penalty scales **quadratically with horizon** because state distribution mismatch accumulates over time.
 
-**The Monotonic Improvement Theorem:** The surrogate provides a lower bound:
+### The Gap Between Theory and Practice
 
-{{< math >}}
-$$\eta(\tilde{\pi}) \geq L_{\pi}(\tilde{\pi}) - \frac{4\epsilon\gamma}{(1-\gamma)^2} \cdot D_{KL}^{max}(\pi, \tilde{\pi})$$
-{{< /math >}}
+Here's the critical point: **PPO/GRPO do not implement this bound**. They use a constant clipping factor (e.g., {{< math >}}$\epsilon = 0.2${{< /math >}}) regardless of sequence length, while the theory requires the trust region to **shrink as** {{< math >}}$O(1/T^2)${{< /math >}}.
 
-where {{< math >}}$\epsilon = \max_{s_t, y_t}|A^{\pi}(s_t, y_t)|${{< /math >}} is the maximum absolute advantage. This leads to the PPO/GRPO optimization:
+In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) use a **Stochastic Gradient Ascent Lemma** to analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization. A key result: the token-level importance sampling used in PPO/GRPO has an {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} **bias** in the gradient estimator, where {{< math >}}$D_{TV}^{\max}${{< /math >}} is the maximum per-token TV distance between the sampling and target policies.
 
-{{< math >}}
-$$\max_{\theta} L_{\pi_{\theta_{old}}}(\pi_\theta) \quad \text{subject to} \quad D_{KL}(\pi_{\theta_{old}} \| \pi_\theta) \le \delta$$
-{{< /math >}}
+This bias is **tolerable** when:
+- The off-policiness is solely induced by policy parameter updates
+- The mismatch {{< math >}}$D_{TV}^{\max}${{< /math >}} is small and controlled (e.g., by the clipping mechanism)
 
-**Key property:** The bound holds for any two policies, but **practical optimization** relies on:
-1. {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} is **differentiable** in policy parameters (to compute gradients)
-2. {{< math >}}$D_{KL}${{< /math >}} is **continuous** so the constraint can be satisfied via line search
-3. The first-order approximation {{< math >}}$\nabla_\theta L_{\pi} = \nabla_\theta \eta${{< /math >}} guides optimization toward improvement
+This bias becomes **intolerable** when:
+- The mismatch has diverse, uncontrolled sources (e.g., expert shifts in MoE)
+- {{< math >}}$D_{TV}^{\max}${{< /math >}} is large, making {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} a fatal error
 
-### How Top-K Violates This in MoE LLMs
+Their success relies on:
+1. The **first-order approximation** {{< math >}}$\nabla_\theta L_\mu \approx \nabla_\theta J${{< /math >}} being valid
+2. The policy remaining **close enough** to {{< math >}}$\mu${{< /math >}} that the surrogate is meaningful
+3. The mapping from parameters to policy being **smooth**
+
+### How Top-K Breaks the First-Order Approximation
 
 Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< math >}}$\theta \in \Theta${{< /math >}} to the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t}) \in \Pi${{< /math >}}.
 
-**In dense LLMs (GPT, LLaMA, etc.):** {{< math >}}$f${{< /math >}} is continuous—both {{< math >}}$L_{\pi_{old}}(\pi_\theta)${{< /math >}} and {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} vary smoothly with {{< math >}}$\theta${{< /math >}}, and the first-order approximation {{< math >}}$\nabla_\theta L_{\pi} = \nabla_\theta \eta${{< /math >}} is valid.
+**In dense LLMs (GPT, LLaMA, etc.):** {{< math >}}$f${{< /math >}} is smooth. The surrogate {{< math >}}$L_\mu(\pi)${{< /math >}} is a valid first-order approximation of {{< math >}}$J(\pi)${{< /math >}}, and gradient-based optimization works as expected.
 
 **In MoE LLMs (Mixtral, DeepSeek-MoE, etc.):** {{< math >}}$f${{< /math >}} is **piecewise smooth but globally discontinuous**—smooth within each routing region, but with jump discontinuities at region boundaries.
 
-At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings swap for some token), consider a direction {{< math >}}$v${{< /math >}} crossing the decision boundary. Approaching from opposite sides yields different token distributions:
+At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings swap for some token), consider a direction {{< math >}}$v${{< /math >}} crossing the decision boundary:
 
 {{< math >}}
 $$\lim_{t \to 0^+} \pi_{\theta^* + tv}(y_t | x, y_{\lt t}) \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}(y_t | x, y_{\lt t})$$
 {{< /math >}}
 
-This discontinuity **breaks the optimization**:
-- The surrogate {{< math >}}$L_{\pi}(\tilde{\pi})${{< /math >}} jumps discontinuously—gradients don't exist at the boundary
-- The KL divergence {{< math >}}$D_{KL}(\pi_{old} \| \pi_\theta)${{< /math >}} also jumps—line search cannot satisfy the constraint smoothly
-- The lower bound {{< math >}}$\eta \geq L_{\pi} - C \cdot D_{KL}^{max}${{< /math >}} still holds, but provides no optimization guidance across the discontinuity
+**The first-order approximation completely fails at these boundaries:**
+- At the discontinuity, the gradient {{< math >}}$\nabla_\theta J${{< /math >}} does not exist in the classical sense
+- The surrogate {{< math >}}$L_\mu(\pi)${{< /math >}} cannot provide a valid first-order approximation to a discontinuous {{< math >}}$J(\pi)${{< /math >}}
+- The clipping mechanism in PPO/GRPO cannot help—it assumes the underlying policy mapping is smooth
 
 ### The Consequences for LLM-RL Training
 
 When the router crosses a decision boundary during training:
 
-**1. Gradient-Based Optimization Fails:**
-PPO/GRPO compute {{< math >}}$\nabla_\theta L_{\pi}${{< /math >}} to find an improving direction. At a discontinuity, this gradient doesn't exist—there's no local information about how to improve across the boundary.
+**1. The Surrogate Becomes Meaningless:**
+PPO/GRPO optimize {{< math >}}$L_\mu(\pi)${{< /math >}} as a proxy for {{< math >}}$J(\pi)${{< /math >}}. At a discontinuity, the surrogate jumps while the gradient estimator sees only the local (pre-jump) landscape. The optimizer is effectively blind to what happens after crossing.
 
-**2. KL Constraint Cannot Be Satisfied Smoothly:**
-For {{< math >}}$\theta${{< /math >}} approaching a boundary, even an infinitesimal step crossing it causes:
+**2. Gradient Estimates Are Invalid:**
+The clipped gradient estimator assumes {{< math >}}$\nabla_\theta L_\mu \approx \nabla_\theta J${{< /math >}}. At a discontinuity, neither gradient exists in the classical sense, and the computed "gradient" points in an arbitrary direction.
 
-{{< math >}}
-$$\lim_{\epsilon \to 0^+} D_{KL}(\pi_{\theta}(\cdot | x, y_{\lt t}) \| \pi_{\theta + \epsilon v}(\cdot | x, y_{\lt t})) > 0$$
-{{< /math >}}
-
-The KL divergence has a positive lower bound at the discontinuity. The line search, which tries to find the largest step satisfying {{< math >}}$D_{KL} \le \delta${{< /math >}}, cannot smoothly approach the boundary.
-
-**3. Chattering Behavior:**
-The optimizer oscillates around switching points. It takes a step, crosses the boundary, both {{< math >}}$L_{\pi}${{< /math >}} and {{< math >}}$D_{KL}${{< /math >}} jump, the step is rejected or reversed, it crosses back, and so on. This is the training instability frequently observed when training MoE LLMs with RL.
+**3. Large, Uncontrolled Bias:**
+When the router switches experts, the effective {{< math >}}$D_{TV}^{\max}${{< /math >}} (per-token TV distance) can be large—the output distribution changes discretely, not continuously. Combined with the {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} gradient estimator bias established by [Li et al., 2025](https://richardli.xyz/rl-collapse-1), this creates a regime where the gradient estimator is systematically wrong, pushing optimization toward incorrect solutions. This may contribute to the training instability observed when training MoE LLMs with RL.
 
 ---
 
@@ -215,7 +222,7 @@ The combination of these two pathologies creates a perfect storm for RL training
 
 1. **Exploration is blind:** The router receives no gradient signal for unselected experts. When generating response {{< math >}}$y${{< /math >}} to prompt {{< math >}}$x${{< /math >}}, the model cannot learn whether routing tokens to different experts would produce higher-reward responses.
 
-2. **Exploitation is unstable:** When the optimizer does find a beneficial switch point, crossing it causes violent instability due to trust region violation. This manifests as reward spikes followed by crashes during RL training.
+2. **Exploitation is unstable:** When the optimizer does find a beneficial switch point, crossing it can cause instability due to the first-order approximation failure. This may manifest as reward spikes followed by degradation during RL training.
 
 3. **The optimization landscape is adversarial:** Flat plateaus (zero gradient) punctuated by cliffs (discontinuities) with no smooth paths between expert configurations. The model gets stuck in suboptimal routing patterns.
 
@@ -228,7 +235,7 @@ Understanding these pathologies suggests directions for solutions:
 - Auxiliary losses that provide signal to unselected experts (e.g., load balancing with gradient flow)
 - Exploration bonuses for trying different expert combinations during rollouts
 
-**For trust region violation:**
+**For the first-order approximation failure:**
 - Entropy regularization on the router to smooth the routing distribution
 - Annealing from soft to hard routing during RL training
 - Modified KL constraints that account for discrete expert switches
@@ -243,8 +250,8 @@ The instability of RL training for MoE LLMs is not a bug to be fixed with hyperp
 | Property | Effect on LLM-RL Optimization |
 |----------|----------------------|
 | Discrete expert selection | Zero gradient for unselected experts—no signal for improving routing |
-| Jump discontinuities at boundaries | Surrogate objective {{< math >}}$L_\pi${{< /math >}} jumps, PPO/GRPO optimization fails |
-| Non-differentiable token distribution | Gradient-based KL constraint satisfaction breaks |
+| Jump discontinuities at boundaries | Large {{< math >}}$D_{TV}^{\max}${{< /math >}} when experts switch, causing {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} gradient bias |
+| First-order approximation failure | Surrogate {{< math >}}$L_\mu${{< /math >}} invalid at discontinuities—gradient estimates systematically wrong |
 | No gradient signal for switching | Cannot learn which expert would generate better tokens |
 
 Until routing mechanisms are developed that preserve gradient information while maintaining sparsity, training MoE LLMs with RL will remain fundamentally more challenging than training dense LLMs.
@@ -260,6 +267,9 @@ Until routing mechanisms are developed that preserve gradient information while 
 **Trust Region Methods:**
 - Schulman, J., et al. (2015). "Trust Region Policy Optimization." *ICML*.
 - Schulman, J., et al. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
+
+**LLM-RL Analysis:**
+- Li, Y., Liu, J., et al. (2025). "[Why Mismatch Breaks LLM-RL](https://richardli.xyz/rl-collapse-1)." *Blog*.
 
 **Non-smooth Optimization:**
 - Clarke, F. H. (1990). *Optimization and Nonsmooth Analysis.* SIAM.
