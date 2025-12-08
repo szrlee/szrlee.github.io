@@ -92,57 +92,42 @@ The problem is that for autoregressive sequences, this second moment explodes ex
 
 A direct computation yields that
 
-{{< math >}}
 $$
-\begin{align*}\mathbf{Var}(\hat{g}_{\mathrm{seq}})&=\mathbb{E} _{\mu}\left[ \left\| \hat{g}_{\mathrm{seq}} \right\| ^2 \right] -\left\| \mathbb{E} _{\mu}\left[ \hat{g}_{\mathrm{seq}} \right] \right\| ^2\\&=\mathbb{E} _{\mu}\left[ \rho ^2\left( y \right) R^2\left( y \right) \left\| \nabla _{\theta}\log \pi \left( y \right) \right\| ^2 \right] -\left\| g \right\| ^2\end{align*}
+\mathbf{Var}(\hat{g}_{\mathrm{seq}}) = \mathbb{E}\_{\mu}\left[ \left\| \hat{g}\_{\mathrm{seq}} \right\|^2 \right] - \left\| \mathbb{E}\_{\mu}\left[ \hat{g}\_{\mathrm{seq}} \right] \right\|^2
 $$
-{{< /math >}}
 
-Assuming that
+$$
+= \mathbb{E}\_{\mu}\left[ \rho^2(y) R^2(y) \left\| \nabla\_{\theta}\log \pi(y) \right\|^2 \right] - \left\| g \right\|^2
+$$
 
-{{< math >}}
-$$
-\underset{y}{\mathrm{sup}}\left\| \nabla _{\theta}\log \pi \left( y \right) \right\| ^2\le M \quad \text{and}\quad \forall y:\left|R(y)\right|\le R_\text{max}
-$$
-{{< /math >}}
+Assuming that $\sup_y \left\| \nabla_{\theta}\log \pi(y) \right\|^2 \le M$ and $\forall y: |R(y)| \le R_{\text{max}}$, then the variance is upper-bounded by the second moment:
 
-then the variance is upper-bounded by the second moment, i.e. ,
-
-{{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\mathrm{seq}})\le M\cdot R_{\max}\cdot\mathbb{E} _{\mu}\left[ \rho ^2\left( y \right) \right] -\left\| g \right\| ^2
+\mathbf{Var}(\hat{g}\_{\mathrm{seq}}) \le M \cdot R\_{\max} \cdot \mathbb{E}\_{\mu}\left[ \rho^2(y) \right] - \left\| g \right\|^2
 $$
-{{< /math >}}
 
 Let's analyze the second moment.
 
-The ratio $\rho(y)$ is a product of per-token ratios:
-$\rho \left( y \right) =\prod_{t=0}^{T-1}{\rho _t}=\prod_{t=0}^{T-1}{\frac{\pi \left( y_t|x,y_{<t} \right)}{\mu \left( y_t|x,y_{<t} \right)}}$
+The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod_{t=0}^{T-1} \rho_t = \prod_{t=0}^{T-1} \frac{\pi(y_t|x,y_{<t})}{\mu(y_t|x,y_{<t})}$
 
 Using the tower property of expectation and conditional independence:
 
-{{< math >}}
 $$
-\mathbb{E}_\mu[\rho(y)^2] = \mathbb{E}_\mu\left[ \left(\prod_t \rho_t\right)^2 \right] = \mathbb{E}_\mu\left[ \rho_{0:T-2}^2 \cdot \mathbb{E}_\mu[\rho_{T-1}^2 | s_{T-1}] \right]
+\mathbb{E}\_\mu[\rho(y)^2] = \mathbb{E}\_\mu\left[ \left(\prod_t \rho_t\right)^2 \right] = \mathbb{E}\_\mu\left[ \rho_{0:T-2}^2 \cdot \mathbb{E}\_\mu[\rho_{T-1}^2 | s_{T-1}] \right]
 $$
-{{< /math >}}
 
 Each per-token expectation is, by definition, $1$ plus its $\chi^2$-divergence:
 
-{{< math >}}
 $$
-\mathbb{E}_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) | \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2_{\max}
+\mathbb{E}\_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2\_{\max}
 $$
-{{< /math >}}
 
 Let $\bar{\chi}^2_{\max} = \max_{t, s_t} \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t))$. If any mismatch exists, $\bar{\chi}^2_{\max} > 0$.
 This gives the exponential upper bound:
 
-{{< math >}}
 $$
-\mathbb{E}_\mu[\rho(y)^2] \le \prod_{t=0}^{T-1} (1 + \bar{\chi}^2_{\max}) = (1 + \bar{\chi}^2_{\max})^T
+\mathbb{E}\_\mu[\rho(y)^2] \le \prod_{t=0}^{T-1} (1 + \bar{\chi}^2\_{\max}) = (1 + \bar{\chi}^2\_{\max})^T
 $$
-{{< /math >}}
 
 This proves the variance is $\mathbf{Var}(\hat{g}_{\text{seq}}) = O((1 + \bar{\chi}^2_{\max})^T)$, which grows too fast for long sequences.
 
@@ -228,19 +213,15 @@ Let $f(y) = \hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)
 
 As we show in the "Factor 1" part of the bias proof below, the score function $\nabla_\theta \log \pi(y|x) = \sum_t \nabla_\theta \log \pi_t$ has a magnitude that scales as $O(T)$.
 
-{{< math >}}
 $$
-\|f(y)\| = |R(y)| \cdot \|\nabla_\theta \log \pi(y|x)\| \le R_{\max} \cdot O(T)
+\|f(y)\| = |R(y)| \cdot \|\nabla\_\theta \log \pi(y|x)\| \le R\_{\max} \cdot O(T)
 $$
-{{< /math >}}
 
 The second moment is therefore bounded by the square of this:
 
-{{< math >}}
 $$
-\mathbb{E}[\|\hat{g}_{\text{naive}}\|^2] \le \mathbb{E}[(\sup_y \|f(y)\|)^2] = O(T^2)
+\mathbb{E}[\|\hat{g}\_{\text{naive}}\|^2] \le \mathbb{E}[(\sup_y \|f(y)\|)^2] = O(T^2)
 $$
-{{< /math >}}
 
 The variance is definitively polynomial.
 
@@ -251,11 +232,9 @@ This has $T$ diagonal (variance) terms and $T(T-1) \approx O(T^2)$ off-diagonal 
 
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X_t\|^2]$.
 
-{{< math >}}
 $$
-\mathbb{E}[|X_t|^2] = \mathbb{E}\left[\left\| \left(\frac{\pi_t}{\mu_t}\right) A_t \nabla_\theta \log \pi_t \right\|^2\right] \le (\sup \left\|A_t \nabla_\theta \log \pi_t\right\|)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
+\mathbb{E}[|X_t|^2] = \mathbb{E}\left[\left\| \frac{\pi_t}{\mu_t} A_t \nabla\_\theta \log \pi_t \right\|^2\right] \le (\sup \|A_t \nabla\_\theta \log \pi_t\|)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
 $$
-{{< /math >}}
 
 The $A_t$ and $\nabla_\theta \log \pi_t$ terms are bounded by constants. The expectation is $\mathbb{E}[\rho_t^2] \le (1+\bar{\chi}^2)$.
 So, each diagonal term is $O(1+\bar{\chi}^2)$. The sum of all $T$ diagonal terms is $O(T(1+\bar{\chi}^2))$.
@@ -270,11 +249,9 @@ The sum of all $O(T^2)$ cross terms is $O(T^2(1+\bar{\chi}^2))$.
 
 **Total Variance:**
 
-{{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\text{tok}}) = O(T(1+\bar{\chi}^2)) + O(T^2(1+\bar{\chi}^2)) = O(T^2(1+\bar{\chi}^2))
+\mathbf{Var}(\hat{g}\_{\text{tok}}) = O(T(1+\bar{\chi}^2)) + O(T^2(1+\bar{\chi}^2)) = O(T^2(1+\bar{\chi}^2))
 $$
-{{< /math >}}
 
 Both estimators have variance that is polynomial in $T$, not exponential.
 
@@ -290,35 +267,27 @@ This happens because these estimators are optimizing a **biased surrogate object
 
 Let's analyze the bias of the **Naive estimator** directly. The bias is the difference between what we *compute* (expectation under $\mu$) and what we *want* (expectation under $\pi$):
 
-{{< math >}}
 $$
-\text{Bias}(\hat{g}_{\text{naive}}) = \mathbb{E}_\mu[f(y)] - \mathbb{E}_\pi[f(y)]
+\text{Bias}(\hat{g}\_{\text{naive}}) = \mathbb{E}\_\mu[f(y)] - \mathbb{E}\_\pi[f(y)]
 $$
-{{< /math >}}
 
 where $f(y) = \hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)$.
 
 This is the difference in the expectation of the same function $f(y)$ under two different distributions, $\mu$ and $\pi$. We can bound this difference:
 
-{{< math >}}
 $$
-\|\text{Bias}(\hat{g}_{\text{naive}})\|_2 = \left\| \sum_y (\mu(y) - \pi(y)) f(y) \right\|_2 \le \sup_y \|f(y)\| \cdot \sum_y |\mu(y) - \pi(y)|
+\|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 = \left\| \sum_y (\mu(y) - \pi(y)) f(y) \right\|_2 \le \sup_y \|f(y)\| \cdot \sum_y |\mu(y) - \pi(y)|
 $$
-{{< /math >}}
 
-This is bounded by the "worst-case" value of $f(y)$ multiplied by the total difference in probabilities. The total probability difference is exactly twice the Total Variation (TV) distance,
+This is bounded by the "worst-case" value of $f(y)$ multiplied by the total difference in probabilities. The total probability difference is exactly twice the Total Variation (TV) distance:
 
-{{< math >}}
 $$
 \sum_y |\mu(y) - \pi(y)| = 2 D_{TV}(\mu \| \pi)
 $$
-{{< /math >}}
 
-{{< math >}}
 $$
-\|\text{Bias}(\hat{g}_{\text{naive}})\|_2 \le 2 \sup_y \|f(y)\| \cdot D_{TV}(\mu \| \pi)
+\|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 \le 2 \sup_y \|f(y)\| \cdot D_{TV}(\mu \| \pi)
 $$
-{{< /math >}}
 
 The $O(T^2)$ bias comes from the fact that both of these terms scale linearly with $T$.
 
@@ -328,19 +297,15 @@ The $O(T^2)$ bias comes from the fact that both of these terms scale linearly wi
 
 Our function $f(y)$ is the product of the reward (bounded by $R_{\max}$) and the full-sequence score function. The score function is a sum of $T$ per-token score functions:
 
-{{< math >}}
 $$
-\nabla_\theta \log \pi(y|x) = \sum_{t=0}^{T-1} \nabla_\theta \log \pi(y_t|x, y_{<t})
+\nabla\_\theta \log \pi(y|x) = \sum_{t=0}^{T-1} \nabla\_\theta \log \pi(y_t|x, y_{<t})
 $$
-{{< /math >}}
 
 Since each per-token score is bounded (let's say by a constant $K_t$) for softmax parameterization, the full sequence score is bounded by $O(T \cdot K_t)$. Therefore:
 
-{{< math >}}
 $$
-\sup_y \|f(y)\| \le R_{\max} \cdot O(T) = O(T)
+\sup_y \|f(y)\| \le R\_{\max} \cdot O(T) = O(T)
 $$
-{{< /math >}}
 
 ---
 
@@ -353,103 +318,73 @@ a. Define Hybrid Distributions:
 We create a "bridge" of distributions from $\pi$ to $\mu$, swapping one token at a time.
 
 - $H_0(y) = \pi(y)$
-- $H_t(y) = \left( \prod_{i=0}^{t-1} \mu(y_i|s_i) \right) \cdot \left( \prod_{j=t}^{T-1} \pi(y_j|s_j) \right)$
-
-    (First $t$ tokens from $\mu$, the rest from $\pi$)
-
+- $H_t(y) = \left( \prod_{i=0}^{t-1} \mu(y_i|s_i) \right) \cdot \left( \prod_{j=t}^{T-1} \pi(y_j|s_j) \right)$ (First $t$ tokens from $\mu$, the rest from $\pi$)
 - $H_T(y) = \mu(y)$
 
 b. Use the Triangle Inequality (Telescoping Sum):
 
 The total distance is bounded by the sum of the distances of each "step" in the bridge.
 
-{{< math >}}
 $$
 D_{TV}(\pi \| \mu) = D_{TV}(H_0 \| H_T) \le \sum_{t=0}^{T-1} D_{TV}(H_t \| H_{t+1})
 $$
-{{< /math >}}
 
-**c. Analyze a Single Step** $D_{TV}(H_t \| H_{t+1})$**:**
+**c. Analyze a Single Step** $D_{TV}(H_t \| H_{t+1})$:
+
 $H_t$ and $H_{t+1}$ are identical *except* at token $t$, where one uses $\pi(y_t|s_t)$ and the other uses $\mu(y_t|s_t)$.
 
-{{< math >}}
 $$
 D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_y |H_t(y) - H_{t+1}(y)|
 $$
-{{< /math >}}
 
 Let's call the common prefix $q(s_t) = \prod_{i<t} \mu(y_i|s_i)$ and the common suffix $p(y_{>t}) = \prod_{j>t} \pi(y_j|s_j)$.
 
-{{< math >}}
 $$
 D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \sum_{y_{>t}} p(y_{>t})
 $$
-{{< /math >}}
 
-Factor out the common terms:
+Factor out the common terms. The innermost sum $\sum_{y_{>t}} p(y_{>t})$ is 1 (it's the probability of all possible futures):
 
-{{< math >}}
-$$
-D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \left( \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \right) \left( \sum_{y_{>t}} p(y_{>t}) \right)
-$$
-{{< /math >}}
-
-The innermost sum $\sum_{y_{>t}} p(y_{>t})$ is 1 (it's the probability of all possible futures).
-
-{{< math >}}
 $$
 D_{TV}(H_t \| H_{t+1}) = \sum_{s_t} q(s_t) \cdot D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))
 $$
-{{< /math >}}
 
-We recognize these terms:
+We recognize: $q(s_t)$ is $d_t^\mu(s_t)$, the probability of being in state $s_t$ under $\mu$. This gives:
 
-- $q(s_t)$ is $d_t^\mu(s_t)$, the probability of being in state $s_t$ under $\mu$.
-- The parenthetical term is $D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))$.
-
-This gives:
-
-{{< math >}}
 $$
-D_{TV}(H_t | H_{t+1}) = \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) | \mu(\cdot|s_t))]
+D_{TV}(H_t \| H_{t+1}) = \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
 $$
-{{< /math >}}
 
 **d. Combine and Conclude:**
+
 Substitute this back into the sum from (b):
 
-{{< math >}}
 $$
-D_{TV}(\pi | \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) | \mu(\cdot|s_t))]
+D_{TV}(\pi \| \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
 $$
-{{< /math >}}
 
 Let $\Delta_{\max} = \max_{t,s_t} D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))$. The bound becomes:
 
-{{< math >}}
 $$
-D_{TV}(\pi \| \mu) \le T \cdot \Delta_{\max}
+D_{TV}(\pi \| \mu) \le T \cdot \Delta\_{\max}
 $$
-{{< /math >}}
 
 ---
 
-**Final Conclusion: The** $O(T^2)$ **Bias Applies to Both**
+**Final Conclusion: The $O(T^2)$ Bias Applies to Both**
 
-We have just proved that the **Naive estimator** has a bias of $O(T^2 \Delta_{\max})$.
+We have just proved that the **Naive estimator** has a bias of $O(T^2 \Delta_{\max})$:
 
-{{< math >}}
 $$
-\|\text{Bias}(\hat{g}_{\text{naive}})\|_2 \le (2 \cdot O(T)) \cdot (O(T \Delta_{\max})) = O(T^2 \Delta_{\max})
+\|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 \le (2 \cdot O(T)) \cdot (O(T \Delta\_{\max})) = O(T^2 \Delta\_{\max})
 $$
-{{< /math >}}
 
 **Why does this also apply to the Token-Level IS (PPO-like) estimator?**
 
 Because the $O(T^2 \Delta_{\max})$ bias doesn't come from the specific *form* of the estimator (like using $R(y)$ vs $A(s_t, y_t)$). It comes from the **sampling distribution** itself.
 
-1.  The **true gradient** $g = \nabla J(\pi)$ is an expectation over the *new* policy's state distribution, $d_\pi$.
-2.  *Both* $\hat{g}_{\text{naive}}$ and $\hat{g}_{\text{tok}}$ are computed on samples from $\mu$, so their expectations are taken over the *old* policy's state distribution, $d_\mu$.
+1. The **true gradient** $g = \nabla J(\pi)$ is an expectation over the *new* policy's state distribution, $d_\pi$.
+2. *Both* $\hat{g}_{\text{naive}}$ and $\hat{g}_{\text{tok}}$ are computed on samples from $\mu$, so their expectations are taken over the *old* policy's state distribution, $d_\mu$.
 
 The $O(T \Delta_{\max})$ error from the Simulation Lemma is the *fundamental difference* between the true state distribution $d_\pi$ and the sampling distribution $d_\mu$. Any estimator that computes its expectation under $d_\mu$ (like Naive and Token-IS) is optimizing a surrogate objective $L_\mu(\pi)$, not the true objective $J(\pi)$.
 
@@ -490,11 +425,9 @@ The variance is $\mathbf{Var}(\sum_t X_t') = \sum_t \mathbf{Var}(X_t') + \sum_{t
 
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X_t'\|^2]$.
 
-{{< math >}}
 $$
-\mathbb{E}[|X_t'|^2] = \mathbb{E}\left[\left| \min(\rho_t, C) A_t \nabla_\theta \log \pi_t \right|^2\right] \le (\sup |A_t \nabla_\theta \log \pi_t|)^2 \cdot \mathbb{E}\left[\min(\rho_t, C)^2\right]
+\mathbb{E}[|X_t'|^2] = \mathbb{E}\left[\left| \min(\rho_t, C) A_t \nabla\_\theta \log \pi_t \right|^2\right] \le (\sup |A_t \nabla\_\theta \log \pi_t|)^2 \cdot \mathbb{E}\left[\min(\rho_t, C)^2\right]
 $$
-{{< /math >}}
 
 Since $\min(\rho_t, C)^2 \le C^2$ by definition, the expectation is bounded by $C^2$. This is even *better* than the $O(1+\bar{\chi}^2)$ bound for the unclipped Token-IS. Each diagonal term is $O(C^2)$. The sum of $T$ terms is $O(T C^2)$.
 
@@ -504,11 +437,9 @@ By Cauchy-Schwarz, $|\mathbb{E}[X_t'^\top X_{t'}']| \le \sqrt{\mathbb{E}[\|X_t'\
 
 **Total Variance:**
 
-{{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\text{tl-tis}}) = O(TC^2) + O(T^2 C^2) = O(T^2 C^2)
+\mathbf{Var}(\hat{g}\_{\text{tl-tis}}) = O(TC^2) + O(T^2 C^2) = O(T^2 C^2)
 $$
-{{< /math >}}
 
 The variance is successfully controlled. This is why PPO is widely used—it rarely exhibits numerical instability.
 
@@ -528,47 +459,39 @@ Clipping $\rho_t$ is a *variance reduction* technique, but it doesn't fix the un
 
 Let's be precise about the two sources of bias.
 
-1. The Bias (from Analysis 2):
+**1. The Bias (from Analysis 2):**
 
 This is the bias we already have, before we even add clipping. It's the difference between the true gradient $g$ and the expectation of the unclipped token-level estimator $\hat{g}_{\text{tok}}$. This bias is large because it comes from optimizing on the wrong state distribution $d_\mu$.
 
-{{< math >}}
 $$
-B_{\text{fatal}} = \mathbb{E}[\hat{g}_{\text{tok}}] - g = O(T^2 \Delta_{\max})
+B\_{\text{fatal}} = \mathbb{E}[\hat{g}\_{\text{tok}}] - g = O(T^2 \Delta\_{\max})
 $$
-{{< /math >}}
 
 **2. The "New" Truncation Bias:**
+
 Our new estimator, $\hat{g}_{\text{tl-tis}}$, isn't an unbiased estimator for $g$. It's not even an unbiased estimator for $\mathbb{E}[\hat{g}_{\text{tok}}]$. By clipping $\rho_t \to \min(\rho_t, C)$, we have introduced a *new* bias, which is the difference between the expectation of the clipped estimator and the unclipped one:
 
-{{< math >}}
 $$
-B_{\text{trunc}} = \mathbb{E}[\hat{g}_{\text{tl-tis}}] - \mathbb{E}[\hat{g}_{\text{tok}}]
+B\_{\text{trunc}} = \mathbb{E}[\hat{g}\_{\text{tl-tis}}] - \mathbb{E}[\hat{g}\_{\text{tok}}]
 $$
-{{< /math >}}
 
 **3. The Total Bias:**
+
 The total bias of our new estimator, relative to the *true* gradient $g$, is the sum of both:
 
-{{< math >}}
 $$
-\text{Total Bias} = \mathbb{E}[\hat{g}_{\text{tl-tis}}] - g
+\text{Total Bias} = \mathbb{E}[\hat{g}\_{\text{tl-tis}}] - g
 $$
-{{< /math >}}
 
 We can add and subtract $\mathbb{E}[\hat{g}_{\text{tok}}]$ (the unclipped estimator's expectation) to see both parts:
 
-{{< math >}}
 $$
-\text{Total Bias} = \underbrace{(\mathbb{E}[\hat{g}_{\text{tl-tis}}] - \mathbb{E}[\hat{g}_{\text{tok}}])}_{B_{\text{trunc}}} + \underbrace{(\mathbb{E}[\hat{g}_{\text{tok}}] - g)}_{B_{\text{fatal}}}
+\text{Total Bias} = \underbrace{(\mathbb{E}[\hat{g}\_{\text{tl-tis}}] - \mathbb{E}[\hat{g}\_{\text{tok}}])}\_{B\_{\text{trunc}}} + \underbrace{(\mathbb{E}[\hat{g}\_{\text{tok}}] - g)}\_{B\_{\text{fatal}}}
 $$
-{{< /math >}}
 
-{{< math >}}
 $$
-\text{Total Bias} = B_{\text{trunc}} + O(T^2 \Delta_{\max})
+\text{Total Bias} = B\_{\text{trunc}} + O(T^2 \Delta\_{\max})
 $$
-{{< /math >}}
 
 **Conclusion:**
 
