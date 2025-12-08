@@ -100,7 +100,7 @@ $$
 = \mathbb{E}\_{\mu}\left[ \rho^2(y) R^2(y) \left\| \nabla\_{\theta}\log \pi(y) \right\|^2 \right] - \left\| g \right\|^2
 $$
 
-Assuming that $\sup_y \left\| \nabla_{\theta}\log \pi(y) \right\|^2 \le M$ and $\forall y: |R(y)| \le R_{\text{max}}$, then the variance is upper-bounded by the second moment:
+Assuming that $\sup\_y \left\| \nabla\_{\theta}\log \pi(y) \right\|^2 \le M$ and $\forall y: |R(y)| \le R\_{\text{max}}$, then the variance is upper-bounded by the second moment:
 
 $$
 \mathbf{Var}(\hat{g}\_{\mathrm{seq}}) \le M \cdot R\_{\max} \cdot \mathbb{E}\_{\mu}\left[ \rho^2(y) \right] - \left\| g \right\|^2
@@ -108,7 +108,7 @@ $$
 
 Let's analyze the second moment.
 
-The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod_{t=0}^{T-1} \rho_t = \prod_{t=0}^{T-1} \frac{\pi(y_t|x,y_{<t})}{\mu(y_t|x,y_{<t})}$
+The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod\_{t=0}^{T-1} \rho\_t = \prod\_{t=0}^{T-1} \frac{\pi(y\_t|x,y\_{<t})}{\mu(y\_t|x,y\_{<t})}$
 
 Using the tower property of expectation and conditional independence:
 
@@ -122,7 +122,7 @@ $$
 \mathbb{E}\_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2\_{\max}
 $$
 
-Let $\bar{\chi}^2_{\max} = \max_{t, s_t} \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t))$. If any mismatch exists, $\bar{\chi}^2_{\max} > 0$.
+Let $\bar{\chi}^2\_{\max} = \max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} > 0$.
 This gives the exponential upper bound:
 
 $$
@@ -209,9 +209,9 @@ The variance is always bounded by the second moment: $\mathbf{Var}(\hat{g}) \le 
 
 **1. Naive Estimator:**
 
-Let $f(y) = \hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)$.
+Let $f(y) = \hat{g}\_{\text{naive}}(y) = R(y|x) \cdot \nabla\_\theta \log \pi(y|x)$.
 
-As we show in the "Factor 1" part of the bias proof below, the score function $\nabla_\theta \log \pi(y|x) = \sum_t \nabla_\theta \log \pi_t$ has a magnitude that scales as $O(T)$.
+As we show in the "Factor 1" part of the bias proof below, the score function $\nabla\_\theta \log \pi(y|x) = \sum\_t \nabla\_\theta \log \pi\_t$ has a magnitude that scales as $O(T)$.
 
 $$
 \|f(y)\| = |R(y)| \cdot \|\nabla\_\theta \log \pi(y|x)\| \le R\_{\max} \cdot O(T)
@@ -226,7 +226,7 @@ $$
 The variance is definitively polynomial.
 
 **2. Token-Level IS (Token-IS) Estimator:**
-This estimator is a sum of $T$ terms: $\hat{g}_{\text{tok}} = \sum_{t=0}^{T-1} X_t$.
+This estimator is a sum of $T$ terms: $\hat{g}\_{\text{tok}} = \sum\_{t=0}^{T-1} X\_t$.
 The variance of a sum is $\mathbf{Var}(\sum_t X_t) = \sum_t \mathbf{Var}(X_t) + \sum_{t \neq t'} \mathbf{Cov}(X_t, X_{t'})$.
 This has $T$ diagonal (variance) terms and $T(T-1) \approx O(T^2)$ off-diagonal (covariance) terms.
 
