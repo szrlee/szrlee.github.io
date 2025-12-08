@@ -171,7 +171,17 @@ The penalty scales **quadratically with both horizon and TV distance** because s
 
 Here's the critical point: **PPO/GRPO do not implement this bound**. They use a constant clipping factor (e.g., {{< math >}}$\epsilon = 0.2${{< /math >}}) regardless of sequence length, while the theory requires the trust region to **shrink as** {{< math >}}$O(1/T^2)${{< /math >}}.
 
-In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization. Crucially, the token-level importance sampling (IS) gradient used in PPO/GRPO—which applies the IS ratio {{< math >}}$\pi(a|s)/\mu(a|s)${{< /math >}} at each token but samples states from {{< math >}}$d_\mu${{< /math >}}—is exactly the gradient of the surrogate objective {{< math >}}$\nabla_\theta L_\mu${{< /math >}}, not the true gradient {{< math >}}$\nabla_\theta J${{< /math >}}. This introduces bias that scales with both horizon and policy divergence.
+In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization. Crucially, the token-level importance sampling (IS) gradient used in PPO/GRPO is exactly the gradient of the surrogate objective {{< math >}}$\nabla_\theta L_\mu${{< /math >}}, not the true gradient {{< math >}}$\nabla_\theta J${{< /math >}}:
+
+{{< math >}}
+$$\underbrace{\mathbb{E}_{s_t \sim d_\mu} \mathbb{E}_{y_t \sim \mu} \left[ \frac{\pi_\theta(y_t|s_t)}{\mu(y_t|s_t)} A_\mu(s_t, y_t) \nabla_\theta \log \pi_\theta(y_t|s_t) \right]}_{\text{Token-level IS gradient (what PPO computes)}} = \nabla_\theta L_\mu$$
+{{< /math >}}
+
+{{< math >}}
+$$\nabla_\theta L_\mu \neq \nabla_\theta J = \underbrace{\mathbb{E}_{s_t \sim d_\pi} \mathbb{E}_{y_t \sim \pi} \left[ A_\pi(s_t, y_t) \nabla_\theta \log \pi_\theta(y_t|s_t) \right]}_{\text{True policy gradient}}$$
+{{< /math >}}
+
+where {{< math >}}$s_t = (x, y_{\lt t})${{< /math >}} is the state (prompt + generated prefix) and {{< math >}}$y_t${{< /math >}} is the action (next token). The token-level IS ratio {{< math >}}$\pi_\theta(y_t|s_t)/\mu(y_t|s_t)${{< /math >}} corrects for the **token distribution mismatch**, but the expectation over states is still taken under {{< math >}}$d_\mu${{< /math >}}, not {{< math >}}$d_\pi${{< /math >}}. This **prefix distribution mismatch** is the source of bias, which scales with both horizon and policy divergence.
 
 This bias is **tolerable** when:
 - The off-policiness is solely induced by policy parameter updates
