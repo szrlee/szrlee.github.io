@@ -119,7 +119,11 @@ For an $L$-smooth objective, the expected progress per step is:
 
 {{< math >}}
 $$
-\mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq \underbrace{\eta (1 - \frac{L\eta}{2})\|\nabla J\|^2}_{\text{Term A: True Progress}} + \underbrace{\eta(1 - L\eta)\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle}_{\text{Term B: Bias Error}} - \underbrace{\frac{L\eta^2}{2}[\mathbf{Var}(\hat{g}) + \|\mathbf{Bias}(\hat{g})\|^2]}_{\text{Term C: Noise Penalty}}
+\begin{aligned}
+\mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq\; & \underbrace{\eta \left(1 - \frac{L\eta}{2}\right)\|\nabla J\|^2}_{\text{Term A: True Progress}} \\
+& + \underbrace{\eta(1 - L\eta)\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle}_{\text{Term B: Bias Error}} \\
+& - \underbrace{\frac{L\eta^2}{2}\left[\mathbf{Var}(\hat{g}) + \|\mathbf{Bias}(\hat{g})\|^2\right]}_{\text{Term C: Noise Penalty}}
+\end{aligned}
 $$
 {{< /math >}}
 
@@ -160,7 +164,10 @@ Using $\mathbb{E}[\hat{g}] = \nabla J + \mathbf{Bias}(\hat{g})$:
 
 {{< math >}}
 $$
-\mathbb{E}[\|\hat{g}\|^2] = \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2 = \mathbf{Var}(\hat{g}) + \|\nabla J\|^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \|\mathbf{Bias}(\hat{g})\|^2
+\begin{aligned}
+\mathbb{E}[\|\hat{g}\|^2] &= \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2 \\
+&= \mathbf{Var}(\hat{g}) + \|\nabla J\|^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \|\mathbf{Bias}(\hat{g})\|^2
+\end{aligned}
 $$
 {{< /math >}}
 
@@ -291,7 +298,10 @@ The gradient PPO/GRPO actually computes is:
 
 {{< math >}}
 $$
-\underbrace{\sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_{\mu,t}} \mathbb{E}_{y_t \sim \mu(\cdot|s_t)} \left[ \frac{\pi_\theta(y_t|s_t)}{\mu(y_t|s_t)} A_\mu(s_t, y_t) \nabla_\theta \log \pi_\theta(y_t|s_t) \right]}_{\text{Token-level IS gradient (what PPO computes)}} = \nabla_\theta L_\mu
+\begin{aligned}
+&\sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_{\mu,t}} \mathbb{E}_{y_t \sim \mu(\cdot|s_t)} \left[ \frac{\pi_\theta(y_t|s_t)}{\mu(y_t|s_t)} A_\mu(s_t, y_t) \nabla_\theta \log \pi_\theta(y_t|s_t) \right] \\
+&= \nabla_\theta L_\mu \quad \text{(Token-level IS gradient, what PPO computes)}
+\end{aligned}
 $$
 {{< /math >}}
 
@@ -299,7 +309,9 @@ The **true** policy gradient is:
 
 {{< math >}}
 $$
+\begin{aligned}
 \nabla_\theta J = \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_{\pi,t}} \mathbb{E}_{y_t \sim \pi(\cdot|s_t)} \left[ A_\pi(s_t, y_t) \nabla_\theta \log \pi_\theta(y_t|s_t) \right]
+\end{aligned}
 $$
 {{< /math >}}
 
