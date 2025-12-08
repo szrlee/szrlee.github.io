@@ -104,10 +104,10 @@ To analyze this rigorously, we model the problem as a Markov Decision Process. F
 
 | RL Concept | LLM Interpretation |
 |------------|-------------------|
-| **State** $s_t$ | The prefix $(x, y_{<t})$: prompt + previously generated tokens |
+| **State** $s_t$ | The prefix $(x, y_{\lt t})$: prompt + previously generated tokens |
 | **Action** $a_t$ | The next token $y_t$ |
-| **Policy** $\pi(a_t \| s_t)$ | Token distribution $\pi_\theta(y_t \| x, y_{<t})$ |
-| **Transition** $P(s_{t+1} \| s_t, a_t)$ | **Deterministic**: appending $y_t$ to $(x, y_{<t})$ gives $s_{t+1} = (x, y_{<t+1})$ |
+| **Policy** $\pi(a_t \| s_t)$ | Token distribution $\pi_\theta(y_t \| x, y_{\lt t})$ |
+| **Transition** $P(s_{t+1} \| s_t, a_t)$ | **Deterministic**: appending $y_t$ to $(x, y_{\lt t})$ gives $s_{t+1} = (x, y_{\lt t+1})$ |
 | **Horizon** $T$ | Sequence length |
 
 This deterministic transition structure is crucial: once you choose an action, the next state is fully determined. This applies to LLM generation and many other sequential decision problems.

@@ -257,7 +257,7 @@ For autoregressive generation, the sequence-level importance ratio is a product 
 
 {{< math >}}
 $$
-\rho(y) = \prod_{t=0}^{T-1} \rho_t, \quad \text{where} \quad \rho_t = \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}
+\rho(y) = \prod_{t=0}^{T-1} \rho_t, \quad \text{where} \quad \rho_t = \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}
 $$
 {{< /math >}}
 
@@ -342,13 +342,13 @@ The geometric mean has a natural interpretation in terms of KL divergence. Takin
 
 {{< math >}}
 $$
-\log \rho_{\text{geo}}(y) = \frac{1}{T} \sum_{t=0}^{T-1} \log \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}
+\log \rho_{\text{geo}}(y) = \frac{1}{T} \sum_{t=0}^{T-1} \log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}
 $$
 {{< /math >}}
 
 This is the **sample average of the per-token log-ratios** along trajectory $y$.
 
-**Connection to KL Divergence:** Let $s_t = (x, y_{<t})$ denote the state (context) at step $t$. Recall that:
+**Connection to KL Divergence:** Let $s_t = (x, y_{\lt t})$ denote the state (context) at step $t$. Recall that:
 
 - **Forward KL:** $D_{KL}(\pi \| \mu) = \mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]$
 - **Reverse KL:** $D_{KL}(\mu \| \pi) = \mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|s_t)}{\pi(y_t|s_t)}\right] = -\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]$

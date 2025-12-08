@@ -108,7 +108,7 @@ $$
 
 Let's analyze the second moment.
 
-The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod\_{t=0}^{T-1} \rho\_t = \prod\_{t=0}^{T-1} \frac{\pi(y\_t|x,y\_{<t})}{\mu(y\_t|x,y\_{<t})}$
+The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod\_{t=0}^{T-1} \rho\_t = \prod\_{t=0}^{T-1} \frac{\pi(y\_t|x,y\_{\lt t})}{\mu(y\_t|x,y\_{\lt t})}$
 
 Using the tower property of expectation and conditional independence:
 
@@ -192,7 +192,7 @@ This family of estimators "solves" the exponential variance problem by avoiding 
 
 {{< math >}}
 $$
-\hat{g}_{\text{tok}}(y) = \sum_{t=0}^{T-1} \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})} A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{<t})
+\hat{g}_{\text{tok}}(y) = \sum_{t=0}^{T-1} \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})} A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{\lt t})
 $$
 {{< /math >}}
 
@@ -298,7 +298,7 @@ The $O(T^2)$ bias comes from the fact that both of these terms scale linearly wi
 Our function $f(y)$ is the product of the reward (bounded by $R\_{\max}$) and the full-sequence score function. The score function is a sum of $T$ per-token score functions:
 
 $$
-\nabla\_\theta \log \pi(y|x) = \sum_{t=0}^{T-1} \nabla\_\theta \log \pi(y_t|x, y_{<t})
+\nabla\_\theta \log \pi(y|x) = \sum_{t=0}^{T-1} \nabla\_\theta \log \pi(y_t|x, y_{\lt t})
 $$
 
 Since each per-token score is bounded (let's say by a constant $K\_t$) for softmax parameterization, the full sequence score is bounded by $O(T \cdot K\_t)$. Therefore:
@@ -337,13 +337,13 @@ $$
 D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_y |H_t(y) - H_{t+1}(y)|
 $$
 
-Let's call the common prefix $q(s\_t) = \prod\_{i<t} \mu(y\_i|s\_i)$ and the common suffix $p(y\_{>t}) = \prod\_{j>t} \pi(y\_j|s\_j)$.
+Let's call the common prefix $q(s\_t) = \prod\_{i\lt t} \mu(y\_i|s\_i)$ and the common suffix $p(y\_{\gt t}) = \prod\_{j\gt t} \pi(y\_j|s\_j)$.
 
 $$
-D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \sum_{y_{>t}} p(y_{>t})
+D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \sum_{y_{\gt t}} p(y_{\gt t})
 $$
 
-Factor out the common terms. The innermost sum $\sum\_{y\_{>t}} p(y\_{>t})$ is 1 (it's the probability of all possible futures):
+Factor out the common terms. The innermost sum $\sum\_{y\_{\gt t}} p(y\_{\gt t})$ is 1 (it's the probability of all possible futures):
 
 $$
 D_{TV}(H_t \| H_{t+1}) = \sum_{s_t} q(s_t) \cdot D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))
@@ -403,7 +403,7 @@ This brings us to **Token-Level Truncated IS (Token-TIS)**. This is the theoreti
 
 {{< math >}}
 $$
-\hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left(\frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}, C\right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{<t})
+\hat{g}_{\text{tl-tis}}(y) = \sum_{t=0}^{T-1} \min\left(\frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}, C\right) A(s_t, y_t) \nabla_\theta \log \pi(y_t|x, y_{\lt t})
 $$
 {{< /math >}}
 
@@ -518,7 +518,7 @@ The key insight is this:
 2. Why? Because *rare* samples can have an *enormous* sequence ratio $\rho \to \infty$.
 3. What's the simplest fix? **Just clip the full sequence ratio** $\rho$**.**
 
-- **The Estimator:** $\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{<t})}{\mu(y_t|x, y_{<t})}, C\right) \cdot f(y)$
+- **The Estimator:** $\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}, C\right) \cdot f(y)$
 
 ### The Analysis
 
