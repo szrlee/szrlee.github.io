@@ -142,19 +142,15 @@ This decomposition reveals exactly how mismatch affects optimization progress.
 **1. Start with the $L$-smoothness assumption:**
 An objective $J$ is $L$-smooth if its gradient is $L$-Lipschitz. The descent lemma states:
 
-{{< math >}}
 $$
 J(\theta_{k+1}) \geq J(\theta_k) + \langle \nabla J(\theta_k), \eta \hat{g}_k \rangle - \frac{L\eta^2}{2}\|\hat{g}_k\|^2
 $$
-{{< /math >}}
 
 **2. Take the expectation:**
 
-{{< math >}}
 $$
 \mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq \eta\langle \nabla J, \mathbb{E}[\hat{g}_k] \rangle - \frac{L\eta^2}{2}\mathbb{E}[\|\hat{g}_k\|^2]
 $$
-{{< /math >}}
 
 **3. Decompose using Bias and Variance:**
 
@@ -165,14 +161,12 @@ $$
 
 Using $\mathbb{E}[\hat{g}] = \nabla J + \mathbf{Bias}(\hat{g})$:
 
-{{< math >}}
 $$
 \begin{aligned}
-\mathbb{E}[\|\hat{g}\|^2] &= \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2 \\
+\mathbb{E}[\|\hat{g}\|^2] &= \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2 \\\\
 &= \mathbf{Var}(\hat{g}) + \|\nabla J\|^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \|\mathbf{Bias}(\hat{g})\|^2
 \end{aligned}
 $$
-{{< /math >}}
 
 **5. Collect terms:**
 
@@ -351,21 +345,20 @@ where:
 
 The error between surrogate and true objective is:
 
-{{< math >}}
 $$
-|J(\pi) - L_\mu(\pi)| = \left| \sum_s (d_\pi(s) - d_\mu(s)) \cdot \mathbb{E}_{a \sim \pi} [A_\mu(s,a)] \right| = O(\|d_\pi - d_\mu\|_1)
+\begin{aligned}
+|J(\pi) - L_\mu(\pi)| &= \left| \sum_s (d_\pi(s) - d_\mu(s)) \cdot \mathbb{E}_{a \sim \pi} [A_\mu(s,a)] \right| \\\\
+&= O(\|d_\pi - d_\mu\|_1)
+\end{aligned}
 $$
-{{< /math >}}
 
 **2. The Simulation Lemma**
 
 State distribution divergence accumulates linearly with time:
 
-{{< math >}}
 $$
 D_{TV}(d_{\pi,t} \| d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)
 $$
-{{< /math >}}
 
 **Simulation Lemma Proof:**
 
@@ -379,11 +372,9 @@ Let $\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 = 2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu
 
 **Inductive step:** Using the recursive state distribution:
 
-{{< math >}}
 $$
-\delta_t \leq \underbrace{\delta_{t-1}}_{\text{propagated divergence}} + \underbrace{\epsilon_{\max}}_{\text{new divergence}}
+\delta_t \leq \underbrace{\delta_{t-1}}\_{\text{propagated}} + \underbrace{\epsilon\_{\max}}\_{\text{new}}
 $$
-{{< /math >}}
 
 where $\epsilon_{\max} = 2 \cdot D_{TV}^{\max}$.
 
@@ -393,21 +384,17 @@ Unrolling: $\delta_t \leq t \cdot \epsilon_{\max}$.
 
 Summing over all timesteps:
 
-{{< math >}}
 $$
 \text{Total Error} = O\left(\sum_{t=0}^{T-1} t \cdot D_{TV}^{\max}\right) = O(T^2 \cdot D_{TV}^{\max})
 $$
-{{< /math >}}
 
 **4. Connection to Discounted Setting**
 
 The original TRPO paper used $\gamma$-discounting with a tighter bound:
 
-{{< math >}}
 $$
 J(\pi) \geq L_\mu(\pi) - \frac{4\gamma \epsilon}{(1-\gamma)^2} \cdot (D_{TV}^{\max})^2
 $$
-{{< /math >}}
 
 where $\epsilon = \max_{s,a} |A_\mu(s,a)|$. Note this bound is quadratic in $D_{TV}^{\max}$, derived via a different technique (using KL divergence and Pinsker's inequality). The key insight for both bounds: **the penalty scales quadratically with effective horizon** ($T^2$ or $1/(1-\gamma)^2$).
 
