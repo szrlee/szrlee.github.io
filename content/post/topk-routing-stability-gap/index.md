@@ -33,7 +33,7 @@ projects: []
 
 ## The Problem
 
-Training Mixture of Experts (MoE) language models with Reinforcement Learning can be unstable. While dense LLMs enjoy smooth optimization landscapes, MoE-based models like Mixtral, DeepSeek-MoE, and Qwen-MoE introduce the **Top-K operator**—a discrete switching mechanism that creates discontinuities in the optimization landscape.
+Training Mixture of Experts (MoE) language models with Reinforcement Learning can be unstable. While dense LLMs have continuous and differentiable policy mappings, MoE-based models like Mixtral, DeepSeek-MoE, and Qwen-MoE introduce the **Top-K operator**—a discrete switching mechanism that creates discontinuities in the optimization landscape.
 
 This discreteness introduces two fundamental mathematical pathologies that break standard RL assumptions used in PPO, GRPO, and other LLM-RL algorithms.
 
@@ -153,19 +153,25 @@ The surrogate is a **first-order Taylor approximation** of the true objective—
 
 ### The TRPO Lower Bound
 
-TRPO quantifies exactly how much the approximation degrades:
+TRPO quantifies exactly how much the approximation degrades. The original theorem ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)) gives:
 
 {{< math >}}
-$$J(\pi) \geq L_{\mu}(\pi) - C \cdot T^2 \cdot D_{TV}^{\max}(\pi, \mu)$$
+$$J(\pi) \geq L_{\mu}(\pi) - \frac{4\epsilon\gamma}{(1-\gamma)^2} \cdot (D_{TV}^{\max})^2$$
 {{< /math >}}
 
-where {{< math >}}$T${{< /math >}} is the sequence length and {{< math >}}$D_{TV}^{\max}${{< /math >}} is the maximum per-token TV distance. The penalty scales **quadratically with horizon** because state distribution mismatch accumulates over time.
+where {{< math >}}$\epsilon = \max_{s,a}|A(s,a)|${{< /math >}} and {{< math >}}$D_{TV}^{\max} = \max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))${{< /math >}}. For finite-horizon undiscounted settings ({{< math >}}$\gamma = 1${{< /math >}}, horizon {{< math >}}$T${{< /math >}}), the bound becomes:
+
+{{< math >}}
+$$J(\pi) \geq L_{\mu}(\pi) - C \cdot T^2 \cdot (D_{TV}^{\max})^2$$
+{{< /math >}}
+
+The penalty scales **quadratically with both horizon and TV distance** because state distribution mismatch accumulates over time.
 
 ### The Gap Between Theory and Practice
 
 Here's the critical point: **PPO/GRPO do not implement this bound**. They use a constant clipping factor (e.g., {{< math >}}$\epsilon = 0.2${{< /math >}}) regardless of sequence length, while the theory requires the trust region to **shrink as** {{< math >}}$O(1/T^2)${{< /math >}}.
 
-In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) use a **Stochastic Gradient Ascent Lemma** to analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization. A key result: the token-level importance sampling used in PPO/GRPO has an {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} **bias** in the gradient estimator, where {{< math >}}$D_{TV}^{\max}${{< /math >}} is the maximum per-token TV distance between the sampling and target policies.
+In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization, showing that token-level importance sampling introduces bias that scales with both horizon and policy divergence.
 
 This bias is **tolerable** when:
 - The off-policiness is solely induced by policy parameter updates
@@ -173,7 +179,7 @@ This bias is **tolerable** when:
 
 This bias becomes **intolerable** when:
 - The mismatch has diverse, uncontrolled sources (e.g., expert shifts in MoE)
-- {{< math >}}$D_{TV}^{\max}${{< /math >}} is large, making {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} a fatal error
+- {{< math >}}$D_{TV}^{\max}${{< /math >}} is large, amplifying the approximation error
 
 Their success relies on:
 1. The **first-order approximation** {{< math >}}$\nabla_\theta L_\mu \approx \nabla_\theta J${{< /math >}} being valid
@@ -209,8 +215,8 @@ PPO/GRPO optimize {{< math >}}$L_\mu(\pi)${{< /math >}} as a proxy for {{< math 
 **2. Gradient Estimates Are Invalid:**
 The clipped gradient estimator assumes {{< math >}}$\nabla_\theta L_\mu \approx \nabla_\theta J${{< /math >}}. At a discontinuity, neither gradient exists in the classical sense, and the computed "gradient" points in an arbitrary direction.
 
-**3. Large, Uncontrolled Bias:**
-When the router switches experts, the effective {{< math >}}$D_{TV}^{\max}${{< /math >}} (per-token TV distance) can be large—the output distribution changes discretely, not continuously. Combined with the {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} gradient estimator bias established by [Li et al., 2025](https://richardli.xyz/rl-collapse-1), this creates a regime where the gradient estimator is systematically wrong, pushing optimization toward incorrect solutions. This may contribute to the training instability observed when training MoE LLMs with RL.
+**3. Large, Uncontrolled Approximation Error:**
+When the router switches experts, the effective {{< math >}}$D_{TV}^{\max}${{< /math >}} (per-token TV distance) can be large—the output distribution changes discretely, not continuously. The TRPO bound shows the surrogate-to-objective gap scales as {{< math >}}$O(T^2 \cdot (D_{TV}^{\max})^2)${{< /math >}}. When {{< math >}}$D_{TV}^{\max}${{< /math >}} jumps due to expert switching, this creates a regime where the gradient estimator is systematically wrong, pushing optimization toward incorrect solutions. This may contribute to the training instability observed when training MoE LLMs with RL.
 
 ---
 
@@ -250,7 +256,7 @@ The instability of RL training for MoE LLMs is not a bug to be fixed with hyperp
 | Property | Effect on LLM-RL Optimization |
 |----------|----------------------|
 | Discrete expert selection | Zero gradient for unselected experts—no signal for improving routing |
-| Jump discontinuities at boundaries | Large {{< math >}}$D_{TV}^{\max}${{< /math >}} when experts switch, causing {{< math >}}$O(T^2 \cdot D_{TV}^{\max})${{< /math >}} gradient bias |
+| Jump discontinuities at boundaries | Large {{< math >}}$D_{TV}^{\max}${{< /math >}} when experts switch, causing {{< math >}}$O(T^2 \cdot (D_{TV}^{\max})^2)${{< /math >}} approximation error |
 | First-order approximation failure | Surrogate {{< math >}}$L_\mu${{< /math >}} invalid at discontinuities—gradient estimates systematically wrong |
 | No gradient signal for switching | Cannot learn which expert would generate better tokens |
 
