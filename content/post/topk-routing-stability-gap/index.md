@@ -171,7 +171,7 @@ The penalty scales **quadratically with both horizon and TV distance** because s
 
 Here's the critical point: **PPO/GRPO do not implement this bound**. They use a constant clipping factor (e.g., {{< math >}}$\epsilon = 0.2${{< /math >}}) regardless of sequence length, while the theory requires the trust region to **shrink as** {{< math >}}$O(1/T^2)${{< /math >}}.
 
-In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization, showing that token-level importance sampling introduces bias that scales with both horizon and policy divergence.
+In practice, PPO/GRPO are best understood as **stochastic gradient ascent (SGA)** methods that compute a clipped gradient estimator. [Li et al., 2025](https://richardli.xyz/rl-collapse-1) analyze how mismatch between sampling policy {{< math >}}$\mu${{< /math >}} and target policy {{< math >}}$\pi${{< /math >}} affects optimization, showing that the gradient of the surrogate objective introduces bias that scales with both horizon and policy divergence.
 
 This bias is **tolerable** when:
 - The off-policiness is solely induced by policy parameter updates
