@@ -129,7 +129,7 @@ $$
 \mathbb{E}\_\mu[\rho(y)^2] \le \prod_{t=0}^{T-1} (1 + \bar{\chi}^2\_{\max}) = (1 + \bar{\chi}^2\_{\max})^T
 $$
 
-This proves the variance is $\mathbf{Var}(\hat{g}_{\text{seq}}) = O((1 + \bar{\chi}^2_{\max})^T)$, which grows too fast for long sequences.
+This proves the variance is $\mathbf{Var}(\hat{g}\_{\text{seq}}) = O((1 + \bar{\chi}^2\_{\max})^T)$, which grows too fast for long sequences.
 
 {{< /spoiler >}}
 
