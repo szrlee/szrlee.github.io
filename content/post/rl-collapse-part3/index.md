@@ -398,19 +398,15 @@ With the geometric ratio, we can define a **Per-Token Trust Region** that is ind
 {{% callout note %}}
 **Definition: Geometric Rejection Sampling (Geo-RS)**
 
-{{< math >}}
 $$
-\hat{g}_{\text{geo-rs}}(y) = \mathbb{I}\left( C_{\text{low}} \le \rho_{\text{geo}}(y) \le C_{\text{high}} \right) \cdot f(y)
+\hat{g}\_{\text{geo-rs}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot f(y)
 $$
-{{< /math >}}
 
 Equivalently, in log-space:
 
-{{< math >}}
 $$
-\hat{g}_{\text{geo-rs}}(y) = \mathbb{I}\left( \log C_{\text{low}} \le \frac{1}{T}\sum_{t=0}^{T-1} \log \rho_t \le \log C_{\text{high}} \right) \cdot f(y)
+\hat{g}\_{\text{geo-rs}}(y) = \mathbb{I}\left( \log C\_{\text{low}} \le \frac{1}{T}\sum\_{t=0}^{T-1} \log \rho\_t \le \log C\_{\text{high}} \right) \cdot f(y)
 $$
-{{< /math >}}
 {{% /callout %}}
 
 **Why Two-Sided?** The trust region enforces constraints in both directions:
