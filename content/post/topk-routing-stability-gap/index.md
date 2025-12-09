@@ -285,7 +285,10 @@ Until routing mechanisms are developed that preserve gradient information while 
 - Schulman, J., et al. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
 
 **LLM-RL Analysis:**
-- Liu, J., Li, Y., Fu, Y., Wang, J., Liu, Q., & Shen, Y. (2025). "[When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch](https://richardli.xyz/rl-collapse)." *Blog Series*.
+- Liu, J., Li, Y., Fu, Y., Wang, J., Liu, Q., & Shen, Y. (2025). "When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch." *Blog Series*:
+  - [Part 1: Why Off-Policy Breaks RL — An SGA Analysis Framework](/post/rl-collapse-part1/)
+  - [Part 2: Applying the SGA Framework — Token v.s. Sequence-level Correction](/post/rl-collapse-part2/)
+  - [Part 3: Trust Region Optimization via Sequence Masking](/post/rl-collapse-part3/)
 
 **Non-smooth Optimization:**
 - Clarke, F. H. (1990). *Optimization and Nonsmooth Analysis.* SIAM.
