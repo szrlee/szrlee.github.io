@@ -486,33 +486,4 @@ We have developed a hierarchy of estimators, each addressing specific failure mo
 | **Geo-RS** | $\mathbb{I}(C_{\text{low}} \le \rho_{\text{geo}} \le C_{\text{high}}) \cdot f$ | Per-token, hard | Long-horizon tasks; length-invariant filtering |
 | **Geo-RS-Seq-TIS** | Geo-RS filter × Seq-TIS weight | Hybrid | Long-horizon + importance correction |
 
-### 4.1 Selection Guidelines
-
-**Standard LLM Fine-tuning (Short Outputs):**
-- Use **Seq-TIS** for optimal bias-variance trade-off
-- Sequence lengths typically < 1000 tokens; length bias is not a concern
-
-**Large Mismatch / OOD Risk:**
-- Use **Seq-MIS** to enforce a Hard Trust Region
-- Prevents gradient corruption from unreliable high-weight samples
-
-**Reasoning Models / Chain-of-Thought / Agents:**
-- Use **Geo-RS** or **Geo-RS-Seq-TIS** for length-invariant filtering
-- Sequence lengths of 2,000-10,000+ tokens require per-token trust regions
-
-### 4.2 The Core Principle: Hard Trust Regions
-
-The core distinction of this part is between **soft** and **hard** trust regions:
-
-| Trust Region Type | Mechanism | Behavior for $\rho \gt C$ |
-| --- | --- | --- |
-| **Soft (Clipping)** | $\min(\rho, C)$ | Sample included with weight $C$ |
-| **Hard (Rejection)** | $\mathbb{I}(\rho \le C)$ | Sample excluded entirely |
-
-**When to use hard trust regions:**
-
-1. When samples outside the region are likely OOD or corrupted
-2. When the cost of including a bad sample exceeds the benefit of additional data
-3. When sequence length varies significantly and length-invariant criteria are needed
-
 For long-horizon reasoning tasks, **Geometric Rejection Sampling (Geo-RS)** provides a principled, length-invariant Hard Trust Region that prevents the systematic length bias inherent in standard importance sampling estimators.
