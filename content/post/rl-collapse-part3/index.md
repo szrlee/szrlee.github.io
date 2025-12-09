@@ -183,11 +183,9 @@ Instead of soft clipping, we enforce a **Hard Trust Region**: samples outside th
 {{% callout note %}}
 **Definition: Sequence-Level Masked IS (Seq-MIS)**
 
-{{< math >}}
 $$
-\hat{g}_{\text{seq-mis}}(y) = \mathbb{I}(\rho(y) \le C) \cdot \rho(y) \cdot f(y)
+\hat{g}\_{\text{seq-mis}}(y) = \mathbb{I}(\rho(y) \le C) \cdot \rho(y) \cdot f(y)
 $$
-{{< /math >}}
 
 where $\mathbb{I}(\cdot)$ is the indicator function.
 {{% /callout %}}
@@ -327,11 +325,9 @@ The fundamental problem with sequence-level IS is that $\rho(y) = \prod_t \rho_t
 {{% callout note %}}
 **Definition: Geometric Mean of the Importance Ratio**
 
-{{< math >}}
 $$
-\rho_{\text{geo}}(y) = \left( \prod_{t=0}^{T-1} \rho_t \right)^{1/T} = \rho(y)^{1/T}
+\rho\_{\text{geo}}(y) = \left( \prod\_{t=0}^{T-1} \rho\_t \right)^{1/T} = \rho(y)^{1/T}
 $$
-{{< /math >}}
 {{% /callout %}}
 
 This is the geometric mean of the per-token ratios. It is length-invariant: if every $\rho_t = r$, then $\rho_{\text{geo}} = r$ regardless of $T$.
@@ -378,13 +374,11 @@ $$
 {{% callout note %}}
 **Connection to TRPO Theory (Part 1):** In [Part 1](https://richardli.xyz/rl-collapse-1), we showed that TRPO requires the trust region size to shrink with horizon: $\delta \propto 1/T^2$. This ensures the surrogate objective remains a valid approximation.
 
-**Geo-RS achieves length-invariance via per-token log-ratio control.** By constraining $|\log \rho_{\text{geo}}| \le \epsilon$, we enforce:
+**Geo-RS achieves length-invariance via per-token log-ratio control.** By constraining $|\log \rho\_{\text{geo}}| \le \epsilon$, we enforce:
 
-{{< math >}}
 $$
-\left| \frac{1}{T} \sum_{t=0}^{T-1} \log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)} \right| \le \epsilon
+\left| \frac{1}{T} \sum\_{t=0}^{T-1} \log \frac{\pi(y\_t|s\_t)}{\mu(y\_t|s\_t)} \right| \le \epsilon
 $$
-{{< /math >}}
 
 This bounds the **average per-token log-ratio** along the trajectory. The key insight is that this constraint is **independent of sequence length $T$**—unlike sequence-level filtering where the threshold must scale as $O(1/T^2)$ to satisfy TRPO requirements, Geo-RS uses a fixed threshold $\epsilon$ that automatically adapts because it measures the *average* rather than the *total* divergence.
 
@@ -450,11 +444,9 @@ In practice, we may want to combine both mechanisms:
 {{% callout note %}}
 **Definition: Geo-RS-Seq-TIS**
 
-{{< math >}}
 $$
-\hat{g}_{\text{geo-rs-seq-tis}}(y) = \mathbb{I}\left( C_{\text{low}} \le \rho_{\text{geo}}(y) \le C_{\text{high}} \right) \cdot \min(\rho(y), C) \cdot f(y)
+\hat{g}\_{\text{geo-rs-seq-tis}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot \min(\rho(y), C) \cdot f(y)
 $$
-{{< /math >}}
 {{% /callout %}}
 
 This estimator:
