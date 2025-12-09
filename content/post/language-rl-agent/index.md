@@ -30,6 +30,20 @@ image:
 projects: []
 ---
 
+## Citation
+
+```bibtex
+@article{li2025languageagent,
+  title   = {Language as a Universal Interface for Reinforcement Learning Agents},
+  author  = {Li, Yingru},
+  journal = {Richard Li's Blog},
+  year    = {2025},
+  url     = {https://richardli.xyz/post/language-rl-agent/}
+}
+```
+
+---
+
 ## Introduction
 
 **Why do some agents succeed while others fail?** While frameworks like ReAct (Yao et al., 2023) show that interleaving reasoning and acting works, they don't explain *why* it works or when it fails. We lack a principled understanding of what makes language agents fundamentally different from traditional RL agents.
@@ -584,17 +598,3 @@ Get these right, and complex reasoning follows. Get them wrong, and no amount of
 
 **Language Agents**:
 - Yao, S., et al. (2023). "ReAct: Synergizing Reasoning and Acting in Language Models." *ICLR*.
-
----
-
-## Citation
-
-```bibtex
-@article{li2025languageagent,
-  title   = {Language as a Universal Interface for Reinforcement Learning Agents},
-  author  = {Li, Yingru},
-  journal = {Richard Li's Blog},
-  year    = {2025},
-  url     = {https://richardli.xyz/post/language-rl-agent/}
-}
-```
