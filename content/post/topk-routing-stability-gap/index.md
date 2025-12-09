@@ -254,7 +254,7 @@ Understanding these pathologies suggests directions for solutions:
 **For the first-order approximation failure:**
 - Entropy regularization on the router to smooth the routing distribution
 - Annealing from soft to hard routing during RL training
-- Modified KL constraints that account for discrete expert switches
+- Modified KL constraints that account for discrete expert switches (see [Part 3: Trust Region Optimization via Sequence Masking](/post/rl-collapse-part3/) for how **Geometric Rejection Sampling (Geo-RS)** enforces length-invariant trust regions using per-token KL divergence bounds—the same principle can be adapted for MoE routing by constraining the *average* per-token routing divergence rather than the sequence-level product)
 - Freezing the router during RL (sacrificing routing adaptation)
 
 ---
