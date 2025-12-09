@@ -31,6 +31,20 @@ image:
 projects: []
 ---
 
+## Citation
+
+```bibtex
+@online{li-2025-topk-stability,
+  title = {The Stability Gap: Why Top-K Routing Breaks {RL} Optimization},
+  author = {Li, Yingru},
+  year = {2025},
+  month = dec,
+  url = {https://richardli.xyz/post/topk-routing-stability-gap/}
+}
+```
+
+---
+
 ## The Problem
 
 Training Mixture of Experts (MoE) language models with Reinforcement Learning can be unstable. While dense LLMs have continuous and differentiable policy mappings, MoE-based models like Mixtral, DeepSeek-MoE, and Qwen-MoE introduce the **Top-K operator**—a discrete switching mechanism that creates discontinuities in the optimization landscape.
