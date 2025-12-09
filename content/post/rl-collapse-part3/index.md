@@ -75,7 +75,7 @@ where $d_\mu$ is the state visitation distribution under $\mu$, and $A_\mu$ is t
 
 The surrogate is a first-order approximation that satisfies:
 - $L_\mu(\mu) = J(\mu)$ (equal values at $\pi = \mu$)
-- $\nabla L_\mu(\pi)|_{\pi=\mu} = \nabla J(\pi)|_{\pi=\mu}$ (equal gradients at $\pi = \mu$)
+- {{< math >}}$\nabla L_\mu(\pi)\big|_{\pi=\mu} = \nabla J(\pi)\big|_{\pi=\mu}${{< /math >}} (equal gradients at $\pi = \mu$)
 
 However, the approximation degrades as $\pi$ moves away from $\mu$.
 
