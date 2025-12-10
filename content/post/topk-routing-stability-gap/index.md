@@ -55,7 +55,7 @@ This discreteness introduces two fundamental mathematical pathologies that break
 
 ## TL;DR: The Two Pathologies
 
-**Challenge 1: Gradient Blackout.** The gradient of the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} with respect to unselected experts' logits is exactly zero almost everywhere. Unlike non-smooth convex functions where subgradients guide optimization, the Top-K landscape offers no directional information on how to switch to a better expert.
+**Challenge 1: Gradient Blackout.** The gradient of the token distribution {{< math >}}$\pi_\theta(y_t | x, y_{\lt t})${{< /math >}} with respect to unselected experts' logits is exactly zero almost everywhere. Unlike non-smooth but continuous convex functions where subgradient methods can still converge to the optimum, the Top-K landscape is discontinuous—providing no gradient signal for how to switch to a better expert.
 
 **Challenge 2: First-Order Approximation Failure.** Modern LLM-RL algorithms (PPO, GRPO) rely on a surrogate objective that approximates the true objective to first order. This approximation requires the policy mapping to be smooth. Top-K routing violates this—an infinitesimal parameter change can cause a discrete expert switch, making the surrogate jump discontinuously and invalidating the gradient-based optimization entirely.
 
@@ -119,8 +119,8 @@ Normally, we handle non-smooth points (like ReLU at 0) using subgradients. Howev
 
 **Non-smooth but continuous (e.g., ReLU):**
 - The function {{< math >}}$f(x) = \max(0, x)${{< /math >}} is continuous everywhere
-- At {{< math >}}$x=0${{< /math >}}, the subgradient {{< math >}}$\partial f(0) = [0, 1]${{< /math >}} provides valid descent directions
-- Optimization can proceed by choosing any element of the subdifferential
+- At {{< math >}}$x=0${{< /math >}}, the subdifferential {{< math >}}$\partial f(0) = [0, 1]${{< /math >}} is well-defined and non-empty
+- Subgradient methods converge for convex functions, even though individual subgradients don't guarantee descent at every step
 
 **Discontinuous (Top-K):**
 - The selection function is **discontinuous** at decision boundaries
@@ -150,7 +150,7 @@ In the LLM setting, we use the autoregressive MDP formulation:
 
 ### The Surrogate Objective and Why It Works
 
-The key insight of TRPO is optimizing a **surrogate objective** {{< math >}}$L_\mu(\pi)${{< /math >}} instead of the true objective {{< math >}}$J(\pi)${{< /math >}} directly:
+The key insight—originating from **Conservative Policy Iteration (CPI)** ([Kakade & Langford, 2002](https://dl.acm.org/doi/10.5555/645531.656005)) and later refined by TRPO—is optimizing a **surrogate objective** {{< math >}}$L_\mu(\pi)${{< /math >}} instead of the true objective {{< math >}}$J(\pi)${{< /math >}} directly:
 
 {{< math >}}
 $$L_{\mu}(\pi) = J(\mu) + \mathbb{E}_{s \sim d_\mu} \mathbb{E}_{a \sim \pi(\cdot|s)} [A_\mu(s, a)]$$
@@ -167,7 +167,7 @@ The surrogate is a **first-order Taylor approximation** of the true objective—
 
 ### The TRPO Lower Bound
 
-TRPO quantifies exactly how much the approximation degrades. The original theorem ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)) gives:
+CPI established the foundational identity {{< math >}}$J(\pi) - J(\mu) = \frac{1}{1-\gamma}\mathbb{E}_{s \sim d_\pi, a \sim \pi}[A_\mu(s,a)]${{< /math >}}, showing that policy improvement can be measured via advantages. TRPO refined this into a practical bound by quantifying exactly how much the surrogate approximation degrades. The original theorem ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)) gives:
 
 {{< math >}}
 $$J(\pi) \geq L_{\mu}(\pi) - \frac{4\epsilon\gamma}{(1-\gamma)^2} \cdot (D_{TV}^{\max})^2$$
@@ -221,7 +221,7 @@ Let {{< math >}}$f: \Theta \to \Pi${{< /math >}} be the map from parameters {{< 
 At a switching point {{< math >}}$\theta^*${{< /math >}} (where expert rankings swap for some token), consider a direction {{< math >}}$v${{< /math >}} crossing the decision boundary:
 
 {{< math >}}
-$$\lim_{t \to 0^+} \pi_{\theta^* + tv}(y_t | x, y_{\lt t}) \neq \lim_{t \to 0^+} \pi_{\theta^* - tv}(y_t | x, y_{\lt t})$$
+$$\lim_{\delta \to 0^+} \pi_{\theta^* + \delta v}(y_t | x, y_{\lt t}) \neq \lim_{\delta \to 0^+} \pi_{\theta^* - \delta v}(y_t | x, y_{\lt t})$$
 {{< /math >}}
 
 **The first-order approximation completely fails at these boundaries:**
@@ -295,6 +295,7 @@ Until routing mechanisms are developed that preserve gradient information while 
 - Fedus, W., Zoph, B., & Shazeer, N. (2022). "Switch Transformers: Scaling to Trillion Parameter Models with Simple and Efficient Sparsity." *JMLR*.
 
 **Trust Region Methods:**
+- Kakade, S. & Langford, J. (2002). "Approximately Optimal Approximate Reinforcement Learning." *ICML*.
 - Schulman, J., et al. (2015). "Trust Region Policy Optimization." *ICML*.
 - Schulman, J., et al. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
 
