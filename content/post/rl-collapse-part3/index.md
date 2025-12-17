@@ -38,7 +38,7 @@ In a standard statistical setting, Part 2 solved the problem with Seq-TIS.
 However, when training Agents or Reasoning Models (Chain-of-Thought), two practical phenomena violate the assumptions underlying Seq-TIS:
 
 1. **Out-of-Distribution (OOD) High-Weight Samples:** Extremely high importance weights ($\rho \gg C$) often correspond to samples outside the behavior policy's support—numerical errors or distribution shift artifacts. Clipping these samples still includes them in the gradient update. **Solution: Enforce a Hard Trust Region via Rejection/Masking (Seq-MIS).**
-2. **Length-Dependent Rejection Bias:** The importance ratio $\rho(y) = \prod_t \rho_t$ grows exponentially with sequence length $T$, causing systematic rejection of long sequences regardless of per-step quality. **Solution: Geometric Rejection Sampling (Geo-RS), which enforces a Per-Token Trust Region using a length-normalized KL divergence criterion.**
+2. **Length-Dependent Rejection Bias:** The importance ratio $\rho(y) = \prod_t \rho_t$ grows exponentially with sequence length $T$, causing systematic rejection of long sequences regardless of per-step quality. **Solution: Geometric Sequence Masking (Geo-Mask), which enforces a Per-Token Trust Region using a length-normalized KL divergence criterion.**
 {{% /callout %}}
 
 ---
@@ -63,15 +63,15 @@ In Part 1, we established the theoretical foundation for trust region optimizati
 
 ### The Surrogate Objective and Its Limitations
 
-When optimizing a policy $\pi$ using samples from a behavior policy $\mu$, we cannot directly optimize the true objective $J(\pi)$. Instead, we optimize a **surrogate objective**:
+Consider an autoregressive language model generating a sequence $y = (y_0, y_1, \ldots, y_{T-1})$ given prompt $x$. When optimizing a policy $\pi$ using samples from a behavior policy $\mu$, we cannot directly optimize the true objective $J(\pi)$. Instead, we optimize a **surrogate objective**:
 
 {{< math >}}
 $$
-L_\mu(\pi) = J(\mu) + \mathbb{E}_{s \sim d_\mu} \mathbb{E}_{a \sim \pi(\cdot|s)} [A_\mu(s, a)]
+L_\mu(\pi) = J(\mu) + \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_{\mu,t}} \mathbb{E}_{y_t \sim \pi(\cdot|x, y_{\lt t})} [A_\mu(x, y_{\le t})]
 $$
 {{< /math >}}
 
-where $d_\mu$ is the state visitation distribution under $\mu$, and $A_\mu$ is the advantage function.
+where $d_{\mu,t}$ is the context distribution at step $t$ under $\mu$, and $A_\mu(x, y_{\le t})$ is the advantage of generating token $y_t$ in context $(x, y_{\lt t})$.
 
 The surrogate is a first-order approximation that satisfies:
 - $L_\mu(\mu) = J(\mu)$ (equal values at $\pi = \mu$)
@@ -79,19 +79,37 @@ The surrogate is a first-order approximation that satisfies:
 
 However, the approximation degrades as $\pi$ moves away from $\mu$.
 
+**The Surrogate Gradient (Token-IS):** Taking the gradient of $L_\mu(\pi)$:
+
+{{< math >}}
+$$
+\nabla L_\mu(\pi) = \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_{\mu,t}} \mathbb{E}_{y_t \sim \pi(\cdot|x, y_{\lt t})} [A_\mu(x, y_{\le t}) \nabla \log \pi(y_t|x, y_{\lt t})]
+$$
+{{< /math >}}
+
+To estimate this from samples $y \sim \mu$, we apply importance sampling at each token:
+
+{{< math >}}
+$$
+\nabla L_\mu(\pi) = \mathbb{E}_{y \sim \mu} \left[ \sum_{t=0}^{T-1} \rho_t \cdot A_t \nabla \log \pi(y_t|x, y_{\lt t}) \right]
+$$
+{{< /math >}}
+
+where $\rho_t = \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}$ and $A_t = A_\mu(x, y_{\le t})$. This is the **Token-IS gradient**—the foundation for PPO and GRPO.
+
 ### The TRPO Lower Bound
 
 The **Performance Difference Lemma** quantifies the gap between the surrogate and true objectives:
 
 {{< math >}}
 $$
-J(\pi) - J(\mu) = \mathbb{E}_{s \sim d_{\pi}} \mathbb{E}_{a \sim \pi(\cdot|s)} [A_\mu(s, a)]
+J(\pi) - J(\mu) = \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_{\pi,t}} \mathbb{E}_{y_t \sim \pi(\cdot|x, y_{\lt t})} [A_\mu(x, y_{\le t})]
 $$
 {{< /math >}}
 
-The key difference from the surrogate is that the true improvement uses the state distribution $d_\pi$ (under the new policy), while the surrogate uses $d_\mu$ (under the old policy).
+The key difference from the surrogate is that the true improvement uses the context distribution $d_{\pi,t}$ (under the new policy), while the surrogate uses $d_{\mu,t}$ (under the old policy).
 
-Using the **Simulation Lemma**, which bounds how state distributions diverge over time:
+Using the **Simulation Lemma**, which bounds how context distributions diverge over the sequence:
 
 {{< math >}}
 $$
@@ -108,9 +126,9 @@ $$
 {{< /math >}}
 
 where:
-- $C$ is a constant depending on the maximum advantage $\max_{s,a}|A_\mu(s,a)|$
-- $T$ is the horizon (sequence length)
-- $D_{TV}^{\max} = \max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))$ is the maximum per-token TV distance
+- $C$ is a constant depending on the maximum advantage $\max_{x, y_{\le t}}|A_\mu(x, y_{\le t})|$
+- $T$ is the sequence length
+- $D_{TV}^{\max} = \max_{x, y_{\lt t}} D_{TV}(\pi(\cdot|x, y_{\lt t}) \| \mu(\cdot|x, y_{\lt t}))$ is the maximum per-token TV distance
 
 ### The Trust Region Requirement
 
@@ -130,7 +148,7 @@ $$
 $$
 {{< /math >}}
 
-This $T^2$ dependence arises because state distribution errors accumulate linearly over $T$ steps, and the total error (summed over all steps) scales quadratically.
+This $T^2$ dependence arises because context distribution errors accumulate linearly over $T$ tokens, and the total error (summed over all tokens) scales quadratically.
 
 ### Soft vs. Hard Trust Regions
 
@@ -143,7 +161,7 @@ The TRPO framework suggests two approaches to enforce trust regions:
 
 **Soft trust regions** use clipped importance sampling: $\min(\rho_t, 1+\epsilon)$. This is computationally efficient but retains potentially problematic samples.
 
-**This part develops hard trust region methods**—Seq-MIS and Geo-RS—that completely exclude samples outside the trusted region. We show when and why hard rejection outperforms soft clipping.
+**This part develops hard trust region methods**—Seq-MIS and Geo-Mask—that completely exclude samples outside the trusted region. We show when and why hard rejection outperforms soft clipping.
 
 ---
 
@@ -159,7 +177,9 @@ $$
 $$
 {{< /math >}}
 
-The implicit assumption was that all samples $y \sim \mu$ are valid learning signals—samples with high weights $\rho(y) = \pi(y)/\mu(y)$ simply require variance control via clipping.
+where $f(y) = R(y) \cdot \nabla \log \pi(y)$ is the score function (reward-weighted gradient), and $\rho(y) = \pi(y)/\mu(y)$ is the sequence-level importance ratio.
+
+The implicit assumption was that all samples $y \sim \mu$ are valid learning signals—samples with high weights $\rho(y)$ simply require variance control via clipping.
 
 However, this assumption fails in practice. Consider a sample with $\rho(y) = 10,000$. This means:
 
@@ -316,7 +336,7 @@ This is not a variance problem—it is a **structural bias** against long-horizo
 
 ---
 
-## 3. Geometric Rejection Sampling: A Per-Token Trust Region
+## 3. Geometric Sequence Masking: A Per-Token Trust Region
 
 ### 3.1 From Extensive to Intensive Metrics
 
@@ -344,16 +364,16 @@ $$
 
 This is the **sample average of the per-token log-ratios** along trajectory $y$.
 
-**Connection to KL Divergence:** Let $s_t = (x, y_{\lt t})$ denote the state (context) at step $t$. Recall that:
+**Connection to KL Divergence:** Recall that at each step $t$, given context $(x, y_{\lt t})$:
 
-- **Forward KL:** {{< math >}}$D_{KL}(\pi \| \mu) = \mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]${{< /math >}}
-- **Reverse KL:** {{< math >}}$D_{KL}(\mu \| \pi) = \mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|s_t)}{\pi(y_t|s_t)}\right] = -\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right]${{< /math >}}
+- **Forward KL:** {{< math >}}$D_{KL}(\pi \| \mu) = \mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
+- **Reverse KL:** {{< math >}}$D_{KL}(\mu \| \pi) = \mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|x, y_{\lt t})}{\pi(y_t|x, y_{\lt t})}\right] = -\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
 
-Since samples are drawn from $\mu$ (the behavior policy), each term $\log \rho_t = \log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}$ is a single-sample estimate of the **negative reverse KL**:
+Since samples are drawn from $\mu$ (the behavior policy), each term $\log \rho_t = \log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}$ is a single-sample estimate of the **negative reverse KL**:
 
 {{< math >}}
 $$
-\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|s_t)}{\mu(y_t|s_t)}\right] = -D_{KL}(\mu(\cdot|s_t) \| \pi(\cdot|s_t))
+\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right] = -D_{KL}(\mu(\cdot|x, y_{\lt t}) \| \pi(\cdot|x, y_{\lt t}))
 $$
 {{< /math >}}
 
@@ -361,7 +381,7 @@ Therefore, $\log \rho_{\text{geo}}(y)$ can be interpreted as a trajectory-averag
 
 {{< math >}}
 $$
-\mathbb{E}_{y \sim \mu}\left[\log \rho_{\text{geo}}(y)\right] = -\frac{1}{T} \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_\mu}\left[D_{KL}(\mu(\cdot|s_t) \| \pi(\cdot|s_t))\right]
+\mathbb{E}_{y \sim \mu}\left[\log \rho_{\text{geo}}(y)\right] = -\frac{1}{T} \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_\mu}\left[D_{KL}(\mu(\cdot|x, y_{\lt t}) \| \pi(\cdot|x, y_{\lt t}))\right]
 $$
 {{< /math >}}
 
@@ -374,34 +394,36 @@ $$
 {{% callout note %}}
 **Connection to TRPO Theory (Part 1):** In [Part 1](https://richardli.xyz/rl-collapse-1), we showed that TRPO requires the trust region size to shrink with horizon: $\delta \propto 1/T^2$. This ensures the surrogate objective remains a valid approximation.
 
-**Geo-RS achieves length-invariance via per-token log-ratio control.** By constraining $|\log \rho\_{\text{geo}}| \le \epsilon$, we enforce:
+**Geo-Mask achieves length-invariance via per-token log-ratio control.** By constraining $|\log \rho\_{\text{geo}}| \le \epsilon$, we enforce:
 
 $$
-\left| \frac{1}{T} \sum\_{t=0}^{T-1} \log \frac{\pi(y\_t|s\_t)}{\mu(y\_t|s\_t)} \right| \le \epsilon
+\left| \frac{1}{T} \sum\_{t=0}^{T-1} \log \frac{\pi(y\_t|x, y\_{\lt t})}{\mu(y\_t|x, y\_{\lt t})} \right| \le \epsilon
 $$
 
-This bounds the **average per-token log-ratio** along the trajectory. The key insight is that this constraint is **independent of sequence length $T$**—unlike sequence-level filtering where the threshold must scale as $O(1/T^2)$ to satisfy TRPO requirements, Geo-RS uses a fixed threshold $\epsilon$ that automatically adapts because it measures the *average* rather than the *total* divergence.
+This bounds the **average per-token log-ratio** along the trajectory. The key insight is that this constraint is **independent of sequence length $T$**—unlike sequence-level filtering where the threshold must scale as $O(1/T^2)$ to satisfy TRPO requirements, Geo-Mask uses a fixed threshold $\epsilon$ that automatically adapts because it measures the *average* rather than the *total* divergence.
 
-Thus, Geo-RS is a **practical implementation of the TRPO hard trust region** in the LLM context, with the crucial property that the acceptance criterion is **length-invariant**.
+Thus, Geo-Mask is a **practical implementation of the TRPO hard trust region** in the LLM context, with the crucial property that the acceptance criterion is **length-invariant**.
 {{% /callout %}}
 
-### 3.3 The Two-Sided Hard Trust Region (Geo-RS)
+### 3.3 The Two-Sided Hard Trust Region (Geo-Mask)
 
 With the geometric ratio, we can define a **Per-Token Trust Region** that is independent of sequence length:
 
 {{% callout note %}}
-**Definition: Geometric Rejection Sampling (Geo-RS)**
+**Definition: Geometric Sequence Masking (Geo-Mask)**
 
 $$
-\hat{g}\_{\text{geo-rs}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot f(y)
+\hat{g}\_{\text{geo-mask}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot f(y)
 $$
 
 Equivalently, in log-space:
 
 $$
-\hat{g}\_{\text{geo-rs}}(y) = \mathbb{I}\left( \log C\_{\text{low}} \le \frac{1}{T}\sum\_{t=0}^{T-1} \log \rho\_t \le \log C\_{\text{high}} \right) \cdot f(y)
+\hat{g}\_{\text{geo-mask}}(y) = \mathbb{I}\left( \log C\_{\text{low}} \le \frac{1}{T}\sum\_{t=0}^{T-1} \log \rho\_t \le \log C\_{\text{high}} \right) \cdot f(y)
 $$
 {{% /callout %}}
+
+**Note on IS Weighting:** Unlike Seq-MIS which uses $\rho \cdot f$, Geo-Mask uses just $f(y)$ without importance weighting. This is because Geo-Mask is designed as a **pure filtering operation**—it determines which samples are within the trust region. Within the trust region where $\rho_{\text{geo}} \approx 1$, we have $\pi \approx \mu$ on average, so IS correction is less critical. For full IS correction, combine with Token-TIS (see Section 3.5).
 
 **Why Two-Sided?** The trust region enforces constraints in both directions:
 
@@ -412,53 +434,53 @@ $$
 
 **Typical Values:** $C_{\text{low}} = 0.5$, $C_{\text{high}} = 2.0$ (or equivalently, $|\log \rho_{\text{geo}}| \le \log 2 \approx 0.69$).
 
-### 3.4 Bias-Variance Analysis of Geo-RS
+### 3.4 Trust Region Interpretation of Geo-Mask
 
-**Bias:** Geo-RS is biased because it rejects samples:
+**Connection to TRPO:** The masking operation in Geo-Mask directly enforces the trust region constraint from TRPO theory. Recall from the TRPO lower bound:
 
 {{< math >}}
 $$
-\mathbb{E}_\mu[\hat{g}_{\text{geo-rs}}] = \mathbb{E}_\mu[f \cdot \mathbb{I}(C_{\text{low}} \le \rho_{\text{geo}} \le C_{\text{high}})]
+J(\pi) \geq L_\mu(\pi) - C \cdot T^2 \cdot D_{TV}^{\max}(\pi, \mu)
 $$
 {{< /math >}}
 
-Unlike importance sampling, Geo-RS does **not** reweight by $\rho$—it only filters. This introduces bias but eliminates the variance explosion from high weights.
+The surrogate objective $L_\mu(\pi)$ is only a valid approximation to $J(\pi)$ within the trust region. Samples outside this region violate the approximation assumptions—gradient updates from such samples do not guarantee improvement in the true objective. Geo-Mask excludes these samples entirely, ensuring that **all gradient contributions come from the valid trust region**.
 
-**Variance:** Since there is no importance weight multiplication, the variance is bounded by:
+**Variance Control:** Since there is no importance weight multiplication, the variance is naturally bounded:
 
 {{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\text{geo-rs}}) \le \mathbb{E}_\mu[\|f\|^2] = O(T^2)
+\mathbf{Var}(\hat{g}_{\text{geo-mask}}) \le \mathbb{E}_\mu[\|f\|^2] = O(T^2)
 $$
 {{< /math >}}
 
 **Length Invariance:** The acceptance criterion $C_{\text{low}} \le \rho_{\text{geo}} \le C_{\text{high}}$ is length-independent. A 100-token sequence and a 10,000-token sequence are judged by the same per-token divergence threshold.
 
-### 3.5 Combining Geo-RS with Seq-TIS
+### 3.5 Combining Geo-Mask with Token-TIS
 
-In practice, we may want to combine both mechanisms:
+The TRPO surrogate objective is naturally a sum over tokens, so its gradient is essentially a **Token-level IS** gradient. This motivates combining Geo-Mask with Token-TIS:
 
-1. **Geo-RS filter:** Reject samples with extreme per-token divergence (length-invariant safety)
-2. **Seq-TIS weighting:** Apply importance sampling with clipping for accepted samples (bias correction)
+1. **Geo-Mask filter:** Mask samples with extreme per-token divergence (length-invariant safety)
+2. **Token-TIS weighting:** Apply per-token clipped importance sampling for accepted samples
 
 {{% callout note %}}
-**Definition: Geo-RS-Seq-TIS**
+**Definition: Geo-Mask-Token-TIS**
 
 $$
-\hat{g}\_{\text{geo-rs-seq-tis}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot \min(\rho(y), C) \cdot f(y)
+\hat{g}\_{\text{geo-mask-token-tis}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot \sum\_{t=0}^{T-1} \min(\rho\_t, C) \cdot A\_t \nabla \log \pi(y\_t|x, y\_{\lt t})
 $$
 {{% /callout %}}
 
 This estimator:
-1. First checks if the sample is within the per-token trust region (Geo-RS)
-2. Then applies clipped importance weighting for accepted samples (Seq-TIS)
+1. First checks if the sample is within the per-token trust region (Geo-Mask)
+2. Then applies per-token clipped importance weighting for accepted samples (Token-TIS)
 
 **When to use which component:**
 
 | Component | Purpose |
 | --- | --- |
-| Geo-RS ($\rho_{\text{geo}}$ filter) | Ensures length-invariant acceptance; detects per-token drift |
-| Seq-TIS ($\min(\rho, C)$ weight) | Corrects for importance sampling bias within accepted samples |
+| Geo-Mask ($\rho_{\text{geo}}$ filter) | Ensures length-invariant acceptance; detects per-token drift |
+| Token-TIS ($\min(\rho_t, C)$ weight) | Aligns with TRPO surrogate gradient structure |
 
 ---
 
@@ -471,7 +493,7 @@ We have developed a hierarchy of estimators, each addressing specific failure mo
 | **Token-IS (PPO)** | $\sum_t \min(\rho_t, C) A_t \nabla \log \pi_t$ | Per-token, soft | Stable but has $O(T^2\Delta_{\max})$ bias |
 | **Seq-TIS** | $\min(\rho, C) \cdot f$ | Sequence-level, soft | Optimal bias-variance when all samples are valid |
 | **Seq-MIS** | $\mathbb{I}(\rho \le C) \cdot \rho \cdot f$ | Sequence-level, hard | OOD sample filtering; large mismatch scenarios |
-| **Geo-RS** | $\mathbb{I}(C_{\text{low}} \le \rho_{\text{geo}} \le C_{\text{high}}) \cdot f$ | Per-token, hard | Long-horizon tasks; length-invariant filtering |
-| **Geo-RS-Seq-TIS** | Geo-RS filter × Seq-TIS weight | Hybrid | Long-horizon + importance correction |
+| **Geo-Mask** | $\mathbb{I}(C_{\text{low}} \le \rho_{\text{geo}} \le C_{\text{high}}) \cdot f$ | Per-token, hard | Long-horizon tasks; length-invariant masking |
+| **Geo-Mask-Token-TIS** | Geo-Mask filter × Token-TIS weight | Hybrid | Long-horizon + TRPO-aligned gradient |
 
-For long-horizon reasoning tasks, **Geometric Rejection Sampling (Geo-RS)** provides a principled, length-invariant Hard Trust Region that prevents the systematic length bias inherent in standard importance sampling estimators.
+For long-horizon reasoning tasks, **Geometric Sequence Masking (Geo-Mask)** provides a principled, length-invariant Hard Trust Region that prevents the systematic length bias inherent in standard importance sampling estimators.
