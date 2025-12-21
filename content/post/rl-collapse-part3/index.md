@@ -101,11 +101,11 @@ $$
 $$
 {{< /math >}}
 
-where $\rho_t = \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}$ and $A_t = A_\mu(x, y_{\le t})$. This is the **Token-IS gradient**—the foundation for PPO and GRPO.
+where $\rho_t = \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}$ and $A_t = A_\mu(x, y_{\le t})$. This is the **Token-IS gradient**—the foundation for PPO ([Schulman et al., 2017](https://arxiv.org/abs/1707.06347)) and GRPO ([Shao et al., 2024](https://arxiv.org/abs/2402.03300)).
 
 ### The TRPO Lower Bound
 
-The **Performance Difference Lemma** quantifies the gap between the surrogate and true objectives:
+The **Performance Difference Lemma** ([Kakade & Langford, 2002](https://dl.acm.org/doi/10.5555/645531.656005)) quantifies the gap between the surrogate and true objectives:
 
 {{< math >}}
 $$
@@ -115,7 +115,7 @@ $$
 
 The key difference from the surrogate is that the true improvement uses the context distribution $d_{\pi,t}$ (under the new policy), while the surrogate uses $d_{\mu,t}$ (under the old policy).
 
-Using the **Simulation Lemma**, which bounds how context distributions diverge over the sequence:
+Using the **Simulation Lemma** ([Kearns & Singh, 2002](https://dl.acm.org/doi/10.5555/645531.757765)), which bounds how context distributions diverge over the sequence:
 
 {{< math >}}
 $$
@@ -123,7 +123,7 @@ D_{TV}(d_{\pi,t} \| d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)
 $$
 {{< /math >}}
 
-we derive the **TRPO lower bound**:
+we derive the **TRPO lower bound** ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)):
 
 {{< math >}}
 $$
@@ -618,10 +618,15 @@ For long-horizon reasoning tasks, **Geometric Sequence Masking (Geo-Mask)** prov
 
 **Trust Region Methods:**
 
-- Kakade, S. & Langford, J. (2002). "Approximately Optimal Approximate Reinforcement Learning." *ICML*.
-- Schulman, J., Levine, S., Moritz, P., Jordan, M. I., & Abbeel, P. (2015). "Trust Region Policy Optimization." *ICML*.
-- Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
+- Kakade, S. & Langford, J. (2002). "Approximately Optimal Approximate Reinforcement Learning." *ICML*. https://dl.acm.org/doi/10.5555/645531.656005
+- Kearns, M. & Singh, S. (2002). "Near-Optimal Reinforcement Learning in Polynomial Time." *Machine Learning*.
+- Schulman, J., Levine, S., Moritz, P., Jordan, M. I., & Abbeel, P. (2015). "Trust Region Policy Optimization." *ICML*. https://arxiv.org/abs/1502.05477
+- Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). "Proximal Policy Optimization Algorithms." arXiv:1707.06347. https://arxiv.org/abs/1707.06347
 
 **KL Divergence Estimation:**
 
 - Schulman, J. (2016). "Approximating KL Divergence." Blog post. http://joschu.net/blog/kl-approx.html
+
+**LLM Reinforcement Learning:**
+
+- Shao, Z., et al. (2024). "DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models." arXiv:2402.03300. https://arxiv.org/abs/2402.03300
