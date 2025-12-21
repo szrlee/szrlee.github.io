@@ -79,7 +79,7 @@ $$
 
 where $d_{\mu,t}$ is the context distribution at step $t$ under $\mu$, and $A_\mu(x, y_{\le t})$ is the advantage of generating token $y_t$ in context $(x, y_{\lt t})$.
 
-The surrogate is a first-order approximation that satisfies:
+The surrogate is a first-order approximation ([Kakade & Langford, 2002](https://dl.acm.org/doi/10.5555/645531.656005); [Schulman et al., 2015](https://arxiv.org/abs/1502.05477)) that satisfies:
 - $L_\mu(\mu) = J(\mu)$ (equal values at $\pi = \mu$)
 - {{< math >}}$\nabla L_\mu(\pi)\big|_{\pi=\mu} = \nabla J(\pi)\big|_{\pi=\mu}${{< /math >}} (equal gradients at $\pi = \mu$)
 
