@@ -451,7 +451,7 @@ $$
 $$
 {{< /math >}}
 
-**Connection to k1 Estimation of KL Divergence:** In the context of importance sampling for KL divergence estimation ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)), the **k1 estimator** for $D_{KL}(\mu \| \pi)$ is defined as $-\log \rho$, where $\rho = \pi/\mu$ is the importance ratio.
+**Connection to k1 Estimation of KL Divergence:** In the context of importance sampling for KL divergence estimation ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)), the **k1 estimator** for $D_{KL}(\mu \| \pi)$ is defined using ratio $r = \mu/\pi$. Since we use importance ratio $\rho = \pi/\mu$, we have $r = 1/\rho$, and the k1 estimator is $-\log r = \log \rho$.
 
 Given a single trajectory sample $y \sim \mu$, observe that:
 
@@ -461,15 +461,15 @@ $$
 $$
 {{< /math >}}
 
-Since the k1 estimator is $-\log \rho$, we have $\log \rho = -\text{(k1 estimator)}$. Therefore:
+Since the k1 estimator equals $\log \rho$, we have:
 
 {{< math >}}
 $$
-\log \rho_{\text{geo}}(y) = -\frac{1}{T} \sum_{t=0}^{T-1} \text{(k1 estimator at step } t\text{)}
+\log \rho_{\text{geo}}(y) = \frac{1}{T} \sum_{t=0}^{T-1} \text{(k1 estimator at step } t\text{)}
 $$
 {{< /math >}}
 
-Since $\mathbb{E}_{\mu}[-\log \rho] = D_{KL}(\mu \| \pi)$, we have:
+This is the average k1 estimate along the trajectory. Since $\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \| \pi)$, we have:
 
 {{< math >}}
 $$
@@ -479,13 +479,18 @@ $$
 
 where $\bar{D}_{KL}$ is the average per-token reverse KL along the trajectory distribution.
 
-**Note on k1, k2, k3 estimators:** Schulman's framework defines three estimators for $D_{KL}(\mu \| \pi)$ based on importance ratio $\rho = \pi/\mu$:
+**Note on k1, k2, k3 estimators:** Schulman's framework ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)) defines three estimators for $D_{KL}(\mu \| \pi)$ based on ratio $r = \mu/\pi$:
 
-- **k1:** $-\log \rho$ (unbiased, high variance) — used in PPO
-- **k2:** $(\log \rho)^2 / 2$ (low variance, biased)
-- **k3:** $(\rho - 1) - \log \rho$ (unbiased, low variance) — used in GRPO
+- **k1:** $-\log r = \log(\pi/\mu) = \log \rho$ (unbiased, high variance)
+- **k2:** $(\log r)^2 / 2 = (\log \rho)^2 / 2$ (low variance, biased)
+- **k3:** $(r - 1) - \log r = (1/\rho - 1) + \log \rho$ (unbiased, low variance)
 
-Our geometric ratio $\log \rho_{\text{geo}} = \frac{1}{T}\sum_t \log \rho_t$ is the **negative** of the average k1 estimate across tokens (since k1 = $-\log \rho$). This is natural: filtering by $\log \rho_{\text{geo}} > 0$ means $\pi$ assigns higher probability than $\mu$ on average, which corresponds to negative reverse KL (or positive forward KL).
+In our notation with $\rho = \pi/\mu$, we have $r = 1/\rho$. Therefore:
+
+- k1 estimator = $\log \rho$
+- Our geometric ratio: $\log \rho_{\text{geo}} = \frac{1}{T}\sum_t \log \rho_t$ = average k1 estimate
+
+This is natural: filtering by $\log \rho_{\text{geo}} > 0$ means $\pi$ assigns higher probability than $\mu$ on average, corresponding to negative reverse KL $D_{KL}(\mu \| \pi) < 0$ (or equivalently, positive forward KL).
 
 Alternative trust region metrics could be constructed from k2 or k3, but k1-based filtering via $\log \rho_{\text{geo}}$ is the natural choice as it directly corresponds to the log of the geometric mean and provides an unbiased estimator of the KL divergence.
 
@@ -496,7 +501,7 @@ This connects our geometric ratio directly to the trust region constraint: filte
 1. **Does not grow with $T$** (it's an average, not a sum)
 2. **Can be positive or negative** ($\log \rho_{\text{geo}} \gt 0$ when $\pi$ assigns higher probability, $\lt 0$ when $\mu$ assigns higher probability)
 3. **Detects both directions of drift** ($\rho_{\text{geo}} \ll 1$: policy forgetting; $\rho_{\text{geo}} \gg 1$: policy collapse)
-4. **Is the negative of the average k1 estimate** (where k1 = $-\log \rho$ from Schulman's framework; thus $\log \rho = -\text{k1}$)
+4. **Is the average k1 estimate** (where k1 = $\log \rho$ in our notation with $\rho = \pi/\mu$)
 
 {{% callout note %}}
 **Connection to TRPO Theory (Part 1):** In [Part 1](https://richardli.xyz/rl-collapse-1), we showed that TRPO requires the trust region size to shrink with horizon: $\delta \propto 1/T^2$. This ensures the surrogate objective remains a valid approximation.
