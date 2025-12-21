@@ -451,25 +451,23 @@ $$
 $$
 {{< /math >}}
 
-**Connection to k1 Estimation of KL Divergence:** In the context of importance sampling for KL divergence estimation ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)), the **k1 estimator** for $D_{KL}(\mu \| \pi)$ is defined using ratio $r = \mu/\pi$. Since we use importance ratio $\rho = \pi/\mu$, we have $r = 1/\rho$, and the k1 estimator is $-\log r = \log \rho$.
+**Connection to k1 Estimation of KL Divergence:** Schulman's framework ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)) defines three estimators for $D_{KL}(\mu \| \pi)$ based on ratio $r = \mu/\pi$:
 
-Given a single trajectory sample $y \sim \mu$, observe that:
+- **k1:** $-\log r = \log(\pi/\mu) = \log \rho$ (unbiased, high variance)
+- **k2:** $(\log r)^2 / 2 = (\log \rho)^2 / 2$ (low variance, biased)
+- **k3:** $(r - 1) - \log r = (1/\rho - 1) + \log \rho$ (unbiased, low variance)
 
-{{< math >}}
-$$
-\log \rho_{\text{geo}}(y) = \frac{1}{T} \sum_{t=0}^{T-1} \log \rho_t = \frac{1}{T} \sum_{t=0}^{T-1} \log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}
-$$
-{{< /math >}}
+In our notation with $\rho = \pi/\mu$, we have $r = 1/\rho$, so the k1 estimator equals $\log \rho$.
 
-Since the k1 estimator equals $\log \rho$, we have:
+Given a single trajectory sample $y \sim \mu$:
 
 {{< math >}}
 $$
-\log \rho_{\text{geo}}(y) = \frac{1}{T} \sum_{t=0}^{T-1} \text{(k1 estimator at step } t\text{)}
+\log \rho_{\text{geo}}(y) = \frac{1}{T} \sum_{t=0}^{T-1} \log \rho_t = \frac{1}{T} \sum_{t=0}^{T-1} \text{(k1 estimator at step } t\text{)}
 $$
 {{< /math >}}
 
-This is the average k1 estimate along the trajectory. Since $\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \| \pi)$, we have:
+Therefore, **$\log \rho_{\text{geo}}$ is the average k1 estimate** along the trajectory. Since $\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \| \pi)$, we have:
 
 {{< math >}}
 $$
@@ -479,20 +477,7 @@ $$
 
 where $\bar{D}_{KL}$ is the average per-token reverse KL along the trajectory distribution.
 
-**Note on k1, k2, k3 estimators:** Schulman's framework ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)) defines three estimators for $D_{KL}(\mu \| \pi)$ based on ratio $r = \mu/\pi$:
-
-- **k1:** $-\log r = \log(\pi/\mu) = \log \rho$ (unbiased, high variance)
-- **k2:** $(\log r)^2 / 2 = (\log \rho)^2 / 2$ (low variance, biased)
-- **k3:** $(r - 1) - \log r = (1/\rho - 1) + \log \rho$ (unbiased, low variance)
-
-In our notation with $\rho = \pi/\mu$, we have $r = 1/\rho$. Therefore:
-
-- k1 estimator = $\log \rho$
-- Our geometric ratio: $\log \rho_{\text{geo}} = \frac{1}{T}\sum_t \log \rho_t$ = average k1 estimate
-
-This is natural: filtering by $\log \rho_{\text{geo}} > 0$ means $\pi$ assigns higher probability than $\mu$ on average, corresponding to negative reverse KL $D_{KL}(\mu \| \pi) < 0$ (or equivalently, positive forward KL).
-
-Alternative trust region metrics could be constructed from k2 or k3, but k1-based filtering via $\log \rho_{\text{geo}}$ is the natural choice as it directly corresponds to the log of the geometric mean and provides an unbiased estimator of the KL divergence.
+**Why k1-based filtering is natural:** Filtering by $\log \rho_{\text{geo}} > 0$ means $\pi$ assigns higher probability than $\mu$ on average, corresponding to negative reverse KL (or positive forward KL). Alternative trust region metrics could use k2 or k3, but k1-based filtering via $\log \rho_{\text{geo}}$ directly corresponds to the log of the geometric mean and provides an unbiased estimator of the KL divergence.
 
 This connects our geometric ratio directly to the trust region constraint: filtering by $|\log \rho_{\text{geo}}| \leq \epsilon$ enforces that the **average per-token KL** (estimated via k1) remains bounded.
 
@@ -519,7 +504,7 @@ This bounds the **average per-token KL divergence** (via the k1 estimator) along
 - **Sequence-level trust region:** Requires $\rho(y) = \prod\_t \rho\_t \le C$, where $C$ must shrink as $O(1/T^2)$ to satisfy TRPO
 - **Per-token trust region (Geo-Mask):** Requires $\rho\_{\text{geo}}(y) = (\prod\_t \rho\_t)^{1/T} \le C$, where $C$ can be fixed (e.g., $C=2$) for all $T$
 
-Since $\log \rho\_{\text{geo}}(y) = \frac{1}{T}\sum\_t \log \rho\_t$ is the negative of the average k1 estimate (where k1 = $-\log \rho$), the constraint $|\log \rho\_{\text{geo}}| \le \epsilon$ approximately enforces $\bar{D}\_{KL} \le \epsilon$ per token. This is precisely the intensive (per-token) version of the trust region constraint, automatically adapting to sequence length by measuring the *average* rather than the *total* divergence.
+Since $\log \rho\_{\text{geo}}(y) = \frac{1}{T}\sum\_t \log \rho\_t$ is the average k1 estimate (where k1 = $\log \rho$), the constraint $|\log \rho\_{\text{geo}}| \le \epsilon$ approximately enforces that the average per-token KL divergence remains bounded. This is precisely the intensive (per-token) version of the trust region constraint, automatically adapting to sequence length by measuring the *average* rather than the *total* divergence.
 
 Thus, Geo-Mask is a **practical implementation of the TRPO hard trust region** in the LLM context, with the crucial property that the acceptance criterion is **length-invariant**.
 {{% /callout %}}
