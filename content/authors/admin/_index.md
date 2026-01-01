@@ -32,12 +32,11 @@ interests:
 # Education to show in About widget
 education:
   courses:
-    - course: Ph.D. in Computer Science
+    - course: Ph.D. in Operations Research and Computer Science
       institution: The Chinese University of Hong Kong
       year: 2025
-    - course: M.S. & B.E. with Honors
+    - course: B.E. in Computer Science with Honors
       institution: Huazhong University of Science and Technology
-      year: 2020
 
 # Social/Academic Networking
 social:
