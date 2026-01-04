@@ -13,8 +13,8 @@ tags:
 categories:
   - Research
   - Theory
-date: '2025-12-15T00:00:00Z'
-lastmod: '2025-12-15T00:00:00Z'
+date: '2025-12-20T00:00:00Z'
+lastmod: '2025-12-20T00:00:00Z'
 featured: true
 draft: false
 math: true

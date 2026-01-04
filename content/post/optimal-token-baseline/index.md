@@ -25,8 +25,8 @@ tags:
 categories:
   - Research
   - Theory
-date: '2025-12-20T00:00:00Z'
-lastmod: '2025-12-20T00:00:00Z'
+date: '2025-12-20T00:30:00Z'
+lastmod: '2025-12-20T00:30:00Z'
 featured: true
 draft: false
 external_link: 'https://yingru.notion.site/The-Optimal-Token-Baseline-399211a558b782cfa936014c0d42dfb8'
