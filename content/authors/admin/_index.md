@@ -23,20 +23,20 @@ organizations:
 # Short bio (displayed in user profile at end of posts)
 bio: My research focuses on building intelligent agents by advancing reinforcement learning, large-scale optimization, and LLM reasoning.
 
-# Interests to show in About widget
-interests:
-  - Reinforcement Learning
-  - Large-Scale Optimization
-  - LLM Reasoning and Agents
+# # Interests to show in About widget
+# interests:
+#   - Reinforcement Learning
+#   - Large-Scale Optimization
+#   - LLM Reasoning and Agents
 
-# Education to show in About widget
-education:
-  courses:
-    - course: Ph.D. in Operations Research and Computer Science
-      institution: The Chinese University of Hong Kong
-      year: 2025
-    - course: B.E. in Computer Science with Honors
-      institution: Huazhong University of Science and Technology
+# # Education to show in About widget
+# education:
+#   courses:
+#     - course: Ph.D. in Operations Research and Computer Science
+#       institution: The Chinese University of Hong Kong
+#       year: 2025
+#     - course: B.E. in Computer Science with Honors
+#       institution: Huazhong University of Science and Technology
 
 # Social/Academic Networking
 social:
@@ -68,7 +68,7 @@ I am a Member of Technical Staff at xAI. I earned my Ph.D. in Computer Science i
 Prior to xAI, I was a Research Scientist at ByteDance. I also had the valuable opportunity to collaborate with [Prof. Tong Zhang](https://tongzhang-ml.org/) and [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
 
 ### Research Vision
-My research aims to develop intelligent **agents** capable of reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance reinforcement learning, optimization, and large language model (LLM) reasoning to create systems for trustworthy decision-making.
+My research aims to develop intelligent **agents** capable of reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance reinforcement learning, large scale optimization, and large language model (LLM) reasoning to create systems for trustworthy decision-making.
 
 ---
 
