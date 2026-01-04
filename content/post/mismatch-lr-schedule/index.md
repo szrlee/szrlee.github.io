@@ -1,7 +1,7 @@
 ---
-title: 'Beyond Precision: Why Training-Inference Mismatch is an Optimization Problem and How Simple LR Scheduling Fixes It'
-subtitle: 'A learning rate scheduling approach to stabilize LLM-RL training'
-summary: 'RL training for LLMs is notoriously unstable. While recent studies attribute this to training-inference mismatch from hybrid engines, we show this is not merely a static numerical issue, but a dynamic problem coupled with the model's optimization trajectory. We propose a specialized Learning Rate Scheduler that decays LR as gradient noise rises, using response length surge as a reliable early indicator of impending instability.'
+title: "Beyond Precision: Why Training-Inference Mismatch is an Optimization Problem and How Simple LR Scheduling Fixes It"
+subtitle: "A learning rate scheduling approach to stabilize LLM-RL training"
+summary: "RL training for LLMs is notoriously unstable. While recent studies attribute this to training-inference mismatch from hybrid engines, we show this is not merely a static numerical issue, but a dynamic problem coupled with the model's optimization trajectory. We propose a specialized Learning Rate Scheduler that decays LR as gradient noise rises, using response length surge as a reliable early indicator of impending instability."
 authors:
   - Yaxiang Zhang
   - admin
@@ -26,7 +26,7 @@ external_link: 'https://yingru.notion.site/Beyond-Precision-Why-Training-Inferen
 
 # Featured image
 image:
-  caption: 'Learning Rate Scheduling for LLM-RL Stability'
+  caption: "Learning Rate Scheduling for LLM-RL Stability"
   focal_point: ''
   preview_only: false
 
