@@ -43,7 +43,7 @@ social:
   - icon: envelope
     icon_pack: fas
     link: '/#contact'
-  - icon: x-twitter
+  - icon: logo-x
     icon_pack: fab
     link: https://x.com/RichardYRLi
     label: Follow me on X
