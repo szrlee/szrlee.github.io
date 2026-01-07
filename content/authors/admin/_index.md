@@ -55,9 +55,6 @@ social:
   - icon: github
     icon_pack: fab
     link: https://github.com/szrlee
-  - icon: cv
-    icon_pack: ai
-    link: uploads/resume.pdf
 
 # Highlight the author in author lists? (true/false)
 highlight_name: true
@@ -72,8 +69,6 @@ My research aims to develop intelligent **agents** capable of reliably interacti
 
 ---
 
-📄 View my [CV/resumé](uploads/resume.pdf)
-&nbsp; &nbsp;
 🐦 Follow me on [X](https://x.com/RichardYRLi) for updates.
 
 {style="text-align: justify;"}
