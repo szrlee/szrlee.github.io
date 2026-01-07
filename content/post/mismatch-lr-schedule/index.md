@@ -18,8 +18,8 @@ tags:
 categories:
   - Research
   - Theory
-date: '2025-12-20T1:00:00Z'
-lastmod: '2025-12-20T1:00:00Z'
+date: '2025-12-20T01:00:00Z'
+lastmod: '2025-12-20T01:00:00Z'
 featured: true
 draft: false
 external_link: 'https://yingru.notion.site/Beyond-Precision-Why-Training-Inference-Mismatch-is-an-Optimization-Problem-and-How-Simple-LR-Sched-2d9211a558b780f1a710f99dbdc403d3'
