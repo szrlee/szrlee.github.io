@@ -42,6 +42,35 @@ sections:
       title: About me
       # Choose a user profile to display (a folder name within `content/authors/`)
       username: admin
+  - block: markdown
+    id: xai
+    content:
+      title: At xAI
+      text: |-
+        - **Science of RL team** — key contribution to the RL training recipe for Grok 4.2, resolving critical training instabilities and enabling the longest stable RL run to date
+        - **Long Horizon RL team** — pioneering recipes for higher intelligence per token and recursive self-improvement — a paradigm shift toward continual learning beyond the 1-bit-per-episode barrier
+    design:
+      columns: '2'
+  - block: markdown
+    id: research
+    content:
+      title: Highlights
+      text: |-
+        **LLM Reasoning & Agent — Training Stability and Efficiency**
+        - **[RL Collapse](https://richardli.xyz/rl-collapse)** — demystifying collapse from the training-inference mismatch
+        - **[Trust Region Masking](https://arxiv.org/abs/2512.23075)** — stable long-horizon LLM reinforcement learning
+        - **[LR Schedule Fix](https://arxiv.org/abs/2602.01826)** — training-inference mismatch as an optimization problem
+        - **[Dynamic Vocabulary Pruning](https://arxiv.org/abs/2512.23087)** — taming the tail for stable LLM-RL
+        - **[Optimal Token Baseline](https://arxiv.org/abs/2602.07078)** — variance reduction for long-horizon LLM-RL
+        - **[SimpleTIR](https://arxiv.org/abs/2509.02479)** — end-to-end RL for multi-turn tool-integrated reasoning
+
+        **Scalable Exploration**
+        - **[HyperAgent](https://arxiv.org/abs/2402.10228)** — scalable posterior sampling bridging theory and practice
+        - **[Ensemble++](https://arxiv.org/abs/2407.13195)** — scalable exploration via neural ensemble methods
+
+        Also worked on deep RL in games and RL theory — see {{< staticref "uploads/resume.pdf" "newtab" >}}full CV{{< /staticref >}} for details.
+    design:
+      columns: '2'
   # - block: skills
   #   content:
   #     title: Skills
@@ -127,33 +156,20 @@ sections:
   #         url: ''
   #   design:
   #     columns: '2'
-  - block: collection
-    id: posts
-    content:
-      title: Recent Posts
-      subtitle: ''
-      text: ''
-      # Choose how many pages you would like to display (0 = all pages)
-      count: 5
-      # Filter on criteria
-      filters:
-        folders:
-          - post
-        author: ""
-        category: ""
-        tag: ""
-        exclude_featured: false
-        exclude_future: false
-        exclude_past: false
-        publication_type: ""
-      # Choose how many pages you would like to offset by
-      offset: 0
-      # Page order: descending (desc) or ascending (asc) date.
-      order: desc
-    design:
-      # Choose a layout view
-      view: compact
-      columns: '2'
+  # - block: collection
+  #   id: posts
+  #   content:
+  #     title: Recent Posts
+  #     subtitle: ''
+  #     text: ''
+  #     count: 5
+  #     filters:
+  #       folders:
+  #         - post
+  #     order: desc
+  #   design:
+  #     view: compact
+  #     columns: '2'
   # Quickly discover relevant content by [filtering highlighted publications](./publication/).
         # **For full list, see [google scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en).**
         # {{% /callout %}}
