@@ -9,5 +9,9 @@ node_modules/
 go.sum
 .hugo_build.lock
 
+# OpenReview reviewer data (private)
+.openreview/
+.venv/
+
 # MacOS
 .DS_Store
