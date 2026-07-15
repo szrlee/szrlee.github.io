@@ -69,7 +69,7 @@ sections:
         - **[HyperAgent](https://arxiv.org/abs/2402.10228)** — scalable posterior sampling bridging theory and practice
         - **[Ensemble++](https://arxiv.org/abs/2407.13195)** — scalable exploration via neural ensemble methods
 
-        Earlier work on deep RL and RL theory — see {{< staticref "uploads/resume.pdf" "newtab" >}}full CV{{< /staticref >}} for details.
+        Earlier work on deep RL and RL theory — see the full publications.
     design:
       columns: '2'
   # - block: skills
