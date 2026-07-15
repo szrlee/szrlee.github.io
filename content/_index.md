@@ -42,15 +42,15 @@ sections:
       title: About me
       # Choose a user profile to display (a folder name within `content/authors/`)
       username: admin
-  - block: markdown
-    id: xai
-    content:
-      title: At xAI
-      text: |-
-        - **Science of RL** (Grok 4.2, Grok Code) — identified and resolved critical training instabilities that benefit every stage of RL training across the entire pipeline, directly enabling the longest stable RL run to date
-        - **Long-Horizon RL** (Grok Next) — leading the development of recipes for higher intelligence per token and recursive self-improvement, solving long-horizon credit assignment and enabling continual learning
-    design:
-      columns: '2'
+  # - block: markdown
+  #   id: xai
+  #   content:
+  #     title: At xAI
+  #     text: |-
+  #       - **Science of RL** (Grok 4.2, Grok Code) — identified and resolved critical training instabilities that benefit every stage of RL training across the entire pipeline, directly enabling the longest stable RL run to date
+  #       - **Long-Horizon RL** (Grok Next) — leading the development of recipes for higher intelligence per token and recursive self-improvement, solving long-horizon credit assignment and enabling continual learning
+  #   design:
+  #     columns: '2'
   - block: markdown
     id: research
     content:
