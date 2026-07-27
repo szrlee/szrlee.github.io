@@ -66,9 +66,11 @@ social:
 highlight_name: true
 ---
 
-I am a Member of Technical Staff at [xAI](https://x.ai/). I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hong Kong (CUHK), where I had the privilege of being advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) on my thesis committee.
+I am a Member of Technical Staff at [xAI](https://x.ai/), working on RL Science and Reasoning & Coding Agent RL Bigrun. 
+Prior to xAI, I was a Research Scientist at ByteDance. 
 
-Prior to xAI, I was a Research Scientist at ByteDance. I also had the valuable opportunity to collaborate with [Prof. Tong Zhang](https://tongzhang-ml.org/) and [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
+I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hong Kong (CUHK), where I had the privilege of being advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford and DeepMind) on my thesis committee.
+I also had the valuable opportunity to collaborate with [Prof. Tong Zhang](https://tongzhang-ml.org/) and [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
 
 ### Research Vision
 My research aims to develop intelligent **agents** capable of reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance reinforcement learning, large scale optimization, and large language model (LLM) reasoning to create systems for trustworthy decision-making.
