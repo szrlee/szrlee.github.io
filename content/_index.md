@@ -65,7 +65,7 @@ sections:
         - **[SimpleTIR](https://arxiv.org/abs/2509.02479)** — end-to-end RL for multi-turn tool-integrated reasoning
         - **[Dr. Kernel](https://arxiv.org/abs/2602.05885)** — reinforcement learning done right for Triton kernel generation
 
-        **Scalable Exploration**
+        **Scalable Exploration and Active Online Learning**
         - **[HyperAgent](https://arxiv.org/abs/2402.10228)** — scalable posterior sampling bridging theory and practice
         - **[Ensemble++](https://arxiv.org/abs/2407.13195)** — scalable exploration via neural ensemble methods
 

@@ -73,7 +73,7 @@ I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hon
 I also had the valuable opportunity to collaborate with [Prof. Tong Zhang](https://tongzhang-ml.org/) and [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
 
 ### Research Vision
-My research aims to develop intelligent **agents** capable of reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance **reinforcement learning**, **large-scale optimization**, and large language model **(LLM) reasoning** to create systems for trustworthy decision-making.
+My research aims to develop intelligent **agents** capable of **continual learning** and  reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance **reinforcement learning**, **large-scale optimization**, and large language model **(LLM) reasoning** to create systems for trustworthy decision-making.
 
 ---
 
