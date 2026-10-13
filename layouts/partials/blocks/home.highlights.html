@@ -1,0 +1,19 @@
+{{ $block := .wcBlock }}
+
+{{ with $block.content.title }}<h2 class="hp-title hp-title-sm">{{ . }}</h2>{{ end }}
+<div class="hp-cards hp-cards-3 hp-highlights">
+  {{ range site.Data.home.highlights }}
+  <div class="hp-card">
+    <h3 class="hp-card-title">{{ .title }}</h3>
+    <p>{{ .text }}</p>
+    {{ if eq .chips "adoption" }}
+    <ul class="hp-chips">
+      {{ range site.Data.research.adoption.items }}
+      <li>{{ partial "home/link" (dict "url" .url "text" .name "class" "hp-chip") }}</li>
+      {{ end }}
+    </ul>
+    {{ end }}
+    {{ with .link }}<p class="hp-card-link">{{ partial "home/link" (dict "url" .url "text" (printf "%s →" .text)) }}</p>{{ end }}
+  </div>
+  {{ end }}
+</div>

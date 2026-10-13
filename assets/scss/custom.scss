@@ -212,13 +212,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   font-size: 1.6rem;
   line-height: 1.25;
   color: var(--hp-ink);
-  margin: 0 0 0.4rem;
-}
-
-.hp-hero-tagline {
-  font-size: 1rem;
-  color: var(--hp-muted);
-  margin: 0 0 1.6rem;
+  margin: 0 0 1rem;
 }
 
 .hp-hero-bio {
@@ -518,35 +512,64 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 
 .hp-talk-where { font-size: 0.85rem; color: var(--hp-muted); }
 
-// ---------- Writing ----------
+// ---------- Homepage: highlights, experience, selected ----------
 
-.hp-writing-group {
-  display: grid;
-  grid-template-columns: 220px minmax(0, 1fr);
-  gap: 1.5rem;
-  padding: 1.1rem 0;
-  border-top: 1px solid var(--hp-rule);
-  ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    columns: 2;
-    column-gap: 2.5rem;
-  }
-  li {
-    break-inside: avoid;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.3rem 0;
-    font-size: 0.93rem;
-    line-height: 1.4;
-  }
-  a { color: var(--hp-ink); font-weight: 500; }
-  a:hover { color: var(--hp-accent); }
+.hp-title-sm { font-size: 1.45rem; margin-bottom: 1.2rem; }
+
+.hp-hero-more { margin: 1rem 0 0; font-weight: 500; font-size: 0.92rem; }
+
+.hp-highlights .hp-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
-.hp-date { flex-shrink: 0; font-size: 0.8rem; color: var(--hp-muted); }
+.hp-highlights .hp-card-title { margin: 0; }
+
+.hp-chips {
+  display: flex;
+  flex-wrap: wrap;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  .hp-chip { margin: 0.1rem 0.3rem 0.1rem 0; }
+}
+
+.hp-card-link {
+  margin-top: auto !important;
+  padding-top: 0.2rem;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.hp-exp {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  li {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 1.2rem;
+    padding: 0.65rem 0;
+    border-bottom: 1px solid var(--hp-rule);
+  }
+}
+
+.hp-exp-when { font-size: 0.85rem; font-weight: 600; color: var(--hp-accent); }
+
+.hp-exp-org { font-weight: 600; color: var(--hp-ink); }
+
+.hp-exp-role { color: var(--hp-muted); }
+
+.hp-exp-text { display: block; font-size: 0.9rem; line-height: 1.5; margin-top: 0.15rem; }
+
+.hp-papers-compact .hp-paper { padding: 0.55rem 0; }
+
+.hp-more a + a { margin-left: 1.5rem; }
+
+#highlights.home-section,
+#experience.home-section,
+#publications.home-section { padding: 48px 0; }
 
 // ---------- Publications page ----------
 
@@ -683,8 +706,8 @@ footer.site-footer {
   .hp-hero-name { font-size: 2.4rem; }
   .hp-hero-title { font-size: 1.3rem; }
   .hp-title { font-size: 1.5rem; }
-  .hp-loop-grid, .hp-cards-3, .hp-writing-group, .hp-q-posts { grid-template-columns: 1fr; gap: 0.5rem; }
-  .hp-writing-group ul { columns: 1; }
+  .hp-loop-grid, .hp-cards-3, .hp-q-posts { grid-template-columns: 1fr; gap: 0.5rem; }
+  .hp-exp li { grid-template-columns: 1fr; gap: 0.2rem; }
   .hp-eq-panel { padding: 1.6rem 1.3rem; }
   .hp-tl-row { grid-template-columns: 1fr; gap: 0.25rem; }
   .hp-talk-list li { grid-template-columns: 1fr; gap: 0.2rem; }

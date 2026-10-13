@@ -18,7 +18,7 @@ organizations:
     url: https://x.ai/
 
 # Short bio (displayed in user profile at end of posts)
-bio: I work on reinforcement learning that is efficient in data and in compute — exploration, off-policy correction, and variance reduction at scale.
+bio: Core contributor to RL fundamentals at xAI (now SpaceX Super Intelligence); I make reinforcement learning on frontier models stable, efficient, and scalable.
 
 interests:
   - Reinforcement learning at scale
@@ -27,7 +27,7 @@ interests:
 
 education:
   courses:
-    - course: Ph.D.
+    - course: Ph.D. in Computer and Information Engineering
       institution: The Chinese University of Hong Kong
       year: 2025
     - course: B.E./M.E. in Computer Science
@@ -63,9 +63,9 @@ social:
 highlight_name: true
 ---
 
-I am a Member of Technical Staff at [xAI](https://x.ai/), working on large-scale reinforcement learning: stability, efficiency, and the science of scaling.
-Before that I led research on RL training stability and efficiency for LLM reasoning and agents at ByteDance.
+I make reinforcement learning on frontier models stable, efficient, and scalable.
 
-I received my Ph.D. from The Chinese University of Hong Kong in 2025, advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) on my thesis committee.
+I am a core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), contributing to the Grok RL big runs and to one of the longest stable RL runs to date.
+Before that I led RL stability and efficiency research for LLM reasoning and agents at ByteDance.
 
-My research asks how a system learns from its own experience efficiently, in data and in compute: which experience to collect, whether each update points the right way, and whether its signal rises above the noise.
+Ph.D. in Computer and Information Engineering, The Chinese University of Hong Kong (2025), advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford & DeepMind) on my thesis committee.

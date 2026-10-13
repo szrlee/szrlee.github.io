@@ -3,7 +3,7 @@
 {{ with $r.timeline }}
 {{ partial "home/head" (dict "label" .label "title" .title) }}
 <ol class="hp-timeline">
-  {{ range .items }}
+  {{ range $item := .items }}
   <li class="hp-tl-row{{ if .current }} is-current{{ end }}">
     <div class="hp-tl-when">{{ .when }}</div>
     <div class="hp-tl-what">
@@ -14,7 +14,10 @@
           {{ .title }}
         {{- end -}}
       </div>
-      <div class="hp-tl-where">{{ .where }}</div>
+      <div class="hp-tl-where">
+        {{- .where -}}
+        {{- with .url2 }} · {{ partial "home/link" (dict "url" $item.url "text" "Part 1") }} · {{ partial "home/link" (dict "url" . "text" "Part 2") }}{{ end -}}
+      </div>
     </div>
     <div class="hp-tl-text">{{ .text }}</div>
   </li>

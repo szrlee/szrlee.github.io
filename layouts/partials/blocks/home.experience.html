@@ -1,0 +1,14 @@
+{{ $block := .wcBlock }}
+
+{{ with $block.content.title }}<h2 class="hp-title hp-title-sm">{{ . }}</h2>{{ end }}
+<ul class="hp-exp">
+  {{ range site.Data.home.experience }}
+  <li>
+    <span class="hp-exp-when">{{ .when }}</span>
+    <span class="hp-exp-what">
+      <span class="hp-exp-org">{{ .org }}</span><span class="hp-exp-role"> · {{ .role }}</span>
+      {{ with .text }}<span class="hp-exp-text">{{ . }}</span>{{ end }}
+    </span>
+  </li>
+  {{ end }}
+</ul>

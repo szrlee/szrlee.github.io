@@ -18,7 +18,7 @@ marketing:
     site_type: Person
     local_business_type: ""
     org_name: ""
-    description: "Yingru Li works on reinforcement learning that is efficient in data and in compute: exploration, off-policy correction, and variance reduction at scale."
+    description: "Yingru Li is a core contributor to RL fundamentals at xAI (now SpaceX Super Intelligence), working on stable, efficient, and scalable reinforcement learning for frontier models."
     twitter: "RichardYRLi"
   analytics:
     google_analytics: "G-77Z4HKK4XQ"

@@ -4,7 +4,7 @@
 
 main:
   - name: Research
-    url: "/#research"
+    url: research/
     weight: 10
   - name: Publications
     url: publications/
@@ -12,15 +12,12 @@ main:
   - name: Writing
     url: post/
     weight: 30
-  - name: Talks
-    url: "/#talks"
-    weight: 40
   - name: CV
     url: uploads/cv.pdf
-    weight: 50
+    weight: 40
   - name: Contact
     url: "/#contact"
-    weight: 60
+    weight: 50
   - name: RL-Seminar
     url: "https://rlseminar.github.io/"
     weight: 80

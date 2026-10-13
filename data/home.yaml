@@ -1,0 +1,50 @@
+# Homepage content. Each fact appears in exactly one section.
+# Paper keys refer to data/publications.yaml.
+
+hero:
+  kicker: Member of Technical Staff · xAI
+  display_name: Yingru (Richard) Li
+  pitch: I make reinforcement learning on frontier models stable, efficient, and scalable.
+  text: |-
+    I am a core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), contributing to the Grok RL big runs and to one of the longest stable RL runs to date.
+    Before that I led RL stability and efficiency research for LLM reasoning and agents at ByteDance.
+
+    Ph.D. in Computer and Information Engineering, The Chinese University of Hong Kong (2025), advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford & DeepMind) on my thesis committee.
+  research_link: Research overview →
+
+highlights:
+  - title: Why LLM-RL collapses, and the fix
+    text: >-
+      We traced collapse to the training–inference mismatch. The sequence-level fix is now
+      adopted, shipped, or discussed by:
+    chips: adoption
+    link: {text: Read the analysis, url: "/rl-collapse"}
+  - title: Open-source RL infrastructure
+    text: >-
+      Authored the Rollout Correction framework for general off-policy training in veRL
+      (20k+ GitHub stars), and contributed its variance-reducing token-level baseline.
+    link: {text: veRL docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
+  - title: Scalable exploration
+    text: >-
+      Exploration that matches Thompson sampling with only Θ(d log T) ensemble directions, and
+      human-level Atari with 15% of DDQN's interaction data.
+    link: {text: How it works, url: "/research/#q-explore"}
+
+experience:
+  - org: xAI (now SpaceX Super Intelligence)
+    role: Member of Technical Staff
+    when: Dec 2025 –
+    text: Stability, efficiency, optimizer and scaling laws; long-horizon agentic RL; on-policy distillation; RL infrastructure.
+  - org: ByteDance
+    role: LLM Algorithm Research Scientist
+    when: "2025"
+    text: Led RL training stability and efficiency for LLM reasoning and agents; co-led projects on multi-turn tool-integrated reasoning and GPU kernel generation.
+  - org: Tencent AI & Robotics X
+    role: Student Research Staff
+    when: 2019 – 2022
+    text: Scalable exploration and stable off-policy deep RL.
+  - org: Microsoft Research, Theory Center
+    role: Research Intern
+    when: "2016"
+
+selected: [otb, trm, drkernel, simpletir, ensemblepp, hyperagent]

@@ -1,0 +1,10 @@
+{{ $block := .wcBlock }}
+
+{{ with $block.content.title }}<h2 class="hp-title hp-title-sm">{{ . }}</h2>{{ end }}
+<ul class="hp-papers hp-papers-compact">
+  {{ range site.Data.home.selected }}{{ partial "home/paper" (dict "key" .) }}{{ end }}
+</ul>
+<p class="hp-more">
+  <a href="{{ "publications/" | relLangURL }}">All publications →</a>
+  <a href="{{ "post/" | relLangURL }}">Writing →</a>
+</p>
