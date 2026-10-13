@@ -678,6 +678,110 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   font-weight: 500;
 }
 
+// ---------- Sampler and trainer in formulas (\ps, \pt in assets/js/mathjax-config.js) ----------
+
+.mjx-ps { color: #C2410C; }
+.mjx-pt { color: #1D4ED8; }
+body.dark .mjx-ps { color: #E8956A; }
+body.dark .mjx-pt { color: #8FB4FF; }
+
+// ---------- Step-through figures (assets/js/stepfig.js) ----------
+// The panel keeps the deck's light palette in both themes, like an image.
+
+.stepfig {
+  --sf-paper: #FAF8F3;
+  --sf-card: #F0EDE4;
+  --sf-ink: #161A22;
+  --sf-soft: #3F4654;
+  --sf-mute: #666C78;
+  --sf-rule: #D6D0C2;
+  --sf-or: #C2410C;
+  margin: 2rem 0;
+  padding: 14px;
+  background: var(--sf-paper);
+  border: 1px solid var(--sf-rule);
+  border-radius: 14px;
+  color: var(--sf-soft);
+  outline: none;
+  &:focus-visible { box-shadow: 0 0 0 3px rgba(194, 65, 12, 0.35); }
+}
+
+.stepfig-viewport { overflow-x: auto; overflow-y: hidden; border-radius: 12px; }
+
+.stepfig-sizer { position: relative; overflow: hidden; }
+
+.stepfig-stage {
+  position: relative;
+  transform-origin: 0 0;
+  font-family: "IBM Plex Sans", Arial, sans-serif;
+  color: var(--sf-ink);
+  p { margin: 0; overflow-wrap: normal; word-wrap: normal; word-break: normal; hyphens: manual; }
+  img { max-width: none; margin: 0; }
+}
+
+.stepfig-frame { position: absolute; inset: 0; }
+
+.stepfig:not(.js) .stepfig-frame:not(:last-child) { display: none; }
+
+.stepfig.js {
+  .stepfig-frame { opacity: 0; visibility: hidden; transition: opacity 0.35s ease, visibility 0s linear 0.35s; }
+  .stepfig-frame.is-on { opacity: 1; visibility: visible; transition: opacity 0.35s ease; }
+  [data-step] { opacity: 0; transition: opacity 0.35s ease; }
+  [data-step].is-on { opacity: 1; }
+}
+
+.stepfig:not(.js) .stepfig-bar { display: none; }
+
+.stepfig-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-top: 0.7rem;
+  button {
+    min-width: 2.2rem;
+    height: 2rem;
+    padding: 0 0.6rem;
+    border: 1px solid var(--sf-rule);
+    border-radius: 999px;
+    background: #fff;
+    color: var(--sf-ink);
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    &:hover:not(:disabled) { border-color: var(--sf-or); color: var(--sf-or); }
+    &:disabled { opacity: 0.4; cursor: default; }
+  }
+}
+
+.stepfig-count { margin-left: 0.4rem; font-size: 0.8rem; color: var(--sf-mute); font-variant-numeric: tabular-nums; }
+
+.stepfig-caption {
+  min-height: 3.2rem;
+  margin-top: 0.6rem;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  color: var(--sf-soft);
+  p { margin: 0 0 0.35rem; }
+  .stepfig-title { font-family: var(--hp-serif); font-weight: 600; font-size: 1.05rem; color: var(--sf-or); }
+  .stepfig-math { margin: 0.25rem 0 0.4rem; overflow-x: auto; }
+  .stepfig-math svg { display: block; max-width: 100%; height: auto; }
+  .stepfig-inline svg { display: inline-block; vertical-align: middle; max-width: 100%; height: auto; margin-right: 0.35rem; }
+}
+
+.stepfig-note { margin-top: 0.3rem; font-size: 0.8rem; color: var(--sf-mute); &:empty { display: none; } }
+
+.article-style .stepfig img, .article-style .stepfig svg { box-shadow: none; }
+
+.post-fig {
+  margin: 2rem 0;
+  img { width: 100%; height: auto; border-radius: 10px; border: 1px solid var(--hp-rule); }
+  figcaption { margin-top: 0.5rem; font-size: 0.85rem; color: var(--hp-muted); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .stepfig.js .stepfig-frame, .stepfig.js [data-step] { transition: none; }
+}
+
 // ---------- Footer ----------
 
 .page-footer,

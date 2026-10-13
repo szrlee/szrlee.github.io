@@ -1,0 +1,7 @@
+{{- /* Step-through figure extracted from the deck by tools/deckfigs/extract.mjs. Usage: {{< stepfig "gain" >}} */ -}}
+{{- $name := .Get 0 -}}
+{{- with resources.Get (printf "figs/%s.html" $name) -}}
+  {{- .Content | safeHTML -}}
+{{- else -}}
+  {{- errorf "stepfig: assets/figs/%s.html not found; run node tools/deckfigs/extract.mjs" $name -}}
+{{- end -}}

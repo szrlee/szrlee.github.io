@@ -1,0 +1,37 @@
+<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body><svg id="s" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 500" style="display:block;position:fixed;left:0;top:0;width:100%;height:100%"></svg><script>document.documentElement.style.overflow="hidden";document.body.style.margin="0";function makeLoop(){
+var sd=11,rnd=function(){sd=(sd*16807)%2147483647;return (sd-1)/2147483646;};
+var L=6,B=4,lanes=[],q=[],tray=[],gone=[],k=0,syn=0,tU=0,pulse=-1,flash=0,load=-1,i;
+var RAMP=['#F6D9C2','#EDB189','#E08A52','#C2410C','#8F2F08','#5C1E05'];
+var col=function(v){var a=k-v;return RAMP[a>5?5:(a<0?0:a)];};
+var LY=function(i){return 96+i*50;};
+var slot=function(n){return [384+(n%6)*36,96+Math.floor(n/6)*36];};
+for(i=0;i<L;i++)lanes.push({p:rnd(),d:3.2+3.6*rnd(),v:0});
+function step(dt){var j,c,ln,s,m=Math.min(1,dt*7);
+for(j=0;j<L;j++){ln=lanes[j];ln.p+=dt/ln.d;if(ln.p>=1){q.push({x:266,y:LY(j)-4,v:ln.v});ln.p=0;ln.d=3.2+3.6*rnd();ln.v=syn;}}
+for(j=0;j<q.length;j++){c=q[j];s=slot(j);c.x+=(s[0]-c.x)*m;c.y+=(s[1]-c.y)*m;}
+tU+=dt;
+if(load<0&&tU>2&&q.length>=B+18){tray=q.splice(0,B);load=0;}
+if(load>=0){load+=dt;for(j=0;j<tray.length;j++){c=tray[j];c.x+=(718+j*48-c.x)*m;c.y+=(108-c.y)*m;}
+if(load>1.1){k++;for(j=0;j<tray.length;j++){tray[j].f=1;gone.push(tray[j]);}tray=[];load=-1;tU=0;flash=1;pulse=0;}}
+for(j=gone.length-1;j>=0;j--){c=gone[j];c.f-=dt*2.2;c.y+=dt*150;if(c.f<=0)gone.splice(j,1);}
+if(flash>0)flash-=dt*1.4;
+if(pulse>=0){pulse+=dt/1.4;if(pulse>=1){pulse=-1;syn=k;}}}
+function chip(c,o){return '<rect x="'+c.x.toFixed(1)+'" y="'+c.y.toFixed(1)+'" width="28" height="28" rx="6" fill="'+col(c.v)+'"'+(o<1?' fill-opacity="'+Math.max(0,o).toFixed(2)+'"':'')+'/>';}
+function svg(mark){var o='',j,ln,u,px,py;
+o+='<rect x="0" y="0" width="960" height="500" rx="16" fill="#F0EDE4"/>';
+o+='<rect x="24" y="64" width="290" height="344" rx="14" fill="#FAF8F3"/><rect x="366" y="64" width="240" height="344" rx="14" fill="#FAF8F3"/><rect x="684" y="64" width="252" height="344" rx="14" fill="#FAF8F3"/>';
+o+='<path d="M320 236H352" stroke="#161A22" stroke-width="3"/><path d="M360 236L346 228V244Z" fill="#161A22"/>';
+o+='<path d="M612 236H670" stroke="#161A22" stroke-width="3"/><path d="M678 236L664 228V244Z" fill="#161A22"/>';
+o+='<path d="M810 408V456H169V422" fill="none" stroke="#C9C2B2" stroke-width="4"/><path d="M169 410L160 426H178Z" fill="#C9C2B2"/>';
+for(j=0;j<L;j++){ln=lanes[j];o+='<rect x="44" y="'+LY(j)+'" width="250" height="20" rx="10" fill="#E4DFD2"/><rect x="44" y="'+LY(j)+'" width="'+(20+230*ln.p).toFixed(1)+'" height="20" rx="10" fill="'+col(ln.v)+'"/>';}
+for(j=0;j<4;j++)o+='<rect x="'+(716+j*48)+'" y="106" width="32" height="32" rx="7" fill="none" stroke="#C9C2B2" stroke-width="2" stroke-dasharray="5 5"/>';
+o+='<rect x="716" y="196" width="188" height="92" rx="14" fill="#1D4ED8" fill-opacity="'+(0.1+0.55*Math.max(0,flash)).toFixed(2)+'" stroke="#1D4ED8" stroke-width="3"/>';
+for(j=0;j<7;j++)o+=(j<6?'<circle cx="'+(724+j*29)+'" cy="352" r="6" fill="none" stroke="#9AA0AC" stroke-width="2.5"/>':'<circle cx="'+(724+j*29)+'" cy="352" r="'+(9+5*Math.max(0,flash)).toFixed(1)+'" fill="#1D4ED8"/>');
+for(j=0;j<q.length;j++)o+=chip(q[j],1);
+for(j=0;j<tray.length;j++)o+=chip(tray[j],1);
+for(j=0;j<gone.length;j++)o+=chip(gone[j],gone[j].f);
+if(mark!==undefined&&q[mark])o+='<rect x="'+(q[mark].x-6).toFixed(1)+'" y="'+(q[mark].y-6).toFixed(1)+'" width="40" height="40" rx="10" fill="none" stroke="#161A22" stroke-width="4"/>';
+if(pulse>=0){u=pulse*743;if(u<48){px=810;py=408+u;}else if(u<689){px=810-(u-48);py=456;}else{px=169;py=456-(u-689);}o+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="11" fill="#1D4ED8"/>';}
+return o;}
+return {step:step,svg:svg,pre:function(T){for(var t=0;t<T;t+=0.05)step(0.05);},quiet:function(){return load<0&&gone.length===0&&pulse<0&&tU>1.5&&tU<1.9;},oldest:function(){var b=0,j;for(j=0;j<q.length;j++)if(q[j].v<q[b].v)b=j;return b;},slotOf:function(n){return slot(n);}};}
+var m=makeLoop(),s=document.getElementById("s"),t0=0;m.pre(60);function fr(t){var dt=Math.min(0.05,(t-t0)/1000);t0=t;m.step(dt);s.innerHTML=m.svg();requestAnimationFrame(fr);}requestAnimationFrame(fr);</script></body></html>

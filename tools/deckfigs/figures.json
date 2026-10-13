@@ -1,0 +1,27 @@
+{
+  "panel": {"left": 128, "top": 286, "width": 990, "height": 500, "rightColumn": 1110, "captionTop": 786},
+  "figures": {
+    "system":    ["s-loop", "o-mismatch"],
+    "lemma":     ["b-lemma"],
+    "gain":      ["s-gain", "o-taylor", "o-decomp", "o-limits"],
+    "centering": ["o-first"],
+    "isvar":     ["o-is"],
+    "gap":       ["s-age", "s-sources", "o-drift", "s-budget"],
+    "clock":     ["s-clock", "s-depth", "s-chains", "s-stops"],
+    "opt":       ["s-opt"],
+    "pull":      ["s-pull", "s-beta"]
+  },
+  "images": {
+    "trm-vs-ppo-clipping.png": "trm-vs-ppo-clipping.png",
+    "mismatch-kl-entropy.png": "mismatch-kl-entropy.png"
+  },
+  "forbidden": [
+    "Learning from Experience",
+    "Core Automation",
+    "unpublished",
+    "Unpublished",
+    "Yingru Li ·",
+    "My work",
+    "Research talk"
+  ]
+}

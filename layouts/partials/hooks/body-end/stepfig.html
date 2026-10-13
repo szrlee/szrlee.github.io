@@ -1,0 +1,4 @@
+{{- if and .IsPage (.HasShortcode "stepfig") -}}
+  {{- $js := resources.Get "js/stepfig.js" | minify | fingerprint -}}
+  <script src="{{ $js.RelPermalink }}" defer></script>
+{{- end -}}
