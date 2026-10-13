@@ -1,0 +1,21 @@
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $author := site.GetPage (printf "/authors/%s" ($block.content.username | default "admin")) }}
+{{ $avatar := ($author.Resources.ByType "image").GetMatch "*avatar*" }}
+
+<div class="hp-hero">
+  <div class="hp-hero-text">
+    {{ with $block.content.kicker }}<div class="hp-label">{{ . | markdownify }}</div>{{ end }}
+    <h1 class="hp-hero-name">{{ $author.Title }}</h1>
+    {{ with $block.content.title }}<p class="hp-hero-title">{{ . | markdownify }}</p>{{ end }}
+    {{ with site.Data.research.tagline }}<p class="hp-hero-tagline">{{ . }}</p>{{ end }}
+    <div class="hp-hero-bio">{{ $block.content.text | $page.RenderString }}</div>
+    {{ partial "home/social" $author }}
+  </div>
+  {{ with $avatar }}
+    {{ $img := .Fill "600x800 Center webp q85" }}
+    <figure class="hp-hero-photo">
+      <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ $author.Title }}">
+    </figure>
+  {{ end }}
+</div>

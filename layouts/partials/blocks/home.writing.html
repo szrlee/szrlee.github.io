@@ -1,0 +1,23 @@
+{{ $block := .wcBlock }}
+
+{{ partial "home/head" (dict "label" $block.content.label "title" $block.content.title "text" $block.content.text) }}
+
+<div class="hp-writing">
+  {{ range site.Data.research.writing }}
+  <div class="hp-writing-group">
+    <div class="hp-label">{{ .label }}</div>
+    <ul>
+      {{ range .posts }}
+        {{ with site.GetPage (printf "/post/%s" .) }}
+        <li>
+          {{ partial "home/link" (dict "url" (.Params.external_link | default .RelPermalink) "text" .Title) }}
+          <span class="hp-date">{{ .Date.Format "Jan 2006" }}</span>
+        </li>
+        {{ end }}
+      {{ end }}
+    </ul>
+  </div>
+  {{ end }}
+</div>
+
+<p class="hp-more"><a href="{{ "post/" | relLangURL }}">All posts →</a></p>

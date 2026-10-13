@@ -1,0 +1,51 @@
+{{ $block := .wcBlock }}
+{{ $r := site.Data.research }}
+
+{{ partial "home/head" (dict "label" $block.content.label "title" $block.content.title "text" $block.content.text) }}
+
+{{ range $r.questions }}
+<article class="hp-q" id="q-{{ .id }}">
+  <div class="hp-q-side">
+    <div class="hp-label">{{ .label }}</div>
+    <h3 class="hp-q-title">{{ .title }}</h3>
+    <div class="hp-q-factor">{{ .factor }}</div>
+    <div class="hp-results">
+      {{ range .results }}
+      <div class="hp-result">
+        <div class="hp-result-value">{{ .value }}</div>
+        <div class="hp-result-caption">{{ .caption }}</div>
+      </div>
+      {{ end }}
+    </div>
+  </div>
+  <div class="hp-q-main">
+    <p class="hp-q-text">{{ .text }}</p>
+    <ul class="hp-papers">
+      {{ range .papers }}{{ partial "home/paper" (dict "key" . "note" true) }}{{ end }}
+    </ul>
+    {{ with .posts }}
+    <div class="hp-q-posts">
+      <span class="hp-mini-label">Writing</span>
+      <ul>
+        {{ range . }}
+          {{ with site.GetPage (printf "/post/%s" .) }}
+          <li>{{ partial "home/link" (dict "url" (.Params.external_link | default .RelPermalink) "text" .Title) }}</li>
+          {{ end }}
+        {{ end }}
+      </ul>
+    </div>
+    {{ end }}
+  </div>
+</article>
+{{ end }}
+
+{{ with $r.systems }}
+<div class="hp-systems" id="q-systems">
+  {{ partial "home/head" (dict "label" .label "title" .title) }}
+  <ul class="hp-papers hp-cards hp-cards-3">
+    {{ range .papers }}{{ partial "home/paper" (dict "key" . "note" true) }}{{ end }}
+  </ul>
+</div>
+{{ end }}
+
+<p class="hp-more"><a href="{{ "publications/" | relLangURL }}">All publications, grouped by question →</a></p>

@@ -1,0 +1,13 @@
+{{ with site.Data.research.outlook }}
+{{ partial "home/head" (dict "label" .label "title" .title "text" .text) }}
+<div class="hp-cards hp-cards-3">
+  {{ range .items }}
+  <div class="hp-card">
+    <div class="hp-label">{{ .label }}</div>
+    <h3 class="hp-card-title">{{ .title }}</h3>
+    <p>{{ .text }}</p>
+  </div>
+  {{ end }}
+</div>
+{{ with .open }}<p class="hp-callout">{{ . }}</p>{{ end }}
+{{ end }}

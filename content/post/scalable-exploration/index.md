@@ -80,7 +80,7 @@ The theoretical contribution is substantial. For linear bandits, Ensemble++ achi
 | Setting | Regret Bound |
 |---------|-------------|
 | Compact action sets | $\mathcal{O}(d^{3/2}\sqrt{T}(\log T)^{3/2})$ |
-| Finite action sets | $\mathcal{O}(d\sqrt{T \log|\mathcal{X}|} \log T)$ |
+| Finite action sets | $\mathcal{O}(d\sqrt{T \log \lvert\mathcal{X}\rvert} \log T)$ |
 
 These bounds are **comparable to exact Thompson Sampling** while requiring only:
 

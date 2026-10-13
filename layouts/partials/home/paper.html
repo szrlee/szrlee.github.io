@@ -1,0 +1,26 @@
+{{- /* Context: dict "key" (paper key) "authors" (bool) "note" (bool). */ -}}
+{{- $p := index (where site.Data.publications.papers "key" .key) 0 -}}
+{{- if not $p -}}
+  {{- errorf "home/paper: no paper with key %q in data/publications.yaml" .key -}}
+{{- end -}}
+<li class="hp-paper">
+  <div class="hp-paper-title">
+    {{- with index $p.links 0 -}}
+      {{ partial "home/link" (dict "url" .url "text" $p.title) }}
+    {{- else -}}
+      {{ $p.title }}
+    {{- end -}}
+  </div>
+  {{- if .authors }}
+  <div class="hp-paper-authors">{{ replace $p.authors "Yingru Li" "<strong>Yingru Li</strong>" | safeHTML }}</div>
+  {{- end }}
+  <div class="hp-paper-meta">
+    <span class="hp-venue">{{ $p.venue }}</span>
+    {{- range $p.links }}
+      {{ partial "home/link" (dict "url" .url "text" .name "class" "hp-chip") }}
+    {{- end }}
+  </div>
+  {{- if and .note $p.note }}
+  <p class="hp-paper-note">{{ $p.note }}</p>
+  {{- end }}
+</li>

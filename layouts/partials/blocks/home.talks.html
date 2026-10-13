@@ -1,0 +1,16 @@
+{{ $block := .wcBlock }}
+
+{{ partial "home/head" (dict "label" $block.content.label "title" $block.content.title) }}
+
+<ul class="hp-talk-list">
+  {{ range site.Data.research.talks.items }}
+  <li>
+    <span class="hp-talk-when">{{ .when }}</span>
+    <span class="hp-talk-what">
+      <span class="hp-talk-name">{{ .title }}</span>
+      <span class="hp-talk-where">{{ .where }}</span>
+    </span>
+    {{ with .url }}{{ partial "home/link" (dict "url" . "text" "Slides" "class" "hp-chip") }}{{ end }}
+  </li>
+  {{ end }}
+</ul>

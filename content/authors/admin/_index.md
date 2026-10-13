@@ -1,14 +1,10 @@
 ---
 # Display name
-title: Yingru LI
+title: Yingru Li
 
 # Full name (for SEO)
 first_name: Yingru
 last_name: Li
-
-# Status emoji
-status:
-  icon: ☕️
 
 # Is this the primary user of the site?
 superuser: true
@@ -19,24 +15,24 @@ role: Member of Technical Staff
 # Organizations/Affiliations to show in About widget
 organizations:
   - name: xAI
+    url: https://x.ai/
 
 # Short bio (displayed in user profile at end of posts)
-bio: My research focuses on building intelligent agents by advancing reinforcement learning, large-scale optimization, and LLM reasoning.
+bio: I work on reinforcement learning that is efficient in data and in compute — exploration, off-policy correction, and variance reduction at scale.
 
-# # Interests to show in About widget
-# interests:
-#   - Reinforcement Learning
-#   - Large-Scale Optimization
-#   - LLM Reasoning and Agents
+interests:
+  - Reinforcement learning at scale
+  - Exploration and uncertainty
+  - Off-policy correction and variance reduction
 
-# # Education to show in About widget
-# education:
-#   courses:
-#     - course: Ph.D. in Operations Research and Computer Science
-#       institution: The Chinese University of Hong Kong
-#       year: 2025
-#     - course: B.E. in Computer Science with Honors
-#       institution: Huazhong University of Science and Technology
+education:
+  courses:
+    - course: Ph.D.
+      institution: The Chinese University of Hong Kong
+      year: 2025
+    - course: B.E./M.E. in Computer Science
+      institution: Huazhong University of Science and Technology
+      year: 2020
 
 # Social/Academic Networking
 social:
@@ -61,22 +57,15 @@ social:
   - icon: cv
     icon_pack: ai
     link: uploads/resume.pdf
+    name: Résumé
 
 # Highlight the author in author lists? (true/false)
 highlight_name: true
 ---
 
-I am a Member of Technical Staff at [xAI](https://x.ai/), working on **RL Stability/Efficiency** & **Science of Scaling** and contributing to **Reasoning & Coding Agent RL Bigrun**. 
-Prior to xAI, I led RL research at ByteDance. 
+I am a Member of Technical Staff at [xAI](https://x.ai/), working on large-scale reinforcement learning: stability, efficiency, and the science of scaling.
+Before that I led research on RL training stability and efficiency for LLM reasoning and agents at ByteDance.
 
-I earned my Ph.D. in Computer Science in 2025 from The Chinese University of Hong Kong (CUHK), where I had the privilege of being advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford and DeepMind) on my thesis committee.
-I also had the valuable opportunity to collaborate with [Prof. Tong Zhang](https://tongzhang-ml.org/) and [Prof. John Hopcroft](https://www.cs.cornell.edu/jeh/).
+I received my Ph.D. from The Chinese University of Hong Kong in 2025, advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) on my thesis committee.
 
-### Research Vision
-My research aims to develop intelligent **agents** capable of **continual learning** and  reliably interacting with complex environments. By bridging foundational **theory** with **scalable algorithms**, I advance **reinforcement learning**, **large-scale optimization**, and large language model **(LLM) reasoning** to create systems for trustworthy decision-making.
-
----
-
-🐦 Follow me on [X](https://x.com/RichardYRLi) for updates.
-
-{style="text-align: justify;"}
+My research asks how a system learns from its own experience efficiently, in data and in compute: which experience to collect, whether each update points the right way, and whether its signal rises above the noise.

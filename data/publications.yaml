@@ -1,0 +1,240 @@
+# Single source for the Publications page and the research sections of the homepage.
+# `group` must match an `id` in `groups`. Markers: * equal contribution, † corresponding author.
+
+groups:
+  - id: explore
+    label: Question 1 · Exploration
+    title: Which experience to collect?
+  - id: bias
+    label: Question 2 · Bias
+    title: Is the update pointed the right way?
+  - id: variance
+    label: Question 3 · Variance
+    title: Is the signal above the noise?
+  - id: systems
+    label: Systems and applications
+    title: The same tools, at work
+  - id: other
+    label: Other work
+    title: Games, signal processing, networks
+
+papers:
+  # ---------- Question 1 · Exploration ----------
+  - key: ensemblepp
+    group: explore
+    selected: true
+    title: Scalable Exploration via Ensemble++
+    authors: Yingru Li, Jiawei Xu, Baoxiang Wang, Zhi-Quan Luo
+    venue: NeurIPS 2025
+    note: Regret comparable to exact Thompson sampling with only Θ(d log T) ensemble directions, kept by incremental updates.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2407.13195"}
+      - {name: Blog, url: "/post/scalable-exploration/"}
+  - key: hyperagent
+    group: explore
+    selected: true
+    title: "Q-Star Meets Scalable Posterior Sampling: Bridging Theory and Practice via HyperAgent"
+    authors: Yingru Li, Jiawei Xu, Lei Han, Zhi-Quan Luo
+    venue: ICML 2024
+    note: Human-level Atari with 15% of DDQN's interaction data (1.5M), as a small addition to DQN.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2402.10228"}
+      - {name: Slides, url: "/uploads/slides/HyperAgent_slides_ios.pdf"}
+  - key: hyperdqn
+    group: explore
+    selected: true
+    title: "HyperDQN: A Randomized Exploration Method for Deep Reinforcement Learning"
+    authors: Ziniu Li, Yingru Li†, Yushun Zhang, Tong Zhang, Zhi-Quan Luo
+    venue: ICLR 2022
+    links:
+      - {name: OpenReview, url: "https://openreview.net/forum?id=X0nrKAXu7g-"}
+      - {name: Slides, url: "/uploads/slides/HyperDQN_workshop_1214_2021.pdf"}
+  - key: seqjl
+    group: explore
+    selected: true
+    title: Probability Tools for Sequential Random Projection
+    authors: Yingru Li
+    venue: arXiv 2024
+    note: A martingale extension of the Johnson–Lindenstrauss lemma to sequentially dependent, adaptively chosen data.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2402.14026"}
+  - key: psrl
+    group: explore
+    title: Prior-Dependent Analysis of Posterior Sampling RL with Function Approximation
+    authors: Yingru Li, Zhi-Quan Luo
+    venue: AISTATS 2024
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2403.11175"}
+  - key: ots
+    group: explore
+    title: Optimistic Thompson Sampling for No-Regret Learning in Unknown Games
+    authors: Yingru Li, Liangqi Liu, Wenqiang Pu, Hao Liang, Zhi-Quan Luo
+    venue: IEEE Transactions on Signal Processing, 2026
+    links:
+      - {name: IEEE, url: "https://ieeexplore.ieee.org/document/11534112"}
+      - {name: arXiv, url: "https://arxiv.org/abs/2402.09456"}
+  - key: verifier
+    group: explore
+    title: On the Scaling Flaws of Verifier-Guided Beam Search in Mathematical Reasoning
+    authors: Fei Yu, Yingru Li, Benyou Wang
+    venue: TMLR 2026
+    links:
+      - {name: OpenReview, url: "https://openreview.net/forum?id=D5VKbIzlrR"}
+  - key: uasearch
+    group: explore
+    title: Robust Search with Uncertainty-Aware Value Models for Language Model Reasoning
+    authors: Fei Yu, Yingru Li, Benyou Wang
+    venue: arXiv 2025
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2502.11155"}
+  - key: jl
+    group: explore
+    title: Simple, Unified Analysis of Johnson-Lindenstrauss with Applications
+    authors: Yingru Li
+    venue: arXiv 2024
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2402.10232"}
+
+  # ---------- Question 2 · Bias ----------
+  - key: speedkills
+    group: bias
+    selected: true
+    title: "When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch"
+    authors: Jiacai Liu*, Yingru Li*†, Yuqian Fu, Jiawei Wang, Qian Liu, Yu Shen
+    venue: Technical blog, 2025
+    note: Traced LLM-RL collapse to the gap between the inference engine and the training engine.
+    links:
+      - {name: Blog, url: "/rl-collapse"}
+  - key: trm
+    group: bias
+    selected: true
+    title: Trust Region Masking for Long-Horizon LLM Reinforcement Learning
+    authors: Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Qian Liu, Baoxiang Wang
+    venue: ICML 2026
+    note: A sequence-level trust region for long-horizon LLM-RL; a first-class algorithm in veRL.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2512.23075"}
+      - {name: Blog, url: "/post/trust-region-masking/"}
+      - {name: Slides, url: "/trust_region_masking_slides_yingru.pdf"}
+  - key: beyondprecision
+    group: bias
+    selected: true
+    title: "Beyond Precision: Training-Inference Mismatch is an Optimization Problem and Simple LR Scheduling Fixes It"
+    authors: Yaxiang Zhang*, Yingru Li*†, Jiacai Liu, Jiawei Xu, Ziniu Li, Qian Liu, Haoyuan Li
+    venue: arXiv 2026
+    note: The mismatch is not a static numerical error; it moves with the size of the update.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2602.01826"}
+      - {name: Blog, url: "/mismatch-lr-schedule"}
+  - key: dvp
+    group: bias
+    title: "Dynamic Vocabulary Pruning: Stable LLM-RL by Taming the Tail"
+    authors: Yingru Li, Jiawei Xu, Jiacai Liu, Yuxuan Tong, Ziniu Li, Tianle Cai, Ge Zhang, Qian Liu, Baoxiang Wang
+    venue: arXiv 2025
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2512.23087"}
+  - key: dapo
+    group: bias
+    selected: true
+    title: Divergence-Augmented Policy Optimization
+    authors: Qing Wang*, Yingru Li*, Jiechao Xiong, Tong Zhang
+    venue: NeurIPS 2019
+    note: Safe reuse of off-policy data through a divergence between state distributions.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2501.15034"}
+  - key: hybrid
+    group: bias
+    title: "A Note on Hybrid Online Reinforcement and Imitation Learning for LLMs: Formulations and Algorithms"
+    authors: Yingru Li, Ziniu Li, Jiacai Liu
+    venue: arXiv 2025
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2512.23097"}
+
+  # ---------- Question 3 · Variance ----------
+  - key: otb
+    group: variance
+    selected: true
+    title: "The Optimal Token Baseline: Variance Reduction for Long-Horizon LLM-RL"
+    authors: Yingru Li, Jiawei Xu, Ziniu Li, Jiacai Liu, Wei Liu, Yuxuan Tong, Longtao Zheng, Zhenghai Xue, Yaxiang Zhang, Tianle Cai, Ge Zhang, Qian Liu, Baoxiang Wang
+    venue: ICML 2026
+    note: A per-token baseline weighted by realized gradient energy; group size 4 matches 32.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2602.07078"}
+      - {name: Blog, url: "/optimal-token-baseline"}
+      - {name: veRL, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
+  - key: logit
+    group: variance
+    selected: true
+    title: Logit Dynamics in Softmax Policy Gradient Methods
+    authors: Yingru Li
+    venue: arXiv 2025
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2506.12912"}
+  - key: empg
+    group: variance
+    title: "Harnessing Uncertainty: Entropy-Modulated Policy Gradients for Long-Horizon LLM Agents"
+    authors: Jiawei Wang, Jiacai Liu, Yuqian Fu, Yingru Li, Xintao Wang, Yuan Lin, Yu Yue, Lin Zhang, Yang Wang, Ke Wang
+    venue: ICML 2026
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2509.09265"}
+
+  # ---------- Systems and applications ----------
+  - key: rollout_corr
+    group: systems
+    selected: true
+    title: Rollout Correction in veRL
+    authors: Yingru Li and veRL contributors
+    venue: Open source, veRL v0.6.0+
+    note: Sequence-level importance sampling and masking for general off-policy training.
+    links:
+      - {name: Docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
+      - {name: Math, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html"}
+      - {name: Code, url: "https://github.com/volcengine/verl"}
+  - key: drkernel
+    group: systems
+    selected: true
+    title: "Dr. Kernel: Reinforcement Learning Done Right for Triton Kernel Generations"
+    authors: Wei Liu, Jiawei Xu, Yingru Li, Longtao Zheng, Tianjian Li, Qian Liu, Junxian He
+    venue: ICML 2026
+    note: A 14B kernel agent; ahead of Claude-4.5-Sonnet and GPT-5 on KernelBench Level 2 with test-time scaling.
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2602.05885"}
+      - {name: KernelGYM, url: "https://github.com/hkust-nlp/KernelGYM"}
+  - key: simpletir
+    group: systems
+    selected: true
+    title: "SimpleTIR: End-to-End Reinforcement Learning for Multi-Turn Tool-Integrated Reasoning"
+    authors: Zhenghai Xue, Longtao Zheng, Qian Liu, Yingru Li, Xiaosen Zheng, Zejun Ma, Bo An
+    venue: ICLR 2026
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2509.02479"}
+  - key: owl
+    group: systems
+    title: "OWL: Optimized Workforce Learning for General Multi-Agent Assistance in Real-World Task Automation"
+    authors: Mengkang Hu, Yuhang Zhou, Wendong Fan, Yuzhou Nie, Bowei Xia, Tao Sun, Ziyu Ye, Zhaoxuan Jin, Yingru Li, Qiguang Chen, Zeyu Zhang, Yifeng Wang, Qianshuo Ye, Bernard Ghanem, Ping Luo, Guohao Li
+    venue: NeurIPS 2025
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2505.23885"}
+
+  # ---------- Other ----------
+  - key: antijam
+    group: other
+    title: Learning an Opponent-Aware Anti-Jamming Strategy via Online Convex Optimization
+    authors: Liangqi Liu, Wenqiang Pu, Yingru Li, Zhi-Quan Luo
+    venue: arXiv 2026
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2604.11016"}
+  - key: radar
+    group: other
+    title: Radar Anti-jamming Strategy Learning via Domain-knowledge Enhanced Online Convex Optimization
+    authors: Liangqi Liu, Wenqiang Pu, Yingru Li, Bo Jiu, Zhi-Quan Luo
+    venue: IEEE SAM 2024 · Best Student Paper
+    links:
+      - {name: arXiv, url: "https://arxiv.org/abs/2402.16274"}
+  - key: hicode
+    group: other
+    title: Hidden Community Detection in Social Networks
+    authors: Kun He, Yingru Li†, Sucheta Soundarajan, John E. Hopcroft
+    venue: Information Sciences, 2018
+    links:
+      - {name: Paper, url: "https://www.sciencedirect.com/science/article/pii/S0020025517310101"}

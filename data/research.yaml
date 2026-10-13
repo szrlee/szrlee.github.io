@@ -1,0 +1,249 @@
+# Content for the homepage research narrative.
+# Paper keys refer to data/publications.yaml; post keys are folder names under content/post/.
+
+tagline: Which experience to collect, and how much each update extracts from it, at bounded cost per step.
+
+loop:
+  title: The object of study is an online RL loop
+  text: >-
+    A model acts and writes its own experience; from that experience we estimate an update; the
+    updated model writes the next experience. Pre-training is this loop with the first arrow cut.
+    RL in the lab runs it in rounds and then freezes the model. Online RL in deployment is the
+    same loop with no last step. The goal is the most progress per unit of compute, sustained
+    over a long horizon.
+
+principles:
+  - label: Principle 1
+    title: Bounded compute and memory
+    text: >-
+      At every step, for as long as it runs. A learner cannot keep its whole history or go back
+      over it, so every mechanism has to be an incremental update.
+  - label: Principle 2
+    title: Information-seeking
+    text: >-
+      It writes its own data, so it should spend experience where it is uncertain. Its
+      uncertainty has to be something it can act on, simply and cheaply.
+  - label: Principle 3
+    title: Faithful to its data
+    text: >-
+      It learns from what it generated itself, through imperfect machinery. Every update has to
+      account for who produced the data and how noisy the signal is.
+
+equation:
+  lhs: Progress per unit compute
+  factors:
+    - name: Samples per unit compute
+      kind: Compute efficiency
+      label: Principle 1
+      text: Keep compute and memory bounded
+      href: "#outlook"
+    - name: Information per sample
+      kind: Data efficiency
+      label: Question 1
+      text: Which experience to collect?
+      href: "#q-explore"
+    - name: Fraction each update extracts
+      kind: Data efficiency
+      label: Questions 2 and 3
+      text: Is the update pointed the right way? Is the signal above the noise?
+      href: "#q-bias"
+  note: >-
+    The factors trade. Throughput is bought with fast kernels, asynchrony and larger batches, and
+    it is paid for in the last factor. Scaling means raising the first factor without losing the
+    others.
+
+questions:
+  - id: explore
+    label: Question 1 · Exploration
+    factor: Information per sample
+    title: Which experience to collect?
+    text: >-
+      Thompson sampling sends the learner where plausible models disagree, and stops exploring on
+      its own once they agree. Its price is a fresh posterior sample every round. I build the
+      randomness into the model instead: a random index as a second input, trained so that simple
+      noise is pushed forward onto the posterior. A sample is one forward pass; an update is one
+      SGD step that moves every sample at once. The theory rests on a sequential extension of the
+      Johnson–Lindenstrauss lemma to data the agent chose itself.
+    results:
+      - value: d log T
+        caption: ensemble directions match Thompson sampling, down from (actions × T)
+      - value: 15%
+        caption: of DDQN's interaction data for human-level Atari, with 5% of its parameters
+    papers: [ensemblepp, hyperagent, hyperdqn, seqjl]
+    posts: [scalable-exploration]
+
+  - id: bias
+    label: Question 2 · Bias
+    factor: Fraction each update extracts
+    title: Is the update pointed the right way?
+    text: >-
+      Large RL runs sample on fast inference engines and train elsewhere. The two engines assign
+      different probabilities to the same tokens even at identical weights, and asynchrony adds
+      stale data on top, so a run set up to be on-policy is off-policy anyway. We traced LLM-RL
+      collapse to this training–inference mismatch, then built corrections that act on the whole
+      sequence: sequence-level importance sampling and masking, a sequence-level trust region, and
+      a learning-rate schedule that decays the step size as instability builds.
+    results:
+      - value: Adopted
+        caption: sequence masking in DeepSeek-V3.2; corrections ship in veRL, Slime and Miles
+      - value: O(T)
+        caption: trust-region bound for long sequences, down from the classical O(T²)
+    papers: [speedkills, trm, beyondprecision, dapo]
+    posts: [rl-collapse-training-inference, rl-collapse-part1, topk-routing-stability-gap]
+
+  - id: variance
+    label: Question 3 · Variance
+    factor: Fraction each update extracts
+    title: Is the signal above the noise?
+    text: >-
+      Even fully on-policy, runs collapse, and a spike in gradient variance comes first: one
+      sparse reward multiplies a sum of thousands of token gradients. The best baseline is a
+      center of mass weighted by gradient energy. Energy builds up along the rollout, so the
+      Optimal Token Baseline is per token, and it costs nothing extra: the logit-gradient norm is
+      read off the forward pass.
+    results:
+      - value: 4 = 32
+        caption: group size 4 matches group size 32, about two thirds fewer tokens
+      - value: 2×
+        caption: more stable training steps and +21% on AIME25 with geometric sequence masking (Qwen3-14B)
+    papers: [otb, logit]
+    posts: [optimal-token-baseline, information-bandwidth-rl]
+
+systems:
+  label: Systems and applications
+  title: The same tools, at work
+  papers: [rollout_corr, drkernel, simpletir]
+
+timeline:
+  label: Questions 2 and 3
+  title: A public line of work, from diagnosis to correction
+  items:
+    - when: "2019"
+      title: Divergence-Augmented Policy Optimization
+      where: NeurIPS 2019
+      text: Off-policy reuse made safe by a divergence between the state distributions of two policies.
+      url: "https://arxiv.org/abs/2501.15034"
+    - when: Sep 2025
+      title: When Speed Kills Stability
+      where: Blog, with Jiacai Liu and co-authors
+      text: RL collapse traced to the training–inference mismatch, largest on rare tokens.
+      url: "/rl-collapse"
+    - when: Oct 2025
+      title: Rollout Correction
+      where: veRL, open source
+      text: Sequence-level correction and masking in a public training stack.
+      url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"
+    - when: Oct–Nov 2025
+      title: Off-policy RL, parts 1–3
+      where: Blog, with Jiacai Liu
+      text: Bias and variance of each estimator; token-level or sequence-level correction.
+      url: "/post/rl-collapse-part1/"
+    - when: Dec 2025
+      title: Trust Region Masking · Dynamic Vocabulary Pruning
+      where: ICML 2026 · arXiv 2025
+      text: A sequence-level trust region; the noisy tail of the vocabulary.
+      url: "https://arxiv.org/abs/2512.23075"
+    - when: Dec 2025
+      title: The Stability Gap
+      where: Blog
+      text: Why top-k routing makes mixture-of-experts RL harder to optimize.
+      url: "/post/topk-routing-stability-gap/"
+    - when: Dec 2025
+      title: Optimal Token Baseline · Beyond Precision
+      where: ICML 2026 · arXiv 2026
+      text: Variance as a second cause of collapse; the mismatch moves with the step size.
+      url: "https://arxiv.org/abs/2602.07078"
+    - when: Now
+      title: How the off-policy gap scales
+      where: Ongoing
+      text: How the gap between sampler and trainer behaves as asynchronous RL runs grow.
+      current: true
+
+adoption:
+  title: Adopted and discussed by models, training stacks and engines
+  items:
+    - name: DeepSeek-V3.2
+      text: geometric sequence masking
+      url: "https://arxiv.org/abs/2512.02556"
+    - name: veRL
+      text: Rollout Correction, TRM, OTB
+      url: "https://github.com/volcengine/verl/releases/tag/v0.6.0"
+    - name: Slime
+      text: mismatch correction
+      url: "https://github.com/THUDM/slime/pull/429"
+    - name: Miles
+      text: mismatch correction
+      url: "https://github.com/radixark/miles"
+    - name: Qwen
+      text: discussed in a technical report
+      url: "https://arxiv.org/abs/2512.01374"
+    - name: vLLM
+      text: discussed in an engineering blog
+      url: "https://blog.vllm.ai/2025/11/10/bitwise-consistent-train-inference.html"
+    - name: SGLang
+      text: discussed in a community blog
+      url: "https://github.com/zhaochenyang20/Awesome-ML-SYS-Tutorial/blob/main/rlhf/slime/mismatch/blog-en.md"
+    - name: Cognition
+      text: cited in SWE-grep, which uses sequence-level masking
+      url: "https://cognition.com/blog/swe-grep"
+
+outlook:
+  label: Outlook
+  title: Toward learners that keep learning
+  text: >-
+    A model that keeps learning in deployment is the same loop with no last step. It cannot afford
+    to explore by temperature, retrain from scratch, or trust data written by an earlier self. The
+    tools above are where I would start.
+  items:
+    - label: Information-seeking
+      title: Uncertainty the learner can act on
+      text: >-
+        A random index as a second input, trained by the same incremental updates as the model,
+        so a deployed learner can choose what to try and what to keep.
+    - label: Faithful to its data
+      title: Updates that stay close to their data
+      text: >-
+        A learner in deployment trains on data from its earlier self. How tightly each update is
+        held to that earlier self is a direct handle on stability against plasticity.
+    - label: Bounded compute and memory
+      title: Rules and gauges that hold at scale
+      text: >-
+        How throughput, exploration and update quality trade as compute grows can be measured,
+        with cheap gauges such as the sampler–trainer KL and gradient energy.
+  open: >-
+    Open questions: forgetting over long horizons, exploration at frontier scale, and where
+    uncertainty should live in the architecture.
+
+talks:
+  items:
+    - title: Revisiting Trust Region Policy Optimization in the Era of LLMs
+      where: QingkeAI
+      when: Dec 2025
+    - title: LLM-RL Instability and the Training–Inference Mismatch
+      where: SLAI; Bay Area RL community
+      when: Nov 2025
+    - title: Tackling Data Scarcity for Trustworthy Agents
+      where: ETH Zurich
+      when: Nov 2024
+    - title: "Exploration at Scale: Theory, Algorithms and Applications"
+      where: MIT; Princeton; INFORMS Annual Meeting; ISMP; INFORMS IOS; RLChina
+      when: "2024"
+      url: "/uploads/slides/HyperAgent_ISMP.pdf"
+    - title: No-Regret Learning in Unknown Games with Applications
+      where: RL Theory Student Workshop, Nanjing University
+      when: Aug 2022
+      url: "/uploads/slides/OTS_1023_2022.pdf"
+    - title: "HyperDQN: A Randomized Exploration Method for Deep RL"
+      where: NeurIPS Workshop on Ecological Theory of RL
+      when: Dec 2021
+      url: "/uploads/slides/HyperDQN_workshop_1214_2021.pdf"
+
+writing:
+  - label: Question 1 · Exploration
+    posts: [scalable-exploration]
+  - label: Question 2 · Bias
+    posts: [rl-collapse-training-inference, rl-collapse-part1, rl-collapse-part2, rl-collapse-part3, verl-rollout-correction, trust-region-masking, mismatch-lr-schedule, topk-routing-stability-gap]
+  - label: Question 3 · Variance
+    posts: [optimal-token-baseline, information-bandwidth-rl]
+  - label: Agents
+    posts: [language-rl-agent]

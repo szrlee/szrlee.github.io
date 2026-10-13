@@ -1,26 +1,25 @@
 # Navigation Links
-#   To link a homepage widget, specify the URL as a hash `#` followed by the filename of the
-#     desired widget in your `content/home/` folder.
+#   `#id` links point at homepage sections (see `content/_index.md`).
 #   The weight parameter defines the order that the links will appear in.
 
 main:
-  - name: Home
-    url: "#about"
-    weight: 10
-  - name: Posts
-    url: post/
-    weight: 20
-  # - name: Projects
-  #   url: "#projects"
-  #   weight: 30
-  # - name: Talks
-  #   url: "#talks"
-  #   weight: 40
   - name: Research
-    url: "#research"
+    url: "/#research"
+    weight: 10
+  - name: Publications
+    url: publications/
+    weight: 20
+  - name: Writing
+    url: post/
+    weight: 30
+  - name: Talks
+    url: "/#talks"
+    weight: 40
+  - name: CV
+    url: uploads/cv.pdf
     weight: 50
   - name: Contact
-    url: "#contact"
+    url: "/#contact"
     weight: 60
   - name: RL-Seminar
     url: "https://rlseminar.github.io/"

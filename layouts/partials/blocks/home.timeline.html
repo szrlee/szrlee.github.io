@@ -1,0 +1,36 @@
+{{ $r := site.Data.research }}
+
+{{ with $r.timeline }}
+{{ partial "home/head" (dict "label" .label "title" .title) }}
+<ol class="hp-timeline">
+  {{ range .items }}
+  <li class="hp-tl-row{{ if .current }} is-current{{ end }}">
+    <div class="hp-tl-when">{{ .when }}</div>
+    <div class="hp-tl-what">
+      <div class="hp-tl-title">
+        {{- if .url -}}
+          {{ partial "home/link" (dict "url" .url "text" .title) }}
+        {{- else -}}
+          {{ .title }}
+        {{- end -}}
+      </div>
+      <div class="hp-tl-where">{{ .where }}</div>
+    </div>
+    <div class="hp-tl-text">{{ .text }}</div>
+  </li>
+  {{ end }}
+</ol>
+{{ end }}
+
+{{ with $r.adoption }}
+<div class="hp-adoption">
+  <div class="hp-mini-label">{{ .title }}</div>
+  <ul class="hp-adopt-list">
+    {{ range .items }}
+    <li>
+      {{ partial "home/link" (dict "url" .url "text" (printf "<strong>%s</strong><span>%s</span>" .name .text)) }}
+    </li>
+    {{ end }}
+  </ul>
+</div>
+{{ end }}

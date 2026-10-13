@@ -6,10 +6,10 @@
 # Appearance
 
 appearance:
-  theme_day: minimal
-  theme_night: minimal
-  font: minimal
-  font_size: M
+  theme_day: editorial
+  theme_night: editorial
+  font: editorial
+  font_size: S
 
 # SEO
 
@@ -18,7 +18,7 @@ marketing:
     site_type: Person
     local_business_type: ""
     org_name: ""
-    description: "Researcher in Reinforcement Learning and Decision Making"
+    description: "Yingru Li works on reinforcement learning that is efficient in data and in compute: exploration, off-policy correction, and variance reduction at scale."
     twitter: "RichardYRLi"
   analytics:
     google_analytics: "G-77Z4HKK4XQ"

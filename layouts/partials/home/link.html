@@ -1,0 +1,5 @@
+{{- /* Renders an anchor; external URLs open in a new tab. Context: dict "url" "text" "class". */ -}}
+{{- $url := .url -}}
+{{- $external := hasPrefix $url "http" -}}
+<a href="{{ $url }}"{{ with .class }} class="{{ . }}"{{ end }}{{ if $external }} target="_blank" rel="noopener"{{ end }}>{{ .text | safeHTML }}</a>
+{{- /**/ -}}

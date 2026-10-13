@@ -1,0 +1,5 @@
+<div class="hp-head{{ with .class }} {{ . }}{{ end }}">
+  {{ with .label }}<div class="hp-label">{{ . }}</div>{{ end }}
+  {{ with .title }}<h2 class="hp-title">{{ . | markdownify }}</h2>{{ end }}
+  {{ with .text }}<p class="hp-lede">{{ . | markdownify }}</p>{{ end }}
+</div>

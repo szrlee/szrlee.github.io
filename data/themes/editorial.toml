@@ -1,0 +1,29 @@
+name = "Editorial"
+
+[light]
+  primary = "#b4481c"
+  link = "#b4481c"
+  link_hover = "#8f3712"
+  background = "#faf8f2"
+
+  menu_primary = "#faf8f2"
+  menu_text = "#3a3a3a"
+  menu_text_active = "#b4481c"
+  menu_title = "#1c1c1c"
+
+  home_section_odd = "#faf8f2"
+  home_section_even = "#f3efe6"
+
+[dark]
+  primary = "#e8956a"
+  link = "#e8956a"
+  link_hover = "#f2b08c"
+  background = "#14181f"
+
+  menu_primary = "#14181f"
+  menu_text = "#d9d6cf"
+  menu_text_active = "#e8956a"
+  menu_title = "#f4f1ea"
+
+  home_section_odd = "#14181f"
+  home_section_even = "#191e27"

@@ -1,0 +1,26 @@
+{{ $page := .wcPage }}
+{{ $block := .wcBlock }}
+{{ $pubs := site.Data.publications }}
+
+<div class="hp-pubs-intro">
+  {{ partial "home/head" (dict "label" $block.content.label "title" $block.content.title) }}
+  {{ with $block.content.text }}<div class="hp-lede">{{ . | $page.RenderString }}</div>{{ end }}
+  <nav class="hp-pubs-nav">
+    {{ range $pubs.groups }}<a href="#pubs-{{ .id }}">{{ .label }}</a>{{ end }}
+  </nav>
+</div>
+
+{{ range $pubs.groups }}
+  {{ $papers := where $pubs.papers "group" .id }}
+  {{ if $papers }}
+  <section class="hp-pubs-group" id="pubs-{{ .id }}">
+    <div class="hp-pubs-head">
+      <div class="hp-label">{{ .label }}</div>
+      <h2 class="hp-title">{{ .title }}</h2>
+    </div>
+    <ul class="hp-papers hp-papers-full">
+      {{ range $papers }}{{ partial "home/paper" (dict "key" .key "authors" true "note" true) }}{{ end }}
+    </ul>
+  </section>
+  {{ end }}
+{{ end }}
