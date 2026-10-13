@@ -1,5 +1,5 @@
 {
-  "panel": {"left": 128, "top": 286, "width": 990, "height": 500, "rightColumn": 1110, "captionTop": 786},
+  "panel": {"left": 128, "top": 286, "width": 990, "height": 500},
   "figures": {
     "system":    ["s-loop", "o-mismatch"],
     "lemma":     ["b-lemma"],
@@ -9,11 +9,141 @@
     "gap":       ["s-age", "s-sources", "o-drift", "s-budget"],
     "clock":     ["s-clock", "s-depth", "s-chains", "s-stops"],
     "opt":       ["s-opt"],
-    "pull":      ["s-pull", "s-beta"]
+    "pull":      ["s-pull", "s-beta"],
+
+    "ts": {
+      "frames": ["e-why", "e-why2", "e-why3", "e-why4"],
+      "crop": {"height": 430},
+      "belowCaptions": true
+    },
+    "index": {
+      "frames": ["e-plan"],
+      "crop": {"height": 430},
+      "belowCaptions": true,
+      "captions": [
+        "Give the model a second input: a random index ξ from a simple noise source we control, here a standard Gaussian. One set of weights ν is shared by every index.",
+        "Fix the index ξ₁: the model is an ordinary function of x, one curve.",
+        "A different index, the same weights: another curve.",
+        "And a third.",
+        "Many indices: the curves fill the posterior band. The model pushes simple noise forward onto a distribution over functions.",
+        "A sample is one forward pass with a fresh index; an update is one step on the weights, and it moves every sample at once. The work is to train ν so that the noise lands on the posterior."
+      ]
+    },
+    "params": {
+      "frames": ["e-post"],
+      "crop": {"width": 1664, "height": 430},
+      "belowCaptions": true,
+      "wide": true,
+      "min": 760,
+      "captions": [
+        "Left: functions of x with the posterior band. Right: parameter space, where the band is an ellipse around the posterior mean μ.",
+        "Take one index ξ₁. On the left it is a curve; on the right it is a single point, the parameter θ̃(ξ₁).",
+        "A second index: another curve, another point.",
+        "And a third.",
+        "Many indices: on the left they fill the band, on the right they fill the ellipse.",
+        "The model maps simple noise ξ ~ N(0, I) to a parameter μ + Aξ, which gives a function ⟨φ(x), θ̃(ξ)⟩. Its weights ν are the mean μ and M stored directions, the columns of A."
+      ]
+    },
+    "particles": {
+      "frames": ["e-s1", "e-s2", "e-s3", "e-particles", "e-problem", "e-pz", "e-fixed", "e-continual", "e-p10"],
+      "crop": {"top": 276, "width": 1664, "height": 640},
+      "wide": true,
+      "min": 760,
+      "captions": [
+        "Before any data, the posterior is the prior. Draw M = 16 vectors once and keep them: the particles. Side by side they form the matrix A₀, one column per particle.",
+        "To sample, do not draw a new vector. Draw a random index ξ: one standard Gaussian weight per stored arrow.",
+        "Scale each arrow by its weight and add them head to tail. Where the path ends is the sample.",
+        "A different index, the same arrows: a different sample.",
+        "And a third. Nothing about the arrows changed; only the index did.",
+        "Many indices fill the prior. This is Ensemble++ in one picture: M stored vectors, one cheap random index per sample.",
+        "Why is this a prior sample? A linear map of a Gaussian is Gaussian, so only the covariance A₀A₀ᵀ has to match the prior.",
+        "Pick a direction v and project the stored arrows onto it.",
+        "Along v, the spread of the cloud (dashed) nearly matches the spread of the prior (solid).",
+        "It holds in every direction: a random projection that preserves lengths. M of order d is enough, by Johnson–Lindenstrauss.",
+        "Now data arrive from a linear-Gaussian model, Y = ⟨θ*, X⟩ + ω, whose exact posterior is known: the ground truth for the cloud.",
+        "The cross is the truth θ*, which the learner never sees.",
+        "The goal: at every step the covariance of the cloud matches the posterior's, for one cheap update per data point.",
+        "A data point arrives. The parameters that fit it exactly form a line (dashed); the environment noise is the gap to the truth.",
+        "Inject noise: each particle gets its own copy of the response plus a fresh draw Z, which we know. One new row in the table.",
+        "One step each: every particle moves toward its own line. The cloud now sits on the exact posterior, and the injected noise keeps its width right.",
+        "A second data point: one more row of noise, one more step per particle. Earlier rows are never redrawn, and no data point is stored.",
+        "After ten: the cloud has collapsed around the truth and its spread still matches the posterior. Memory is the M particles, nothing else."
+      ]
+    },
+    "sample": {
+      "frames": ["e-sample"],
+      "crop": {"top": 276, "width": 1664, "height": 640},
+      "wide": true,
+      "min": 760,
+      "captions": [
+        "After three data points, zoomed in: the arrows now start at the posterior mean and point to the particles. Side by side they are A_t.",
+        "Draw an index, the same simple noise as for the prior. Scale the arrows, add them head to tail from the mean: a posterior sample.",
+        "Another index, another sample.",
+        "And another. Only the arrows changed since the prior; they carry what the data taught the cloud.",
+        "Many indices fill the posterior. Given the particles, the sample is exactly Gaussian with covariance A_tA_tᵀ, so what must hold is dashed ≈ solid.",
+        "A posterior sample to act on, with no square root anywhere, if the cloud keeps the right covariance. Does it, and with how few particles?"
+      ]
+    },
+    "proj": {
+      "frames": ["e-proj"],
+      "crop": {"top": 262, "width": 1664, "height": 654},
+      "wide": true,
+      "min": 760,
+      "captions": [
+        "Write the cloud as matrices: the history Φ (the prior, then one column per input), the injected-noise table Π under the prior draws, and their product.",
+        "By columns: column m of the noise table weights the whole history and gives particle m's arrow. Each particle is a random projection of the history.",
+        "By rows: a new data point adds one column and one row, and the product changes by one rank-one term. It never grows.",
+        "Tracking the posterior becomes a norm statement: A Aᵀ = Σ Φ Π Πᵀ Φᵀ Σ equals Σ when Π preserves norms on the history.",
+        "So the injected noise is a Johnson–Lindenstrauss projection of the history, maintained as a stream. How small can M be?"
+      ]
+    },
+    "adaptive": {
+      "frames": ["e-fail"],
+      "crop": {"top": 262, "width": 1664, "height": 654},
+      "wide": true,
+      "min": 760,
+      "captions": [
+        "One particle over time. Each new particle is built from the previous one, the new data point, and a fresh draw of injected noise (thin arrows).",
+        "Now the particle picks the next input, as Thompson sampling does (thick arrows).",
+        "Follow one path: Z₁ goes into particle 1, and particle 1 picks X₂.",
+        "So the injected noise now reaches the data,",
+        "and every later input is chosen after seeing earlier rows of the noise.",
+        "With fixed data the classical lemma applies; with adaptive data it does not. With one particle the regret grows linearly, while Thompson sampling flattens."
+      ]
+    },
+    "sgd": {
+      "frames": ["e-sgd"],
+      "crop": {"top": 280, "width": 1664, "height": 640},
+      "wide": true,
+      "min": 760,
+      "captions": [
+        "In the linear model each particle takes one exact step: old position, plus a gain times the gap between its own noisy target and its prediction.",
+        "A network has the same shape: one SGD step on head m, with a learning rate in place of the exact gain.",
+        "Each head is a particle with a fixed random prior, trained on Y plus its own column of injected noise, from a bounded first-in-first-out buffer.",
+        "To act, one random index weights the heads: the same random combination, in one forward pass.",
+        "Nothing in the training loop changes except the targets."
+      ]
+    },
+    "hyper": {
+      "frames": ["e-hyper"],
+      "crop": {"height": 430},
+      "belowCaptions": true,
+      "captions": [
+        "A network with two inputs, the option x and a random index ξ. Each curve is the same network with a different index. Where there is data every index agrees; where there is none they fan out, as far as the exact posterior (shaded).",
+        "Three levels of one idea. In a linear model the index weights the particles; in a network linear in the index, it weights M heads; in general the index is just a second input, and where it enters is a design choice.",
+        "HyperDQN (ICLR 2022), HyperAgent (ICML 2024) and Ensemble++ (NeurIPS 2025) cover the three levels."
+      ]
+    }
   },
   "images": {
     "trm-vs-ppo-clipping.png": "trm-vs-ppo-clipping.png",
-    "mismatch-kl-entropy.png": "mismatch-kl-entropy.png"
+    "mismatch-kl-entropy.png": "mismatch-kl-entropy.png",
+    "min-M-vs-d.png": "min-M-vs-d.png",
+    "ensemble-regret-vs-parameters.png": "ensemble-regret-vs-parameters.png",
+    "ensemble-size-vs-actions.png": "ensemble-size-vs-actions.png",
+    "content-moderation.png": "content-moderation.png",
+    "hyperagent-data-vs-parameters.png": "hyperagent-data-vs-parameters.png",
+    "hyperagent-deepsea.png": "hyperagent-deepsea.png"
   },
   "forbidden": [
     "Learning from Experience",

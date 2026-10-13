@@ -79,11 +79,11 @@ const textOf = (h) => stripSvg(h.replace(/<script[\s\S]*?<\/script>/g, ' '))
   .replace(/\s+/g, ' ').trim();
 const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
 
-function shiftOpenTag(el, extra = '') {
+function shiftOpenTag(el, crop, extra = '') {
   const tag = openTag(el);
   let t = tag
-    .replace(/left:(-?[\d.]+)px/, (_, v) => `left:${+(+v - P.left).toFixed(2)}px`)
-    .replace(/top:(-?[\d.]+)px/, (_, v) => `top:${+(+v - P.top).toFixed(2)}px`)
+    .replace(/left:(-?[\d.]+)px/, (_, v) => `left:${+(+v - crop.left).toFixed(2)}px`)
+    .replace(/top:(-?[\d.]+)px/, (_, v) => `top:${+(+v - crop.top).toFixed(2)}px`)
     .replace(/\sdata-build-in="[^"]*"/, '');
   if (extra) t = t.replace(/^<([\w-]+)/, `<$1${extra}`);
   return t + el.html.slice(tag.length);
@@ -127,24 +127,31 @@ function captionItem(el) {
 }
 
 const embeds = new Map();
-function readSlide(id) {
+// Splits a slide into layers (inside the crop), captions (right of the crop, or
+// below it when `belowCaptions`), and a note (level-0 <p> lines below the crop).
+function readSlide(id, crop, belowCaptions) {
   const src = fs.readFileSync(path.join(DECK, 'project', 'slides', `${id}.html`), 'utf8');
   const open = src.indexOf('>', src.indexOf('<section')) + 1;
   const body = src.slice(open, src.lastIndexOf('</section>'));
-  const panel = [], right = [], note = [];
+  const right = crop.left + crop.width, bottom = crop.top + crop.height;
+  const panel = [], side = [], note = [];
   for (const el of topLevel(body)) {
     if (el.tag === 'aside' || el.tag === 'script') continue;
     const st = styleOf(el);
     if (!st.includes('position:absolute')) continue;
     if (num(st, 'bottom') !== null) continue;
     const left = num(st, 'left'), top = num(st, 'top');
-    if (top === null || top < 270) continue;
-    if (left >= P.rightColumn) { right.push(el); continue; }
-    if (top >= P.captionTop) { if (el.tag === 'p') note.push(textOf(el.html)); continue; }
+    if (top === null || top < 200) continue;
+    if (left >= right) { side.push(el); continue; }
+    if (top >= bottom) {
+      if (belowCaptions && (el.tag !== 'p' || level(el) > 0)) side.push(el);
+      else if (el.tag === 'p') note.push(textOf(el.html));
+      continue;
+    }
     panel.push(el);
   }
 
-  const levels = Math.max(0, ...panel.map(level), ...right.map(level));
+  const levels = Math.max(0, ...panel.map(level), ...side.map(level));
   const layers = panel.map((el) => {
     const k = level(el);
     const extra = k ? ` data-step="${k}"` : '';
@@ -153,16 +160,16 @@ function readSlide(id) {
       embeds.set(id, inner);
       const st = styleOf(el);
       const box = ['left', 'top', 'width', 'height'].map((key) => num(st, key));
-      return `<iframe class="stepfig-embed"${extra} data-src="/figs/embed/${id}.html" title="Animation" sandbox="allow-scripts" tabindex="-1" style="position:absolute;left:${box[0] - P.left}px;top:${box[1] - P.top}px;width:${box[2]}px;height:${box[3]}px;border:0;background:transparent"></iframe>`;
+      return `<iframe class="stepfig-embed"${extra} data-src="/figs/embed/${id}.html" title="Animation" sandbox="allow-scripts" tabindex="-1" style="position:absolute;left:${box[0] - crop.left}px;top:${box[1] - crop.top}px;width:${box[2]}px;height:${box[3]}px;border:0;background:transparent"></iframe>`;
     }
-    return mapBlobs(shiftOpenTag(el, extra));
+    return mapBlobs(shiftOpenTag(el, crop, extra));
   });
 
   const isTitle = (el) => el.tag === 'p' && /font-size:(4\d|5\d)px/.test(styleOf(el));
-  const title = right.filter((el) => level(el) === 0 && isTitle(el)).map((el) => textOf(el.html))[0] || '';
+  const title = side.filter((el) => level(el) === 0 && isTitle(el)).map((el) => textOf(el.html))[0] || '';
   const captions = [];
   for (let k = 0; k <= levels; k++) {
-    captions.push(right
+    captions.push(side
       .filter((el) => level(el) === k && !isTitle(el))
       .map(captionItem)
       .filter(Boolean));
@@ -171,21 +178,34 @@ function readSlide(id) {
   return {id, layers, levels, title, captions, note: note.filter(Boolean).join(' '), label};
 }
 
-function buildFigure(name, slideIds) {
-  const frames = slideIds.map(readSlide);
+// A figure is either a list of slide ids (standard panel) or
+// {frames, crop, wide, min, belowCaptions, captions}. `captions` replaces the
+// extracted step captions, one string per step.
+function buildFigure(name, spec) {
+  const fig = Array.isArray(spec) ? {frames: spec} : spec;
+  const crop = {...P, ...(fig.crop || {})};
+  const frames = fig.frames.map((id) => readSlide(id, crop, fig.belowCaptions));
   const steps = [];
   frames.forEach((fr, f) => {
     for (let k = 0; k <= fr.levels; k++) {
       steps.push({f, k, title: fr.title, text: fr.captions[k], note: fr.note});
     }
   });
+  if (fig.captions) {
+    if (fig.captions.length !== steps.length) {
+      throw new Error(`${name}: ${fig.captions.length} captions for ${steps.length} steps`);
+    }
+    steps.forEach((s, i) => { s.title = ''; s.text = [`<p>${esc(fig.captions[i])}</p>`]; });
+  }
   const last = steps[steps.length - 1];
   const caption = (s) => `${s.title ? `<p class="stepfig-title">${esc(s.title)}</p>` : ''}${s.text.join('')}`;
   const framesHtml = frames.map((fr, f) =>
     `<div class="stepfig-frame" data-frame="${f}" data-levels="${fr.levels}">\n${fr.layers.join('\n')}\n</div>`).join('\n');
   const json = JSON.stringify(steps).replace(/</g, '\\u003c');
-  return `<figure class="stepfig" data-fig="${name}" role="group" aria-label="${esc(frames[0].label || name)}">
-<div class="stepfig-viewport"><div class="stepfig-sizer"><div class="stepfig-stage" style="width:${P.width}px;height:${P.height}px">
+  const cls = fig.wide ? 'stepfig stepfig--wide' : 'stepfig';
+  const min = fig.min ? ` data-min="${fig.min}"` : '';
+  return `<figure class="${cls}" data-fig="${name}"${min} role="group" aria-label="${esc(frames[0].label || name)}">
+<div class="stepfig-viewport"><div class="stepfig-sizer"><div class="stepfig-stage" style="width:${crop.width}px;height:${crop.height}px">
 ${framesHtml}
 </div></div></div>
 <div class="stepfig-bar">
@@ -208,8 +228,8 @@ function guard(file, text) {
 }
 
 const writes = [];
-for (const [name, ids] of Object.entries(CFG.figures)) {
-  writes.push([path.join(SITE, 'assets', 'figs', `${name}.html`), buildFigure(name, ids)]);
+for (const [name, spec] of Object.entries(CFG.figures)) {
+  writes.push([path.join(SITE, 'assets', 'figs', `${name}.html`), buildFigure(name, spec)]);
 }
 for (const [id, inner] of embeds) {
   const html = `<!doctype html><html><head><meta charset="utf-8"><style>html,body{margin:0;padding:0;overflow:hidden;background:transparent}</style></head><body>${inner}</body></html>\n`;

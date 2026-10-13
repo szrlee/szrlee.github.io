@@ -68,7 +68,7 @@ questions:
       - value: 15%
         caption: of DDQN's interaction data for human-level Atari, with 5% of its parameters
     papers: [ensemblepp, hyperagent, hyperdqn, seqjl]
-    posts: [scalable-exploration]
+    posts: [scalable-exploration, exploration-d-log-t]
 
   - id: bias
     label: Question 2 · Bias

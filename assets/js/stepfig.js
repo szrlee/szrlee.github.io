@@ -88,7 +88,8 @@
     function fit() {
       var baseW = parseFloat(stage.style.width);
       var baseH = parseFloat(stage.style.height);
-      var scale = Math.min(1, Math.max(viewport.clientWidth, MIN_W) / baseW);
+      var minW = parseFloat(fig.getAttribute('data-min')) || MIN_W;
+      var scale = Math.min(1, Math.max(viewport.clientWidth, minW) / baseW);
       stage.style.transform = 'scale(' + scale + ')';
       sizer.style.width = (baseW * scale) + 'px';
       sizer.style.height = (baseH * scale) + 'px';

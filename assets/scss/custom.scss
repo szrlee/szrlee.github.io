@@ -708,6 +708,18 @@ body.dark .mjx-pt { color: #8FB4FF; }
 
 .stepfig-viewport { overflow-x: auto; overflow-y: hidden; border-radius: 12px; }
 
+// Wide figures break out of the text column, centred on it.
+.article-style:has(.stepfig--wide) { overflow: visible; }
+
+@media (min-width: 992px) {
+  .stepfig--wide {
+    width: 1100px;
+    max-width: calc(100vw - 48px);
+    margin-left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
 .stepfig-sizer { position: relative; overflow: hidden; }
 
 .stepfig-stage {

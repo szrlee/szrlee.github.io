@@ -39,6 +39,7 @@ papers:
     note: Human-level Atari with 15% of DDQN's interaction data (1.5M), as a small addition to DQN.
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2402.10228"}
+      - {name: Blog, url: "/post/exploration-d-log-t/"}
       - {name: Slides, url: "/uploads/slides/HyperAgent_slides_ios.pdf"}
   - key: hyperdqn
     group: explore
@@ -58,6 +59,7 @@ papers:
     note: A martingale extension of the Johnson–Lindenstrauss lemma to sequentially dependent, adaptively chosen data.
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2402.14026"}
+      - {name: Blog, url: "/post/exploration-d-log-t/"}
   - key: psrl
     group: explore
     title: Prior-Dependent Analysis of Posterior Sampling RL with Function Approximation
