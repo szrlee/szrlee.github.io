@@ -78,9 +78,9 @@ questions:
       Large RL runs sample on fast inference engines and train elsewhere. The two engines assign
       different probabilities to the same tokens even at identical weights, and asynchrony adds
       stale data on top, so a run set up to be on-policy is off-policy anyway. We traced LLM-RL
-      collapse to this training–inference mismatch, then built corrections that act on the whole
-      sequence: sequence-level importance sampling and masking, a sequence-level trust region, and
-      a learning-rate schedule that decays the step size as instability builds. Around the
+      collapse to this training–inference mismatch, introduced masked importance sampling (MIS),
+      made it principled as Trust Region Masking (a sequence mask with per-token importance
+      sampling), and built a learning-rate schedule that decays the step size as instability builds. Around the
       sampler, the gain of an update is a tangent plus a remainder bounded by the reward range
       times the sequence KL, and
       a batch-size-invariant rule for the step size and the queue keeps the gap fixed as runs grow.
@@ -125,7 +125,7 @@ timeline:
     - when: Sep 2025
       title: When Speed Kills Stability
       where: Blog, with Jiacai Liu and co-authors
-      text: RL collapse traced to the training–inference mismatch, largest on rare tokens.
+      text: RL collapse traced to the training–inference mismatch; introduced masked importance sampling (MIS).
       url: "/rl-collapse"
     - when: Oct 2025
       title: Rollout Correction
@@ -140,7 +140,7 @@ timeline:
     - when: Dec 2025
       title: Trust Region Masking · Dynamic Vocabulary Pruning
       where: ICML 2026 · arXiv 2025
-      text: A sequence-level trust region; the noisy tail of the vocabulary.
+      text: A sequence-level trust region, the principled form of MIS; the noisy tail of the vocabulary.
       url: "https://arxiv.org/abs/2512.23075"
     - when: Dec 2025
       title: The Stability Gap

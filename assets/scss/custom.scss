@@ -650,6 +650,14 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   td, th { border-color: var(--hp-rule); }
 }
 
+// The theme marks spoiler text with a bar on each <p>; display math outside a <p> needs it too.
+details > mjx-container[display="true"] {
+  margin-left: 0.3rem !important;
+  padding: 0.5em 0 0.5em 0.5rem;
+  border-left: 1px solid rgba(0, 0, 0, 0.8);
+}
+body.dark details > mjx-container[display="true"] { border-left-color: rgba(255, 255, 255, 0.8); }
+
 .alert {
   background: var(--hp-panel) !important;
   border: 0;

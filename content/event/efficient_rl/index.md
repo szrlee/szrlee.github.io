@@ -12,7 +12,7 @@ address:
   # postcode: '94305'
   country: China
 
-summary: Addressing efficiency chanllenge in RL by HyperFQI algorithm 
+summary: Addressing the efficiency challenge in RL with the HyperFQI algorithm
 abstract: 'We embark on a compelling journey towards Artificial General Intelligence (AGI) and emphasize its profound impact on humanity. We begin by defining AGI and its transformative potential, underlining the central role of Reinforcement Learning (RL) in achieving this aspiration. We explore the real-world applications of RL, from plasma control to ChatGPT, shedding light on the pressing need for efficient RL algorithms. Enter HyperFQI, an innovative solution to RL efficiency challenges we developed, boasting generality and scalability. Witness its remarkable efficiency in benchmark results, particularly in Atari video games. Discover the practical integration of HyperFQI, adapting seamlessly into existing RL frameworks. Delve into the theoretical guarantees of HyperFQI in tabular settings, featuring rigorous mathematical probability tools we developed. This presentation bridges theory and practice, elucidating HyperFQI’s pivotal role in the expedition toward AGI, with a direct impact on realizing AGI’s potential for the betterment of humanity. The talk concludes by underscoring the transformative potential of efficient RL agents and their promise for the future of AGI and, indeed, humanity.'
 
 # Talk start and end times.
@@ -44,11 +44,7 @@ featured: true
 #   caption: 'Image credit: [**Unsplash**](https://unsplash.com/photos/bzdhc5b3Bxs)'
 #   focal_point: Right
 
-links:
-  - icon: twitter
-    icon_pack: fab
-    name: Follow
-    url: https://twitter.com/RichardYRLi
+links: []
 url_code: ''
 url_pdf: ''
 url_slides: 'uploads/slides/AGI_humanity_talk_1021_2023.pdf'

@@ -1,7 +1,7 @@
 ---
 title: 'When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch'
 subtitle: 'How the inference-training gap causes catastrophic failures in LLM reinforcement learning'
-summary: 'The relentless push for faster inference creates a dangerous training-inference mismatch that silently kills RL with LLMs. We reveal the vicious cycle—particularly acute in reasoning and agentic RL—and show that sequence-level importance sampling is the principled solution.'
+summary: 'The relentless push for faster inference creates a dangerous training-inference mismatch that silently kills RL with LLMs. We reveal the vicious cycle—particularly acute in reasoning and agentic RL—and introduce masked importance sampling (MIS), sequence-level importance sampling that masks rollouts outside the trust region.'
 authors:
   - Jiacai Liu
   - admin
@@ -15,6 +15,7 @@ tags:
   - Deep Learning
   - Training Dynamics
   - Importance Sampling
+  - Masked Importance Sampling
 categories:
   - Research
   - Theory

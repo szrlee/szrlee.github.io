@@ -104,7 +104,7 @@ papers:
     title: "When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch"
     authors: Jiacai Liu*, Yingru Li*†, Yuqian Fu, Jiawei Wang, Qian Liu, Yu Shen
     venue: Technical blog, 2025
-    note: Traced LLM-RL collapse to the gap between the inference engine and the training engine.
+    note: Traced LLM-RL collapse to the training–inference mismatch and introduced masked importance sampling (MIS).
     links:
       - {name: Blog, url: "/rl-collapse"}
   - key: trm
@@ -113,7 +113,7 @@ papers:
     title: Trust Region Masking for Long-Horizon LLM Reinforcement Learning
     authors: Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Qian Liu, Baoxiang Wang
     venue: ICML 2026
-    note: A sequence-level trust region for long-horizon LLM-RL; a first-class algorithm in veRL.
+    note: "The principled form of MIS: a sequence-level trust-region mask with per-token importance sampling; a first-class algorithm in veRL."
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2512.23075"}
       - {name: Blog, url: "/post/trust-region-masking/"}

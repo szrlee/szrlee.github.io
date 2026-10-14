@@ -15,10 +15,11 @@ hero:
 highlights:
   - title: Why LLM-RL collapses, and the fix
     text: >-
-      We traced collapse to the training–inference mismatch. The sequence-level fix is now
-      adopted, shipped, or discussed by:
+      We traced collapse to the training–inference mismatch and introduced
+      **masked importance sampling (MIS)**, made principled as Trust Region Masking (TRM).
+      Adopted, shipped, or discussed by:
     chips: adoption
-    link: {text: Read the analysis, url: "/rl-collapse"}
+    link: {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
   - title: Open-source RL infrastructure
     text: >-
       Authored the Rollout Correction framework for general off-policy training in veRL

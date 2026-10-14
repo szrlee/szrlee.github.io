@@ -1,6 +1,15 @@
 ---
-title: Recent & Upcoming Talks
+title: Talks
 cms_exclude: true
+
+# Talks are listed on /research/ (data/research.yaml); static/event/index.html redirects there.
+# Talk pages still render at /talk/:slug/ but stay out of lists, search and the sitemap.
+_build:
+  render: never
+  list: never
+cascade:
+  _build:
+    list: never
 
 # View.
 #   1 = List

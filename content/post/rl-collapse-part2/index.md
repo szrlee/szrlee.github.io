@@ -263,7 +263,8 @@ Both estimators fail for the same reason: by breaking the sequence-level importa
 
 This happens because these estimators are optimizing a **biased surrogate objective** $L_\mu(\pi)$ (based on the "old" state distribution $d_\mu$) instead of the **true objective** $J(\pi)$ (based on the "new" state distribution $d_\pi$). They *both* inherit the $O(T^2)$ bias of this incorrect objective. The derivation below proves this bias for the Naive estimator, and the conclusion explains why it applies to Token-IS as well.
 
-{{< spoiler text="Derivation: The O(T² Δ_max) Bias" >}}
+<details class="spoiler">
+<summary>Derivation: The O(T² Δ<sub>max</sub>) Bias</summary>
 
 Let's analyze the bias of the **Naive estimator** directly. The bias is the difference between what we *compute* (expectation under $\mu$) and what we *want* (expectation under $\pi$):
 
@@ -285,9 +286,11 @@ $$
 \sum_y |\mu(y) - \pi(y)| = 2 D_{TV}(\mu \| \pi)
 $$
 
+{{< math >}}
 $$
-\|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 \le 2 \sup_y \|f(y)\| \cdot D_{TV}(\mu \| \pi)
+\|\text{Bias}(\hat{g}_{\text{naive}})\|_2 \le 2 \sup_y \|f(y)\| \cdot D_{TV}(\mu \| \pi)
 $$
+{{< /math >}}
 
 The $O(T^2)$ bias comes from the fact that both of these terms scale linearly with $T$.
 
@@ -351,17 +354,21 @@ $$
 
 We recognize: $q(s\_t)$ is $d\_t^\mu(s\_t)$, the probability of being in state $s\_t$ under $\mu$. This gives:
 
+{{< math >}}
 $$
 D_{TV}(H_t \| H_{t+1}) = \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
 $$
+{{< /math >}}
 
 **d. Combine and Conclude:**
 
 Substitute this back into the sum from (b):
 
+{{< math >}}
 $$
 D_{TV}(\pi \| \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
 $$
+{{< /math >}}
 
 Let $\Delta\_{\max} = \max\_{t,s\_t} D\_{TV}(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. The bound becomes:
 
@@ -390,7 +397,7 @@ The $O(T \Delta\_{\max})$ error from the Simulation Lemma is the *fundamental di
 
 Therefore, both estimators are biased relative to the true gradient $g$, and this bias is $O(T^2 \Delta\_{\max})$.
 
-{{< /spoiler >}}
+</details>
 
 ---
 

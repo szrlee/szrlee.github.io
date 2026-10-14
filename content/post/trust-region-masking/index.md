@@ -1,7 +1,7 @@
 ---
 title: 'Trust Region Masking for Long-Horizon LLM Reinforcement Learning'
 subtitle: 'First non-vacuous monotonic improvement guarantees for long-horizon LLM-RL'
-summary: 'We derive tighter off-policy bounds for LLM-RL: O(T^{3/2}) Pinsker-Marginal and O(T) Mixed bounds, compared to classical O(T²). We propose Trust Region Masking (TRM), which excludes entire sequences from gradient computation if any token violates the trust region.'
+summary: 'We derive tighter off-policy bounds for LLM-RL: O(T^{3/2}) Pinsker-Marginal and O(T) Mixed bounds, compared to classical O(T²). We propose Trust Region Masking (TRM), which excludes entire sequences from gradient computation if any token violates the trust region. TRM is the principled form of masked importance sampling (MIS): a sequence-level trust-region mask combined with per-token importance sampling.'
 authors:
   - admin
 tags:
@@ -9,6 +9,7 @@ tags:
   - Language Models
   - Deep Learning
   - Trust Region
+  - Masked Importance Sampling
   - Policy Optimization
 categories:
   - Research
@@ -111,6 +112,8 @@ The **root cause** is that $D_{\mathrm{KL}}^{\mathrm{tok,max}}$ is a sequence-le
 
 We propose **Trust Region Masking (TRM)**, which excludes entire sequences from gradient computation if any token violates the trust region.
 
+TRM is the principled form of masked importance sampling (MIS), first introduced in [When Speed Kills Stability](/rl-collapse): a sequence-level trust-region mask combined with per-token importance sampling.
+
 ### Why Sequence Masking Works
 By masking at the sequence level, we ensure that:
 1. The remaining samples come from policies that are provably close
@@ -143,7 +146,7 @@ $$k_3(\rho) = \rho - 1 - \log \rho$$
 
 **Properties of $k_3$:**
 - **Non-negative**: $\rho - 1 - \log \rho \geq 0$ for all $\rho > 0$
-- **Unbiased**: $\mathbb{E}_{y \sim \pi_{\mathrm{roll}}}[k_3(\rho)] = D_{\mathrm{KL}}$
+- **Unbiased**: {{< math >}}$\mathbb{E}_{y \sim \pi_{\mathrm{roll}}}[k_3(\rho)] = D_{\mathrm{KL}}${{< /math >}}
 - Ideal for average-based filtering since $(1/T)\sum_t k_3(\rho_t)$ converges to true average KL
 
 #### The $|\log \rho|$ Estimator (for max-based filtering)

@@ -342,15 +342,18 @@ where:
 
 **The penalty scales quadratically with horizon $T^2$** because state distribution errors accumulate linearly with $t$, and summing over all timesteps gives $O(T^2)$.
 
-{{< spoiler text="Proof Sketch: The TRPO Lower Bound" >}}
+<details class="spoiler">
+<summary>Proof Sketch: The TRPO Lower Bound</summary>
 
 **1. The Core Problem: Changing State Distributions**
 
 The error between surrogate and true objective is:
 
+{{< math >}}
 $$
 |J(\pi) - L_\mu(\pi)| = \left| \sum_s (d_\pi(s) - d_\mu(s)) \cdot \mathbb{E}_{a \sim \pi} [A_\mu(s,a)] \right|
 $$
+{{< /math >}}
 
 This simplifies to $O(\|d_\pi - d_\mu\|_1)$.
 
@@ -368,7 +371,7 @@ $$
 
 **Proof by Induction:**
 
-Let $\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 = 2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu,t})$.
+Let {{< math >}}$\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 = 2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu,t})${{< /math >}}.
 
 **Base case:** $\delta_0 = 0$ (same initial distribution).
 
@@ -400,7 +403,7 @@ $$
 
 where $\epsilon = \max_{s,a} |A_\mu(s,a)|$. Note this bound is quadratic in $D_{TV}^{\max}$, derived via a different technique (using KL divergence and Pinsker's inequality). The key insight for both bounds: **the penalty scales quadratically with effective horizon** ($T^2$ or $1/(1-\gamma)^2$).
 
-{{< /spoiler >}}
+</details>
 
 ### 5.4 Why TRPO Theory Does Not Solve This Problem: Three Reasons
 

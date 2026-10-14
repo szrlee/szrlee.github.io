@@ -46,10 +46,6 @@ featured: false
 #   focal_point: Right
 
 links:
-- icon: twitter
-  icon_pack: fab
-  name: Follow
-  url: https://twitter.com/RichardYRLi
 - icon: weixin
   icon_pack: fab
   name: News

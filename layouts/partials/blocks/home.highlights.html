@@ -5,7 +5,7 @@
   {{ range site.Data.home.highlights }}
   <div class="hp-card">
     <h3 class="hp-card-title">{{ .title }}</h3>
-    <p>{{ .text }}</p>
+    <p>{{ .text | markdownify }}</p>
     {{ if eq .chips "adoption" }}
     <ul class="hp-chips">
       {{ range site.Data.research.adoption.items }}

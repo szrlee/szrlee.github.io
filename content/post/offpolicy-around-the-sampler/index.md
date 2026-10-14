@@ -175,7 +175,7 @@ At the sampler it has the same tangent, so to first order it takes the same step
 **Every method is the tangent plus some multiple {{< math >}}$\beta${{< /math >}} of a pull toward the sampler.**
 
 - **Pull.** Add {{< math >}}$\beta\,\mathrm{KL}_{\text{seq}}${{< /math >}} to the loss. Its gradient is the mean score, which points toward the sampler and ignores the reward. The sequence KL is a divergence between the *state* distributions of the two policies (the state is the prefix), as in [Divergence-Augmented Policy Optimization (NeurIPS 2019)](https://arxiv.org/abs/2501.15034).
-- **Reject.** Drop a rollout whose sequence KL is too large, using {{< math >}}$M(y) = \mathbf{1}[\sum_t \mathrm{KL}_t \le \tau]${{< /math >}}. This is [Trust Region Masking](https://arxiv.org/abs/2512.23075), which ships in veRL. Inside the mask the estimator is still first-order correct. The threshold must sit above the engine-mismatch floor.
+- **Reject.** Drop a rollout whose sequence KL is too large, using {{< math >}}$M(y) = \mathbf{1}[\sum_t \mathrm{KL}_t \le \tau]${{< /math >}}. This is [Trust Region Masking](https://arxiv.org/abs/2512.23075), the principled form of masked importance sampling (MIS), which ships in veRL. Inside the mask the estimator is still first-order correct. The threshold must sit above the engine-mismatch floor.
 
 <figure class="post-fig">
 <img src="/figs/img/trm-vs-ppo-clipping.png" alt="Training curves: with either sequence mask the score keeps rising while PPO clipping degrades; the mismatch stays bounded under the masks.">

@@ -9,6 +9,7 @@ tags:
   - Reinforcement Learning
   - Off-Policy
   - Trust Region
+  - Masked Importance Sampling
   - Chain-of-Thought
 categories:
   - Research
@@ -229,6 +230,8 @@ $$
 Only samples within this region contribute to the gradient. Samples with $\rho(y) \gt C$ are treated as unreliable and excluded.
 
 **Connection to TRPO:** This implements the trust region concept from TRPO theory ([Part 1](https://richardli.xyz/rl-collapse-1)), where the trust region constraint $D_{TV}(\pi \| \mu) \le \delta$ must be enforced to guarantee improvement. Seq-MIS enforces this constraint via **rejection** (hard trust region) rather than **penalization** (soft trust region), ensuring that gradient updates only use samples from the valid trust region.
+
+The principled version, a sequence mask with per-token IS, is [Trust Region Masking](/post/trust-region-masking/).
 
 ### 1.3 Bias-Variance Analysis of Seq-MIS
 
@@ -467,7 +470,7 @@ $$
 $$
 {{< /math >}}
 
-Therefore, **$\log \rho_{\text{geo}}$ is the average k1 estimate** along the trajectory. Since $\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \| \pi)$, we have:
+Therefore, **$\log \rho_{\text{geo}}$ is the average k1 estimate** along the trajectory. Since {{< math >}}$\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \| \pi)${{< /math >}}, we have:
 
 {{< math >}}
 $$
