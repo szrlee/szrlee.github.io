@@ -2,6 +2,7 @@
 title: Publications
 date: 2026-10-13
 type: landing
+summary: "Papers by Yingru Li, grouped by the question they answer: exploration, off-policy bias (masked importance sampling, Trust Region Masking), variance (Optimal Token Baseline), and systems."
 
 sections:
   - block: home.publications

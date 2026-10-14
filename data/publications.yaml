@@ -187,7 +187,7 @@ papers:
     title: Rollout Correction in veRL
     authors: Yingru Li and veRL contributors
     venue: Open source, veRL v0.6.0+
-    note: Sequence-level importance sampling and masking for general off-policy training.
+    note: Importance sampling and masked importance sampling (MIS), at the token and sequence level, for general off-policy training.
     links:
       - {name: Docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
       - {name: Math, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html"}

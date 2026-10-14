@@ -1,5 +1,6 @@
 ---
 title: "Part 2: Applying the SGA Framework — Token v.s. Sequence-level Correction"
+summary: "Bias and variance of each off-policy estimator for LLM-RL: sequence-level IS is unbiased but its variance grows exponentially with length, token-level IS and PPO-style truncation trade that for an O(T²) bias, and truncated sequence-level IS balances the two."
 date: 2025-10-31
 math: true
 authors:

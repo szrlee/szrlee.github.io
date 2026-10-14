@@ -1,7 +1,7 @@
 ---
 title: 'Trust Region Masking for Long-Horizon LLM Reinforcement Learning'
 subtitle: 'First non-vacuous monotonic improvement guarantees for long-horizon LLM-RL'
-summary: 'We derive tighter off-policy bounds for LLM-RL: O(T^{3/2}) Pinsker-Marginal and O(T) Mixed bounds, compared to classical O(T²). We propose Trust Region Masking (TRM), which excludes entire sequences from gradient computation if any token violates the trust region. TRM is the principled form of masked importance sampling (MIS): a sequence-level trust-region mask combined with per-token importance sampling.'
+summary: 'We derive tighter off-policy bounds for LLM-RL: O(T^1.5) Pinsker-Marginal and O(T) Mixed bounds, compared to classical O(T²). We propose Trust Region Masking (TRM), which excludes entire sequences from gradient computation if any token violates the trust region. TRM is the principled form of masked importance sampling (MIS): a sequence-level trust-region mask combined with per-token importance sampling.'
 authors:
   - admin
 tags:

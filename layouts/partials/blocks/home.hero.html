@@ -6,7 +6,7 @@
 
 <div class="hp-hero">
   <div class="hp-hero-text">
-    {{ with $hero.kicker }}<div class="hp-label">{{ . }}</div>{{ end }}
+    {{ with $hero.kicker }}<div class="hp-label">{{ . | safeHTML }}</div>{{ end }}
     <h1 class="hp-hero-name">{{ $hero.display_name | default $author.Title }}</h1>
     {{ with $hero.pitch }}<p class="hp-hero-title">{{ . }}</p>{{ end }}
     <div class="hp-hero-bio">{{ $hero.text | $page.RenderString }}</div>

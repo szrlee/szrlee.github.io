@@ -1,5 +1,6 @@
 ---
 title: "Part 3: Trust Region Optimization via Sequence Masking"
+summary: "Hard trust regions for long-horizon LLM-RL: sequence-level masked importance sampling (Seq-MIS) rejects out-of-distribution samples instead of clipping them, and geometric masking makes the trust region length-invariant."
 date: 2025-11-04
 math: true
 authors:

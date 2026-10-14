@@ -2,7 +2,7 @@
 # Paper keys refer to data/publications.yaml.
 
 hero:
-  kicker: Member of Technical Staff · xAI
+  kicker: Member of Technical Staff · <span class="hp-nocase">xAI</span>
   display_name: Yingru (Richard) Li
   pitch: I make reinforcement learning on frontier models stable, efficient, and scalable.
   text: |-

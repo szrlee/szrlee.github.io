@@ -1,5 +1,6 @@
 ---
 title: "Part 1: Why Off-Policy Breaks RL — An SGA Analysis Framework"
+summary: "Off-policy mismatch breaks RL in two distinct ways: bias, measured by total variation, pushes the optimizer toward the wrong solution, and variance, measured by chi-squared divergence, stalls progress. A stochastic-gradient-ascent framework for telling them apart."
 date: 2025-10-30
 math: true
 authors:

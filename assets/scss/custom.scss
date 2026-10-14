@@ -113,6 +113,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   text-transform: uppercase;
   color: var(--hp-accent);
   margin-bottom: 0.4rem;
+  .hp-nocase { text-transform: none; }
 }
 
 .hp-mini-label {

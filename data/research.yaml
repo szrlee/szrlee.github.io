@@ -130,7 +130,7 @@ timeline:
     - when: Oct 2025
       title: Rollout Correction
       where: veRL, open source
-      text: Sequence-level correction and masking in a public training stack.
+      text: MIS and sequence-level correction in a public training stack.
       url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"
     - when: Oct–Nov 2025
       title: Off-policy RL, parts 1–3
@@ -187,7 +187,7 @@ adoption:
       text: discussed in a community blog
       url: "https://github.com/zhaochenyang20/Awesome-ML-SYS-Tutorial/blob/main/rlhf/slime/mismatch/blog-en.md"
     - name: Cognition
-      text: cited in SWE-grep, which uses sequence-level masking
+      text: cited in SWE-grep, which uses sequence-level MIS
       url: "https://cognition.com/blog/swe-grep"
 
 outlook:

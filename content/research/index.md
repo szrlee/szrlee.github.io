@@ -2,6 +2,7 @@
 title: Research
 date: 2026-10-13
 type: landing
+summary: "Yingru Li's research on stable, efficient, and scalable RL for frontier models: scalable exploration, masked importance sampling (MIS) and Trust Region Masking for off-policy LLM-RL, and the Optimal Token Baseline for variance."
 
 # Content for these blocks comes from data/research.yaml.
 sections:
