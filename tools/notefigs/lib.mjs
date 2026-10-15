@@ -32,7 +32,8 @@ export function rich(s, size) {
     if (dy) a.push('dy="' + f(dy) + '"');
     if (g.pos !== 'base') a.push('font-size="' + f(size * 0.72) + '"');
     if (g.it) a.push('font-family="Source Serif 4, Georgia, serif" font-style="italic"');
-    out += '<tspan' + (a.length ? ' ' + a.join(' ') : '') + '>' + esc(g.t) + '</tspan>';
+    // No-break spaces: the HTML minifier trims ordinary spaces at tspan boundaries.
+    out += '<tspan' + (a.length ? ' ' + a.join(' ') : '') + '>' + esc(g.t).replace(/ /g, '\u00a0') + '</tspan>';
   });
   return out;
 }
