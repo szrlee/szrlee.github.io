@@ -165,7 +165,7 @@ On-policy, {{< math >}}$c_i=\mathrm{score}_i${{< /math >}} and {{< math >}}$G_i$
 
 </details>
 
-**Next.** [Part 2](/post/sparsity-score-centering/) puts this to work. In the output layer the Fisher is exactly sparse, in hidden layers it is low-dimensional, and without centering a mean shift pushes gradient where the Fisher cannot see.
+**Next.** [Part 2](/post/sparsity-score-centering/) puts this to work. In the output layer the Fisher is an exact coin flip, concentrated on the tokens the sampler emits; in hidden layers it is low-dimensional; and without centering a mean shift can push gradient where the Fisher cannot see.
 
 ## References
 

@@ -64,7 +64,7 @@ export default {
   steps: [
     {f: 0, k: 0, text: 'At one prefix the sampler puts 0.5 on tea, 0.4 on coffee, and 0.1 on everything else.'},
     {f: 0, k: 1, text: 'For row *c* the next token is a coin flip, *c* or not *c*, so its Fisher follows *μ*(1 \u2212 *μ*).'},
-    {f: 0, k: 2, text: 'Tea and coffee sit near the top of the curve; the hundred thousand other rows sit at zero.'},
+    {f: 0, k: 2, text: 'Tea and coffee sit near the top of the curve; the hundred thousand other rows sit near zero.'},
     {f: 0, k: 3, text: 'So the tea and coffee rows hold 83% of the output layer\u2019s Fisher at this prefix.'},
     {f: 1, k: 0, text: 'Summed over a response, a row\u2019s Fisher tracks how often the sampler emits its token: rows the task never uses get almost nothing.'},
   ],
