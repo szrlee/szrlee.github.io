@@ -13,7 +13,7 @@
       {{ end }}
     </ul>
     {{ end }}
-    {{ with .link }}<p class="hp-card-link">{{ partial "home/link" (dict "url" .url "text" (printf "%s →" .text)) }}</p>{{ end }}
+    {{ with .links }}<p class="hp-card-link">{{ range . }}{{ partial "home/link" (dict "url" .url "text" (printf "%s →" .text)) }}{{ end }}</p>{{ end }}
   </div>
   {{ end }}
 </div>

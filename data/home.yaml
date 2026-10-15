@@ -19,18 +19,22 @@ highlights:
       **masked importance sampling (MIS)**, made principled as Trust Region Masking (TRM).
       Adopted, shipped, or discussed by:
     chips: adoption
-    link: {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
+    links:
+      - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
   - title: Open-source RL infrastructure
     text: >-
       Authored the Rollout Correction framework for general off-policy training in veRL
       (20k+ GitHub stars), and contributed its variance-reducing token-level baseline.
-    link: {text: veRL docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
-  - title: Compute‑scalable exploration for data‑efficient learning
+    links:
+      - {text: Rollout Correction docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
+      - {text: Token baseline docs, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
+  - title: Data‑efficient exploration at scale
     text: >-
       Exploration whose cost stays one SGD step as data grows: human-level Atari with 15% of DDQN's
       interaction data, online language tasks on a GPT-2 backbone ahead of standard ensembles, and
       Thompson-sampling regret with only Θ(d log T) ensemble directions.
-    link: {text: How it works, url: "/research/#q-explore"}
+    links:
+      - {text: How it works, url: "/research/#q-explore"}
 
 experience:
   - org: xAI (now SpaceX Super Intelligence)

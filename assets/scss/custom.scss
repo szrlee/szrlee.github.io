@@ -541,6 +541,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   padding-top: 0.2rem;
   font-size: 0.88rem;
   font-weight: 500;
+  a + a { margin-left: 1.1rem; }
 }
 
 .hp-exp {
