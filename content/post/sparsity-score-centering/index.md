@@ -215,3 +215,15 @@ Centering removes the shift exactly and keeps the update in the directions spann
 - Y. Li. [Logit Dynamics in Softmax Policy Gradient Methods](https://arxiv.org/abs/2506.12912). arXiv, 2025.
 - J. Liu, Y. Li, et al. [When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch](/rl-collapse). Blog, 2025.
 - Y. Li, J. Liu, et al. [Trust Region Masking for Long-Horizon LLM Reinforcement Learning](https://arxiv.org/abs/2512.23075). ICML 2026.
+
+## Citation
+
+```bibtex
+@online{li-2026-sparsity-score-centering,
+  title  = {Sparsity Comes from Score Centering},
+  author = {Li, Yingru},
+  year   = {2026},
+  month  = oct,
+  url    = {https://richardli.xyz/post/sparsity-score-centering/}
+}
+```

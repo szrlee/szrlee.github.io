@@ -191,3 +191,15 @@ On-policy, {{< math >}}$c_i=\mathrm{score}_i${{< /math >}} and {{< math >}}$G_i$
 - M. Marek, M. Ryabinin. [Score Centering Stabilizes Off-policy Reinforcement Learning](https://arxiv.org/abs/2609.20807). arXiv, 2026.
 - Y. Li, J. Xu, et al. [The Optimal Token Baseline: Variance Reduction for Long-Horizon LLM-RL](https://arxiv.org/abs/2602.07078). ICML 2026.
 - Y. Li. [Information Bandwidth in Reinforcement Learning](/post/information-bandwidth-rl/). Blog, 2025.
+
+## Citation
+
+```bibtex
+@online{li-2026-gradient-is-covariance,
+  title  = {The Gradient Is a Covariance},
+  author = {Li, Yingru},
+  year   = {2026},
+  month  = oct,
+  url    = {https://richardli.xyz/post/gradient-is-covariance/}
+}
+```
