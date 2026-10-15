@@ -15,7 +15,8 @@ hero:
 highlights:
   - title: Why LLM-RL collapses, and the fix
     text: >-
-      One of the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch.
+      One of the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch, an
+      off-policy bias.
       Our fix, **masked importance sampling (MIS)**, made principled as Trust Region Masking (TRM),
       masks whole sequences and never clips single tokens, so token scores stay centered.
       Adopted, shipped, or discussed by:
