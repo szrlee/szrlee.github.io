@@ -25,12 +25,13 @@ series_order: 2
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 2 of 3.** Builds on [Part 1](/post/gradient-is-covariance/), where the expected update is {{< math >}}$G_i=\operatorname{Cov}_{\smu}(A,c_i)${{< /math >}} and the Fisher caps it. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can still reach.
+**Why Post-Training Is Sparse · Part 2 of 3.** Builds on [Part 1](/post/gradient-is-covariance/), where a centered score makes the expected update a covariance that the Fisher caps. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can still reach.
 
-- **The condition is centering, not on-policy data.** With a known sampler, the update is capped by a Fisher only if its score has zero mean under the sampler. Centering gives the sampler's Fisher; per-token importance weights give the model's. On-policy the two coincide and come for free.
-- **Necessary, not sufficient.** Centering makes the cap hold. The cap makes the update sparse only if the Fisher is concentrated on a few coordinates, and the reward then decides which of those move. In the output layer the concentration is exact: row {{< math >}}$c${{< /math >}}'s Fisher is {{< math >}}$h_k^2\,\smu(c)(1-\smu(c))${{< /math >}}, large only for tokens the sampler emits. In hidden layers only the directions that tell likely candidates apart remain; coordinate sparsity there is measured, not derived.
+- **Centering is the condition, not on-policy data.** The Fisher caps the update only if the score has zero mean under the sampler. On-policy that comes free; off-policy, centering or per-token importance weights provide it.
+- **Necessary, not sufficient.** The cap makes the update sparse only if the Fisher is concentrated on a few coordinates. The reward then picks which of those move.
+- **The Fisher is concentrated.** In the output layer the formula is exact: a row's Fisher is large only for tokens the sampler emits. In hidden layers only a few directions remain; coordinate sparsity there is measured, not derived.
 - **Without centering**, a mean shift adds up along the sequence and escapes the cap. Under training–inference mismatch it is numerical noise.
-- **SFT is a different case.** Its sampler is unknown, so its score cannot be centered, and its whole gradient is the mean shift. Its sparsity depends on how far the data is from the model: in-distribution SFT is sparse, out-of-distribution SFT is dense.
+- **SFT is a different case.** Its sampler is unknown, so it cannot be centered: its whole gradient is the mean shift, and it stays sparse only when the data is close to the model.
 {{% /callout %}}
 
 All of this is about the expected update. Whether a stored weight ends up changing also depends on the optimizer and on precision. Adam normalizes per coordinate, so a small but consistently signed gradient still moves a parameter by about one learning rate ([Keeping the Off-Policy Gap Fixed](/post/offpolicy-gap-at-scale/)). [Mukherjee et al. (2025)](https://arxiv.org/abs/2505.11711) count a bf16 weight as unchanged when it moves by at most {{< math >}}$10^{-5}${{< /math >}}, and note that at unlimited precision the updates would be dense. The bound says which coordinates get a small expected update; the optimizer and the precision decide whether that leaves the weight unchanged.

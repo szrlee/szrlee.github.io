@@ -26,10 +26,10 @@ series_order: 3
 {{% callout note %}}
 **Why Post-Training Is Sparse · Part 3 of 3.** Uses the covariance form of [Part 1](/post/gradient-is-covariance/) and the Fisher of [Part 2](/post/sparsity-score-centering/).
 
-- One update moves the log-odds of {{< math >}}$y${{< /math >}} against {{< math >}}$y'${{< /math >}} by at most {{< math >}}$\operatorname{std}_{\smu}(A)\sqrt{v^\top F^{\mu}v}${{< /math >}}, where {{< math >}}$v${{< /math >}} is their score difference.
-- {{< math >}}$v^\top F^{\mu}v${{< /math >}} is the mean squared **similarity** between {{< math >}}$v${{< /math >}} and the sampler's own outputs: what resembles nothing the sampler produces barely moves, while a response never drawn but similar to rewarded samples moves with them.
-- With one logit per response, growth is **proportional to current probability**. Reaching one half from {{< math >}}$\varepsilon${{< /math >}} takes time about {{< math >}}$1/\varepsilon${{< /math >}}; a demonstration needs only about {{< math >}}$\log(1/\varepsilon)${{< /math >}}.
-- The bound covers **one step of one estimator**. Shared structure, a changing Fisher, and samplers with centered estimators all widen what is reachable.
+- **Reach follows resemblance.** One update moves the log-odds of a response against another by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
+- **Never drawn is not out of reach.** A response that resembles nothing the sampler produces barely moves; one never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them.
+- **Growth is proportional to probability.** With one logit per response, getting from probability ε to one half takes time about 1/ε; a demonstration needs only about log(1/ε).
+- **One step of one estimator.** Shared structure, a changing Fisher, and a centered estimator with a different sampler all widen what is reachable.
 {{% /callout %}}
 
 ## 1. A question that can be answered
