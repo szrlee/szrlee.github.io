@@ -60,13 +60,17 @@ questions:
       its own once they agree. Its price is a fresh posterior sample every round. I build the
       randomness into the model instead: a random index as a second input, trained so that simple
       noise is pushed forward onto the posterior. A sample is one forward pass; an update is one
-      SGD step that moves every sample at once. The theory rests on a sequential extension of the
-      Johnson–Lindenstrauss lemma to data the agent chose itself.
+      SGD step that moves every sample at once. The result is compute-scalable exploration for
+      data-efficient learning, from Atari to online language tasks on a GPT-2 backbone. The theory
+      rests on a sequential extension of the Johnson–Lindenstrauss lemma to data the agent chose
+      itself.
     results:
-      - value: d log T
-        caption: ensemble directions match Thompson sampling, down from (actions × T)
       - value: 15%
         caption: of DDQN's interaction data for human-level Atari, with 5% of its parameters
+      - value: +5%
+        caption: over Ensemble+ on online content moderation with a GPT-2 backbone
+      - value: d log T
+        caption: ensemble directions match Thompson sampling, down from (actions × T)
     papers: [ensemblepp, hyperagent, hyperdqn, seqjl]
     posts: [scalable-exploration, exploration-d-log-t]
 

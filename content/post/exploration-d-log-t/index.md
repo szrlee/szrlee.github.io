@@ -119,7 +119,7 @@ Where the index should enter (the last layer, deeper layers, adapters on a large
 
 <figure class="post-fig">
 <img src="/figs/img/content-moderation.png" alt="Online content moderation with a GPT-2 backbone: Ensemble++ learns faster and more reliably than greedy or Ensemble+.">
-<figcaption>A GPT-2 backbone with an Ensemble++ head, deciding online which posts to send to human review: faster and steadier than greedy or Ensemble+.</figcaption>
+<figcaption>A GPT-2 backbone with an Ensemble++ head, deciding online which posts to send to human review: faster and steadier than greedy, and 5% above Ensemble+.</figcaption>
 </figure>
 
 In deep RL, [HyperAgent](https://arxiv.org/abs/2402.10228) adds the same heads to DQN:

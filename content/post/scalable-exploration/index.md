@@ -25,6 +25,7 @@ series_order: 1
 {{% callout note %}}
 **Exploration at Scale · Part 1 of 2.** [Part 2](/post/exploration-d-log-t/) shows why *d* log *T* particles are enough and what carries over to neural networks. Based on [Ensemble++ (NeurIPS 2025)](https://arxiv.org/abs/2407.13195) and [HyperAgent (ICML 2024)](https://arxiv.org/abs/2402.10228).
 
+- The goal is **compute-scalable exploration for data-efficient learning**: explore well enough to need less data, at a cost per step that stays fixed as the data grows.
 - Thompson sampling sends the learner where plausible models **disagree**, and stops exploring on its own once they agree.
 - Its price is a **fresh posterior sample every round**, which needs a matrix square root even in a linear model and has no closed form in a network.
 - Build the randomness into the model: a **random index** as a second input, so that a sample is one forward pass.

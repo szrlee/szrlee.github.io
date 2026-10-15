@@ -25,10 +25,11 @@ highlights:
       Authored the Rollout Correction framework for general off-policy training in veRL
       (20k+ GitHub stars), and contributed its variance-reducing token-level baseline.
     link: {text: veRL docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
-  - title: Scalable exploration
+  - title: Compute‑scalable exploration for data‑efficient learning
     text: >-
-      Exploration that matches Thompson sampling with only Θ(d log T) ensemble directions, and
-      human-level Atari with 15% of DDQN's interaction data.
+      Exploration whose cost stays one SGD step as data grows: human-level Atari with 15% of DDQN's
+      interaction data, online language tasks on a GPT-2 backbone ahead of standard ensembles, and
+      Thompson-sampling regret with only Θ(d log T) ensemble directions.
     link: {text: How it works, url: "/research/#q-explore"}
 
 experience:
@@ -43,9 +44,9 @@ experience:
   - org: Tencent AI & Robotics X
     role: Student Research Staff
     when: 2019 – 2022
-    text: Scalable exploration and stable off-policy deep RL.
+    text: Data-efficient exploration and stable off-policy deep RL.
   - org: Microsoft Research, Theory Center
     role: Research Intern
     when: "2016"
 
-selected: [otb, trm, drkernel, simpletir, ensemblepp, hyperagent]
+selected: [otb, trm, drkernel, simpletir, ensemblepp, hyperagent, dapo]
