@@ -1,569 +1,193 @@
 ---
 title: 'Information Bandwidth in Reinforcement Learning'
-subtitle: 'How Gradient Structure Determines Information Capacity'
-summary: 'An information-theoretic analysis showing that scalar advantage formulations learn ≤ log₂(B) bits per episode, while per-timestep advantages preserve full reward entropy.'
+subtitle: 'How much one episode can teach: the reward sets the ceiling, and the form of the gradient can only lower it'
+summary: 'Given its history, a learner gains nothing from a response it sampled itself, so every bit enters through the reward. A pass/fail episode teaches at most one bit, and less when the outcome is predictable. With a reward at every token, one scalar advantage keeps at most log₂ B bits; per-token advantages keep the whole reward sequence.'
 authors:
   - admin
 tags:
   - Reinforcement Learning
   - Information Theory
+  - Policy Gradient
   - Language Models
   - Deep Learning
 categories:
   - Research
   - Theory
 date: '2025-10-01T00:00:00Z'
-lastmod: '2025-10-01T00:00:00Z'
+lastmod: '2026-10-15T00:00:00Z'
 featured: true
 draft: false
 math: true
-toc: true
-
-# Featured image
-image:
-  caption: '"LoRA without Regret"'
-  focal_point: ''
-  preview_only: false
-
-# Projects (optional)
-projects: []
 ---
 
-## How Gradient Structure Determines Information Capacity
+{{% callout note %}}
+- A learner **gains nothing from a response it sampled itself**: given its history, the response says nothing about the reward. Every bit enters **through the reward**.
+- So an episode teaches at most the **entropy of its reward**. A pass/fail episode teaches **at most 1 bit**, and only *h*(*p*) bits when the learner already expects to pass with probability *p*.
+- With a reward at every token, **one scalar advantage** keeps at most log₂ *B* bits, *B* the number of values it takes. **Per-token advantages** keep the whole reward sequence.
+- With one outcome reward, REINFORCE, GRPO and PPO with a critic all learn **at most 1 bit per episode**, and *K* episodes put at most *K* bits into the weights. A rank-1 adapter has room to spare.
+{{% /callout %}}
 
-When I first read the "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)" blog post, one claim caught my attention: policy gradient algorithms learn roughly **1 bit of information per episode**. This insight elegantly explains why LoRA—with its mere thousands of trainable parameters—works so remarkably well for RL fine-tuning of large language models.
+The figures step through like slides. Use **→** or **▶**, and step back with **←**.
 
-But what does this actually mean? The key insight is that this 1-bit limit applies specifically to **scalar advantage formulations**—where all rewards are aggregated into a single number. In this post, I'll show that the information ceiling depends critically on **gradient structure**: scalar advantage (≤ log₂(B) bits) versus per-timestep advantages (≤ H(r) bits).
+| Symbol | Meaning |
+|---|---|
+| {{< math >}}$\xi,\ \pi^\star${{< /math >}} | the unknown reward function, with a prior, and the optimal policy it defines |
+| {{< math >}}$\mathcal H${{< /math >}} | the history: every earlier response and its reward |
+| {{< math >}}$\tau,\ \mathbf r${{< /math >}} | this episode's response and its rewards {{< math >}}$\mathbf r=(r_1,\dots,r_T)${{< /math >}} |
+| {{< math >}}$u${{< /math >}} | the update computed from the episode: one gradient, or a whole PPO step |
+| {{< math >}}$\psi_t${{< /math >}} | the score of token {{< math >}}$t${{< /math >}}: {{< math >}}$\nabla_\theta\log\pi_\theta(a_t\mid s_t)${{< /math >}} |
 
----
+## 1. One bit per episode
 
-## TL;DR: The Main Results
+**For an outcome reward the one-bit count is exact, and the limit comes from the reward, not from policy gradient.**
 
-**Scalar advantage formulation**: When the gradient uses a single scalar advantage aggregating all rewards—$g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ where $\text{Adv} = G - b$—the information ceiling is $\leq \log_2(B)$ bits per episode. Given the training history, the direction term $\nabla \log p_\theta(\tau)$ is independent of rewards; only the scalar advantage carries reward information. For binary feedback, this is $\leq 1$ bit/episode.
+[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/) finds that LoRA matches full fine-tuning for policy-gradient RL even at rank 1, and explains it by counting bits. A policy-gradient update depends on the reward only through a scalar advantage, so an episode with one final reward teaches about one bit. Their MATH run, 10,000 problems with 32 samples each, then has at most 320,000 bits to absorb, and a rank-1 adapter on Llama-3.1-8B has almost ten times as many parameters.
 
-**Per-timestep advantage formulation**: When the gradient uses advantages at each timestep—$g = \sum_t \nabla \log \pi_\theta(a_t|s_t) \cdot A_t$—the information ceiling equals the reward entropy: $I(g; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$. This applies to both:
-- REINFORCE with returns: $A_t = G_t - b$ where $G_t = \sum_{k \geq t} \gamma^{k-t} r_k$
-- Actor-critic with TD errors: $A_t = \delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$
+This post makes the count exact. It rests on one fact: the learner drew the response itself. From there the chain rule shows what sets the count (the reward), what can lower it (an update that collapses the reward to one number), and what cannot raise it (baselines and critics).
 
-Both preserve information because the mappings $\{A_t\} \leftrightarrow \{\mathbf{r}\}$ are bijective.
+## 2. Every bit enters through the reward
 
-**Reward structure determines the gap**:
-- Terminal rewards only: $H(\mathbf{r}) \leq 1$ bit → all formulations achieve ≤ 1 bit
-- Dense independent rewards ($T=1000$, ternary): $H(\mathbf{r}) \approx 1585$ bits → scalar achieves ≤ 8 bits, per-timestep achieves ≤ 1585 bits
+**Given the history, a response the learner sampled says nothing about the reward, so no update can learn more than the reward's entropy.**
 
-| Gradient Formulation | Terminal Reward | Dense Independent Rewards | Asymptotic (Dense) |
-|---------------------|----------------|---------------------------|-------------------|
-| Scalar advantage | ≤ 1 bit | ≤ 8 bits | $O(\log T)$* |
-| Per-timestep advantages | ≤ 1 bit | ≤ 1585 bits | $O(T)$ |
+For a language model the transitions are known: the state {{< math >}}$s_t${{< /math >}} is the prompt and the tokens so far, the action {{< math >}}$a_t${{< /math >}} is the next token, and taking it appends it. Only the reward is unknown. Put a prior on its parameter {{< math >}}$\xi${{< /math >}}, and let {{< math >}}$\pi^\star${{< /math >}} be the optimal policy for {{< math >}}$R_\xi${{< /math >}}, with ties broken by a fixed rule. The prior is a modeling device, not a claim that algorithms are Bayesian: it makes "what the update tells us about {{< math >}}$\pi^\star${{< /math >}}" a mutual information, {{< math >}}$I(u;\pi^\star\mid\mathcal H)${{< /math >}}. The **information bandwidth** of an algorithm is the most one episode can teach it, {{< math >}}$\sup_{\mathcal H} I(u;\pi^\star\mid\mathcal H)${{< /math >}}.
 
-*$O(\log T)$ without finite precision; saturates to $O(1)$ for large $T$ with finite precision
+**Lemma.** Let the update {{< math >}}$u${{< /math >}} be any function of the response {{< math >}}$\tau${{< /math >}}, its rewards {{< math >}}$\mathbf r${{< /math >}}, the history {{< math >}}$\mathcal H${{< /math >}}, and randomness independent of {{< math >}}$\xi${{< /math >}}. Then
 
-The remainder of this post derives these bounds rigorously.
+{{< math >}}
+$$
+I(u;\pi^\star\mid\mathcal H)\ \le\ I(\tau,\mathbf r;\pi^\star\mid\mathcal H)
+$$
+$$
+=\ \underbrace{I(\tau;\pi^\star\mid\mathcal H)}_{=\,0}+I(\mathbf r;\pi^\star\mid\tau,\mathcal H)\ \le\ H(\mathbf r\mid\tau,\mathcal H).
+$$
+{{< /math >}}
 
----
+The steps are data processing, the chain rule, and {{< math >}}$I\le H${{< /math >}}. The middle term vanishes because the sampler that drew {{< math >}}$\tau${{< /math >}}, on-policy or not, is a function of {{< math >}}$\mathcal H${{< /math >}}, and its sampling noise does not depend on {{< math >}}$\xi${{< /math >}}: given the history, {{< math >}}$\tau${{< /math >}} is independent of {{< math >}}$\xi${{< /math >}}, hence of {{< math >}}$\pi^\star${{< /math >}}.
 
-## Part 1: The Mathematical Framework
+Any algorithm that trains on its own samples computes its update this way: REINFORCE, GRPO, and PPO with its clipping, critic and several epochs per batch. Nothing in the lemma is specific to policy gradient; it holds for any learner trained on its own responses and their rewards, as long as the environment adds nothing to {{< math >}}$\tau${{< /math >}}. Algorithms differ only in how much of {{< math >}}$H(\mathbf r\mid\tau,\mathcal H)${{< /math >}} their update keeps.
 
-### Setup: Language Model Fine-Tuning as an MDP
+## 3. A pass/fail episode teaches at most one bit, often far less
 
-When you fine-tune an LLM with RL, you're working with a special kind of problem:
+**With one outcome reward, an episode teaches at most *h*(*p*) ≤ 1 bit, where *p* is the pass rate the learner predicts.**
 
-- **States** $s$: Token sequences $(x_1, \ldots, x_t)$
-- **Actions** $a$: Next token $x_{t+1}$ from vocabulary
-- **Transitions**: Deterministic (append token: $s' = s \circ a$)
-- **Rewards** $R_\xi$: Determined by unknown parameter $\xi$ (preferences, objectives)
+For a reward {{< math >}}$r\in\{0,1\}${{< /math >}} at the end, conditioning can only lower entropy, so
 
-**Key property**: Transitions are known and deterministic. All uncertainty is in the reward function $\xi$.
+{{< math >}}
+$$
+I(u;\pi^\star\mid\mathcal H)\ \le\ H(r\mid\tau,\mathcal H)\ \le\ H(r\mid\mathcal H)=h(\bar p),
+$$
+$$
+h(p)=-p\log_2 p-(1-p)\log_2(1-p)\ \le\ 1,
+$$
+{{< /math >}}
 
-### Information-Theoretic Lens
+where {{< math >}}$\bar p=P(r=1\mid\mathcal H)${{< /math >}} is the pass rate predicted from everything seen so far.
 
-To analyze this rigorously, we need a mathematical trick. Put a prior $p(\xi)$ over reward parameters—this induces a distribution $p(\pi^\star)$ over optimal policies, where each $\xi$ determines a unique optimal policy $\pi^\star_\xi$.
+{{< stepfig "passrate" >}}
 
-We don't claim algorithms actually maintain Bayesian posteriors. This is just a modeling device that lets us reason about information flow: it makes both the learning signal (the gradient) and the optimal policy $\pi^\star$ well-defined random variables, so we can compute their mutual information.
+Applying the same bound to each reward in turn, a group of {{< math >}}$n${{< /math >}} samples of one prompt teaches at most {{< math >}}$n\,h(\bar p)${{< /math >}} bits. Prompts the model almost always or almost never solves teach almost nothing. Their groups are mostly all passes or all fails, which a group-mean baseline turns into a zero update and which the dynamic sampling of [Yu et al. (2025)](https://arxiv.org/abs/2503.14476) filters out.
 
-**Definition (Information Bandwidth)**:
+Over a run, the weights {{< math >}}$\theta_K${{< /math >}} after {{< math >}}$K${{< /math >}} episodes are a function of the history and of randomness independent of {{< math >}}$\xi${{< /math >}}, so the chain rule adds up the episodes:
 
-The information bandwidth measures the maximum information that can be gained per episode:
+{{< math >}}
+$$
+I(\theta_K;\pi^\star)\ \le\ I(\mathcal H_K;\pi^\star)
+$$
+$$
+=\ \sum_{k=1}^{K} I(\tau_k,r_k;\pi^\star\mid\mathcal H_{k-1})\ \le\ \sum_{k=1}^{K}\mathbb E\,h(\bar p_k)\ \le\ K.
+$$
+{{< /math >}}
 
-$$\mathcal{B} = \sup_{\mathcal{H}} I(g; \pi^\star \mid \mathcal{H})$$
+{{< math >}}$K${{< /math >}} pass/fail episodes put at most {{< math >}}$K${{< /math >}} bits about {{< math >}}$\pi^\star${{< /math >}} into the weights, whatever the model size or compute. The 320,000 bits of the MATH run in section 1 are a bound, not an estimate.
 
-where $g$ is the gradient from a single episode and $\mathcal{H}$ is the history of all previous episodes.
+## 4. With dense rewards, the advantage decides what gets through
 
-**Interpretation**: $I(g; \pi^\star \mid \mathcal{H})$ asks "how much does this gradient tell me about the optimal policy, given what I already know?" The **bandwidth** $\mathcal{B}$ is the maximum—the algorithm's capacity limit regardless of training progress. In practice, history gets compressed into parameters $\theta$, but conditioning on the complete history $\mathcal{H}$ makes the information-theoretic interpretation most transparent: it directly captures "what we've already learned" from all past episodes.
+**One scalar advantage keeps at most log₂ *B* bits; per-token advantages keep the whole reward sequence.**
 
-### Connection to the Original Insight
+With a reward {{< math >}}$r_t${{< /math >}} at every token there is more to learn per episode, and the update can now lose some of it. Given {{< math >}}$\tau${{< /math >}} and {{< math >}}$\mathcal H${{< /math >}} the token scores {{< math >}}$\psi_t${{< /math >}} are fixed, and the advantages only weight them:
 
-This formalization directly implements the information-theoretic argument from "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)." Their key observation: for the scalar-advantage REINFORCE gradient $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$, the component $\nabla \log p_\theta(\tau)$ is independent of the reward function $R$ given the history $\mathcal{H}$ (which determines the policy), so **all information about $R$ must flow through the scalar advantage**.
+{{< math >}}
+$$
+u_{\text{scalar}}=\Big(\sum_t\psi_t\Big)\Big(\sum_t r_t-b\Big),
+$$
+$$
+u_{\text{per-token}}=\sum_t\psi_t\,A_t .
+$$
+{{< /math >}}
 
-We extend this by analyzing how different gradient structures preserve or destroy information.
+The scalar form depends on {{< math >}}$\mathbf r${{< /math >}} only through {{< math >}}$\mathrm{Adv}=\sum_t r_t-b${{< /math >}}, one number with at most {{< math >}}$B${{< /math >}} values, so the lemma tightens to {{< math >}}$I(u;\pi^\star\mid\mathcal H)\le H(\mathrm{Adv}\mid\tau,\mathcal H)\le\log_2 B${{< /math >}}. Per-token advantages, whether returns-to-go, TD errors or GAE, are an invertible function of {{< math >}}$\mathbf r${{< /math >}} given {{< math >}}$(\tau,\mathcal H)${{< /math >}}. When the token scores are linearly independent, the update keeps everything the rewards say about {{< math >}}$\pi^\star${{< /math >}}.
 
-### Two Minimal Assumptions
+{{< stepfig "outcomes" >}}
 
-**Assumption A1 (Unique Optimum)**: Each $\xi$ determines a unique optimal policy $\pi^\star_\xi$.
+A sum forgets order: (+1, −1), (−1, +1) and (0, 0) all add up to zero. What that costs depends on the reward. For {{< math >}}$T=1000${{< /math >}} tokens and no discount:
 
-*Justification*: Generic for neural networks with many parameters. Floating-point precision breaks ties; exact degeneracy is measure-zero.
+| | one pass/fail reward at the end | a reward in {−1, 0, +1} at every token |
+|---|---|---|
+| one scalar advantage | ≤ 1 bit | ≤ log₂ 2001 ≈ 11 bits |
+| per-token advantages | ≤ 1 bit | ≤ 1000 · log₂ 3 ≈ 1585 bits |
 
-**Assumption A2 (Finite Resolution)**: The reward-dependent scalar(s) in the gradient have finite effective resolution—they can take at most $B$ distinguishable values.
+The scalar ceiling grows like {{< math >}}$\log T${{< /math >}}, the per-token ceiling like {{< math >}}$T${{< /math >}}. With one outcome reward there is nothing to forget, and the two forms are equal. With {{< math >}}$B_r${{< /math >}} values per reward, the dense ceiling is reached only if every reward is uniform and unpredictable from the earlier ones,
 
-*Justification*: Holds exactly for binary preferences ($B=2$) or Likert scales ($B=4$-$7$). Approximately true for continuous signals with noise, finite precision, or practical distinguishability limits.
+{{< math >}}
+$$
+H(\mathbf r\mid\tau,\mathcal H)=\sum_{t=1}^{T}H(r_t\mid r_{\lt t},\tau,\mathcal H)\ \le\ T\log_2 B_r ,
+$$
+{{< /math >}}
 
-*Note on asymptotic behavior*: For scalar advantages with dense rewards, $B$ effectively equals $\min(2T+1, B_{\text{max}})$ where $B_{\text{max}}$ is the precision limit. This gives $O(\log T)$ bits for small $T$ and $O(1)$ bits for large $T \gg B_{\text{max}}$. Examples below use large $T$ where saturation applies.
+so a dense reward whose steps are predictable from one another teaches little more than a single reward.
 
----
+<details class="spoiler">
+<summary>Proof: per-token advantages are invertible, and the scalar needs finitely many values</summary>
 
-## Part 2: Scalar Advantage Information Ceiling
+Given {{< math >}}$(\tau,\mathcal H)${{< /math >}}, each form of per-token advantage is an invertible map of the rewards:
 
-### The Scalar Advantage Formulation
+- returns-to-go {{< math >}}$G_t=\sum_{k\ge t}\gamma^{k-t}r_k${{< /math >}} give {{< math >}}$r_t=G_t-\gamma G_{t+1}${{< /math >}} with {{< math >}}$G_{T+1}=0${{< /math >}}, and subtracting a known baseline changes nothing;
+- TD errors {{< math >}}$\delta_t=r_t+\gamma V(s_{t+1})-V(s_t)${{< /math >}} give {{< math >}}$r_t${{< /math >}} back once the critic's values are subtracted, and the critic is a function of {{< math >}}$\mathcal H${{< /math >}};
+- GAE, {{< math >}}$A_t=\sum_{l\ge 0}(\gamma\lambda)^l\delta_{t+l}${{< /math >}}, is a triangular mix of the TD errors with unit diagonal, so it is invertible too.
 
-The standard scalar-advantage REINFORCE algorithm works like this:
+If the {{< math >}}$\psi_t${{< /math >}} are linearly independent, {{< math >}}$u=\sum_t\psi_tA_t${{< /math >}} determines the advantages, hence the rewards, and {{< math >}}$I(u;\pi^\star\mid\mathcal H)=I(\mathbf r;\pi^\star\mid\tau,\mathcal H)${{< /math >}}.
 
-1. Sample trajectory $\tau = (s_0, a_0, \ldots, s_{T-1}, a_{T-1}, s_T)$ using policy $\pi_\theta$
-2. Observe rewards $\mathbf{r} = (r_0, r_1, \ldots, r_{T-1})$ where $r_t = R_\xi(s_t, a_t)$
-3. Compute **return**: $G = \sum_{t=0}^{T-1} \gamma^t r_t$
-4. Compute **advantage**: $\text{Adv} = G - b$ (where $b$ is a baseline)
-5. Compute **gradient**: $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$
-6. Update: $\theta \leftarrow \theta + \alpha g$
-
-**Key observation**: The gradient has two components:
-- $\nabla \log p_\theta(\tau)$: Independent of the reward function $R$ given the history $\mathcal{H}$
-- $\text{Adv}$: A scalar that encodes all reward-dependent information
-
-### The Information Ceiling
-
-**Theorem 1 (Scalar Advantage Information Ceiling):**
-
-*Under assumptions A1 and A2, the information bandwidth of scalar-advantage formulations satisfies:*
-
-$$I(g; \pi^\star \mid \mathcal{H}) \leq \log_2(B) \text{ bits per episode}$$
-
-where $g = \nabla \log p_\theta(\tau) \cdot \text{Adv}$ with $\text{Adv} = G - b$ is the gradient and $\mathcal{H}$ is the history of all previous episodes.
-
-**Intuition**: Given the history $\mathcal{H}$ (which determines the current policy $\theta$), the trajectory sampling doesn't depend on $\xi$. All new information must flow through the scalar advantage, creating a hard ceiling of $\log_2(B)$ bits.
-
-**Asymptotic interpretation**: For dense rewards without Assumption A2, the return can take up to $2T+1$ values, giving $O(\log T)$ bits. With finite precision $B_{\text{max}}$, the bound becomes $O(\min(\log T, \log B_{\text{max}}))$. For typical LLM fine-tuning with large $T \gg B_{\text{max}}$, this saturates at $O(1)$ bits.
-
-<details>
-<summary><strong>Detailed Proof (click to expand)</strong></summary>
-
-**Step 1: Information Chain**
-
-By data processing inequality, since $g$ is a deterministic function of $(\tau, \text{Adv})$ given $\mathcal{H}$:
-$$I(g; \pi^\star \mid \mathcal{H}) \leq I((\tau, \text{Adv}); \pi^\star \mid \mathcal{H})$$
-
-By chain rule for mutual information:
-$$I((\tau, \text{Adv}); \pi^\star \mid \mathcal{H}) = I(\tau; \pi^\star \mid \mathcal{H}) + I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H})$$
-
----
-
-**Step 2: Trajectory Contains No Information About $\xi$**
-
-Given $\mathcal{H}$, the policy parameters $\theta = \theta(\mathcal{H})$ are deterministic. The trajectory is sampled from:
-$$\tau \sim p_\theta(\tau)$$
-
-This distribution depends only on $\theta$ (and the known, deterministic environment dynamics), not on the reward parameter $\xi$.
-
-Therefore: $\tau \perp \xi \mid \mathcal{H}$
-
-Since $\xi$ determines $\pi^\star$ deterministically by Assumption A1, we also have $\tau \perp \pi^\star \mid \mathcal{H}$.
-
-Therefore:
-$$I(\tau; \pi^\star \mid \mathcal{H}) = 0$$
-
----
-
-**Step 3: All Information Flows Through Advantage**
-
-From Steps 1-2:
-$$I(g; \pi^\star \mid \mathcal{H}) \leq I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H})$$
-
----
-
-**Step 4: Bound Advantage Information**
-
-By the fundamental bound on mutual information:
-$$I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H}) \leq H(\text{Adv} \mid \tau, \mathcal{H})$$
-
----
-
-**Step 5: Apply Finite Resolution Assumption**
-
-By Assumption A2, the advantage takes at most $B$ distinct values. Therefore:
-$$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(B)$$
-
-This holds because entropy is maximized when uniform: $H(X) \leq \log_2(|X|)$
-
----
-
-**Final Result**
-
-Combining all steps:
-$$I(g; \pi^\star \mid \mathcal{H}) \leq I(\text{Adv}; \pi^\star \mid \tau, \mathcal{H}) \leq H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(B)$$
-
-∎
+For the scalar form, {{< math >}}$B${{< /math >}} counts the values {{< math >}}$\sum_t\gamma^{t-1}r_t${{< /math >}} can take. With {{< math >}}$\gamma=1${{< /math >}} and rewards in {{< math >}}$\{-1,0,+1\}${{< /math >}} the sum is an integer in {{< math >}}$[-T,T]${{< /math >}}, so {{< math >}}$B\le 2T+1${{< /math >}}. With a discount, distinct sequences generally give distinct sums; at {{< math >}}$\gamma=1/3${{< /math >}} the sum is a balanced-ternary expansion and all {{< math >}}$3^T${{< /math >}} sequences survive. A real number could then carry everything, but only at about {{< math >}}$T\log_2 3${{< /math >}} bits of precision. A float32 takes at most {{< math >}}$2^{32}${{< /math >}} values, so the scalar carries at most 32 bits whatever {{< math >}}$T${{< /math >}} is.
 
 </details>
 
-This ceiling holds regardless of sequence length $T$, model size, or computational budget—it's an inherent consequence of the scalar advantage bottleneck.
+## 5. What changes the bandwidth, and what does not
 
-### Where Does Information Get Lost?
+**Baselines and critics move bits around without adding any. More bits come only from the reward, the sampler, or someone else's data.**
 
-The bound $\leq \log_2(B)$ is tight for some reward structures but loose for others:
+- **Baselines, critics and per-token credit.** A baseline computed from the history, or from the other rewards in a group, only reshuffles bits the group already has. A critic is trained on earlier episodes, so what it knows is already in {{< math >}}$\mathcal H${{< /math >}}. Neither adds a bit. What they change is the noise that comes with the bits, and so how many episodes an optimizer needs to use them; the [Optimal Token Baseline](/optimal-token-baseline) is the variance-optimal choice.
+- **A denser reward.** A process reward that scores each of {{< math >}}$m${{< /math >}} steps raises the ceiling to as much as {{< math >}}$m\log_2 B_r${{< /math >}} bits, but only with per-token advantages, and only as far as its scores are unpredictable from one another.
+- **The sampler.** {{< math >}}$H(\mathbf r\mid\tau,\mathcal H)${{< /math >}} depends on which response is drawn, so a sampler that goes where the outcome is uncertain gets more bits per episode. Information-directed sampling ([Russo & Van Roy, 2018](https://arxiv.org/abs/1403.5556)) picks samples by trading this information against regret. Thompson sampling sends the learner where plausible models disagree, which is where outcomes are uncertain, and [Exploration at Scale](/post/scalable-exploration/) makes it affordable for deep networks.
+- **Someone else's responses.** The lemma rests on one fact: the learner drew {{< math >}}$\tau${{< /math >}} itself. A demonstration is drawn by someone else, so the response itself carries information, up to {{< math >}}$T\log_2\lvert\mathcal V\rvert${{< /math >}} bits for a vocabulary {{< math >}}$\mathcal V${{< /math >}}. This is why SFT can teach far more per episode, and why it lifts rare responses that policy gradient raises only slowly ([What Policy Gradient Can Reach](/post/what-policy-gradient-can-reach/)).
 
-$$\mathbf{r} \xrightarrow{\text{sum}} G \xrightarrow{\text{subtract baseline}} \text{Adv} \xrightarrow{\text{finite resolution}} \text{bounded by } B$$
+Few bits explain why an RL update is small. Which coordinates it moves is a separate question, the subject of [Why Post-Training Is Sparse](/post/gradient-is-covariance/).
 
-#### Case 1: Terminal Reward Only
+## 6. Scope
 
-**Setup**: $r_t = 0$ for {{< math >}} $t < T-1$, only $r_{T-1} \in \{-1, +1\}$ {{< /math >}}  is non-zero
-
-**Return**: $G = \gamma^{T-1} r_{T-1}$
-
-**Advantage**: $\text{Adv} = \gamma^{T-1} r_{T-1} - b$
-
-Since the mapping $r_{T-1} \leftrightarrow \text{Adv}$ is bijective:
-$$H(\text{Adv} \mid \tau, \mathcal{H}) = H(r_{T-1} \mid \tau, \mathcal{H}) = 1 \text{ bit}$$
-
-**No information loss** from aggregation. The bound is **tight**.
-
----
-
-#### Case 2: Dense Independent Rewards
-
-**Setup**: {{< math >}}  $r_t \in \{-1, 0, +1\}$ {{< /math >}}  at each timestep, with factorized $\xi = (\xi_0, \xi_1, \ldots, \xi_{T-1})$ where each $\xi_t$ is independent
-
-**Available information**:
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \mathcal{H}) = T \log_2(3) \approx 1.58T \text{ bits}$$
-
-For $T = 1000$: approximately 1585 bits available.
-
-**Return**: $G = \sum_{t=0}^{T-1} \gamma^t r_t$
-
-This is a **many-to-one mapping**. Different temporal patterns give the same sum:
-- $(+1, -1, +1, -1, \ldots)$ → sum ≈ 0
-- $(-1, +1, -1, +1, \ldots)$ → sum ≈ 0
-- $(0, 0, 0, \ldots, 0)$ → sum = 0
-
-For $\gamma = 1$, the return {{< math >}} $G \in \{-1000, -999, \ldots, 999, 1000\}$ {{< /math >}}  has:
-$$H(G \mid \tau, \mathcal{H}) \leq \log_2(2001) \approx 11 \text{ bits}$$
-
-This is the $O(\log T)$ regime before finite precision effects.
-
-**Advantage**: With noise and finite precision (Assumption A2 with $B = 256$):
-$$H(\text{Adv} \mid \tau, \mathcal{H}) \leq \log_2(256) = 8 \text{ bits}$$
-
-Since $2001 > 256$, the advantage saturates at the precision limit—the $O(1)$ regime for large $T$.
-
-**Information loss**: Starting with 1585 bits, the scalar advantage retains only ~8 bits.
-
-**Loss factor**: ~200× reduction
-
-**Why?** The summation loses temporal structure. Different temporal reward patterns can produce the same scalar advantage.
-
----
-
-### Concrete Examples
-
-- **Binary preferences** ($B=2$): $\leq 1$ bit/episode
-- **Likert scale** ($B=5$): $\leq 2.3$ bits/episode
-- **8-bit resolution** ($B=256$): $\leq 8$ bits/episode
-
-### The Bottleneck
-
-A typical LLM generation has $T \sim 1000$ tokens. The scalar-advantage formulation compresses all this rich structure into **one scalar** that modulates a fixed direction $\nabla \log p_\theta(\tau)$.
-
-The policy update $\Delta \theta = \alpha g$ happens in a high-dimensional space, but the **information content** of this update about the optimal policy is fundamentally limited by the scalar advantage. This structural bottleneck cannot be overcome by adding more parameters or computational resources.
-
----
-
-## Part 3: Per-Timestep Advantages Preserve Information
-
-### The Per-Timestep Formulation
-
-Instead of aggregating all rewards into one scalar, we can use advantages at each timestep:
-
-$$g = \sum_{t=0}^{T-1} \nabla \log \pi_\theta(a_t|s_t) \cdot A_t$$
-
-where $A_t$ is an advantage for timestep $t$. This structure appears in two common algorithms:
-
-**REINFORCE with per-timestep returns**:
-$$A_t = G_t - b$$
-where $G_t = \sum_{k \geq t} \gamma^{k-t} r_k$ is the return from timestep $t$ onward, and $b$ is a constant baseline.
-
-**Actor-critic with TD errors**:
-$$A_t = \delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
-where $V_\phi$ is a learned value function.
-
-**Key property**: Both formulations preserve temporal structure by using $T$ advantages instead of one scalar.
-
-### Why Per-Timestep Advantages Preserve Information
-
-**Scalar advantage** aggregates all rewards into one number:
-$$\text{Adv} = \sum_{t=0}^{T-1} \gamma^t r_t - b$$
-
-This is a **many-to-one mapping**: different temporal patterns can give the same advantage. For $T=1000$ tokens with {{< math >}}  $r_t \in \{-1, 0, +1\}$ {{< /math >}} :
-- Total available information: $H(\mathbf{r}) = 1000 \times \log_2(3) \approx 1585$ bits
-- After summation: $H(\text{Adv}) \leq 8$ bits
-- **Information lost**: ~99%
-
-**Per-timestep returns** $\{G_t\}$ preserve information through a **bijective mapping**:
-$$G_t = \sum_{k \geq t} \gamma^{k-t} r_k$$
-
-Given $\{G_t\}$, we can recover rewards: $r_t = G_t - \gamma G_{t+1}$ (with $G_T = 0$). Therefore:
-$$H(\{G_t\} \mid \tau, \mathcal{H}) = H(\mathbf{r} \mid \tau, \mathcal{H})$$
-
-**TD errors** $\{\delta_t\}$ also preserve information:
-$$\delta_t = r_t + \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$$
-
-Given $(\tau, \mathcal{H})$, the value terms are deterministic, so $\delta_t = r_t + c_t$ where $c_t$ is known. This is an invertible affine transformation:
-$$\mathbf{r} = \boldsymbol{\delta} - \mathbf{c}$$
-
-Therefore: $H(\boldsymbol{\delta} \mid \tau, \mathcal{H}) = H(\mathbf{r} \mid \tau, \mathcal{H})$
-
-**Key insight**: Both $\{G_t\}$ and $\{\delta_t\}$ preserve all reward information—they just redistribute it temporally instead of collapsing it into one scalar.
-
-### The Information Ceiling
-
-**Theorem 2 (Per-Timestep Advantages Information Ceiling):**
-
-*Under assumptions A1 and A2 (applied to rewards with resolution $B_r$), per-timestep advantage formulations satisfy:*
-
-$$I(g; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
-
-where $\mathbf{r} = (r_0, \ldots, r_{T-1})$ is the reward sequence.
-
-This applies to both REINFORCE with $\{G_t\}$ and actor-critic with $\{\delta_t\}$.
-
-**Special cases**:
-
-1. **Terminal reward only**: $H(\mathbf{r} \mid \tau, \mathcal{H}) = H(r_{T-1} \mid \tau, \mathcal{H}) \leq \log_2(B_r)$
-
-2. **Independent rewards** (factorized $\xi$): $H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_t H(r_t \mid \tau, \mathcal{H}) \leq T \log_2(B_r)$
-
-3. **General case**: $\log_2(B_r) \leq H(\mathbf{r} \mid \tau, \mathcal{H}) \leq T \log_2(B_r)$
-
-**Key insight**: The ceiling depends on **reward entropy**, not on the specific form of advantages. Both $\{G_t\}$ and $\{\delta_t\}$ preserve the same amount of information.
-
-<details>
-<summary><strong>Complete Rigorous Proof (click to expand)</strong></summary>
-
-**Step 1: From Gradient to Advantages**
-
-The gradient is:
-$$g = \sum_{t=0}^{T-1} \nabla \log \pi_\theta(a_t|s_t) \cdot A_t$$
-
-where $\mathbf{A} = (A_0, \ldots, A_{T-1})$ is either $\{G_t - b\}$ or $\{\delta_t\}$.
-
-Given $(\tau, \mathcal{H})$:
-- The policy $\theta = \theta(\mathcal{H})$ is deterministic
-- All states and actions in $\tau$ are known
-- The gradient is a deterministic function of $(\tau, \mathbf{A}, \mathcal{H})$
-
-By data processing:
-$$I(g; \pi^\star \mid \mathcal{H}) \leq I((\tau, \mathbf{A}); \pi^\star \mid \mathcal{H})$$
-
-By chain rule:
-$$I((\tau, \mathbf{A}); \pi^\star \mid \mathcal{H}) = I(\tau; \pi^\star \mid \mathcal{H}) + I(\mathbf{A}; \pi^\star \mid \tau, \mathcal{H})$$
-
-Since $\tau \perp \xi \mid \mathcal{H}$:
-$$I(\tau; \pi^\star \mid \mathcal{H}) = 0$$
-
-Therefore:
-$$I(g; \pi^\star \mid \mathcal{H}) \leq I(\mathbf{A}; \pi^\star \mid \tau, \mathcal{H})$$
-
----
-
-**Step 2: From Advantages to Rewards (The Key Step)**
-
-**Case 1: Returns** $A_t = G_t - b$
-
-The returns satisfy:
-$$G_t = \sum_{k \geq t} \gamma^{k-t} r_k$$
-
-This is invertible: $r_t = G_t - \gamma G_{t+1}$ (with $G_T = 0$).
-
-Subtracting constant $b$ doesn't change entropy:
-$$H(\{G_t - b\} \mid \tau, \mathcal{H}) = H(\{G_t\} \mid \tau, \mathcal{H}) = H(\mathbf{r} \mid \tau, \mathcal{H})$$
-
-**Case 2: TD errors** $A_t = \delta_t$
-
-Given $(\tau, \mathcal{H})$, the value function parameters $\phi = \phi(\mathcal{H})$ are deterministic, so:
-$$\delta_t = r_t + c_t$$
-where $c_t = \gamma V_\phi(s_{t+1}) - V_\phi(s_t)$ is deterministic.
-
-This is an affine transformation: $\boldsymbol{\delta} = \mathbf{r} + \mathbf{c}$, which is invertible.
-
-Therefore:
-$$H(\boldsymbol{\delta} \mid \tau, \mathcal{H}) = H(\mathbf{r} \mid \tau, \mathcal{H})$$
-
-**Both cases**: The mapping $\mathbf{A} \leftrightarrow \mathbf{r}$ is bijective, so:
-$$I(\mathbf{A}; \pi^\star \mid \tau, \mathcal{H}) = I(\mathbf{r}; \pi^\star \mid \tau, \mathcal{H})$$
-
----
-
-**Step 3: From Rewards to $\xi$**
-
-By Assumption A1, $\pi^\star = f(\xi)$ deterministically:
-$$\mathbf{r} \to \xi \to \pi^\star$$
-
-By data processing:
-$$I(\mathbf{r}; \pi^\star \mid \tau, \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
-
----
-
-**Final Result**
-
-Combining Steps 1-3:
-$$I(g; \pi^\star \mid \mathcal{H}) \leq H(\mathbf{r} \mid \tau, \mathcal{H})$$
-
-∎
-
-</details>
-
-### Analyzing the Reward Entropy
-
-The bound $H(\mathbf{r} \mid \tau, \mathcal{H})$ depends on the **structure of the reward function** $R_\xi$.
-
-Using the chain rule:
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid r_{<t}, \tau, \mathcal{H})$$
-
-where $r_{<t} = (r_0, \ldots, r_{t-1})$.
-
-Each term satisfies:
-$$H(r_t \mid r_{<t}, \tau, \mathcal{H}) \leq \log_2(B_r)$$
-
-The sum satisfies:
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) \leq T \log_2(B_r)$$
-
-**Equality holds** if and only if rewards are informationally independent: $r_t \perp r_{<t} \mid (\tau, \mathcal{H})$ for all $t$.
-
-This requires **factorized $\xi$**: each state-action pair has its own independent reward parameter.
-
-### Case Analysis
-
-#### Case 1: Terminal Reward Only
-
-**Setup**: Only $r_{T-1} \neq 0$, all other rewards are zero
-
-**Reward entropy**:
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) = H(r_{T-1} \mid \tau, \mathcal{H}) \leq \log_2(B_r)$$
-
-For binary rewards: $\leq 1$ bit
-
-**Per-timestep advantages**: Whether using $\{G_t - b\}$ or $\{\delta_t\}$, only the terminal timestep carries information. All other advantages are deterministic given $(\tau, \mathcal{H})$.
-
-**Information ceiling**: $I(g; \pi^\star \mid \mathcal{H}) \leq 1$ bit
-
-**Conclusion**: Same as scalar advantage! When there's only terminal reward, per-timestep formulations have no information advantage.
-
----
-
-#### Case 2: Dense Independent Rewards
-
-**Setup**: Factorized reward parameter $\xi = (\xi_0, \xi_1, \ldots, \xi_{T-1})$ where each $\xi_t$ is independent, and $r_t = R_{\xi_t}(s_t, a_t)$
-
-**This means**: Observing $r_0$ reveals information about $\xi_0$ but nothing about $\xi_1, \ldots, \xi_{T-1}$.
-
-**Reward entropy**:
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) = \sum_{t=0}^{T-1} H(r_t \mid \tau, \mathcal{H}) = T \log_2(B_r)$$
-
-**Example** ($T=1000$, {{< math >}} $r_t \in \{-1, 0, +1\}$ {{< /math >}}  so $B_r=3$):
-$$H(\mathbf{r} \mid \tau, \mathcal{H}) = 1000 \times \log_2(3) \approx 1585 \text{ bits}$$
-
-**Per-timestep advantages information ceiling**: Up to 1585 bits/episode
-
-**Scalar advantage information ceiling**: $\leq 8$ bits/episode
-
-**Advantage**: $\sim 200\times$ more information preserved!
-
-**Why the difference?**
-- Scalar advantage: $\mathbf{r} \to \sum_t \gamma^t r_t$ loses temporal structure
-- Per-timestep advantages: $\mathbf{r} \to \{G_t\}$ or $\mathbf{r} \to \{\delta_t\}$ preserves all information
-
----
-
-### Summary
-
-| Gradient Formulation | Reward Structure | Information Ceiling | Asymptotic | Why |
-|---------------------|-----------------|---------------------|------------|-----|
-| Scalar advantage | Terminal only | ≤ 1 bit | $O(1)$ | Single scalar with binary reward |
-| Per-timestep advantages | Terminal only | ≤ 1 bit | $O(1)$ | Only one timestep is random |
-| Scalar advantage | Dense independent | ≤ 8 bits | $O(\log T)$* | Aggregation loses temporal structure |
-| Per-timestep advantages | Dense independent | ≤ 1585 bits | $O(T)$ | Temporal structure preserved |
-
-*Saturates to $O(1)$ for large $T$ with finite precision
-
----
-
-## Part 4: Implications
-
-### The Core Insight
-
-The information ceiling depends on two factors:
-
-1. **Gradient structure**: Scalar advantage (≤ log₂(B) bits, $O(\log T)$ asymptotically) vs per-timestep advantages (≤ H(r) bits, $O(T)$ asymptotically for dense independent rewards)
-2. **Reward structure**: Terminal (≤ log₂(B_r) bits, $O(1)$) vs dense independent (≤ T log₂(B_r) bits, $O(T)$)
-
-**Key observation**: With terminal rewards only, scalar and per-timestep formulations have the **same information ceiling** (both $O(1)$ bits). This is why simple scalar-advantage methods dominate in LLM fine-tuning—the added complexity of per-timestep formulations provides no information-theoretic benefit when rewards are sparse.
-
-### When Structure Matters
-
-Per-timestep advantages only help when rewards are dense and informative at each timestep. The potential gain scales with:
-- **Temporal density**: How many timesteps provide informative rewards
-- **Independence**: How much correlation exists between rewards at different timesteps
-
-**Asymptotic comparison**:
-- Dense independent rewards: $O(\log T)$ bits (scalar) vs $O(T)$ bits (per-timestep)
-- Terminal rewards only: $O(1)$ bits (both formulations)
-
-**Concrete example** (T=1000): ceiling increases from ≤ 8 bits (scalar) to ≤ 1585 bits (per-timestep) for fully independent dense rewards.
-
-### Open Questions
-
-**Reward structure in practice**: Most tasks fall between these extremes. How much reward correlation exists in realistic settings? This determines the practical information gap between formulations.
-
-**Beyond information ceilings**: This analysis considers only information capacity. Practical performance also depends on factors outside our scope: gradient variance, optimization dynamics, and sample efficiency. Where in parameter space those few bits land, and why only a small set of coordinates moves, is the subject of [Why Post-Training Is Sparse](/post/gradient-is-covariance/).
-
----
-
-## Limitations
-
-**Theoretical assumptions**:
-1. Deterministic optimal policies (A1)—may not hold in stochastic or degenerate settings
-2. Bayesian modeling framework—a mathematical device, not a claim about actual algorithm behavior
-3. Finite resolution (A2)—exact for discrete rewards, approximate for continuous
-
-**Scope**:
-1. This analysis bounds **information capacity**, not sample efficiency or convergence rate
-2. We do not empirically measure information flow in real training runs
-3. Practical performance depends on factors beyond information ceilings (variance, optimization, stability)
-
----
+- The bound is on **capacity**, not rate: what an episode can teach, not what an optimizer extracts from it.
+- For a continuous reward, stop one step early: the bound is {{< math >}}$I(\mathbf r;\pi^\star\mid\tau,\mathcal H)${{< /math >}}, which stays finite when the reward is noisy.
+- In a multi-turn agent, tool outputs and user replies inside {{< math >}}$\tau${{< /math >}} come from the environment, not from the learner. They can carry information too, and the bound gains a term for what they reveal.
+- Nothing here is measured in a real run.
 
 ## References
 
-**LLM Fine-Tuning**:
-- Ouyang, L., et al. (2022). "Training language models to follow instructions with human feedback." *NeurIPS*. (InstructGPT)
-- Hu, E. J., et al. (2021). "LoRA: Low-Rank Adaptation of Large Language Models." *ICLR*.
-
-**Reinforcement Learning**:
-- Sutton, R. S., McAllester, D., Singh, S., & Mansour, Y. (1999). "Policy gradient methods for reinforcement learning with function approximation." *NIPS*, 12.
-- Konda, V., & Tsitsiklis, J. (1999). "Actor-critic algorithms." *NIPS*, 12.
-- Schulman, J., et al. (2017). "Proximal Policy Optimization Algorithms." *arXiv*.
-
-**Information Theory**:
-- Cover, T. M., & Thomas, J. A. (2006). *Elements of Information Theory* (2nd ed.). Wiley-Interscience.
-- Russo, D., & Van Roy, B. (2014). "Learning to Optimize via Information-Directed Sampling." *Operations Research*, 66(1), 230-252.
-
-**Inspiration**: ThinkingMachines.ai (2025). "[LoRA Without Regret](https://thinkingmachines.ai/blog/lora/)."
-
----
+- J. Schulman and Thinking Machines Lab. [LoRA Without Regret](https://thinkingmachines.ai/blog/lora/). Thinking Machines Lab: Connectionism, 2025.
+- E. J. Hu, Y. Shen, P. Wallis, et al. [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685). ICLR 2022.
+- R. S. Sutton, D. McAllester, S. Singh, Y. Mansour. Policy Gradient Methods for Reinforcement Learning with Function Approximation. NeurIPS 1999.
+- V. R. Konda, J. N. Tsitsiklis. Actor-Critic Algorithms. NeurIPS 1999.
+- J. Schulman, P. Moritz, S. Levine, M. Jordan, P. Abbeel. [High-Dimensional Continuous Control Using Generalized Advantage Estimation](https://arxiv.org/abs/1506.02438). ICLR 2016.
+- J. Schulman, F. Wolski, P. Dhariwal, A. Radford, O. Klimov. [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347). arXiv, 2017.
+- Z. Shao, P. Wang, Q. Zhu, et al. [DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models](https://arxiv.org/abs/2402.03300). arXiv, 2024.
+- Q. Yu, Z. Zhang, R. Zhu, et al. [DAPO: An Open-Source LLM Reinforcement Learning System at Scale](https://arxiv.org/abs/2503.14476). arXiv, 2025.
+- D. Russo, B. Van Roy. [Learning to Optimize via Information-Directed Sampling](https://arxiv.org/abs/1403.5556). Operations Research, 2018.
+- T. M. Cover, J. A. Thomas. Elements of Information Theory, 2nd ed. Wiley, 2006.
 
 ## Acknowledgements
 
-I am grateful to [@mgostIH](https://x.com/mgostIH) for the insightful conversation about per-timestep advantages in REINFORCE. Their observation that using $\text{Adv}_t = G_t - b$ (where $G_t$ is the return from timestep $t$ onward) preserves the bijective mapping $\{G_t\} \leftrightarrow \{r_t\}$ and thus avoids the information collapse was the key insight that led to revising this paper to include the return-based policy gradient formulation. The original version only analyzed scalar advantages and actor-critic TD errors; the discussion clarified that REINFORCE with per-timestep returns also preserves full reward information.
-
----
+I thank [@mgostIH](https://x.com/mgostIH) for pointing out that REINFORCE with per-token returns {{< math >}}$G_t-b${{< /math >}} keeps the reward sequence, since each {{< math >}}$r_t${{< /math >}} can be read off two consecutive returns. The first version of this post analyzed only the scalar advantage and TD errors.
 
 ## Citation
+
 ```bibtex
 @article{li2025information,
   title   = {Information Bandwidth in Reinforcement Learning},
@@ -574,6 +198,4 @@ I am grateful to [@mgostIH](https://x.com/mgostIH) for the insightful conversati
 }
 ```
 
----
-
-*Last updated: November 4, 2025*
+*First posted October 2025; revised November 2025 and October 2026.*
