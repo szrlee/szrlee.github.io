@@ -33,9 +33,9 @@ base += text(40, 108, 'dot size: how likely the sampler finds the token', {size:
 const [mx, my] = px(mean);
 let meanL = line(O[0], O[1], mx, my, {stroke: C.or, w: 16, op: 0.14, cap: 'round'});
 meanL += arrow(O[0], O[1], mx, my, {stroke: C.or, w: 4, head: 16});
-meanL += text(612, 150, 'mean *w̄*_{*μ*}: along it every likely', {size: 19, fill: C.or, weight: 600});
-meanL += text(612, 176, 'logit rises together; centering', {size: 19, fill: C.or, weight: 600});
-meanL += text(612, 202, 'removes this direction', {size: 19, fill: C.or, weight: 600});
+meanL += text(612, 150, 'mean *w̄*_{*μ*}: along it the likely', {size: 19, fill: C.or, weight: 600});
+meanL += text(612, 176, 'logits rise almost alike; centering', {size: 19, fill: C.or, weight: 600});
+meanL += text(612, 202, 'removes this common part', {size: 19, fill: C.or, weight: 600});
 
 const K = 2.2 * S;
 let ell = '';
@@ -62,7 +62,7 @@ export default {
   frames: [{base, layers: [meanL, ell, us]}],
   steps: [
     {k: 0, text: 'Each candidate token has an output vector *w*_{*a*}; its logit is the inner product with the hidden state *h*.'},
-    {k: 1, text: 'Moving *h* along the mean vector raises every likely logit together, which changes no probability: centering removes this direction.'},
+    {k: 1, text: 'Moving *h* along the mean vector raises the likely logits almost alike, which barely changes any probability: centering removes this common part.'},
     {k: 2, text: 'What is left is the spread of the likely candidates, here almost a line: *n* candidates span at most *n* \u2212 1 directions.'},
     {k: 3, text: 'A parameter that moves *h* along that spread has Fisher; one that moves it across has none.'},
   ],

@@ -57,6 +57,6 @@ export default {
     {k: 0, text: 'Each dot is a sample: a parameter\u2019s score against the learning signal *A*, with the score averaging to zero.'},
     {k: 1, text: 'Both parameters have the same spread of scores, hence the same Fisher.'},
     {k: 2, text: 'The expected update is the covariance: positive on the left, zero on the right.'},
-    {k: 3, text: 'The update line must stay inside the shaded wedge, set by the Fisher: a large Fisher allows a large update but does not force one.'},
+    {k: 3, text: 'The line can never leave the wedge of perfect correlation, which is the cap |*G*| ≤ std(*A*) · √*F*: the same for both. A large Fisher allows an update; only the reward makes one.'},
   ],
 };

@@ -27,8 +27,8 @@ series_order: 2
 {{% callout note %}}
 **Why Post-Training Is Sparse · Part 2 of 3.** Builds on [Part 1](/post/gradient-is-covariance/), where the expected update is {{< math >}}$G_i=\operatorname{Cov}_{\smu}(A,c_i)${{< /math >}} and the Fisher caps it. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can still reach.
 
-- **The condition is centering, not on-policy data.** With a known sampler, the update is capped by the sampler's Fisher only if the score is centered under it. On-policy sampling centers for free; an off-policy sampler needs explicit centering or per-token importance weights.
-- **Necessary, not sufficient.** The sampler's Fisher must also be concentrated. In the output layer row {{< math >}}$c${{< /math >}}'s Fisher is exactly {{< math >}}$h_k^2\,\smu(c)(1-\smu(c))${{< /math >}}, so a row can move only if the sampler emits its token. In hidden layers only the directions that tell likely candidates apart remain; coordinate sparsity there is measured, not derived.
+- **The condition is centering, not on-policy data.** With a known sampler, the update is capped by a Fisher only if its score has zero mean under the sampler. Centering gives the sampler's Fisher; per-token importance weights give the model's. On-policy the two coincide and come for free.
+- **Necessary, not sufficient.** Centering makes the cap hold. The cap makes the update sparse only if the Fisher is concentrated on a few coordinates, and the reward then decides which of those move. In the output layer the concentration is exact: row {{< math >}}$c${{< /math >}}'s Fisher is {{< math >}}$h_k^2\,\smu(c)(1-\smu(c))${{< /math >}}, large only for tokens the sampler emits. In hidden layers only the directions that tell likely candidates apart remain; coordinate sparsity there is measured, not derived.
 - **Without centering**, a mean shift adds up along the sequence and escapes the cap. Under training–inference mismatch it is numerical noise.
 - **SFT is a different case.** Its sampler is unknown, so its score cannot be centered, and its whole gradient is the mean shift. Its sparsity depends on how far the data is from the model: in-distribution SFT is sparse, out-of-distribution SFT is dense.
 {{% /callout %}}
@@ -43,10 +43,13 @@ All of this is about the expected update. Whether a stored weight ends up changi
 
 {{< math >}}
 $$
-z_a=\sum_k W_{a,k}\,h_k\ \Rightarrow\ \kappa_{(c,k),a}=\mathbf 1[a=c]\,h_k,\qquad \bar\kappa^{\mu}_{(c,k)}=\smu(c)\,h_k,
+z_a=\sum_k W_{a,k}\,h_k\ \Rightarrow\ \kappa_{(c,k),a}=\mathbf 1[a=c]\,h_k,
 $$
 $$
-f_{(c,k)}=h_k^2\,\smu(c)\big(1-\smu(c)\big),\qquad \sum_{c,k}f_{(c,k)}=\|h\|^2\Big(1-\sum_c\smu(c)^2\Big),
+\bar\kappa^{\mu}_{(c,k)}=\smu(c)\,h_k,\qquad f_{(c,k)}=h_k^2\,\smu(c)\big(1-\smu(c)\big),
+$$
+$$
+\sum_{c,k}f_{(c,k)}=\|h\|^2\Big(1-\sum_c\smu(c)^2\Big),
 $$
 $$
 F^{\mu}_{\text{row }c}\le\max_s\|h(s)\|^2\cdot\mathbb{E}_{\smu}\big[\#\{t:\ y_t=c\}\big].
@@ -88,20 +91,25 @@ $$
 
 {{< math >}}
 $$
-z_a=w_a^\top h,\quad u_i=\frac{\partial h}{\partial\theta_i}\ \Rightarrow\ \kappa_{i,a}=w_a^\top u_i,\qquad
+z_a=w_a^\top h,\quad u_i=\frac{\partial h}{\partial\theta_i}\ \Rightarrow\ \kappa_{i,a}=w_a^\top u_i,
+$$
+$$
 \mathbb{E}_{\smu}\big[\kappa_{i,a}^2\big]=u_i^\top\big(C_\mu+\bar w_\mu\bar w_\mu^\top\big)u_i,
 $$
 $$
 f_i(s)=\operatorname{Var}_{a\sim\smu}\big[\kappa_{i,a}\big]=u_i^\top C_\mu\,u_i,
 $$
 $$
-C_\mu=\sum_a\smu(a)\,(w_a-\bar w_\mu)(w_a-\bar w_\mu)^\top,\qquad \operatorname{rank}C_\mu\le n-1.
+C_\mu=\sum_a\smu(a)\,(w_a-\bar w_\mu)(w_a-\bar w_\mu)^\top,
+$$
+$$
+\operatorname{rank}C_\mu\le n-1.
 $$
 {{< /math >}}
 
-Centering deletes one direction, the mean output vector {{< math >}}$\bar w_\mu${{< /math >}}, along which every likely logit rises together. What remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean sum to zero, so they span at most {{< math >}}$n-1${{< /math >}} directions. In the extreme where {{< math >}}$\smu${{< /math >}} sits on one token, every parameter's Fisher is zero after centering, while the uncentered second moment is not. Short of that extreme, concentration alone already confines the second moment to the {{< math >}}$n${{< /math >}} directions {{< math >}}$w_a${{< /math >}}; centering removes one more, the common direction, which may carry most of the energy. How much of the Fisher's smallness that accounts for is open ([section 6](#6-scope-and-open-questions)).
+Centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that part counts for nothing. What remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean sum to zero, so they span at most {{< math >}}$n-1${{< /math >}} directions. In the extreme where {{< math >}}$\smu${{< /math >}} sits on one token, every parameter's Fisher is zero after centering, while the uncentered second moment is not. Short of that extreme, concentration alone already confines the second moment to the {{< math >}}$n${{< /math >}} directions {{< math >}}$w_a${{< /math >}}; centering removes the common part on top, which may carry most of the energy. How much of the Fisher's smallness that accounts for is open ([section 6](#6-scope-and-open-questions)).
 
-This is low dimension in function space, not coordinate sparsity. That would need most {{< math >}}$u_i${{< /math >}} to be nearly orthogonal to these directions, which depends on the architecture and on pretraining, and the directions change from prefix to prefix. The evidence is empirical. In RL on Qwen3-1.7B-Base, [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262) find that training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82%. The token Fisher under the model's own probabilities is 0.16 of its value under a uniform distribution at the start, and 0.04 after 1,000 steps. These numbers show that the Fisher picks out the coordinates that matter; they do not separate the sampler's concentration from centering. Sparse is also not low rank: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
+This is low dimension in function space, not coordinate sparsity. That would need most {{< math >}}$u_i${{< /math >}} to be nearly orthogonal to these directions, which depends on the architecture and on pretraining, and the directions change from prefix to prefix. The evidence is empirical. In RL on Qwen3-1.7B-Base, [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262) find that training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82%. The token Fisher under the model's own probabilities is 0.16 of its value under a uniform distribution at the start, and 0.04 after 1,000 steps. These numbers show that the Fisher picks out the coordinates that matter. The authors also report that likely next tokens tend to have similar sensitivities, which is the common part centering removes; but the model-versus-uniform ratio changes concentration and token assignment together, so the two mechanisms are not yet separated ([section 6](#6-scope-and-open-questions)). Sparse is also not low rank: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
 
 ## 3. Without centering: the mean shift
 
@@ -111,11 +119,16 @@ This is low dimension in function space, not coordinate sparsity. That would nee
 
 {{< math >}}
 $$
-m_i(s)=\bar\kappa^{\mu}_i(s)-\bar\kappa^{p}_i(s),\qquad
+m_i(s)=\bar\kappa^{\mu}_i(s)-\bar\kappa^{p}_i(s),
+$$
+$$
 \mathbb{E}_{a\sim\smu}\big[(\kappa_{i,a}-\bar\kappa^{p}_i)^2\big]=\operatorname{Var}_{a\sim\smu}\big[\kappa_{i,a}\big]+m_i^2,
 $$
 $$
-\mathbb{E}_{\smu}\big[\mathrm{score}_i^{(u)}\,\mathrm{score}_i^{(t)}\big]=\mathbb{E}_{\smu}\big[\mathrm{score}_i^{(u)}\,m_i(s_t)\big]\ne0\quad(u\lt t).
+\mathbb{E}_{\smu}\big[\mathrm{score}_i^{(u)}\,\mathrm{score}_i^{(t)}\big]
+$$
+$$
+=\mathbb{E}_{\smu}\big[\mathrm{score}_i^{(u)}\,m_i(s_t)\big]\ne0\quad(u\lt t).
 $$
 {{< /math >}}
 
@@ -138,11 +151,16 @@ Let {{< math >}}$D${{< /math >}} be the data distribution and {{< math >}}$w=D/\
 
 {{< math >}}
 $$
-G^{\text{SFT}}_i=\mathbb{E}_{\pi}\big[w\cdot\mathrm{score}_i\big]=\mathbb{E}_{\pi}\big[(w-b)\,\mathrm{score}_i\big],\qquad
+G^{\text{SFT}}_i=\mathbb{E}_{\pi}\big[w\cdot\mathrm{score}_i\big]=\mathbb{E}_{\pi}\big[(w-b)\,\mathrm{score}_i\big],
+$$
+$$
 |G^{\text{SFT}}_i|\le\sqrt{\mathbb{E}_{\pi}\big[(w-b)^2\big]}\,\sqrt{F_i},
 $$
 $$
-\mathbb{E}_{\pi}\big[(w-b)^2\big]=\chi^2(D\,\|\,\pi_\theta)+(1-b)^2\ \ge\ \chi^2(D\,\|\,\pi_\theta).
+\mathbb{E}_{\pi}\big[(w-b)^2\big]=\chi^2(D\,\|\,\pi_\theta)+(1-b)^2
+$$
+$$
+\ge\ \chi^2(D\,\|\,\pi_\theta).
 $$
 {{< /math >}}
 

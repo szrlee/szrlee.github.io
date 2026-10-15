@@ -27,7 +27,7 @@ series_order: 3
 **Why Post-Training Is Sparse · Part 3 of 3.** Uses the covariance form of [Part 1](/post/gradient-is-covariance/) and the Fisher of [Part 2](/post/sparsity-score-centering/).
 
 - One update moves the log-odds of {{< math >}}$y${{< /math >}} against {{< math >}}$y'${{< /math >}} by at most {{< math >}}$\operatorname{std}_{\smu}(A)\sqrt{v^\top F^{\mu}v}${{< /math >}}, where {{< math >}}$v${{< /math >}} is their score difference.
-- {{< math >}}$v^\top F^{\mu}v${{< /math >}} is the mean squared **similarity** between {{< math >}}$v${{< /math >}} and the sampler's own outputs: what the sampler never produces barely moves.
+- {{< math >}}$v^\top F^{\mu}v${{< /math >}} is the mean squared **similarity** between {{< math >}}$v${{< /math >}} and the sampler's own outputs: what resembles nothing the sampler produces barely moves, while a response never drawn but similar to rewarded samples moves with them.
 - With one logit per response, growth is **proportional to current probability**. Reaching one half from {{< math >}}$\varepsilon${{< /math >}} takes time about {{< math >}}$1/\varepsilon${{< /math >}}; a demonstration needs only about {{< math >}}$\log(1/\varepsilon)${{< /math >}}.
 - The bound covers **one step of one estimator**. Shared structure, a changing Fisher, and samplers with centered estimators all widen what is reachable.
 {{% /callout %}}
@@ -41,7 +41,10 @@ $$
 \frac{d}{d\eta}\log\pi_{\theta+\eta G}(y\mid x)\Big|_{\eta=0}=\mathrm{score}(y)^\top G,
 $$
 $$
-\frac{d}{d\eta}\Big[\log\pi(y\mid x)-\log\pi(y'\mid x)\Big]_{\eta=0}=v^\top G,\quad v=\mathrm{score}(y)-\mathrm{score}(y').
+\frac{d}{d\eta}\Big[\log\pi(y\mid x)-\log\pi(y'\mid x)\Big]_{\eta=0}=v^\top G,
+$$
+$$
+v=\mathrm{score}(y)-\mathrm{score}(y').
 $$
 {{< /math >}}
 
@@ -55,10 +58,16 @@ $$
 
 {{< math >}}
 $$
-\mathrm{score}(y)^\top G=\mathbb{E}_{y''\sim\smu}\big[A(y'')\,K(y,y'')\big],\qquad K(y,y'')=\mathrm{score}(y)^\top c(y''),
+\mathrm{score}(y)^\top G=\mathbb{E}_{y''\sim\smu}\big[A(y'')\,K(y,y'')\big],
 $$
 $$
-\big|v^\top G\big|\le\operatorname{std}_{\smu}(A)\sqrt{v^\top F^{\mu}v},\qquad v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big].
+K(y,y'')=\mathrm{score}(y)^\top c(y''),
+$$
+$$
+\big|v^\top G\big|\le\operatorname{std}_{\smu}(A)\sqrt{v^\top F^{\mu}v},
+$$
+$$
+v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big].
 $$
 {{< /math >}}
 
@@ -71,7 +80,10 @@ By Part 1, {{< math >}}$\mathbb{E}_{\smu}[c]=0${{< /math >}}, so {{< math >}}$\m
 
 {{< math >}}
 $$
-v^\top G=\mathbb{E}_{\smu}\big[(A-\mathbb{E}_{\smu}A)\,v^\top c\big]\le\sqrt{\operatorname{Var}_{\smu}(A)}\,\sqrt{\mathbb{E}_{\smu}\big[(v^\top c)^2\big]}=\operatorname{std}_{\smu}(A)\sqrt{v^\top F^{\mu}v}.
+v^\top G=\mathbb{E}_{\smu}\big[(A-\mathbb{E}_{\smu}A)\,v^\top c\big]
+$$
+$$
+\le\sqrt{\operatorname{Var}_{\smu}(A)}\,\sqrt{\mathbb{E}_{\smu}\big[(v^\top c)^2\big]}=\operatorname{std}_{\smu}(A)\sqrt{v^\top F^{\mu}v}.
 $$
 {{< /math >}}
 
@@ -108,10 +120,16 @@ With two responses, rewards {{< math >}}$\Delta${{< /math >}} and 0, and log-odd
 
 {{< math >}}
 $$
-\text{policy gradient: }\ \frac{d\ell}{dt}=2\Delta\,\pi(1-\pi),\qquad t_{1/2}=\frac{e^{-\ell_0}-2\ell_0-e^{\ell_0}}{2\Delta}\approx\frac{1}{2\varepsilon\Delta},
+\text{policy gradient: }\ \frac{d\ell}{dt}=2\Delta\,\pi(1-\pi),
 $$
 $$
-\text{demonstration: }\ \frac{d\ell}{dt}=2(1-\pi),\qquad t_{1/2}=\frac{1-\ell_0-e^{\ell_0}}{2}\approx\tfrac12\log\frac1\varepsilon .
+t_{1/2}=\frac{e^{-\ell_0}-2\ell_0-e^{\ell_0}}{2\Delta}\approx\frac{1}{2\varepsilon\Delta},
+$$
+$$
+\text{demonstration: }\ \frac{d\ell}{dt}=2(1-\pi),
+$$
+$$
+t_{1/2}=\frac{1-\ell_0-e^{\ell_0}}{2}\approx\tfrac12\log\frac1\varepsilon .
 $$
 {{< /math >}}
 
@@ -150,7 +168,10 @@ No similarity to sampled outputs enters, and the push stays near one however unl
 
 {{< math >}}
 $$
-v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big],\qquad v=\mathrm{score}(y)-\mathrm{score}(y').
+v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big],
+$$
+$$
+v=\mathrm{score}(y)-\mathrm{score}(y').
 $$
 {{< /math >}}
 

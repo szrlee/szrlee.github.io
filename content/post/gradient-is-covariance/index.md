@@ -46,7 +46,7 @@ The figures step through like slides. Use **→** or **▶**, and step back with
 
 **Reweighting what the model already samples explains why the update is small, not why it lands on a few coordinates.**
 
-RL fine-tuning changes only 5–30% of a model's parameters, across seven algorithms and ten models ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). On-policy distillation and SFT on near-policy data behave the same way. A common explanation is that RL only reweights answers the model can already produce, so little information goes in: a scalar advantage carries at most {{< math >}}$\log_2 B${{< /math >}} bits per episode ([Information Bandwidth](/post/information-bandwidth-rl/)). That bounds the size of the update. It does not make the update sparse: a hundred million parameters each moving a little is small and dense. The question is which coordinates move, and why the same few can be found before any reward is seen.
+RL fine-tuning changes only 5–30% of a model's parameters, across seven algorithms and ten models ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). On-policy distillation and SFT on near-policy data behave the same way ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Two common explanations are that RL only reweights answers the model can already produce, and that a scalar advantage carries at most {{< math >}}$\log_2 B${{< /math >}} bits per episode ([Information Bandwidth](/post/information-bandwidth-rl/)). The first says the update is small, the second that it carries little. Neither makes it sparse: a hundred million parameters each moving a little is small and dense, and can carry those few bits just as well. The question is which coordinates move, and why the same few can be found before any reward is seen.
 
 ## 2. The gradient is a covariance, the Fisher a variance
 
@@ -56,11 +56,15 @@ RL fine-tuning changes only 5–30% of a model's parameters, across seven algori
 
 {{< math >}}
 $$
-\mathrm{score}_i=\frac{\partial\log\pi_\theta(y\mid x)}{\partial\theta_i},\qquad
+\mathrm{score}_i=\frac{\partial\log\pi_\theta(y\mid x)}{\partial\theta_i},
+$$
+$$
 \mathbb{E}_{y\sim\pi_\theta}\big[\mathrm{score}_i\big]=\sum_y\partial_i\pi_\theta(y\mid x)=\partial_i 1=0,
 $$
 $$
-G_i=\mathbb{E}\big[A\cdot\mathrm{score}_i\big]=\operatorname{Cov}(A,\mathrm{score}_i),\qquad
+G_i=\mathbb{E}\big[A\cdot\mathrm{score}_i\big]=\operatorname{Cov}(A,\mathrm{score}_i),
+$$
+$$
 F_i=\mathbb{E}\big[\mathrm{score}_i^2\big]=\operatorname{Var}(\mathrm{score}_i),
 $$
 $$
@@ -68,9 +72,9 @@ $$
 $$
 {{< /math >}}
 
-Probabilities sum to one, so whatever a parameter does, the responses it raises are paid for by others, and weighted by probability the changes cancel. With the score's mean at zero, the policy gradient {{< math >}}$\mathbb{E}[A\cdot\mathrm{score}_i]${{< /math >}} is a covariance and the Fisher is a variance; Cauchy–Schwarz gives the bound. A baseline that depends only on the prompt changes nothing in {{< math >}}$G_i${{< /math >}}, since {{< math >}}$\operatorname{Cov}(A-b,\mathrm{score}_i)=\operatorname{Cov}(A,\mathrm{score}_i)${{< /math >}}. It only shrinks {{< math >}}$\operatorname{std}(A)${{< /math >}}, and the [Optimal Token Baseline](/optimal-token-baseline) is the variance-optimal choice.
+Probabilities sum to one, so whatever a parameter does, the responses it raises are paid for by others, and weighted by probability the changes cancel. With the score's mean at zero, the policy gradient {{< math >}}$\mathbb{E}[A\cdot\mathrm{score}_i]${{< /math >}} is a covariance and the Fisher is a variance; Cauchy–Schwarz gives the bound. A baseline that depends only on the prompt changes nothing in {{< math >}}$G_i${{< /math >}}, since {{< math >}}$\operatorname{Cov}(A-b,\mathrm{score}_i)=\operatorname{Cov}(A,\mathrm{score}_i)${{< /math >}}. It changes only {{< math >}}$\operatorname{std}(A)${{< /math >}} and the noise of the estimate, and the [Optimal Token Baseline](/optimal-token-baseline) is the choice that minimizes that noise.
 
-The bound is necessary, not sufficient. After "She drank a cup of", the output rows for *tea* and *coffee* have a large Fisher; if the reward does not care which one is chosen, their gradient is zero. Measured before RL training, the top 1% of coordinates by Fisher hold 47.40% of the top 1% by gradient magnitude, against 1% at random ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). The Fisher says where learning can happen; the reward decides where it does.
+A large Fisher is necessary for a large gradient, not sufficient. After "She drank a cup of", the output rows for *tea* and *coffee* have a large Fisher; if the reward does not care which one is chosen, their gradient is zero. Measured before RL training, the top 1% of coordinates by Fisher hold 47.40% of the top 1% by gradient magnitude, against 1% at random ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). The Fisher says where learning can happen; the reward decides where it does.
 
 <details class="spoiler">
 <summary>Proof, and the four assumptions it uses</summary>
@@ -82,7 +86,10 @@ $$
 \mathbb{E}_{y\sim\pi_\theta}[\mathrm{score}_i]=\sum_y\pi_\theta\,\frac{\partial_i\pi_\theta}{\pi_\theta}=\partial_i\sum_y\pi_\theta=0,
 $$
 $$
-G_i=\partial_i\,\mathbb{E}_x\Big[\sum_y\pi_\theta\,r\Big]=\mathbb{E}_x\Big[\sum_y\pi_\theta\,\mathrm{score}_i\,r\Big]=\mathbb{E}[r\cdot\mathrm{score}_i].
+G_i=\partial_i\,\mathbb{E}_x\Big[\sum_y\pi_\theta\,r\Big]
+$$
+$$
+=\mathbb{E}_x\Big[\sum_y\pi_\theta\,\mathrm{score}_i\,r\Big]=\mathbb{E}[r\cdot\mathrm{score}_i].
 $$
 {{< /math >}}
 
@@ -100,11 +107,16 @@ The Fisher is also the expected curvature: {{< math >}}$\partial_j\mathrm{score}
 
 {{< math >}}
 $$
-\frac{\partial\log\pmodel(a\mid s)}{\partial\theta_i}=\kappa_{i,a}-\bar\kappa^{p}_i,\qquad
+\frac{\partial\log\pmodel(a\mid s)}{\partial\theta_i}=\kappa_{i,a}-\bar\kappa^{p}_i,
+$$
+$$
 \bar\kappa^{p}_i=\sum_a\pmodel(a\mid s)\,\kappa_{i,a},
 $$
 $$
-f_i(s)=\operatorname{Var}_{a\sim\pmodel}\big[\kappa_{i,a}\big]=\tfrac12\sum_{a,b}\pmodel(a)\,\pmodel(b)\,\big(\kappa_{i,a}-\kappa_{i,b}\big)^2 .
+f_i(s)=\operatorname{Var}_{a\sim\pmodel}\big[\kappa_{i,a}\big]
+$$
+$$
+=\tfrac12\sum_{a,b}\pmodel(a)\,\pmodel(b)\,\big(\kappa_{i,a}-\kappa_{i,b}\big)^2 .
 $$
 {{< /math >}}
 
@@ -121,7 +133,10 @@ $$
 \mathrm{score}_i=\sum_t\mathrm{score}_i^{(t)},
 $$
 $$
-\mathbb{E}\big[\mathrm{score}_i^{(u)}\,\mathrm{score}_i^{(t)}\big]=\mathbb{E}\Big[\mathrm{score}_i^{(u)}\;\underbrace{\mathbb{E}\big[\mathrm{score}_i^{(t)}\mid s_t\big]}_{=0}\Big]=0\quad(u\lt t),
+\mathbb{E}\big[\mathrm{score}_i^{(u)}\,\mathrm{score}_i^{(t)}\big]
+$$
+$$
+=\mathbb{E}\Big[\mathrm{score}_i^{(u)}\;\underbrace{\mathbb{E}\big[\mathrm{score}_i^{(t)}\mid s_t\big]}_{=0}\Big]=0\quad(u\lt t),
 $$
 $$
 F_i=\mathbb{E}\Big[\sum_t f_i(s_t)\Big].
@@ -141,7 +156,9 @@ $$
 c_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t),\qquad \bar\kappa^{\mu}_i=\sum_a\smu(a\mid s)\,\kappa_{i,a},
 $$
 $$
-G_i=\mathbb{E}_{\smu}\big[A\,c_i\big]=\operatorname{Cov}_{\smu}(A,c_i),\qquad
+G_i=\mathbb{E}_{\smu}\big[A\,c_i\big]=\operatorname{Cov}_{\smu}(A,c_i),
+$$
+$$
 |G_i|\le\operatorname{std}_{\smu}(A)\sqrt{F^{\mu}_i},
 $$
 $$
@@ -161,7 +178,7 @@ For any sampler {{< math >}}$\smu${{< /math >}} whose full next-token distributi
 3. The Fisher is a variance: by 2 only diagonal terms survive, and by 1 each is {{< math >}}$\operatorname{Var}_{a\sim\smu}[\kappa_{i,a}(s_t)]${{< /math >}}. By 1 and the tower property {{< math >}}$\mathbb{E}_{\smu}[c_i]=0${{< /math >}}, so the second moment is the variance.
 4. The update is a covariance: {{< math >}}$\operatorname{Cov}_{\smu}(A,c_i)=\mathbb{E}_{\smu}[A\,c_i]=G_i${{< /math >}}, and Cauchy–Schwarz gives the bound.
 
-On-policy, {{< math >}}$c_i=\mathrm{score}_i${{< /math >}} and {{< math >}}$G_i${{< /math >}} is the gradient. Off-policy, {{< math >}}$G_i${{< /math >}} is the expected update of the centered estimator, which need not be the gradient of any objective.
+On-policy, {{< math >}}$c_i=\mathrm{score}_i${{< /math >}} and {{< math >}}$G_i${{< /math >}} is the gradient. Off-policy, {{< math >}}$G_i${{< /math >}} is the expected update of the centered estimator: the gradient of the covariance loss, not in general of the expected reward.
 
 </details>
 
