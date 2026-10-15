@@ -1,0 +1,8 @@
+{{- /* Slider figure built by tools/notefigs/build.mjs. Usage: {{< livefig "s-coinflip" "Caption" 560 >}} (last argument: fallback height in px) */ -}}
+{{- $name := .Get 0 -}}
+{{- $id := printf "livefig-%s-%d" $name .Ordinal -}}
+<figure class="livefig">
+<iframe id="{{ $id }}" src="/figs/embed/{{ $name }}.html" title="{{ with .Get 1 }}{{ . }}{{ else }}Interactive figure{{ end }}" loading="lazy" sandbox="allow-scripts" style="height:{{ with .Get 2 }}{{ . }}{{ else }}560{{ end }}px"></iframe>
+{{- with .Get 1 }}<figcaption>{{ . | markdownify }}</figcaption>{{ end }}
+<script>(function(){var f=document.getElementById('{{ $id }}');window.addEventListener('message',function(e){if(e.source===f.contentWindow&&e.data&&e.data.h)f.style.height=Math.ceil(e.data.h)+'px';});})();</script>
+</figure>

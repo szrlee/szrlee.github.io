@@ -84,7 +84,9 @@ Two moves make it work. **Sampling is a random combination:** a Gaussian index w
 {{< math >}}
 $$
 \tilde\theta_{t,m} = \arg\min_{\theta}\ \sum_{s\le t}\Big(Y_s + Z_{s,m} - \langle\theta, X_s\rangle\Big)^2 + \big\|\theta - \tilde\theta_{0,m}\big\|^2_{\Sigma_0^{-1}},
-\qquad Z_{s,m}\sim N(0,1),\quad \tilde\theta_{0,m}\sim N(\mu_0,\Sigma_0).
+$$
+$$
+Z_{s,m}\sim N(0,1),\quad \tilde\theta_{0,m}\sim N(\mu_0,\Sigma_0).
 $$
 {{< /math >}}
 

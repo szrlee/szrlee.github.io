@@ -72,7 +72,10 @@ At each prefix, the mean of {{< math >}}$\ell_t${{< /math >}} under the sampler 
 
 {{< math >}}
 $$
-\text{tangent} = \mathrm{Cov}\Big(R,\ \sum_t \big(\ell_t-\bar\ell_t\big)\Big) = \sum_t \mathrm{Cov}\Big(R,\ \log\pt(y_t) - \mathbb{E}_{\ps}\big[\log\pt\big]\Big) + C .
+\text{tangent} = \mathrm{Cov}\Big(R,\ \sum_t \big(\ell_t-\bar\ell_t\big)\Big)
+$$
+$$
+= \sum_t \mathrm{Cov}\Big(R,\ \log\pt(y_t) - \mathbb{E}_{\ps}\big[\log\pt\big]\Big) + C .
 $$
 {{< /math >}}
 
@@ -113,7 +116,10 @@ For very long rollouts the sequence KL can exceed one, and then no bound that ig
 
 {{< math >}}
 $$
-\text{remainder} \approx \tfrac12\,\mathrm{Cov}\Big(R,\ \big(\textstyle\sum_t c_t\big)^2 - \sum_t V_t\Big), \qquad c_t = \ell_t - \mathbb{E}_{\ps}[\ell_t], \quad V_t = \mathrm{Var}_{\ps}(c_t).
+\text{remainder} \approx \tfrac12\,\mathrm{Cov}\Big(R,\ \big(\textstyle\sum_t c_t\big)^2 - \sum_t V_t\Big),
+$$
+$$
+c_t = \ell_t - \mathbb{E}_{\ps}[\ell_t], \quad V_t = \mathrm{Var}_{\ps}(c_t).
 $$
 {{< /math >}}
 
@@ -150,11 +156,14 @@ The bound equals {{< math >}}$\sum_y \ps(y)\big(A(y)+R_{\max}\big)\log\pt(y)${{<
 
 {{< math >}}
 $$
-\nabla_\theta\,\text{tangent} = \sum_t \mathbb{E}\Big[R\,\big(s_{y_t} - \bar s_t\big)\Big], \qquad \bar s_t = \mathbb{E}_{v\sim\ps}\big[s_v\big], \qquad s_{y_t} - \bar s_t \;\to\; e_{y_t} - \ps \ \text{ at the logits}.
+\nabla_\theta\,\text{tangent} = \sum_t \mathbb{E}\Big[R\,\big(s_{y_t} - \bar s_t\big)\Big], \qquad \bar s_t = \mathbb{E}_{v\sim\ps}\big[s_v\big],
+$$
+$$
+s_{y_t} - \bar s_t \;\to\; e_{y_t} - \ps \ \text{ at the logits}.
 $$
 {{< /math >}}
 
-Averaged over what the sampler draws, the raises and lowerings cancel, so a constant reward moves nothing. The plain score averages to zero under the trainer, not under the sampler, so without centering even a constant reward pushes the policy. That is the off-policy bias in its simplest form. Score centering has an independent public treatment in [Marek & Ryabinin (2026)](https://arxiv.org/abs/2609.20807); here it is simply the gradient of the tangent.
+Averaged over what the sampler draws, the raises and lowerings cancel, so a constant reward moves nothing. The plain score averages to zero under the trainer, not under the sampler, so without centering even a constant reward pushes the policy. That is the off-policy bias in its simplest form. Score centering has an independent public treatment in [Marek & Ryabinin (2026)](https://arxiv.org/abs/2609.20807); here it is simply the gradient of the tangent. It is also why post-training updates are sparse: see [Why Post-Training Is Sparse](/post/sparsity-score-centering/).
 
 ## 5. Per-token importance sampling: same tangent, more variance
 
@@ -168,7 +177,7 @@ L_{\text{IS}} = \mathbb{E}\Big[R\sum_t (r_t - 1)\Big], \qquad \nabla_\theta L_{\
 $$
 {{< /math >}}
 
-At the sampler it has the same tangent, so to first order it takes the same step. But a token that the sampler rarely draws and the trainer now prefers gets a large ratio, and the estimate jumps whenever that token appears. The {{< math >}}$\chi^2${{< /math >}} divergence, which is dominated by such tokens, can be far above the KL, and the KL is all the bound controls. Clipping tames the jumps, but gives up first-order correctness on exactly those tokens.
+At the sampler it has the same tangent, so to first order it takes the same step. But a token that the sampler rarely draws and the trainer now prefers gets a large ratio, and the estimate jumps whenever that token appears. The {{< math >}}$\chi^2${{< /math >}} divergence, which is dominated by such tokens, can be far above the KL, and the KL is all the bound controls. Clipping tames the jumps, but gives up first-order correctness on exactly those tokens, and the clipped score is no longer centered.
 
 ## 6. One knob: how hard to pull toward the sampler
 

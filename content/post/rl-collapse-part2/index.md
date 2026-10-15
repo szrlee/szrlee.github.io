@@ -134,6 +134,8 @@ This proves the variance is $\mathbf{Var}(\hat{g}\_{\text{seq}}) = O((1 + \bar{\
 
 {{< /spoiler >}}
 
+The same {{< math >}}$(1+\chi^2)^T${{< /math >}} growth reappears as the signal scale of SFT, whose score is not centered under the sampler ([Why Post-Training Is Sparse, Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)).
+
 ### Self-Normalized Sequence-Level IS (SNIS)
 
 Before we give up on Sequence-Level IS and resort to Clipping or Token-level methods, is there a statistically principled way to fix the variance? This leads to Self-Normalized Importance Sampling (SNIS).

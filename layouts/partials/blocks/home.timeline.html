@@ -16,7 +16,7 @@
       </div>
       <div class="hp-tl-where">
         {{- .where -}}
-        {{- with .url2 }} · {{ partial "home/link" (dict "url" $item.url "text" "Part 1") }} · {{ partial "home/link" (dict "url" . "text" "Part 2") }}{{ end -}}
+        {{- range $k, $u := .parts }} · {{ partial "home/link" (dict "url" $u "text" (printf "Part %d" (add $k 1))) }}{{ end -}}
       </div>
     </div>
     <div class="hp-tl-text">{{ .text }}</div>

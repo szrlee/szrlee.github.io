@@ -47,7 +47,10 @@ Every token carries an age {{< math >}}$a${{< /math >}}: the number of trainer u
 
 {{< math >}}
 $$
-\mathrm{KL}(a) \;\approx\; \underbrace{c_0(\theta)}_{\text{floor}} + \underbrace{c_1(\theta)\,\eta^2 a^{p}}_{\text{staleness}}, \qquad \overline{\mathrm{KL}}(a) \approx \overline{\mathrm{KL}}(0) + \tfrac12\,\eta^2\sigma_u^2\,a \ \text{ for a random walk } (p=1).
+\mathrm{KL}(a) \;\approx\; \underbrace{c_0(\theta)}_{\text{floor}} + \underbrace{c_1(\theta)\,\eta^2 a^{p}}_{\text{staleness}},
+$$
+$$
+\overline{\mathrm{KL}}(a) \approx \overline{\mathrm{KL}}(0) + \tfrac12\,\eta^2\sigma_u^2\,a \ \text{ for a random walk } (p=1).
 $$
 {{< /math >}}
 
@@ -78,7 +81,10 @@ Grow the batch by {{< math >}}$\kappa${{< /math >}}. With {{< math >}}$m_u${{< /
 
 {{< math >}}
 $$
-\mathcal{A}_B = \frac{\eta\, m_u(B)}{B}\ \ (\text{progress}), \qquad \mathcal{D}_B = \frac{\eta^2 C_u(B)}{B}\ \ (\text{noise}), \qquad \text{drift} \approx \tfrac12\Big(\mathbb{E}[S^2]\,\|\mathcal{A}_B\|_F^2 + \mathbb{E}[S]\,\mathrm{tr}\big(F\mathcal{D}_B\big)\Big).
+\mathcal{A}_B = \frac{\eta\, m_u(B)}{B}\ \ (\text{progress}), \qquad \mathcal{D}_B = \frac{\eta^2 C_u(B)}{B}\ \ (\text{noise}),
+$$
+$$
+\text{drift} \approx \tfrac12\Big(\mathbb{E}[S^2]\,\|\mathcal{A}_B\|_F^2 + \mathbb{E}[S]\,\mathrm{tr}\big(F\mathcal{D}_B\big)\Big).
 $$
 {{< /math >}}
 

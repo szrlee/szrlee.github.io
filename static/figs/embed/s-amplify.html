@@ -1,0 +1,163 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Time to amplify a rare response</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,wght@1,400;1,600&display=swap">
+<style>
+html,body{margin:0;padding:0;background:transparent;color:#161A22;font-family:"IBM Plex Sans",Arial,sans-serif}
+#fig{overflow-x:auto}
+#fig svg{display:block;width:100%;min-width:560px;height:auto}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 28px;margin:12px 4px 0}
+.ctl label{display:flex;align-items:center;gap:10px;font-size:15px;color:#3F4654}
+.ctl input{width:200px;accent-color:#C2410C}
+.ctl output{min-width:3.6em;font-variant-numeric:tabular-nums;color:#161A22;font-weight:500}
+#wrap{display:block;padding-bottom:2px}
+#read{margin:10px 4px 2px;font-size:15px;line-height:1.5;color:#3F4654}
+#read b{color:#161A22;font-weight:600}
+i{font-family:"Source Serif 4",Georgia,serif}
+</style></head><body><main id="wrap">
+<div id="fig"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 350" role="img" aria-label="Probability of the rewarded response over time"><rect x="0" y="0" width="960" height="350" rx="16" fill="#F0EDE4"/><path d="M96 300L916 300" fill="none" stroke="#C9C2B2" stroke-width="2"/><path d="M96 30L96 300" fill="none" stroke="#C9C2B2" stroke-width="2"/><path d="M90 40L96 40" fill="none" stroke="#C9C2B2" stroke-width="2"/><text x="86" y="45" font-size="14" font-weight="500" fill="#666C78" text-anchor="end"><tspan>1</tspan></text><path d="M90 153L96 153" fill="none" stroke="#C9C2B2" stroke-width="2"/><text x="86" y="158" font-size="14" font-weight="500" fill="#666C78" text-anchor="end"><tspan>0.1</tspan></text><path d="M90 266.1L96 266.1" fill="none" stroke="#C9C2B2" stroke-width="2"/><text x="86" y="271.1" font-size="14" font-weight="500" fill="#666C78" text-anchor="end"><tspan>0.01</tspan></text><path d="M96 74L916 74" fill="none" stroke="#3F4654" stroke-width="1.5" stroke-dasharray="6 6"/><text x="916" y="66" font-size="14" font-weight="500" fill="#3F4654" text-anchor="end"><tspan>one half</tspan></text><text x="916" y="328" font-size="14" font-weight="500" fill="#666C78" text-anchor="end"><tspan>time, 0 to 68 (step size × steps)</tspan></text><path d="M96 266.1L98.1 265.9L100.1 265.8L102.2 265.6L104.2 265.4L106.3 265.3L108.3 265.1L110.4 264.9L112.4 264.8L114.5 264.6L116.5 264.4L118.6 264.3L120.6 264.1L122.7 263.9L124.7 263.8L126.8 263.6L128.8 263.4L130.9 263.2L132.9 263.1L135 262.9L137 262.7L139.1 262.6L141.1 262.4L143.2 262.2L145.2 262L147.3 261.9L149.3 261.7L151.4 261.5L153.4 261.3L155.5 261.1L157.5 261L159.6 260.8L161.6 260.6L163.6 260.4L165.7 260.2L167.8 260.1L169.8 259.9L171.8 259.7L173.9 259.5L176 259.3L178 259.1L180 258.9L182.1 258.8L184.1 258.6L186.2 258.4L188.2 258.2L190.3 258L192.3 257.8L194.4 257.6L196.4 257.4L198.5 257.2L200.5 257L202.6 256.8L204.6 256.6L206.7 256.4L208.7 256.3L210.8 256.1L212.8 255.9L214.9 255.7L216.9 255.5L219 255.3L221 255.1L223.1 254.9L225.1 254.6L227.2 254.4L229.2 254.2L231.3 254L233.3 253.8L235.4 253.6L237.4 253.4L239.5 253.2L241.5 253L243.6 252.8L245.6 252.6L247.7 252.4L249.7 252.1L251.8 251.9L253.8 251.7L255.9 251.5L257.9 251.3L260 251.1L262 250.8L264.1 250.6L266.1 250.4L268.2 250.2L270.2 250L272.3 249.7L274.3 249.5L276.4 249.3L278.4 249L280.5 248.8L282.5 248.6L284.6 248.4L286.6 248.1L288.7 247.9L290.7 247.7L292.8 247.4L294.8 247.2L296.9 247L298.9 246.7L301 246.5L303 246.2L305.1 246L307.1 245.8L309.2 245.5L311.2 245.3L313.3 245L315.3 244.8L317.4 244.5L319.4 244.3L321.5 244L323.5 243.8L325.6 243.5L327.6 243.3L329.7 243L331.7 242.8L333.8 242.5L335.8 242.2L337.9 242L339.9 241.7L342 241.4L344 241.2L346.1 240.9L348.1 240.6L350.2 240.4L352.2 240.1L354.3 239.8L356.3 239.6L358.4 239.3L360.4 239L362.5 238.7L364.5 238.5L366.6 238.2L368.6 237.9L370.7 237.6L372.7 237.3L374.8 237L376.8 236.7L378.9 236.5L380.9 236.2L383 235.9L385 235.6L387.1 235.3L389.1 235L391.2 234.7L393.2 234.4L395.3 234.1L397.3 233.8L399.4 233.4L401.4 233.1L403.5 232.8L405.5 232.5L407.6 232.2L409.6 231.9L411.7 231.6L413.7 231.2L415.8 230.9L417.8 230.6L419.9 230.3L421.9 229.9L424 229.6L426 229.3L428.1 228.9L430.1 228.6L432.2 228.2L434.2 227.9L436.3 227.6L438.3 227.2L440.4 226.9L442.4 226.5L444.5 226.1L446.5 225.8L448.6 225.4L450.6 225.1L452.7 224.7L454.7 224.3L456.8 224L458.8 223.6L460.9 223.2L462.9 222.8L465 222.5L467 222.1L469.1 221.7L471.1 221.3L473.2 220.9L475.2 220.5L477.3 220.1L479.3 219.7L481.4 219.3L483.4 218.9L485.5 218.5L487.5 218.1L489.6 217.6L491.6 217.2L493.7 216.8L495.7 216.4L497.8 215.9L499.8 215.5L501.9 215.1L503.9 214.6L506 214.2L508 213.7L510.1 213.3L512.1 212.8L514.2 212.3L516.2 211.9L518.3 211.4L520.3 210.9L522.4 210.5L524.4 210L526.5 209.5L528.5 209L530.6 208.5L532.6 208L534.7 207.5L536.7 207L538.8 206.5L540.8 205.9L542.9 205.4L544.9 204.9L547 204.3L549 203.8L551.1 203.2L553.1 202.7L555.2 202.1L557.2 201.6L559.3 201L561.3 200.4L563.4 199.8L565.4 199.2L567.5 198.6L569.5 198L571.6 197.4L573.6 196.8L575.7 196.2L577.7 195.5L579.8 194.9L581.8 194.3L583.9 193.6L585.9 192.9L588 192.3L590 191.6L592.1 190.9L594.1 190.2L596.2 189.5L598.2 188.8L600.3 188L602.3 187.3L604.4 186.6L606.4 185.8L608.5 185L610.5 184.3L612.6 183.5L614.6 182.7L616.7 181.9L618.7 181L620.8 180.2L622.8 179.4L624.9 178.5L626.9 177.6L629 176.7L631 175.8L633.1 174.9L635.1 174L637.1 173.1L639.1 172.2L641 171.3L642.9 170.3L644.7 169.4L646.6 168.5L648.3 167.6L650.1 166.7L651.8 165.8L653.5 164.9L655.2 164L656.9 163.1L658.5 162.2L660.1 161.3L661.7 160.4L663.2 159.5L664.7 158.6L666.2 157.7L667.7 156.8L669.1 155.9L670.5 155L671.9 154.1L673.3 153.3L674.7 152.4L676 151.5L677.3 150.6L678.6 149.7L679.9 148.9L681.1 148L682.3 147.1L683.5 146.2L684.7 145.4L685.9 144.5L687.1 143.6L688.2 142.8L689.3 141.9L690.4 141.1L691.5 140.2L692.6 139.4L693.7 138.5L694.7 137.7L695.7 136.8L696.7 136L697.7 135.1L698.7 134.3L699.7 133.4L700.6 132.6L701.6 131.8L702.5 131L703.4 130.1L704.3 129.3L705.2 128.5L706.1 127.7L707 126.8L707.8 126L708.7 125.2L709.5 124.4L710.3 123.6L711.2 122.8L712 122L712.8 121.2L713.5 120.4L714.3 119.6L715.1 118.8L715.8 118.1L716.6 117.3L717.3 116.5L718.1 115.7L718.8 115L719.5 114.2L720.2 113.4L720.9 112.7L721.6 111.9L722.3 111.2L722.9 110.4L723.6 109.7L724.3 108.9L724.9 108.2L725.6 107.5L726.2 106.7L726.8 106L727.5 105.3L728.1 104.5L728.7 103.8L729.3 103.1L729.9 102.4L730.5 101.7L731.1 101L731.7 100.3L732.3 99.6L732.9 98.9L733.5 98.2L734 97.6L734.6 96.9L735.2 96.2L735.7 95.5L736.3 94.9L736.8 94.2L737.4 93.6L737.9 92.9L738.5 92.3L739 91.6L739.5 91L740.1 90.4L740.6 89.7L741.1 89.1L741.6 88.5L742.2 87.9L742.7 87.3L743.2 86.7L743.7 86.1L744.2 85.5L744.7 84.9L745.2 84.3L745.7 83.7L746.2 83.1L746.7 82.6L747.2 82L747.7 81.4L748.2 80.9L748.7 80.3L749.2 79.8L749.7 79.2L750.2 78.7L750.7 78.2L751.2 77.6L751.6 77.1L752.1 76.6L752.6 76.1L753.1 75.6L753.6 75.1L754.1 74.6L754.6 74.1L755 73.6L755.5 73.1L756 72.6L756.5 72.2L757 71.7L757.5 71.2L758 70.8L758.4 70.3L758.9 69.9L759.4 69.4L759.9 69L760.4 68.5L760.9 68.1L761.4 67.7L761.9 67.3L762.4 66.8L762.9 66.4L763.4 66L763.9 65.6L764.4 65.2L764.9 64.8L765.4 64.4L765.9 64.1L766.4 63.7L766.9 63.3L767.4 62.9L768 62.6L768.5 62.2L769 61.9L769.5 61.5L770.1 61.2L770.6 60.8L771.1 60.5L771.7 60.2L772.2 59.8L772.8 59.5L773.3 59.2L773.9 58.9L774.4 58.6L775 58.3L775.6 57.9L776.1 57.6L776.7 57.4L777.3 57.1L777.9 56.8L778.5 56.5L779 56.2L779.6 55.9L780.3 55.7L780.9 55.4L781.5 55.1L782.1 54.9L782.7 54.6L783.4 54.4L784 54.1L784.7 53.9L785.3 53.6L786 53.4L786.6 53.2L787.3 52.9L788 52.7L788.7 52.5L789.4 52.3L790.1 52.1L790.8 51.9L791.5 51.6L792.2 51.4L793 51.2L793.7 51L794.5 50.8L795.2 50.6L796 50.5L796.8 50.3L797.6 50.1L798.4 49.9L799.2 49.7L800 49.6L800.8 49.4L801.7 49.2L802.5 49L803.4 48.9L804.3 48.7L805.2 48.6L806.1 48.4L807 48.3L807.9 48.1L808.9 48L809.8 47.8L810.8 47.7L811.8 47.5L812.8 47.4L813.8 47.3L814.8 47.1L815.8 47L816.9 46.9L818 46.7L819 46.6L820.1 46.5L821.3 46.4L822.4 46.2L823.6 46.1L824.7 46L825.9 45.9L827.1 45.8L828.3 45.7L829.6 45.6L830.9 45.5L832.1 45.4L833.5 45.3L834.8 45.2L836.1 45.1L837.5 45L838.9 44.9L840.3 44.8L841.7 44.7L843.2 44.6L844.7 44.5L846.2 44.4L847.7 44.4L849.3 44.3L850.9 44.2L852.5 44.1L854.1 44L855.8 44L857.5 43.9L859.2 43.8L861 43.7L862.8 43.7L864.6 43.6L866.4 43.5L868.3 43.5L870.2 43.4L872.2 43.3L874.2 43.3L876.2 43.2L878.2 43.1L880.3 43.1L882.3 43L884.4 43L886.4 42.9L888.5 42.9L890.5 42.8L892.6 42.8L894.6 42.7L896.7 42.7L898.7 42.6L900.8 42.6L902.8 42.5L904.9 42.5L906.9 42.5L909 42.4L911 42.4L913.1 42.4L915.1 42.3L916 42.3L916 42.3" fill="none" stroke="#1D4ED8" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><path d="M96 266.1L96.1 265.1L96.2 264.1L96.4 263.2L96.5 262.2L96.6 261.2L96.7 260.3L96.9 259.3L97 258.3L97.1 257.3L97.2 256.4L97.3 255.4L97.5 254.4L97.6 253.5L97.7 252.5L97.8 251.5L98 250.6L98.1 249.6L98.2 248.6L98.3 247.7L98.5 246.7L98.6 245.7L98.7 244.8L98.8 243.8L98.9 242.8L99.1 241.9L99.2 240.9L99.3 239.9L99.4 239L99.6 238L99.7 237L99.8 236.1L99.9 235.1L100.1 234.1L100.2 233.2L100.3 232.2L100.4 231.3L100.6 230.3L100.7 229.3L100.8 228.4L100.9 227.4L101 226.4L101.2 225.5L101.3 224.5L101.4 223.6L101.5 222.6L101.7 221.7L101.8 220.7L101.9 219.7L102 218.8L102.2 217.8L102.3 216.9L102.4 215.9L102.5 215L102.7 214L102.8 213.1L102.9 212.1L103 211.2L103.2 210.2L103.3 209.3L103.4 208.3L103.5 207.4L103.7 206.4L103.8 205.5L103.9 204.5L104 203.6L104.2 202.6L104.3 201.7L104.4 200.7L104.5 199.8L104.7 198.8L104.8 197.9L104.9 196.9L105.1 196L105.2 195.1L105.3 194.1L105.4 193.2L105.6 192.2L105.7 191.3L105.8 190.4L105.9 189.4L106.1 188.5L106.2 187.6L106.3 186.6L106.5 185.7L106.6 184.8L106.7 183.8L106.8 182.9L107 182L107.1 181.1L107.2 180.1L107.4 179.2L107.5 178.3L107.6 177.4L107.7 176.4L107.9 175.5L108 174.6L108.1 173.7L108.3 172.8L108.4 171.9L108.5 170.9L108.6 170L108.8 169.1L108.9 168.2L109 167.3L109.2 166.4L109.3 165.5L109.4 164.6L109.6 163.7L109.7 162.8L109.8 161.9L110 161L110.1 160.1L110.2 159.2L110.4 158.3L110.5 157.4L110.6 156.5L110.8 155.6L110.9 154.7L111 153.8L111.2 153L111.3 152.1L111.4 151.2L111.6 150.3L111.7 149.4L111.8 148.6L112 147.7L112.1 146.8L112.2 145.9L112.4 145.1L112.5 144.2L112.7 143.3L112.8 142.5L112.9 141.6L113.1 140.8L113.2 139.9L113.4 139.1L113.5 138.2L113.6 137.4L113.8 136.5L113.9 135.7L114.1 134.8L114.2 134L114.3 133.2L114.5 132.3L114.6 131.5L114.8 130.7L114.9 129.8L115.1 129L115.2 128.2L115.3 127.4L115.5 126.6L115.6 125.8L115.8 124.9L115.9 124.1L116.1 123.3L116.2 122.5L116.4 121.7L116.5 120.9L116.7 120.1L116.8 119.4L117 118.6L117.1 117.8L117.3 117L117.4 116.2L117.6 115.5L117.7 114.7L117.9 113.9L118.1 113.2L118.2 112.4L118.4 111.7L118.5 110.9L118.7 110.2L118.9 109.4L119 108.7L119.2 107.9L119.3 107.2L119.5 106.5L119.7 105.7L119.8 105L120 104.3L120.2 103.6L120.3 102.9L120.5 102.2L120.7 101.5L120.8 100.8L121 100.1L121.2 99.4L121.3 98.7L121.5 98L121.7 97.3L121.9 96.7L122 96L122.2 95.3L122.4 94.7L122.6 94L122.8 93.3L122.9 92.7L123.1 92.1L123.3 91.4L123.5 90.8L123.7 90.1L123.9 89.5L124.1 88.9L124.3 88.3L124.5 87.7L124.7 87.1L124.9 86.5L125.1 85.9L125.3 85.3L125.5 84.7L125.7 84.1L125.9 83.5L126.1 82.9L126.3 82.4L126.5 81.8L126.7 81.2L126.9 80.7L127.1 80.1L127.3 79.6L127.6 79.1L127.8 78.5L128 78L128.2 77.5L128.5 76.9L128.7 76.4L128.9 75.9L129.2 75.4L129.4 74.9L129.6 74.4L129.9 73.9L130.1 73.4L130.4 72.9L130.6 72.5L130.9 72L131.1 71.5L131.4 71.1L131.6 70.6L131.9 70.1L132.1 69.7L132.4 69.3L132.7 68.8L133 68.4L133.2 68L133.5 67.5L133.8 67.1L134.1 66.7L134.4 66.3L134.7 65.9L135 65.5L135.3 65.1L135.6 64.7L135.9 64.3L136.2 63.9L136.5 63.6L136.8 63.2L137.1 62.8L137.5 62.5L137.8 62.1L138.1 61.7L138.5 61.4L138.8 61L139.2 60.7L139.5 60.4L139.9 60L140.2 59.7L140.6 59.4L141 59.1L141.3 58.8L141.7 58.5L142.1 58.1L142.5 57.8L142.9 57.5L143.3 57.3L143.7 57L144.1 56.7L144.6 56.4L145 56.1L145.4 55.8L145.9 55.6L146.3 55.3L146.7 55.1L147.2 54.8L147.7 54.5L148.1 54.3L148.6 54L149.1 53.8L149.6 53.6L150.1 53.3L150.6 53.1L151.1 52.9L151.7 52.6L152.2 52.4L152.7 52.2L153.3 52L153.9 51.8L154.4 51.6L155 51.4L155.6 51.2L156.2 51L156.8 50.8L157.4 50.6L158 50.4L158.7 50.2L159.3 50L160 49.8L160.6 49.7L161.3 49.5L162 49.3L162.7 49.2L163.4 49L164.1 48.8L164.9 48.7L165.6 48.5L166.4 48.4L167.2 48.2L168 48.1L168.8 47.9L169.6 47.8L170.4 47.6L171.2 47.5L172.1 47.3L173 47.2L173.9 47.1L174.8 46.9L175.7 46.8L176.6 46.7L177.6 46.6L178.5 46.4L179.5 46.3L180.5 46.2L181.6 46.1L182.6 46L183.7 45.9L184.7 45.8L185.8 45.6L187 45.5L188.1 45.4L189.2 45.3L190.4 45.2L191.6 45.1L192.8 45L194.1 44.9L195.4 44.9L196.6 44.8L198 44.7L199.3 44.6L200.7 44.5L202 44.4L203.5 44.3L204.9 44.2L206.4 44.2L207.8 44.1L209.4 44L210.9 43.9L212.5 43.9L214.1 43.8L215.7 43.7L217.4 43.6L219.1 43.6L220.8 43.5L222.6 43.4L224.4 43.4L226.2 43.3L228.1 43.2L230 43.2L231.9 43.1L233.9 43.1L235.9 43L237.9 42.9L240 42.9L242 42.8L244.1 42.8L246.1 42.7L248.2 42.7L250.2 42.6L252.3 42.6L254.3 42.5L256.4 42.5L258.4 42.5L260.5 42.4L262.5 42.4L264.6 42.3L266.6 42.3L268.7 42.3L270.7 42.2L272.8 42.2L274.8 42.2L276.9 42.1L278.9 42.1L281 42.1L283 42.1L285.1 42L287.1 42L289.2 42L291.2 42L293.3 41.9L295.3 41.9L297.4 41.9L299.4 41.9L301.5 41.8L303.5 41.8L305.6 41.8L307.6 41.8L309.7 41.7L311.7 41.7L313.8 41.7L315.8 41.7L317.9 41.7L319.9 41.7L322 41.6L324 41.6L326.1 41.6L328.1 41.6L330.2 41.6L332.2 41.5L334.3 41.5L336.3 41.5L338.4 41.5L340.4 41.5L342.5 41.5L344.5 41.5L346.6 41.4L348.6 41.4L350.7 41.4L352.7 41.4L354.8 41.4L356.8 41.4L358.9 41.4L360.9 41.4L363 41.3L365 41.3L367.1 41.3L369.1 41.3L371.2 41.3L373.2 41.3L375.3 41.3L377.3 41.3L379.4 41.2L381.4 41.2L383.5 41.2L385.5 41.2L387.6 41.2L389.6 41.2L391.7 41.2L393.7 41.2L395.8 41.2L397.8 41.2L399.9 41.2L401.9 41.1L404 41.1L406 41.1L408.1 41.1L410.1 41.1L412.2 41.1L414.2 41.1L416.3 41.1L418.3 41.1L420.4 41.1L422.4 41.1L424.5 41.1L426.5 41L428.6 41L430.6 41L432.7 41L434.7 41L436.8 41L438.8 41L440.9 41L442.9 41L445 41L447 41L449.1 41L451.1 41L453.2 41L455.2 41L457.3 40.9L459.3 40.9L461.4 40.9L463.4 40.9L465.5 40.9L467.5 40.9L469.6 40.9L471.6 40.9L473.7 40.9L475.7 40.9L477.8 40.9L479.8 40.9L481.9 40.9L483.9 40.9L486 40.9L488 40.9L490.1 40.9L492.1 40.9L494.2 40.8L496.2 40.8L498.3 40.8L500.3 40.8L502.4 40.8L504.4 40.8L506.5 40.8L508.5 40.8L510.6 40.8L512.6 40.8L514.7 40.8L516.7 40.8L518.8 40.8L520.8 40.8L522.9 40.8L524.9 40.8L527 40.8L529 40.8L531.1 40.8L533.1 40.8L535.2 40.8L537.2 40.8L539.3 40.8L541.3 40.7L543.4 40.7L545.4 40.7L547.5 40.7L549.5 40.7L551.6 40.7L553.6 40.7L555.7 40.7L557.7 40.7L559.8 40.7L561.8 40.7L563.9 40.7L565.9 40.7L568 40.7L570 40.7L572.1 40.7L574.1 40.7L576.2 40.7L578.2 40.7L580.3 40.7L582.3 40.7L584.4 40.7L586.4 40.7L588.5 40.7L590.5 40.7L592.6 40.7L594.6 40.7L596.7 40.7L598.7 40.7L600.8 40.7L602.8 40.6L604.9 40.6L606.9 40.6L609 40.6L611 40.6L613.1 40.6L615.1 40.6L617.2 40.6L619.2 40.6L621.3 40.6L623.3 40.6L625.4 40.6L627.4 40.6L629.5 40.6L631.5 40.6L633.6 40.6L635.6 40.6L637.7 40.6L639.7 40.6L641.8 40.6L643.8 40.6L645.9 40.6L647.9 40.6L650 40.6L652 40.6L654.1 40.6L656.1 40.6L658.2 40.6L660.2 40.6L662.3 40.6L664.3 40.6L666.4 40.6L668.4 40.6L670.5 40.6L672.5 40.6L674.6 40.6L676.6 40.6L678.7 40.6L680.7 40.6L682.8 40.6L684.8 40.6L686.9 40.5L688.9 40.5L691 40.5L693 40.5L695.1 40.5L697.1 40.5L699.2 40.5L701.2 40.5L703.3 40.5L705.3 40.5L707.4 40.5L709.4 40.5L711.5 40.5L713.5 40.5L715.6 40.5L717.6 40.5L719.7 40.5L721.7 40.5L723.8 40.5L725.8 40.5L727.9 40.5L729.9 40.5L732 40.5L734 40.5L736.1 40.5L738.1 40.5L740.2 40.5L742.2 40.5L744.3 40.5L746.3 40.5L748.4 40.5L750.4 40.5L752.5 40.5L754.5 40.5L756.6 40.5L758.6 40.5L760.7 40.5L762.7 40.5L764.8 40.5L766.8 40.5L768.9 40.5L770.9 40.5L773 40.5L775 40.5L777.1 40.5L779.1 40.5L781.2 40.5L783.2 40.5L785.3 40.5L787.3 40.5L789.4 40.5L791.4 40.5L793.5 40.5L795.5 40.5L797.6 40.5L799.6 40.5L801.7 40.5L803.7 40.5L805.8 40.5L807.8 40.5L809.9 40.4L811.9 40.4L814 40.4L816 40.4L818.1 40.4L820.1 40.4L822.2 40.4L824.2 40.4L826.3 40.4L828.3 40.4L830.4 40.4L832.4 40.4L834.5 40.4L836.5 40.4L838.6 40.4L840.6 40.4L842.7 40.4L844.7 40.4L846.8 40.4L848.8 40.4L850.9 40.4L852.9 40.4L855 40.4L857 40.4L859.1 40.4L861.1 40.4L863.2 40.4L865.2 40.4L867.3 40.4L869.3 40.4L871.4 40.4L873.4 40.4L875.5 40.4L877.5 40.4L879.6 40.4L881.6 40.4L883.7 40.4L885.7 40.4L887.8 40.4L889.8 40.4L891.9 40.4L893.9 40.4L896 40.4L898 40.4L900.1 40.4L902.1 40.4L904.2 40.4L906.2 40.4L908.3 40.4L910.3 40.4L912.4 40.4L914.4 40.4L916 40.4L916 40.4" fill="none" stroke="#C2410C" stroke-width="3.5" stroke-linejoin="round" stroke-linecap="round"/><circle cx="752" cy="74" r="6" fill="#1D4ED8"/><circle cx="129.9" cy="74" r="6" fill="#C2410C"/><text x="110" y="30" font-size="16" font-weight="600" fill="#1D4ED8" text-anchor="start"><tspan>policy gradient</tspan></text><text x="246" y="30" font-size="16" font-weight="600" fill="#C2410C" text-anchor="start"><tspan>demonstration</tspan></text></svg></div>
+<div class="ctl"><label><span>starting probability ε</span><input type="range" id="eps" min="-4" max="-0.5" step="0.05" value="-2"><output id="eps-out">0.01</output></label><label><span>reward gap Δ</span><input type="range" id="gap" min="0.1" max="2" step="0.1" value="1"><output id="gap-out">1.0</output></label></div>
+<div id="read" aria-live="polite">Time to reach one half: policy gradient <b>54.1</b>, demonstration <b>2.8</b>, a ratio of <b>19×</b>. Policy gradient grows like 1/(<i>ε</i>Δ); the demonstration like log(1/<i>ε</i>).</div>
+</main>
+<script>
+var C={"panel":"#F0EDE4","card":"#FAF8F3","ink":"#161A22","soft":"#3F4654","mute":"#666C78","rule":"#C9C2B2","track":"#E4DFD2","gray":"#9AA0AC","or":"#C2410C","orSoft":"#F6D9C2","orMid":"#E08A52","bl":"#1D4ED8","blSoft":"#DCE5FB","blMid":"#7C9BE8"};
+function f(v) { return Math.round(v * 10) / 10; }
+function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function rich(s, size) {
+  var segs = [], it = false, pos = 'base', buf = '', i, ch;
+  function push() { if (buf) segs.push({t: buf, it: it, pos: pos}); buf = ''; }
+  for (i = 0; i < s.length; i++) {
+    ch = s[i];
+    if (ch === '*') { push(); it = !it; continue; }
+    if ((ch === '_' || ch === '^') && s[i + 1] === '{') { push(); pos = ch === '_' ? 'sub' : 'sup'; i++; continue; }
+    if (ch === '}' && pos !== 'base') { push(); pos = 'base'; continue; }
+    buf += ch;
+  }
+  push();
+  var off = {base: 0, sub: 0.3 * size, sup: -0.38 * size}, cur = 0, out = '';
+  segs.forEach(function (g) {
+    var a = [], dy = off[g.pos] - cur;
+    cur = off[g.pos];
+    if (dy) a.push('dy="' + f(dy) + '"');
+    if (g.pos !== 'base') a.push('font-size="' + f(size * 0.72) + '"');
+    if (g.it) a.push('font-family="Source Serif 4, Georgia, serif" font-style="italic"');
+    out += '<tspan' + (a.length ? ' ' + a.join(' ') : '') + '>' + esc(g.t) + '</tspan>';
+  });
+  return out;
+}
+function text(x, y, s, o) {
+  o = o || {};
+  var size = o.size || 22;
+  return '<text x="' + f(x) + '" y="' + f(y) + '" font-size="' + size + '" font-weight="' + (o.weight || 500) +
+    '" fill="' + (o.fill || C.ink) + '" text-anchor="' + (o.anchor || 'start') + '"' +
+    (o.op != null ? ' fill-opacity="' + o.op + '"' : '') + '>' + rich(s, size) + '</text>';
+}
+function line(x1, y1, x2, y2, o) {
+  o = o || {};
+  return '<path d="M' + f(x1) + ' ' + f(y1) + 'L' + f(x2) + ' ' + f(y2) + '" fill="none" stroke="' + (o.stroke || C.ink) +
+    '" stroke-width="' + (o.w || 2) + '"' + (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') +
+    (o.op != null ? ' stroke-opacity="' + o.op + '"' : '') + (o.cap ? ' stroke-linecap="' + o.cap + '"' : '') + '/>';
+}
+function arrow(x1, y1, x2, y2, o) {
+  o = o || {};
+  var w = o.w || 3, h = o.head || 4 * w + 6, a = Math.atan2(y2 - y1, x2 - x1);
+  var bx = x2 - h * Math.cos(a), by = y2 - h * Math.sin(a), px = -Math.sin(a) * h * 0.42, py = Math.cos(a) * h * 0.42;
+  return line(x1, y1, bx, by, {stroke: o.stroke, w: w, dash: o.dash, op: o.op}) +
+    '<path d="M' + f(x2) + ' ' + f(y2) + 'L' + f(bx + px) + ' ' + f(by + py) + 'L' + f(bx - px) + ' ' + f(by - py) +
+    'Z" fill="' + (o.stroke || C.ink) + '"' + (o.op != null ? ' fill-opacity="' + o.op + '"' : '') + '/>';
+}
+function rect(x, y, w, h, o) {
+  o = o || {};
+  return '<rect x="' + f(x) + '" y="' + f(y) + '" width="' + f(Math.max(0, w)) + '" height="' + f(Math.max(0, h)) + '"' +
+    (o.rx ? ' rx="' + o.rx + '"' : '') + ' fill="' + (o.fill || 'none') + '"' +
+    (o.op != null ? ' fill-opacity="' + o.op + '"' : '') +
+    (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 2) + '"' : '') +
+    (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') + '/>';
+}
+function dot(x, y, r, o) {
+  o = o || {};
+  return '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + f(r) + '" fill="' + (o.fill || C.ink) + '"' +
+    (o.op != null ? ' fill-opacity="' + o.op + '"' : '') +
+    (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 2) + '"' : '') + '/>';
+}
+function path(d, o) {
+  o = o || {};
+  return '<path d="' + d + '" fill="' + (o.fill || 'none') + '"' + (o.op != null ? ' fill-opacity="' + o.op + '"' : '') +
+    (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.w || 2) + '"' : '') +
+    (o.sop != null ? ' stroke-opacity="' + o.sop + '"' : '') +
+    (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') + ' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function poly(pts) {
+  return pts.map(function (p, i) { return (i ? 'L' : 'M') + f(p[0]) + ' ' + f(p[1]); }).join('');
+}
+function star(x, y, r, o) {
+  var pts = [], i, a, rr;
+  for (i = 0; i < 10; i++) {
+    a = -Math.PI / 2 + i * Math.PI / 5;
+    rr = i % 2 ? r * 0.45 : r;
+    pts.push([x + rr * Math.cos(a), y + rr * Math.sin(a)]);
+  }
+  return path(poly(pts) + 'Z', o);
+}
+function rng(seed) {
+  var s = seed;
+  return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+}
+function gauss(r) {
+  var u = 0, v = 0;
+  while (!u) u = r();
+  while (!v) v = r();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+var PARAMS=[{"id":"eps"},{"id":"gap"}];
+var toValue={"eps":(x) => Math.pow(10, x),"gap":(x) => x};
+var toSlider={"eps":(v) => Math.log10(v),"gap":(x) => x};
+var show={"eps":(v) => (v < 0.01 ? v.toPrecision(1) : v.toFixed(2)),"gap":(v) => v.toFixed(1)};
+var clamp=(p) => p;
+var draw=function (p) {
+    function lg(q) { return Math.log(q / (1 - q)); }
+    function sg(l) { return 1 / (1 + Math.exp(-l)); }
+    var l0 = lg(p.eps), tpg = (Math.exp(-l0) - 2 * l0 - Math.exp(l0)) / (2 * p.gap), tsf = (1 - l0 - Math.exp(l0)) / 2;
+    var TM = Math.max(8, Math.min(2.4e4, 1.25 * tpg));
+    var X0 = 96, XW = 820, YT = 40, YB = 300, LMIN = Math.min(-1, Math.log10(p.eps) - 0.3);
+    function X(t) { return X0 + XW * Math.min(t, TM) / TM; }
+    function Y(q) { return YT + (YB - YT) * (Math.log10(q) / LMIN); }
+    function run(rate) {
+      var l = l0, t = 0, d = 'M' + f(X(0)) + ' ' + f(Y(sg(l))), r, dt;
+      while (t < TM && sg(l) < 0.999) {
+        r = rate(sg(l));
+        dt = Math.min(TM / 400, 0.02 / Math.max(1e-9, r));
+        l += r * dt; t += dt;
+        d += 'L' + f(X(t)) + ' ' + f(Y(sg(l)));
+      }
+      return d + 'L' + f(X(TM)) + ' ' + f(Y(sg(l)));
+    }
+    var o = rect(0, 0, 960, 350, {rx: 16, fill: C.panel});
+    o += line(X0, YB, X0 + XW, YB, {stroke: C.rule, w: 2}) + line(X0, YT - 10, X0, YB, {stroke: C.rule, w: 2});
+    var k, q;
+    for (k = 0; k >= Math.ceil(LMIN); k--) {
+      q = Math.pow(10, k);
+      o += line(X0 - 6, Y(q), X0, Y(q), {stroke: C.rule, w: 2}) + text(X0 - 10, Y(q) + 5, String(+q.toPrecision(1)), {size: 14, anchor: 'end', fill: C.mute});
+    }
+    o += line(X0, Y(0.5), X0 + XW, Y(0.5), {stroke: C.soft, w: 1.5, dash: '6 6'});
+    o += text(X0 + XW, Y(0.5) - 8, 'one half', {size: 14, anchor: 'end', fill: C.soft});
+    o += text(X0 + XW, YB + 28, 'time, 0 to ' + Math.round(TM) + ' (step size \u00d7 steps)', {size: 14, anchor: 'end', fill: C.mute});
+    o += path(run(function (s) { return 2 * p.gap * s * (1 - s); }), {stroke: C.bl, w: 3.5});
+    o += path(run(function (s) { return 2 * (1 - s); }), {stroke: C.or, w: 3.5});
+    if (tpg <= TM) o += dot(X(tpg), Y(0.5), 6, {fill: C.bl});
+    o += dot(X(tsf), Y(0.5), 6, {fill: C.or});
+    o += text(X0 + 14, 30, 'policy gradient', {size: 16, weight: 600, fill: C.bl}) + text(X0 + 150, 30, 'demonstration', {size: 16, weight: 600, fill: C.or});
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 350" role="img" aria-label="Probability of the rewarded response over time">' + o + '</svg>';
+  };
+var readout=function (p) {
+    var l0 = Math.log(p.eps / (1 - p.eps));
+    var tpg = (Math.exp(-l0) - 2 * l0 - Math.exp(l0)) / (2 * p.gap), tsf = (1 - l0 - Math.exp(l0)) / 2;
+    return 'Time to reach one half: policy gradient <b>' + (tpg < 100 ? tpg.toFixed(1) : Math.round(tpg)) +
+      '</b>, demonstration <b>' + tsf.toFixed(1) + '</b>, a ratio of <b>' + Math.round(tpg / tsf) + '\u00d7</b>. ' +
+      'Policy gradient grows like 1/(<i>ε</i>Δ); the demonstration like log(1/<i>ε</i>).';
+  };
+function update(src){var p={};PARAMS.forEach(function(q){p[q.id]=toValue[q.id](+document.getElementById(q.id).value);});p=clamp(p,src);PARAMS.forEach(function(q){if(q.id!==src)document.getElementById(q.id).value=toSlider[q.id](p[q.id]);document.getElementById(q.id+'-out').textContent=show[q.id](p[q.id]);});document.getElementById('fig').innerHTML=draw(p);document.getElementById('read').innerHTML=readout(p);post();}
+function post(){parent.postMessage({livefig:"s-amplify",h:document.getElementById('wrap').offsetHeight},'*');}
+PARAMS.forEach(function(q){document.getElementById(q.id).addEventListener('input',function(){update(q.id);});});
+window.addEventListener('resize',post);window.addEventListener('load',post);post();
+</script>
+</body></html>

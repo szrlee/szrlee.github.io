@@ -520,7 +520,7 @@ Per-timestep advantages only help when rewards are dense and informative at each
 
 **Reward structure in practice**: Most tasks fall between these extremes. How much reward correlation exists in realistic settings? This determines the practical information gap between formulations.
 
-**Beyond information ceilings**: This analysis considers only information capacity. Practical performance also depends on factors outside our scope: gradient variance, optimization dynamics, and sample efficiency.
+**Beyond information ceilings**: This analysis considers only information capacity. Practical performance also depends on factors outside our scope: gradient variance, optimization dynamics, and sample efficiency. Where in parameter space those few bits land, and why only a small set of coordinates moves, is the subject of [Why Post-Training Is Sparse](/post/gradient-is-covariance/).
 
 ---
 

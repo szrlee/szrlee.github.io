@@ -1,0 +1,171 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Output-layer Fisher at one prefix</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,wght@1,400;1,600&display=swap">
+<style>
+html,body{margin:0;padding:0;background:transparent;color:#161A22;font-family:"IBM Plex Sans",Arial,sans-serif}
+#fig{overflow-x:auto}
+#fig svg{display:block;width:100%;min-width:560px;height:auto}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 28px;margin:12px 4px 0}
+.ctl label{display:flex;align-items:center;gap:10px;font-size:15px;color:#3F4654}
+.ctl input{width:200px;accent-color:#C2410C}
+.ctl output{min-width:3.6em;font-variant-numeric:tabular-nums;color:#161A22;font-weight:500}
+#wrap{display:block;padding-bottom:2px}
+#read{margin:10px 4px 2px;font-size:15px;line-height:1.5;color:#3F4654}
+#read b{color:#161A22;font-weight:600}
+i{font-family:"Source Serif 4",Georgia,serif}
+</style></head><body><main id="wrap">
+<div id="fig"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" role="img" aria-label="Output-layer Fisher at one prefix"><rect x="0" y="0" width="960" height="380" rx="16" fill="#F0EDE4"/><rect x="24" y="20" width="420" height="282" rx="14" fill="#FAF8F3"/><rect x="468" y="20" width="468" height="282" rx="14" fill="#FAF8F3"/><text x="44" y="54" font-size="18" font-weight="600" fill="#C2410C" text-anchor="start"><tspan>sampler </tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">μ</tspan><tspan> after “She drank a cup of”</tspan></text><path d="M44 262L424 262" fill="none" stroke="#C9C2B2" stroke-width="2"/><rect x="84" y="177" width="64" height="85" rx="6" fill="#C2410C"/><text x="116" y="288" font-size="17" font-weight="500" fill="#161A22" text-anchor="middle"><tspan>tea</tspan></text><text x="116" y="167" font-size="16" font-weight="500" fill="#3F4654" text-anchor="middle"><tspan>0.50</tspan></text><rect x="184" y="194" width="64" height="68" rx="6" fill="#C2410C"/><text x="216" y="288" font-size="17" font-weight="500" fill="#161A22" text-anchor="middle"><tspan>coffee</tspan></text><text x="216" y="184" font-size="16" font-weight="500" fill="#3F4654" text-anchor="middle"><tspan>0.40</tspan></text><path d="M292 262L292 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M296 262L296 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M300 262L300 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M304 262L304 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M308 262L308 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M312 262L312 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M316 262L316 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M320 262L320 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M324 262L324 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M328 262L328 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M332 262L332 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M336 262L336 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M340 262L340 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M344 262L344 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M348 262L348 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M352 262L352 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M356 262L356 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M360 262L360 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M364 262L364 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M368 262L368 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M372 262L372 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M376 262L376 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M380 262L380 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M384 262L384 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M388 262L388 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M392 262L392 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M396 262L396 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M400 262L400 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M404 262L404 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M408 262L408 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M412 262L412 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M416 262L416 258" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M420 262L420 256" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><path d="M424 262L424 260" fill="none" stroke="#C2410C" stroke-width="2" stroke-opacity="0.7"/><text x="358" y="288" font-size="17" font-weight="500" fill="#161A22" text-anchor="middle"><tspan>100,000 others</tspan></text><text x="358" y="238" font-size="16" font-weight="500" fill="#3F4654" text-anchor="middle"><tspan>0.10 in total</tspan></text><text x="488" y="54" font-size="18" font-weight="600" fill="#1D4ED8" text-anchor="start"><tspan>row </tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">c</tspan><tspan>: Fisher ∝ </tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">μ</tspan><tspan>(</tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">c</tspan><tspan>)(1 − </tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">μ</tspan><tspan>(</tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">c</tspan><tspan>))</tspan></text><path d="M510 262L910 262" fill="none" stroke="#C9C2B2" stroke-width="2"/><path d="M510 262L510 89.2" fill="none" stroke="#C9C2B2" stroke-width="2"/><path d="M510 262L514 255.7L518 249.5L522 243.4L526 237.4L530 231.6L534 225.9L538 220.3L542 214.9L546 209.6L550 204.4L554 199.3L558 194.4L562 189.6L566 184.9L570 180.4L574 176L578 171.7L582 167.5L586 163.5L590 159.6L594 155.8L598 152.2L602 148.7L606 145.3L610 142L614 138.9L618 135.9L622 133L626 130.2L630 127.6L634 125.1L638 122.7L642 120.5L646 118.4L650 116.4L654 114.5L658 112.8L662 111.2L666 109.7L670 108.4L674 107.2L678 106.1L682 105.1L686 104.3L690 103.6L694 103L698 102.6L702 102.3L706 102.1L710 102L714 102.1L718 102.3L722 102.6L726 103L730 103.6L734 104.3L738 105.1L742 106.1L746 107.2L750 108.4L754 109.7L758 111.2L762 112.8L766 114.5L770 116.4L774 118.4L778 120.5L782 122.7L786 125.1L790 127.6L794 130.2L798 133L802 135.9L806 138.9L810 142L814 145.3L818 148.7L822 152.2L826 155.8L830 159.6L834 163.5L838 167.5L842 171.7L846 176L850 180.4L854 184.9L858 189.6L862 194.4L866 199.3L870 204.4L874 209.6L878 214.9L882 220.3L886 225.9L890 231.6L894 237.4L898 243.4L902 249.5L906 255.7L910 262" fill="none" stroke="#1D4ED8" stroke-width="3" stroke-linejoin="round" stroke-linecap="round"/><text x="510" y="286" font-size="15" font-weight="500" fill="#666C78" text-anchor="middle"><tspan>0</tspan></text><text x="910" y="286" font-size="15" font-weight="500" fill="#666C78" text-anchor="middle"><tspan>1</tspan></text><text x="710" y="286" font-size="16" font-weight="500" fill="#666C78" text-anchor="middle"><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">μ</tspan><tspan>(</tspan><tspan font-family="Source Serif 4, Georgia, serif" font-style="italic">c</tspan><tspan>)</tspan></text><circle cx="513" cy="261" r="7" fill="#C2410C" fill-opacity="0.6"/><text x="524" y="250" font-size="14" font-weight="500" fill="#3F4654" text-anchor="start"><tspan>others</tspan></text><circle cx="710" cy="102" r="8" fill="#C2410C"/><text x="722" y="128" font-size="16" font-weight="500" fill="#161A22" text-anchor="start"><tspan>tea</tspan></text><circle cx="670" cy="108.4" r="8" fill="#C2410C"/><text x="658" y="134.4" font-size="16" font-weight="500" fill="#161A22" text-anchor="end"><tspan>coffee</tspan></text><text x="24" y="316" font-size="15" font-weight="500" fill="#3F4654" text-anchor="start"><tspan>share of the output layer’s Fisher</tspan></text><rect x="24" y="324" width="386.4" height="30" fill="#C2410C"/><rect x="410.4" y="324" width="371" height="30" fill="#E08A52"/><rect x="781.4" y="324" width="154.6" height="30" fill="#E4DFD2"/><text x="34" y="345" font-size="16" font-weight="600" fill="#fff" text-anchor="start"><tspan>tea + coffee 83%</tspan></text></svg></div>
+<div class="ctl"><label><span>μ(tea)</span><input type="range" id="tea" min="0" max="1" step="0.01" value="0.5"><output id="tea-out">0.50</output></label><label><span>μ(coffee)</span><input type="range" id="coffee" min="0" max="1" step="0.01" value="0.4"><output id="coffee-out">0.40</output></label></div>
+<div id="read" aria-live="polite">Row Fisher per ‖<i>h</i>‖²: tea <b>0.250</b>, coffee <b>0.240</b>, all other rows <b>0.100</b>, of <b>0.590</b> in total. Tea and coffee hold <b>83%</b>.</div>
+</main>
+<script>
+var C={"panel":"#F0EDE4","card":"#FAF8F3","ink":"#161A22","soft":"#3F4654","mute":"#666C78","rule":"#C9C2B2","track":"#E4DFD2","gray":"#9AA0AC","or":"#C2410C","orSoft":"#F6D9C2","orMid":"#E08A52","bl":"#1D4ED8","blSoft":"#DCE5FB","blMid":"#7C9BE8"};
+function f(v) { return Math.round(v * 10) / 10; }
+function esc(t) { return String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function rich(s, size) {
+  var segs = [], it = false, pos = 'base', buf = '', i, ch;
+  function push() { if (buf) segs.push({t: buf, it: it, pos: pos}); buf = ''; }
+  for (i = 0; i < s.length; i++) {
+    ch = s[i];
+    if (ch === '*') { push(); it = !it; continue; }
+    if ((ch === '_' || ch === '^') && s[i + 1] === '{') { push(); pos = ch === '_' ? 'sub' : 'sup'; i++; continue; }
+    if (ch === '}' && pos !== 'base') { push(); pos = 'base'; continue; }
+    buf += ch;
+  }
+  push();
+  var off = {base: 0, sub: 0.3 * size, sup: -0.38 * size}, cur = 0, out = '';
+  segs.forEach(function (g) {
+    var a = [], dy = off[g.pos] - cur;
+    cur = off[g.pos];
+    if (dy) a.push('dy="' + f(dy) + '"');
+    if (g.pos !== 'base') a.push('font-size="' + f(size * 0.72) + '"');
+    if (g.it) a.push('font-family="Source Serif 4, Georgia, serif" font-style="italic"');
+    out += '<tspan' + (a.length ? ' ' + a.join(' ') : '') + '>' + esc(g.t) + '</tspan>';
+  });
+  return out;
+}
+function text(x, y, s, o) {
+  o = o || {};
+  var size = o.size || 22;
+  return '<text x="' + f(x) + '" y="' + f(y) + '" font-size="' + size + '" font-weight="' + (o.weight || 500) +
+    '" fill="' + (o.fill || C.ink) + '" text-anchor="' + (o.anchor || 'start') + '"' +
+    (o.op != null ? ' fill-opacity="' + o.op + '"' : '') + '>' + rich(s, size) + '</text>';
+}
+function line(x1, y1, x2, y2, o) {
+  o = o || {};
+  return '<path d="M' + f(x1) + ' ' + f(y1) + 'L' + f(x2) + ' ' + f(y2) + '" fill="none" stroke="' + (o.stroke || C.ink) +
+    '" stroke-width="' + (o.w || 2) + '"' + (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') +
+    (o.op != null ? ' stroke-opacity="' + o.op + '"' : '') + (o.cap ? ' stroke-linecap="' + o.cap + '"' : '') + '/>';
+}
+function arrow(x1, y1, x2, y2, o) {
+  o = o || {};
+  var w = o.w || 3, h = o.head || 4 * w + 6, a = Math.atan2(y2 - y1, x2 - x1);
+  var bx = x2 - h * Math.cos(a), by = y2 - h * Math.sin(a), px = -Math.sin(a) * h * 0.42, py = Math.cos(a) * h * 0.42;
+  return line(x1, y1, bx, by, {stroke: o.stroke, w: w, dash: o.dash, op: o.op}) +
+    '<path d="M' + f(x2) + ' ' + f(y2) + 'L' + f(bx + px) + ' ' + f(by + py) + 'L' + f(bx - px) + ' ' + f(by - py) +
+    'Z" fill="' + (o.stroke || C.ink) + '"' + (o.op != null ? ' fill-opacity="' + o.op + '"' : '') + '/>';
+}
+function rect(x, y, w, h, o) {
+  o = o || {};
+  return '<rect x="' + f(x) + '" y="' + f(y) + '" width="' + f(Math.max(0, w)) + '" height="' + f(Math.max(0, h)) + '"' +
+    (o.rx ? ' rx="' + o.rx + '"' : '') + ' fill="' + (o.fill || 'none') + '"' +
+    (o.op != null ? ' fill-opacity="' + o.op + '"' : '') +
+    (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 2) + '"' : '') +
+    (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') + '/>';
+}
+function dot(x, y, r, o) {
+  o = o || {};
+  return '<circle cx="' + f(x) + '" cy="' + f(y) + '" r="' + f(r) + '" fill="' + (o.fill || C.ink) + '"' +
+    (o.op != null ? ' fill-opacity="' + o.op + '"' : '') +
+    (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.sw || 2) + '"' : '') + '/>';
+}
+function path(d, o) {
+  o = o || {};
+  return '<path d="' + d + '" fill="' + (o.fill || 'none') + '"' + (o.op != null ? ' fill-opacity="' + o.op + '"' : '') +
+    (o.stroke ? ' stroke="' + o.stroke + '" stroke-width="' + (o.w || 2) + '"' : '') +
+    (o.sop != null ? ' stroke-opacity="' + o.sop + '"' : '') +
+    (o.dash ? ' stroke-dasharray="' + o.dash + '"' : '') + ' stroke-linejoin="round" stroke-linecap="round"/>';
+}
+function poly(pts) {
+  return pts.map(function (p, i) { return (i ? 'L' : 'M') + f(p[0]) + ' ' + f(p[1]); }).join('');
+}
+function star(x, y, r, o) {
+  var pts = [], i, a, rr;
+  for (i = 0; i < 10; i++) {
+    a = -Math.PI / 2 + i * Math.PI / 5;
+    rr = i % 2 ? r * 0.45 : r;
+    pts.push([x + rr * Math.cos(a), y + rr * Math.sin(a)]);
+  }
+  return path(poly(pts) + 'Z', o);
+}
+function rng(seed) {
+  var s = seed;
+  return function () { s = (s * 16807) % 2147483647; return (s - 1) / 2147483646; };
+}
+function gauss(r) {
+  var u = 0, v = 0;
+  while (!u) u = r();
+  while (!v) v = r();
+  return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
+}
+var PARAMS=[{"id":"tea"},{"id":"coffee"}];
+var toValue={"tea":(x) => x,"coffee":(x) => x};
+var toSlider={"tea":(x) => x,"coffee":(x) => x};
+var show={"tea":(v) => v.toFixed(2),"coffee":(v) => v.toFixed(2)};
+var clamp=function (p, src) {
+    if (p.tea + p.coffee > 1) {
+      if (src === 'coffee') p.tea = Math.round((1 - p.coffee) * 100) / 100;
+      else p.coffee = Math.round((1 - p.tea) * 100) / 100;
+    }
+    return p;
+  };
+var draw=function (p) {
+    var N = 100000, rest = Math.max(0, 1 - p.tea - p.coffee);
+    var ft = p.tea * (1 - p.tea), fc = p.coffee * (1 - p.coffee), fr = rest - rest * rest / N, tot = ft + fc + fr;
+    var o = rect(0, 0, 960, 380, {rx: 16, fill: C.panel}), i, x;
+    o += rect(24, 20, 420, 282, {rx: 14, fill: C.card}) + rect(468, 20, 468, 282, {rx: 14, fill: C.card});
+    o += text(44, 54, 'sampler *μ* after \u201cShe drank a cup of\u201d', {size: 18, weight: 600, fill: C.or});
+    var B = 262, H = 170;
+    o += line(44, B, 424, B, {stroke: C.rule, w: 2});
+    [['tea', p.tea, 84], ['coffee', p.coffee, 184]].forEach(function (t) {
+      o += rect(t[2], B - H * t[1], 64, H * t[1], {rx: 6, fill: C.or});
+      o += text(t[2] + 32, B + 26, t[0], {size: 17, anchor: 'middle'});
+      o += text(t[2] + 32, B - H * t[1] - 10, t[1].toFixed(2), {size: 16, anchor: 'middle', fill: C.soft});
+    });
+    for (i = 0; i < 34; i++) { x = 292 + i * 4; o += line(x, B, x, B - 2 - 2 * ((i * 7) % 3), {stroke: C.or, w: 2, op: 0.7}); }
+    o += text(358, B + 26, '100,000 others', {size: 17, anchor: 'middle'});
+    o += text(358, B - 24, rest.toFixed(2) + ' in total', {size: 16, anchor: 'middle', fill: C.soft});
+    o += text(488, 54, 'row *c*: Fisher \u221d *μ*(*c*)(1 \u2212 *μ*(*c*))', {size: 18, weight: 600, fill: C.bl});
+    var X0 = 510, XW = 400, Y0 = 262, YH = 640;
+    o += line(X0, Y0, X0 + XW, Y0, {stroke: C.rule, w: 2}) + line(X0, Y0, X0, Y0 - 0.27 * YH, {stroke: C.rule, w: 2});
+    var d = '';
+    for (i = 0; i <= 100; i++) d += (i ? 'L' : 'M') + f(X0 + XW * i / 100) + ' ' + f(Y0 - YH * (i / 100) * (1 - i / 100));
+    o += path(d, {stroke: C.bl, w: 3});
+    o += text(X0, Y0 + 24, '0', {size: 15, anchor: 'middle', fill: C.mute}) + text(X0 + XW, Y0 + 24, '1', {size: 15, anchor: 'middle', fill: C.mute});
+    o += text(X0 + XW / 2, Y0 + 24, '*μ*(*c*)', {size: 16, anchor: 'middle', fill: C.mute});
+    o += dot(X0 + 3, Y0 - 1, 7, {fill: C.or, op: 0.6}) + text(X0 + 14, Y0 - 12, 'others', {size: 14, fill: C.soft});
+    [['tea', p.tea, ft], ['coffee', p.coffee, fc]].forEach(function (t, j) {
+      var px = X0 + XW * t[1], py = Y0 - YH * t[2];
+      o += dot(px, py, 8, {fill: C.or});
+      o += text(px + (j ? -12 : 12), py + 26, t[0], {size: 16, anchor: j ? 'end' : 'start'});
+    });
+    var SX = 24, SW = 912, SY = 324;
+    o += text(SX, SY - 8, 'share of the output layer\u2019s Fisher', {size: 15, fill: C.soft});
+    var wt = SW * ft / tot, wc = SW * fc / tot;
+    o += rect(SX, SY, wt, 30, {fill: C.or}) + rect(SX + wt, SY, wc, 30, {fill: C.orMid}) + rect(SX + wt + wc, SY, SW - wt - wc, 30, {fill: C.track});
+    if (wt + wc > 120) o += text(SX + 10, SY + 21, 'tea + coffee ' + Math.round(100 * (ft + fc) / tot) + '%', {size: 16, weight: 600, fill: '#fff'});
+    return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 380" role="img" aria-label="Output-layer Fisher at one prefix">' + o + '</svg>';
+  };
+var readout=function (p) {
+    var N = 100000, rest = Math.max(0, 1 - p.tea - p.coffee);
+    var ft = p.tea * (1 - p.tea), fc = p.coffee * (1 - p.coffee), fr = rest - rest * rest / N, tot = ft + fc + fr;
+    return 'Row Fisher per \u2016<i>h</i>\u2016\u00b2: tea <b>' + ft.toFixed(3) + '</b>, coffee <b>' + fc.toFixed(3) +
+      '</b>, all other rows <b>' + fr.toFixed(3) + '</b>, of <b>' + tot.toFixed(3) + '</b> in total. Tea and coffee hold <b>' +
+      (tot > 0 ? Math.round(100 * (ft + fc) / tot) : 0) + '%</b>.';
+  };
+function update(src){var p={};PARAMS.forEach(function(q){p[q.id]=toValue[q.id](+document.getElementById(q.id).value);});p=clamp(p,src);PARAMS.forEach(function(q){if(q.id!==src)document.getElementById(q.id).value=toSlider[q.id](p[q.id]);document.getElementById(q.id+'-out').textContent=show[q.id](p[q.id]);});document.getElementById('fig').innerHTML=draw(p);document.getElementById('read').innerHTML=readout(p);post();}
+function post(){parent.postMessage({livefig:"s-coinflip",h:document.getElementById('wrap').offsetHeight},'*');}
+PARAMS.forEach(function(q){document.getElementById(q.id).addEventListener('input',function(){update(q.id);});});
+window.addEventListener('resize',post);window.addEventListener('load',post);post();
+</script>
+</body></html>

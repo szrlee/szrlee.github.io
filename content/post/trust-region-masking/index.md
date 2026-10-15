@@ -112,7 +112,7 @@ The **root cause** is that $D_{\mathrm{KL}}^{\mathrm{tok,max}}$ is a sequence-le
 
 We propose **Trust Region Masking (TRM)**, which excludes entire sequences from gradient computation if any token violates the trust region.
 
-TRM is the principled form of masked importance sampling (MIS), first introduced in [When Speed Kills Stability](/rl-collapse): a sequence-level trust-region mask combined with per-token importance sampling. No single token is clipped or masked, so every token's score stays centered (see [score centering](/post/offpolicy-around-the-sampler/#4-score-centering)).
+TRM is the principled form of masked importance sampling (MIS), first introduced in [When Speed Kills Stability](/rl-collapse): a sequence-level trust-region mask combined with per-token importance sampling. No single token is clipped or masked, so every token's score stays centered (see [why this keeps the update sparse](/post/sparsity-score-centering/#5-sparsity-is-not-a-defect)).
 
 ### Why Sequence Masking Works
 By masking at the sequence level, we ensure that:

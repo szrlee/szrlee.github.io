@@ -575,7 +575,11 @@ The TRPO surrogate objective is naturally a sum over tokens, so its gradient is 
 **Definition: Geo-Mask-Token-TIS**
 
 $$
-\hat{g}\_{\text{geo-mask-token-tis}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot \sum\_{t=0}^{T-1} \min(\rho\_t, C) \cdot A\_t \nabla \log \pi(y\_t|x, y\_{\lt t})
+\hat{g}\_{\text{geo-mask-token-tis}}(y) = \mathbb{I}\left( C\_{\text{low}} \le \rho\_{\text{geo}}(y) \le C\_{\text{high}} \right) \cdot
+$$
+
+$$
+\sum\_{t=0}^{T-1} \min(\rho\_t, C) \cdot A\_t \nabla \log \pi(y\_t|x, y\_{\lt t})
 $$
 {{% /callout %}}
 

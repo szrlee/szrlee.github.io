@@ -172,6 +172,7 @@ papers:
     venue: arXiv 2025
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2506.12912"}
+      - {name: Blog, url: "/post/what-policy-gradient-can-reach/"}
   - key: empg
     group: variance
     title: "Harnessing Uncertainty: Entropy-Modulated Policy Gradients for Long-Horizon LLM Agents"

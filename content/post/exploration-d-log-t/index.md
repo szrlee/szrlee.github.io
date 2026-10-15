@@ -43,7 +43,10 @@ Write the history as {{< math >}}$\Phi_t${{< /math >}} (the prior, then one colu
 
 {{< math >}}
 $$
-\mathbf{A}_t = \Sigma_t\,\Phi_t\,\Pi_t, \qquad \mathbf{A}_t\mathbf{A}_t^{\top} = \Sigma_t\,\Phi_t\big(\Pi_t\Pi_t^{\top}\big)\Phi_t^{\top}\,\Sigma_t \;=\; \Sigma_t \quad\text{if } \Pi_t \text{ preserves norms on the history.}
+\mathbf{A}_t = \Sigma_t\,\Phi_t\,\Pi_t,
+$$
+$$
+\mathbf{A}_t\mathbf{A}_t^{\top} = \Sigma_t\,\Phi_t\big(\Pi_t\Pi_t^{\top}\big)\Phi_t^{\top}\,\Sigma_t \;=\; \Sigma_t \quad\text{if } \Pi_t \text{ preserves norms on the history.}
 $$
 {{< /math >}}
 
@@ -65,7 +68,10 @@ Let {{< math >}}$\mathbf{z}_i${{< /math >}} be the rows of the injected noise an
 
 {{< math >}}
 $$
-M \ge \frac{C}{\varepsilon^2}\Big(\log\frac1\delta + \log T\Big) \;\Longrightarrow\; \forall\, t \le T:\quad (1-\varepsilon)\sum_{i\le t} v_i^2 \;\le\; \Big\|\sum_{i\le t} v_i\,\mathbf{z}_i\Big\|^2 \;\le\; (1+\varepsilon)\sum_{i\le t} v_i^2 .
+M \ge \frac{C}{\varepsilon^2}\Big(\log\frac1\delta + \log T\Big) \;\Longrightarrow
+$$
+$$
+\forall\, t \le T:\quad (1-\varepsilon)\sum_{i\le t} v_i^2 \;\le\; \Big\|\sum_{i\le t} v_i\,\mathbf{z}_i\Big\|^2 \;\le\; (1+\varepsilon)\sum_{i\le t} v_i^2 .
 $$
 {{< /math >}}
 
@@ -133,6 +139,8 @@ In deep RL, [HyperAgent](https://arxiv.org/abs/2402.10228) adds the same heads t
 <img src="/figs/img/hyperagent-deepsea.png" alt="DeepSea: episodes needed to solve the task grow linearly with its size for HyperAgent.">
 <figcaption>DeepSea, a hard-exploration benchmark: the episodes HyperAgent needs grow linearly with the size of the problem, the optimal rate.</figcaption>
 </figure>
+
+The sampler also decides which directions a policy-gradient update can see at all; [What Policy Gradient Can Reach](/post/what-policy-gradient-can-reach/) makes that precise.
 
 ## References
 
