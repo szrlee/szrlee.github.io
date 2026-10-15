@@ -15,18 +15,18 @@ hero:
 highlights:
   - title: Why LLM-RL collapses, and the fix
     text: >-
-      One of the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch:
-      the mismatch KL blows up, then the reward collapses. Our fix, **masked importance sampling
-      (MIS)**, made principled as Trust Region Masking (TRM), keeps or masks whole sequences and
-      never clips single tokens, so every token's score stays centered. Adopted, shipped, or
-      discussed by:
+      One of the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch.
+      Our fix, **masked importance sampling (MIS)**, made principled as Trust Region Masking (TRM),
+      masks whole sequences and never clips single tokens, so token scores stay centered.
+      Adopted, shipped, or discussed by:
     chips: adoption
     links:
       - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
   - title: Open-source RL infrastructure
     text: >-
       Authored the Rollout Correction framework for general off-policy training in veRL
-      (20k+ GitHub stars), and contributed its variance-reducing token-level baseline.
+      (20k+ GitHub stars), where MIS and TRM ship, and contributed the Optimal Token Baseline,
+      its variance-reducing token-level baseline.
     links:
       - {text: Rollout Correction docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
       - {text: Token baseline docs, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
