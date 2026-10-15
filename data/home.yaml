@@ -15,9 +15,11 @@ hero:
 highlights:
   - title: Why LLM-RL collapses, and the fix
     text: >-
-      We traced collapse to the training–inference mismatch and introduced
-      **masked importance sampling (MIS)**, made principled as Trust Region Masking (TRM).
-      Adopted, shipped, or discussed by:
+      One of the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch:
+      the mismatch KL blows up, then the reward collapses. Our fix, **masked importance sampling
+      (MIS)**, made principled as Trust Region Masking (TRM), keeps or masks whole sequences and
+      never clips single tokens, so every token's score stays centered. Adopted, shipped, or
+      discussed by:
     chips: adoption
     links:
       - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}

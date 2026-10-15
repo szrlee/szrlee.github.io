@@ -84,7 +84,9 @@ questions:
       stale data on top, so a run set up to be on-policy is off-policy anyway. We traced LLM-RL
       collapse to this training–inference mismatch, introduced masked importance sampling (MIS),
       made it principled as Trust Region Masking (a sequence mask with per-token importance
-      sampling), and built a learning-rate schedule that decays the step size as instability builds. Around the
+      sampling), and built a learning-rate schedule that decays the step size as instability builds.
+      Whole sequences are kept or masked and no single token is clipped, so every token's score
+      stays centered. Around the
       sampler, the gain of an update is a tangent plus a remainder bounded by the reward range
       times the sequence KL, and
       a batch-size-invariant rule for the step size and the queue keeps the gap fixed as runs grow.
