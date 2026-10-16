@@ -26,7 +26,7 @@ series_order: 1
 {{% callout note %}}
 **Why Post-Training Is Sparse · Part 1 of 3.** [Part 2](/post/sparsity-score-centering/) finds where the sparsity comes from. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach.
 
-- RL, on-policy distillation and SFT on near-policy data change only a small fraction of parameters. **Small** and **sparse** are different claims.
+- Reinforcement learning (RL), on-policy distillation and supervised fine-tuning (SFT) on near-policy data change only a small fraction of parameters. **Small** and **sparse** are different claims.
 - On the sampler's own samples the score has **zero mean**. So the expected gradient is a **covariance**, the Fisher is a **variance**, and the Fisher caps the gradient for any reward.
 - At one position the Fisher is the **variance of logit sensitivities**: whatever moves every candidate together counts for nothing.
 - None of this needs on-policy sampling. It needs a **score centered under the sampling distribution**.
@@ -37,7 +37,7 @@ The figures step through like slides. Use **→** or **▶**, and step back with
 | Symbol | Meaning |
 |---|---|
 | {{< math >}}$\smu(a\mid s)${{< /math >}} | the distribution that drew the next token after prefix {{< math >}}$s${{< /math >}}: the sampler |
-| {{< math >}}$\pmodel(a\mid s)${{< /math >}} | the model's next-token distribution; {{< math >}}$\smu=\pmodel${{< /math >}} on-policy |
+| {{< math >}}$\pmodel(a\mid s),\ \pi_\theta(y\mid x)${{< /math >}} | the model's next-token distribution, and its probability of a response {{< math >}}$y=(y_1,\dots,y_T)${{< /math >}} to prompt {{< math >}}$x${{< /math >}}; {{< math >}}$\smu=\pmodel${{< /math >}} on-policy |
 | {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} | how strongly parameter {{< math >}}$i${{< /math >}} moves the logit {{< math >}}$z_a${{< /math >}} of token {{< math >}}$a${{< /math >}} |
 | {{< math >}}$A${{< /math >}} | the learning signal: a reward or advantage, possibly times an importance ratio |
 | {{< math >}}$G_i,\ F_i${{< /math >}} | the expected update and the diagonal Fisher of parameter {{< math >}}$i${{< /math >}} |
@@ -46,7 +46,7 @@ The figures step through like slides. Use **→** or **▶**, and step back with
 
 **Reweighting what the model already samples explains why the update is small, not why it lands on a few coordinates.**
 
-RL fine-tuning changes only 5–30% of a model's parameters, across seven algorithms and ten models ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). On-policy distillation and SFT on near-policy data behave the same way ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Two common explanations are that RL only reweights answers the model can already produce, and that a scalar advantage carries at most {{< math >}}$\log_2 B${{< /math >}} bits per episode ([Information Bandwidth](/post/information-bandwidth-rl/)). The first says the update is small, the second that it carries little. Neither makes it sparse: a hundred million parameters each moving a little is small and dense, and can carry those few bits just as well. The question is which coordinates move, and why the same few can be found before any reward is seen.
+RL fine-tuning changes only 5–30% of a model's parameters, across seven algorithms and ten models ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). On-policy distillation and SFT on near-policy data behave the same way ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Two common explanations are that RL only reweights answers the model can already produce, and that a scalar advantage with {{< math >}}$B${{< /math >}} possible values carries at most {{< math >}}$\log_2 B${{< /math >}} bits per episode ([Information Bandwidth](/post/information-bandwidth-rl/)). The first says the update is small, the second that it carries little. Neither makes it sparse: a hundred million parameters each moving a little is small and dense, and can carry those few bits just as well. The question is which coordinates move, and why the same few can be found before any reward is seen.
 
 ## 2. The gradient is a covariance, the Fisher a variance
 

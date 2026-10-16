@@ -21,7 +21,7 @@ TOK.forEach((t, i) => {
   base += text(TX(i), 66, t, {size: 20, anchor: 'middle'});
   base += text(TX(i) - 52, 30, String(i + 1), {size: 13, fill: C.mute});
   base += bell(TX(i), 158, 92, 48);
-  base += text(TX(i), 186, '*s*^{(' + (i + 1) + ')}', {size: 18, anchor: 'middle', fill: C.bl});
+  base += text(TX(i), 186, 'score^{(' + (i + 1) + ')}', {size: 18, anchor: 'middle', fill: C.bl});
 });
 base += text(40, 140, 'one token score', {size: 18, fill: C.mute}) + text(40, 164, 'per position', {size: 18, fill: C.mute});
 
@@ -30,7 +30,7 @@ TOK.forEach((t, i) => { mean += line(TX(i), 104, TX(i), 166, {stroke: C.or, w: 3
 mean += text(40, 206, 'mean 0 given its prefix', {size: 18, fill: C.or, weight: 600});
 
 const G0x = 520, G0y = 228, CS = 48;
-let grid = text(40, 262, '(Σ_{*t*} *s*^{(*t*)})² = Σ_{*u*,*t*} *s*^{(*u*)}*s*^{(*t*)}', {size: 20});
+let grid = text(40, 262, '(Σ_{*t*} score^{(*t*)})² = Σ_{*u*,*t*} score^{(*u*)} score^{(*t*)}', {size: 20});
 let zeros = '';
 for (let u = 0; u < 5; u++) {
   grid += text(G0x - 12, G0y + u * CS + 30, String(u + 1), {size: 14, fill: C.mute, anchor: 'end'});
@@ -42,7 +42,7 @@ for (let u = 0; u < 5; u++) {
       text(G0x + t * CS + CS / 2, G0y + u * CS + 31, '0', {size: 18, anchor: 'middle', fill: C.mute});
   }
 }
-zeros += text(40, 330, 'for *u* < *t*, *s*^{(*u*)} is fixed', {size: 18, fill: C.soft}) +
+zeros += text(40, 330, 'for *u* < *t*, score^{(*u*)} is fixed', {size: 18, fill: C.soft}) +
   text(40, 356, 'by the prefix of *t*, so each pair', {size: 18, fill: C.soft}) +
   text(40, 382, 'averages to zero', {size: 18, fill: C.soft});
 

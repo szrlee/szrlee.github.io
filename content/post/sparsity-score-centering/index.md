@@ -31,10 +31,10 @@ series_order: 2
 - **Necessary, not sufficient.** The cap makes the update sparse only if the Fisher is concentrated on a few coordinates. The reward then picks which of those move.
 - **The Fisher is concentrated.** In the output layer a row's Fisher is large only for tokens the sampler emits. In hidden layers only a few directions remain; coordinate sparsity there is measured, not derived.
 - **Without centering**, a mean shift adds up along the sequence and escapes the cap. Under training–inference mismatch it is numerical noise.
-- **SFT is a different case.** Its sampler is unknown, so it cannot be centered: its whole gradient is the mean shift, and it stays sparse only when the data is close to the model.
+- **Supervised fine-tuning (SFT) is a different case.** Its sampler is unknown, so it cannot be centered: its whole gradient is the mean shift, and it stays sparse only when the data is close to the model.
 {{% /callout %}}
 
-**Starting point.** Write {{< math >}}$\smu${{< /math >}} for the sampler, {{< math >}}$\pmodel${{< /math >}} for the model, and {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} for how strongly parameter {{< math >}}$i${{< /math >}} moves the logit of token {{< math >}}$a${{< /math >}}. The softmax score of a drawn token subtracts the model's average, {{< math >}}$\kappa_{i,y}-\bar\kappa^{p}_i${{< /math >}}; centering subtracts the sampler's instead, {{< math >}}$c_i=\sum_t\big(\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t)\big)${{< /math >}}. With centering, the expected update is a covariance and the Fisher caps it ([Part 1](/post/gradient-is-covariance/) has the derivation):
+**Starting point.** Write {{< math >}}$\smu${{< /math >}} for the sampler, {{< math >}}$\pmodel${{< /math >}} for the model's next-token distribution, {{< math >}}$A${{< /math >}} for the learning signal (a reward or advantage), and {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} for how strongly parameter {{< math >}}$i${{< /math >}} moves the logit of token {{< math >}}$a${{< /math >}}. For the token {{< math >}}$y_t${{< /math >}} drawn after prefix {{< math >}}$s_t${{< /math >}}, the softmax score subtracts the average under the model, {{< math >}}$\mathrm{score}_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{p}_i(s_t)${{< /math >}}; centering subtracts the average under the sampler instead, {{< math >}}$c_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t)${{< /math >}}. Over a response of {{< math >}}$T${{< /math >}} tokens, {{< math >}}$c_i=\sum_{t=1}^{T}c_i^{(t)}${{< /math >}}. With centering, the expected update is a covariance and the Fisher caps it ([Part 1](/post/gradient-is-covariance/) has the derivation):
 
 {{< math >}}
 $$
@@ -124,9 +124,9 @@ $$
 $$
 {{< /math >}}
 
-Centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that part counts for nothing, and what remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean span at most {{< math >}}$n-1${{< /math >}} directions; concentration alone would leave {{< math >}}$n${{< /math >}}. The common part may carry most of the energy, but how much of the Fisher's smallness it accounts for is open ([section 6](#6-scope-and-open-questions)).
+With {{< math >}}$\bar w_\mu=\sum_a\smu(a)\,w_a${{< /math >}} the average output vector, centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that part counts for nothing, and what remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean span at most {{< math >}}$n-1${{< /math >}} directions; concentration alone would leave {{< math >}}$n${{< /math >}}. The common part may carry most of the energy, but how much of the Fisher's smallness it accounts for is open ([section 6](#6-scope-and-open-questions)).
 
-This is low dimension in function space, not coordinate sparsity: that would need most {{< math >}}$u_i${{< /math >}} to be nearly orthogonal to these directions, which depends on the architecture and on pretraining. The evidence is empirical. In RL on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)); the authors also find that likely next tokens tend to have similar sensitivities, the common part centering removes. Sparse is not low rank either: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
+This is low dimension in function space, not coordinate sparsity: that would need most {{< math >}}$u_i${{< /math >}} to be nearly orthogonal to these directions, which depends on the architecture and on pretraining. The evidence is empirical. In reinforcement learning (RL) on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)); the authors also find that likely next tokens tend to have similar sensitivities, the common part centering removes. Sparse is not low rank either: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
 
 ## 3. Without centering: the mean shift
 
@@ -149,13 +149,13 @@ $$
 $$
 {{< /math >}}
 
-Draw tokens from {{< math >}}$\smu${{< /math >}} but subtract only the model's mean, as the plain softmax score does, and each position averages to {{< math >}}$m_i${{< /math >}} instead of zero. When the shift keeps its sign, the positions add up coherently: roughly {{< math >}}$T\sigma^2+T^2m^2${{< /math >}} against {{< math >}}$T\sigma^2${{< /math >}} with centering (an estimate, not a theorem).
+Draw tokens from {{< math >}}$\smu${{< /math >}} but subtract only the model's mean, as the plain softmax score does, and each position averages to {{< math >}}$m_i${{< /math >}} instead of zero. With per-position variance {{< math >}}$\sigma^2${{< /math >}} and a shift {{< math >}}$m${{< /math >}} of constant sign, the positions add up coherently: roughly {{< math >}}$T\sigma^2+T^2m^2${{< /math >}} against {{< math >}}$T\sigma^2${{< /math >}} with centering (an estimate, not a theorem).
 
 SFT is the extreme case, and a different one: its sampler, the data's next-token distribution, is unknown, since each prefix shows a single token, so its score cannot be centered. By the tower property its gradient is exactly the accumulated shift:
 
 {{< math >}}
 $$
-\frac{\partial}{\partial\theta_i}\,\mathbb{E}_{\text{data}}\big[\log\pi_\theta(y\mid x)\big]=\mathbb{E}_{\text{data}}\Big[\sum_t m_i(s_t)\Big].
+\frac{\partial}{\partial\theta_i}\,\mathbb{E}_{\text{data}}\Big[\sum_t\log\pmodel(y_t\mid s_t)\Big]=\mathbb{E}_{\text{data}}\Big[\sum_t m_i(s_t)\Big].
 $$
 {{< /math >}}
 
@@ -164,24 +164,32 @@ Even with a known sampler, centering would delete the whole signal: with {{< mat
 <details class="spoiler">
 <summary>The same cost, booked as a χ² signal</summary>
 
-Let {{< math >}}$D${{< /math >}} be the data distribution and {{< math >}}$w=D/\pi_\theta${{< /math >}}. Because the score has zero mean under {{< math >}}$\pi_\theta${{< /math >}}, any constant {{< math >}}$b${{< /math >}} can be subtracted:
+Let {{< math >}}$D${{< /math >}} be the data distribution over responses, {{< math >}}$\pi_\theta${{< /math >}} the model's, and {{< math >}}$F_i${{< /math >}} the model's own Fisher. Written under the model, the SFT gradient weights each response by {{< math >}}$D/\pi_\theta${{< /math >}}. Because the score has zero mean under {{< math >}}$\pi_\theta${{< /math >}}, any constant {{< math >}}$b${{< /math >}} can be subtracted from that weight:
 
 {{< math >}}
 $$
-G^{\text{SFT}}_i=\mathbb{E}_{\pi}\big[w\cdot\mathrm{score}_i\big]=\mathbb{E}_{\pi}\big[(w-b)\,\mathrm{score}_i\big],
+G^{\text{SFT}}_i=\mathbb{E}_{\pi_\theta}\big[(D/\pi_\theta)\,\mathrm{score}_i\big]
 $$
 $$
-|G^{\text{SFT}}_i|\le\sqrt{\mathbb{E}_{\pi}\big[(w-b)^2\big]}\,\sqrt{F_i},
+=\mathbb{E}_{\pi_\theta}\big[(D/\pi_\theta-b)\,\mathrm{score}_i\big],
 $$
 $$
-\mathbb{E}_{\pi}\big[(w-b)^2\big]=\chi^2(D\,\|\,\pi_\theta)+(1-b)^2
-$$
-$$
-\ge\ \chi^2(D\,\|\,\pi_\theta).
+|G^{\text{SFT}}_i|\le\sqrt{\mathbb{E}_{\pi_\theta}\big[(D/\pi_\theta-b)^2\big]}\,\sqrt{F_i}.
 $$
 {{< /math >}}
 
-The weight is a product {{< math >}}$w=\prod_t\rho_t${{< /math >}} with {{< math >}}$\rho_t=q(y_t\mid s_t)/\pmodel(y_t\mid s_t)${{< /math >}}, where {{< math >}}$q${{< /math >}} is the data's next-token distribution, and {{< math >}}$1+\chi^2(D\|\pi_\theta)=\mathbb{E}_D[w]${{< /math >}}. Conditioning on the last position gives {{< math >}}$\mathbb{E}_D[\rho_T\mid s_T]=1+\chi^2\big(q(\cdot\mid s_T)\,\|\,\pmodel(\cdot\mid s_T)\big)${{< /math >}}. If every position has {{< math >}}$\chi^2(q\|p)\ge c${{< /math >}}, backward induction over positions, with every ratio positive, gives
+With {{< math >}}$\chi^2(D\,\|\,\pi_\theta)=\mathbb{E}_{\pi_\theta}\big[(D/\pi_\theta-1)^2\big]${{< /math >}}, the expectation under the root is {{< math >}}$\chi^2(D\,\|\,\pi_\theta)+(1-b)^2\ge\chi^2(D\,\|\,\pi_\theta)${{< /math >}}. The weight {{< math >}}$D/\pi_\theta${{< /math >}} is a product over positions of {{< math >}}$q(y_t\mid s_t)/\pmodel(y_t\mid s_t)${{< /math >}}, where {{< math >}}$q${{< /math >}} is the data's next-token distribution, and {{< math >}}$1+\chi^2(D\,\|\,\pi_\theta)=\mathbb{E}_D[D/\pi_\theta]${{< /math >}}. At the last position,
+
+{{< math >}}
+$$
+\mathbb{E}_D\Big[\frac{q(y_T\mid s_T)}{\pmodel(y_T\mid s_T)}\,\Big|\,s_T\Big]
+$$
+$$
+=1+\chi^2\big(q(\cdot\mid s_T)\,\|\,\pmodel(\cdot\mid s_T)\big).
+$$
+{{< /math >}}
+
+If every position has {{< math >}}$\chi^2(q\,\|\,\pmodel)\ge c${{< /math >}}, backward induction over positions, with every ratio positive, gives
 
 {{< math >}}
 $$
@@ -201,10 +209,10 @@ The bound still holds, but its signal scale grows at least exponentially with di
 |---|---|---|---|
 | On-policy RL, on-policy distillation | the model | the model, for free | holds, with the model's Fisher |
 | Off-policy with score centering | a known sampler | the sampler | holds, with the sampler's Fisher |
-| SFT | the data, an unknown sampler | the model only; centering is impossible | holds formally; the signal scale is {{< math >}}$\chi^2${{< /math >}} |
-| Value-based TD learning | a replay buffer | nothing | does not apply |
+| SFT | the data, an unknown sampler | the model only; centering is impossible | holds formally; the signal scale is the {{< math >}}$\chi^2${{< /math >}} divergence of the data from the model |
+| Value-based temporal-difference (TD) learning | a replay buffer | nothing | does not apply |
 
-TD weights a raw logit gradient, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component: for a Q-value a uniform shift is the value level, not a redundancy. The bound does not apply, which is no evidence that TD updates are dense. DPO on a fixed preference set also has an unknown sampler and behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the cases is the shift, not RL versus SFT.
+TD weights a raw logit gradient by the TD error {{< math >}}$\delta${{< /math >}}, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component: for a Q-value a uniform shift is the value level, not a redundancy. The bound does not apply, which is no evidence that TD updates are dense. DPO (direct preference optimization) on a fixed preference set also has an unknown sampler and behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the cases is the shift, not RL versus SFT.
 
 ## 5. Sparsity is not a defect
 
@@ -218,7 +226,7 @@ Centering removes the shift exactly. Without the engine's full distribution, per
 
 - **What centering needs.** The sampler's full next-token distribution at every prefix (engine log-probabilities or a stale model; with top-k or top-p, the truncated distribution), or per-token importance weights, which need only the drawn token's two probabilities. Human demonstrations offer neither. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
 - **What it changes.** Off-policy, centering drops the pull toward the sampler; the coefficient {{< math >}}$\beta${{< /math >}} in [Around the Sampler](/post/offpolicy-around-the-sampler/#6-one-knob-how-hard-to-pull-toward-the-sampler) adds it back on purpose.
-- **Two mechanisms, not yet separated.** A concentrated sampler and candidates that react alike both lower the Fisher. Zhang et al. find the token Fisher under the model's probabilities at 0.16 of its value under a uniform distribution, falling to 0.04 after 1,000 steps, but that comparison changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure the share centering removes per coordinate, {{< math >}}$\rho_i=(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; {{< math >}}$\rho_i\approx1${{< /math >}} on low-Fisher coordinates would mean the common part dominates.
+- **Two mechanisms, not yet separated.** A concentrated sampler and candidates that react alike both lower the Fisher. Zhang et al. find the token Fisher under the model's probabilities at 0.16 of its value under a uniform distribution, falling to 0.04 after 1,000 steps, but that comparison changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure, per coordinate, the share of the second moment that centering removes, {{< math >}}$(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; a share near 1 on low-Fisher coordinates would mean the common part dominates.
 - **One step.** The Fisher itself changes during training; [Part 3](/post/what-policy-gradient-can-reach/) shows what a one-step bound does and does not rule out.
 
 **Next.** [Part 3](/post/what-policy-gradient-can-reach/) turns the bound around: how far can one update move a response the model almost never produces?
