@@ -24,13 +24,23 @@ series_order: 3
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 3 of 3.** Uses the covariance form of [Part 1](/post/gradient-is-covariance/) and the Fisher of [Part 2](/post/sparsity-score-centering/).
+**Why Post-Training Is Sparse · Part 3 of 3.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/).
 
 - **Reach follows resemblance.** One update moves the log-odds of a response against another by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
 - **Never drawn is not out of reach.** A response that resembles nothing the sampler produces barely moves; one never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them.
 - **Growth is proportional to probability.** With one logit per response, getting from probability ε to one half takes time about 1/ε; a demonstration needs only about log(1/ε).
 - **One step of one estimator.** Shared structure, a changing Fisher, and a centered estimator with a different sampler all widen what is reachable.
 {{% /callout %}}
+
+**Starting point.** For a response {{< math >}}$y${{< /math >}} to a prompt {{< math >}}$x${{< /math >}}, write {{< math >}}$\mathrm{score}(y)=\nabla_\theta\log\pi_\theta(y\mid x)${{< /math >}}. Responses are drawn by a sampler {{< math >}}$\smu${{< /math >}}, and each enters the update through its score centered under {{< math >}}$\smu${{< /math >}}, written {{< math >}}$c(y)${{< /math >}}: at every position, the drawn token's logit gradient minus its average under {{< math >}}$\smu${{< /math >}}. The expected update and the sampler's Fisher are
+
+{{< math >}}
+$$
+G=\mathbb{E}_{y\sim\smu}\big[A\,c(y)\big],\qquad F^{\mu}=\mathbb{E}_{\smu}\big[c\,c^\top\big].
+$$
+{{< /math >}}
+
+Centering makes {{< math >}}$\mathbb{E}_{\smu}[c]=0${{< /math >}}, so {{< math >}}$G${{< /math >}} is a covariance ([Part 1](/post/gradient-is-covariance/)); on-policy, {{< math >}}$c${{< /math >}} is the plain score and {{< math >}}$G${{< /math >}} the policy gradient. [Part 2](/post/sparsity-score-centering/) shows that {{< math >}}$F^{\mu}${{< /math >}} is concentrated on a few directions; this part asks how far {{< math >}}$G${{< /math >}} can move one response.
 
 ## 1. A question that can be answered
 
@@ -48,7 +58,7 @@ v=\mathrm{score}(y)-\mathrm{score}(y').
 $$
 {{< /math >}}
 
-"Can RL learn something new?" is too vague to prove anything about. A version that can be proved: for a response {{< math >}}$y${{< /math >}} that the model rarely produces but the reward likes, how much can one update change its probability? The normalizer moves many responses at once, so the log-odds against a reference {{< math >}}$y'${{< /math >}} isolates learning {{< math >}}$y${{< /math >}} itself. Here {{< math >}}$G=\mathbb{E}_{\smu}[A\cdot c]${{< /math >}} is the expected update of Part 1, and {{< math >}}$\mathrm{score}(y)${{< /math >}} is the model's score of the target. In the running example: after "She drank a cup of", can *matcha* rise if the sampler never says it?
+"Can RL learn something new?" is too vague to prove anything about. A version that can be proved: for a response {{< math >}}$y${{< /math >}} that the model rarely produces but the reward likes, how much can one update change its probability? The normalizer moves many responses at once, so the log-odds against a reference {{< math >}}$y'${{< /math >}} isolates learning {{< math >}}$y${{< /math >}} itself. Here {{< math >}}$G${{< /math >}} is the expected update defined above, and {{< math >}}$\mathrm{score}(y)${{< /math >}} is the model's score of the target. In the running example: after "She drank a cup of", can *matcha* rise if the sampler never says it?
 
 ## 2. A response moves as far as it resembles the sampler's outputs
 
@@ -71,12 +81,12 @@ v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big].
 $$
 {{< /math >}}
 
-The similarity {{< math >}}$K(y,y'')${{< /math >}} says how much raising a sampled {{< math >}}$y''${{< /math >}} raises {{< math >}}$y${{< /math >}} along the way. Matcha is never sampled, but if its score shares directions with tea's, rewarding tea lifts matcha too. A response whose score is orthogonal to everything the sampler draws has {{< math >}}$v^\top F^{\mu}v\approx0${{< /math >}} and does not move to first order, however high its reward. With {{< math >}}$v${{< /math >}} a coordinate vector this is the bound of Part 1, now in any direction.
+The similarity {{< math >}}$K(y,y'')${{< /math >}} says how much raising a sampled {{< math >}}$y''${{< /math >}} raises {{< math >}}$y${{< /math >}} along the way. Matcha is never sampled, but if its score shares directions with tea's, rewarding tea lifts matcha too. A response whose score is orthogonal to everything the sampler draws has {{< math >}}$v^\top F^{\mu}v\approx0${{< /math >}} and does not move to first order, however high its reward. With {{< math >}}$v${{< /math >}} a coordinate vector it is the per-parameter cap {{< math >}}$|G_i|\le\operatorname{std}_{\smu}(A)\sqrt{F^{\mu}_{ii}}${{< /math >}}; here it holds in any direction.
 
 <details class="spoiler">
 <summary>Proof, and the preconditioned version</summary>
 
-By Part 1, {{< math >}}$\mathbb{E}_{\smu}[c]=0${{< /math >}}, so {{< math >}}$\mathbb{E}_{\smu}[v^\top c]=0${{< /math >}} and the mean of {{< math >}}$A${{< /math >}} can be subtracted:
+Since {{< math >}}$\mathbb{E}_{\smu}[c]=0${{< /math >}}, also {{< math >}}$\mathbb{E}_{\smu}[v^\top c]=0${{< /math >}}, and the mean of {{< math >}}$A${{< /math >}} can be subtracted:
 
 {{< math >}}
 $$
@@ -105,7 +115,10 @@ $$
 \frac{d\log\pi(y)}{d\eta}=\pi(y)\,\Delta(y)-\sum_{y''}\pi(y'')^2\,\Delta(y''),
 $$
 $$
-\frac{d}{d\eta}\big[\log\pi(y)-\log\pi(y')\big]=\pi(y)\,\Delta(y)-\pi(y')\,\Delta(y').
+\frac{d}{d\eta}\big[\log\pi(y)-\log\pi(y')\big]
+$$
+$$
+=\pi(y)\,\Delta(y)-\pi(y')\,\Delta(y').
 $$
 {{< /math >}}
 
@@ -143,14 +156,17 @@ From {{< math >}}$\varepsilon=0.01${{< /math >}} with {{< math >}}$\Delta=1${{< 
 
 {{< math >}}
 $$
-G=\mathrm{score}(y^\star)\ \Rightarrow\ \frac{d}{d\eta}\log\pi(y^\star)\Big|_{\eta=0}=\big\|\mathrm{score}(y^\star)\big\|^2,
+G=\mathrm{score}(y^\star)
+$$
+$$
+\Rightarrow\ \frac{d}{d\eta}\log\pi(y^\star)\Big|_{\eta=0}=\big\|\mathrm{score}(y^\star)\big\|^2,
 $$
 $$
 \big\|e_{y^\star}-\pi\big\|^2=\big(1-\pi(y^\star)\big)^2+\sum_{y\ne y^\star}\pi(y)^2 .
 $$
 {{< /math >}}
 
-No similarity to sampled outputs enters, and the push stays near one however unlikely {{< math >}}$y^\star${{< /math >}} is. The tabular expression is the squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912) for a chosen action, {{< math >}}$1-2P_c+C(P)${{< /math >}}; in the output layer, row {{< math >}}$y^\star${{< /math >}} receives {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}} ([Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)). SFT can inject mass into a response the sampler never produces. Policy gradient can only amplify what it already reaches through similarity: {{< math >}}$1/\varepsilon${{< /math >}} against {{< math >}}$\log(1/\varepsilon)${{< /math >}} in the figure.
+No similarity to sampled outputs enters, and the push stays near one however unlikely {{< math >}}$y^\star${{< /math >}} is. The tabular expression is the squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912) for a chosen action, {{< math >}}$1-2P_c+C(P)${{< /math >}}; in the output layer, the row of {{< math >}}$y^\star${{< /math >}} receives {{< math >}}$1-\pmodel(y^\star)${{< /math >}} times the last hidden state ([Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)). SFT can inject mass into a response the sampler never produces. Policy gradient can only amplify what it already reaches through similarity: {{< math >}}$1/\varepsilon${{< /math >}} against {{< math >}}$\log(1/\varepsilon)${{< /math >}} in the figure.
 
 ## 5. What the bound does not say
 
@@ -159,7 +175,7 @@ No similarity to sampled outputs enters, and the push stays near one however unl
 - **Shared structure.** In a network the similarity {{< math >}}$K${{< /math >}} is not diagonal. A response never sampled is lifted if it shares structure with rewarded samples, so new solutions recombined from existing pieces are within reach.
 - **Many steps.** The Fisher moves. In [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262), the initial high-Fisher set keeps only 70–78% of its coordinates through 1,000 steps, and the mean Fisher of the initial low-Fisher set rises by 15–17%. Directions that were invisible can open; a multi-step bound would need control over that drift, and none exists yet.
 - **First order.** Large steps and strong nonlinearity add higher-order terms.
-- **Which estimator, and which sampler.** With full importance weighting, the expected update is the on-policy gradient, bounded by the model's own Fisher whatever the sampler, so exploring alone does not widen a single step. With the score centered under the sampler, the update is {{< math >}}$\operatorname{Cov}_{\smu}(A,c)${{< /math >}}, bounded by {{< math >}}$F^{\mu}${{< /math >}}: a different sampler (a higher temperature, an exploration bonus, or posterior sampling as in [Exploration at Scale](/post/scalable-exploration/)) changes which directions are visible. Value-based TD learning is not score-weighted at all, so the bound does not apply to it.
+- **Which estimator, and which sampler.** With full importance weighting (each sampled response weighted by {{< math >}}$\pi_\theta/\smu${{< /math >}}), the expected update is the on-policy gradient, bounded by the model's own Fisher whatever the sampler, so exploring alone does not widen a single step. With the score centered under the sampler, the update is {{< math >}}$\operatorname{Cov}_{\smu}(A,c)${{< /math >}}, bounded by {{< math >}}$F^{\mu}${{< /math >}}: a different sampler (a higher temperature, an exploration bonus, or posterior sampling as in [Exploration at Scale](/post/scalable-exploration/)) changes which directions are visible. Value-based TD learning is not score-weighted at all, so the bound does not apply to it.
 - **Sparse is not little.** A new capability can live in a few parameters.
 
 ## 6. What to measure instead
@@ -177,7 +193,7 @@ $$
 
 The debate over whether RL extends a base model's abilities usually looks at probability: at large *k*, the base model's pass@*k* can be higher ([Yue et al., 2025](https://arxiv.org/abs/2504.13837)). The bound points to a different quantity, the overlap between the target behavior's score and what the sampler produces. Among equally unlikely responses, those that share structure with high-reward samples can be amplified and isolated ones cannot. Policy gradient is similarity-driven amplification. Whether it yields new capabilities depends on how new behavior connects, through shared parameters, to what the sampler already generates, and on which sampler is used.
 
-**Back to the start.** [Part 1](/post/gradient-is-covariance/) showed that a score centered under the sampler makes the update a covariance; [Part 2](/post/sparsity-score-centering/) showed what that covariance can touch. Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
+**The series in one line.** A score centered under the sampler makes the update a covariance capped by the Fisher ([Part 1](/post/gradient-is-covariance/)); that Fisher is concentrated, so updates are sparse ([Part 2](/post/sparsity-score-centering/)); and the same Fisher bounds how far one step can move any response. Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
 
 ## References
 

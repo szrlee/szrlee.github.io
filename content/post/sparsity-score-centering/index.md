@@ -1,5 +1,5 @@
 ---
-title: "Sparsity Comes from Score Centering"
+title: "Sparsity Requires Score Centering"
 subtitle: "Why Post-Training Is Sparse, Part 2: the condition is a score centered under the sampler, not on-policy data, and the sampler's Fisher decides where the update can go"
 summary: "With a known sampler, sparsity requires the score to be centered under it; whether the data is on-policy matters only through that. A centered update is capped by the sampler's Fisher, which is concentrated: in the output layer a row can move only if the sampler emits its token, and in hidden layers only the directions that tell likely candidates apart remain. Without centering, a mean shift adds up along the sequence and escapes the cap; under training–inference mismatch it is numerical noise. SFT cannot be centered, since its sampler is unknown: its gradient is the shift itself."
 authors:
@@ -25,16 +25,30 @@ series_order: 2
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 2 of 3.** Builds on [Part 1](/post/gradient-is-covariance/), where a centered score makes the expected update a covariance that the Fisher caps. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can still reach.
+**Why Post-Training Is Sparse · Part 2 of 3.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach.
 
 - **Centering is the condition, not on-policy data.** The Fisher caps the update only if the score has zero mean under the sampler. On-policy that comes free; off-policy, centering or per-token importance weights provide it.
 - **Necessary, not sufficient.** The cap makes the update sparse only if the Fisher is concentrated on a few coordinates. The reward then picks which of those move.
-- **The Fisher is concentrated.** In the output layer the formula is exact: a row's Fisher is large only for tokens the sampler emits. In hidden layers only a few directions remain; coordinate sparsity there is measured, not derived.
+- **The Fisher is concentrated.** In the output layer a row's Fisher is large only for tokens the sampler emits. In hidden layers only a few directions remain; coordinate sparsity there is measured, not derived.
 - **Without centering**, a mean shift adds up along the sequence and escapes the cap. Under training–inference mismatch it is numerical noise.
 - **SFT is a different case.** Its sampler is unknown, so it cannot be centered: its whole gradient is the mean shift, and it stays sparse only when the data is close to the model.
 {{% /callout %}}
 
-All of this is about the expected update. Whether a stored weight ends up changing also depends on the optimizer and on precision. Adam normalizes per coordinate, so a small but consistently signed gradient still moves a parameter by about one learning rate ([Keeping the Off-Policy Gap Fixed](/post/offpolicy-gap-at-scale/)). [Mukherjee et al. (2025)](https://arxiv.org/abs/2505.11711) count a bf16 weight as unchanged when it moves by at most {{< math >}}$10^{-5}${{< /math >}}, and note that at unlimited precision the updates would be dense. The bound says which coordinates get a small expected update; the optimizer and the precision decide whether that leaves the weight unchanged.
+**Starting point.** Write {{< math >}}$\smu${{< /math >}} for the sampler, {{< math >}}$\pmodel${{< /math >}} for the model, and {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} for how strongly parameter {{< math >}}$i${{< /math >}} moves the logit of token {{< math >}}$a${{< /math >}}. The softmax score of a drawn token subtracts the model's average, {{< math >}}$\kappa_{i,y}-\bar\kappa^{p}_i${{< /math >}}; centering subtracts the sampler's instead, {{< math >}}$c_i=\sum_t\big(\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t)\big)${{< /math >}}. With centering, the expected update is a covariance and the Fisher caps it ([Part 1](/post/gradient-is-covariance/) has the derivation):
+
+{{< math >}}
+$$
+G_i=\operatorname{Cov}_{\smu}(A,c_i),\qquad |G_i|\le\operatorname{std}_{\smu}(A)\sqrt{F^{\mu}_i},
+$$
+$$
+F^{\mu}_i=\mathbb{E}_{\smu}\Big[\sum_t f_i(s_t)\Big],
+$$
+$$
+f_i(s)=\operatorname{Var}_{a\sim\smu}\big[\kappa_{i,a}(s)\big].
+$$
+{{< /math >}}
+
+This concerns the expected update; whether a stored weight changes also depends on Adam and on precision. [Mukherjee et al. (2025)](https://arxiv.org/abs/2505.11711) count a bf16 weight as unchanged within {{< math >}}$10^{-5}${{< /math >}}, and note that at unlimited precision the updates would be dense.
 
 ## 1. Output layer: a row can move only if the sampler emits its token
 
@@ -57,11 +71,11 @@ F^{\mu}_{\text{row }c}\le\max_s\|h(s)\|^2\cdot\mathbb{E}_{\smu}\big[\#\{t:\ y_t=
 $$
 {{< /math >}}
 
-The weight {{< math >}}$W_{c,k}${{< /math >}} touches only token {{< math >}}$c${{< /math >}}'s logit, so for it the next token is a coin flip, {{< math >}}$c${{< /math >}} or not {{< math >}}$c${{< /math >}}. Its Fisher is the coin's variance times {{< math >}}$h_k^2${{< /math >}}: near zero when the sampler almost never considers {{< math >}}$c${{< /math >}}, and near zero when it is almost sure of it. With tea at 0.5, coffee at 0.4 and 0.1 spread over a hundred thousand other tokens, the total is about {{< math >}}$1-0.25-0.16=0.59${{< /math >}}, and the tea and coffee rows hold {{< math >}}$0.25+0.24=0.49${{< /math >}} of it: 83%. The other 17% is spread over a hundred thousand rows, about a millionth each.
+The weight {{< math >}}$W_{c,k}${{< /math >}} touches only token {{< math >}}$c${{< /math >}}'s logit, so for it the next token is a coin flip, {{< math >}}$c${{< /math >}} or not {{< math >}}$c${{< /math >}}, and its Fisher is the coin's variance times {{< math >}}$h_k^2${{< /math >}}: near zero when the sampler almost never considers {{< math >}}$c${{< /math >}}, or is almost sure of it. With tea at 0.5, coffee at 0.4 and 0.1 spread over a hundred thousand other tokens, the tea and coffee rows hold 83% of the total, and every other row about a millionth.
 
-The two factors have different sources. {{< math >}}$\smu(c)${{< /math >}} comes from the sampler and decides which rows matter: without centering the second moment would be {{< math >}}$\smu(c)\,h_k^2${{< /math >}}, concentrated on the same rows. Centering contributes the factor {{< math >}}$1-\smu(c)${{< /math >}}, which silences a token the sampler is sure of. Its main job is elsewhere: only a centered update is capped by this Fisher at all ([section 3](#3-without-centering-the-mean-shift)).
+The factor {{< math >}}$\smu(c)${{< /math >}} comes from the sampler and decides which rows matter; without centering the second moment {{< math >}}$\smu(c)\,h_k^2${{< /math >}} would be concentrated on the same rows. Centering contributes {{< math >}}$1-\smu(c)${{< /math >}}, which silences a token the sampler is sure of; its main job is to make the cap hold at all ([section 3](#3-without-centering-the-mean-shift)).
 
-Along a response, {{< math >}}$\mathbb{E}[\smu(c\mid s_t)]=\Pr(y_t=c)${{< /math >}}, so a row's Fisher is bounded by how often the sampler emits its token. A task emits a few thousand of the vocabulary's hundred thousand tokens; the other rows barely move. The total is also the expected squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912): averaged over the drawn token, its {{< math >}}$1-2P_c+C(P)${{< /math >}} becomes {{< math >}}$1-C(P)${{< /math >}}, with {{< math >}}$C(P)=\sum_aP_a^2${{< /math >}}.
+Along a response, {{< math >}}$\mathbb{E}[\smu(c\mid s_t)]=\Pr(y_t=c)${{< /math >}}, so a row's Fisher is bounded by how often the sampler emits its token. A task emits a few thousand of the vocabulary's hundred thousand tokens; the other rows barely move.
 
 {{< livefig "s-coinflip" "Drag the sliders. As the sampler grows sure of one token the total Fisher collapses, and what is left sits in the rows it still hesitates over." 470 >}}
 
@@ -81,6 +95,8 @@ $$
 \frac{\sum_{c\notin S}\sum_k f_{(c,k)}}{\sum_c\sum_k f_{(c,k)}}\le\frac{\sum_{c\notin S}\smu(c)}{1-\sum_c\smu(c)^2}.
 $$
 {{< /math >}}
+
+The total {{< math >}}$1-\sum_c\smu(c)^2${{< /math >}} is also the expected squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912): averaged over the drawn token, its {{< math >}}$1-2P_c+C(P)${{< /math >}} becomes {{< math >}}$1-C(P)${{< /math >}}, with {{< math >}}$C(P)=\sum_aP_a^2${{< /math >}}.
 
 </details>
 
@@ -108,9 +124,9 @@ $$
 $$
 {{< /math >}}
 
-Centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that part counts for nothing. What remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean sum to zero, so they span at most {{< math >}}$n-1${{< /math >}} directions. In the extreme where {{< math >}}$\smu${{< /math >}} sits on one token, every parameter's Fisher is zero after centering, while the uncentered second moment is not. Short of that extreme, concentration alone already confines the second moment to the {{< math >}}$n${{< /math >}} directions {{< math >}}$w_a${{< /math >}}; centering removes the common part on top, which may carry most of the energy. How much of the Fisher's smallness that accounts for is open ([section 6](#6-scope-and-open-questions)).
+Centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that part counts for nothing, and what remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean span at most {{< math >}}$n-1${{< /math >}} directions; concentration alone would leave {{< math >}}$n${{< /math >}}. The common part may carry most of the energy, but how much of the Fisher's smallness it accounts for is open ([section 6](#6-scope-and-open-questions)).
 
-This is low dimension in function space, not coordinate sparsity. That would need most {{< math >}}$u_i${{< /math >}} to be nearly orthogonal to these directions, which depends on the architecture and on pretraining, and the directions change from prefix to prefix. The evidence is empirical. In RL on Qwen3-1.7B-Base, [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262) find that training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82%. The token Fisher under the model's own probabilities is 0.16 of its value under a uniform distribution at the start, and 0.04 after 1,000 steps. These numbers show that the Fisher picks out the coordinates that matter. The authors also report that likely next tokens tend to have similar sensitivities, which is the common part centering removes; but the model-versus-uniform ratio changes concentration and token assignment together, so the two mechanisms are not yet separated ([section 6](#6-scope-and-open-questions)). Sparse is also not low rank: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
+This is low dimension in function space, not coordinate sparsity: that would need most {{< math >}}$u_i${{< /math >}} to be nearly orthogonal to these directions, which depends on the architecture and on pretraining. The evidence is empirical. In RL on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)); the authors also find that likely next tokens tend to have similar sensitivities, the common part centering removes. Sparse is not low rank either: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
 
 ## 3. Without centering: the mean shift
 
@@ -133,9 +149,9 @@ $$
 $$
 {{< /math >}}
 
-Draw tokens from {{< math >}}$\smu${{< /math >}} but subtract only the model's mean, as the plain softmax score does, and each position averages to {{< math >}}$m_i${{< /math >}} instead of zero. When the shift keeps its sign, the positions add up coherently: roughly {{< math >}}$T\sigma^2+T^2m^2${{< /math >}} against {{< math >}}$T\sigma^2${{< /math >}} with centering, an order-of-magnitude estimate rather than a theorem.
+Draw tokens from {{< math >}}$\smu${{< /math >}} but subtract only the model's mean, as the plain softmax score does, and each position averages to {{< math >}}$m_i${{< /math >}} instead of zero. When the shift keeps its sign, the positions add up coherently: roughly {{< math >}}$T\sigma^2+T^2m^2${{< /math >}} against {{< math >}}$T\sigma^2${{< /math >}} with centering (an estimate, not a theorem).
 
-SFT is the extreme case, and a different one. Its sampler, the data's next-token distribution, is unknown: each prefix shows a single token, so the score cannot be centered under it. Prefixes come from the data, and by the tower property the gradient is exactly the accumulated shift:
+SFT is the extreme case, and a different one: its sampler, the data's next-token distribution, is unknown, since each prefix shows a single token, so its score cannot be centered. By the tower property its gradient is exactly the accumulated shift:
 
 {{< math >}}
 $$
@@ -143,7 +159,7 @@ $$
 $$
 {{< /math >}}
 
-Even with a known sampler, centering would delete the whole signal: with {{< math >}}$A\equiv1${{< /math >}} the centered update is {{< math >}}$\operatorname{Cov}_{\smu}(1,c_i)=0${{< /math >}}. Imitation is the mean shift. So how sparse SFT is can only depend on how small the shift is, that is, on how far the data is from the model. The measurements agree: SFT on rejection-sampled, in-distribution data leaves 91% of parameters unchanged, and SFT on out-of-distribution data leaves 7% ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). In the output layer the demonstrated token's row receives {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}}, nearly full size when the model gives {{< math >}}$y^\star${{< /math >}} almost no probability, while the on-policy Fisher of that row is proportional to {{< math >}}$\pmodel(y^\star)${{< /math >}}. Data that leaves the model's distribution touches parameters the model itself never touches.
+Even with a known sampler, centering would delete the whole signal: with {{< math >}}$A\equiv1${{< /math >}} the centered update is {{< math >}}$\operatorname{Cov}_{\smu}(1,c_i)=0${{< /math >}}. Imitation is the mean shift, so how sparse SFT is depends only on how far the data is from the model. The measurements agree: SFT on rejection-sampled, in-distribution data leaves 91% of parameters unchanged, SFT on out-of-distribution data 7% ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). In the output layer a demonstrated token the model almost never produces gets a nearly full-size push, {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}}, on a row whose on-policy Fisher is about {{< math >}}$\pmodel(y^\star)${{< /math >}}: data that leaves the model's distribution touches parameters the model itself never touches.
 
 <details class="spoiler">
 <summary>The same cost, booked as a χ² signal</summary>
@@ -188,22 +204,22 @@ The bound still holds, but its signal scale grows at least exponentially with di
 | SFT | the data, an unknown sampler | the model only; centering is impossible | holds formally; the signal scale is {{< math >}}$\chi^2${{< /math >}} |
 | Value-based TD learning | a replay buffer | nothing | does not apply |
 
-TD weights a raw logit gradient, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component: for a Q-value a uniform shift is the value level, not a redundancy. So the bound does not apply, which is not evidence that TD updates are dense. Two observations fit the table. DPO on a fixed preference set has an unknown sampler too, and it behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the cases is the shift, not RL versus SFT. And SFT on expert traces made near-policy by MCMC sampling generalizes and forgets like on-policy methods ([Karan, Chen & Du, 2026](https://arxiv.org/abs/2610.02140)), as a small {{< math >}}$\chi^2(D\,\|\,\pi_\theta)${{< /math >}} would suggest; that paper does not measure sparsity.
+TD weights a raw logit gradient, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component: for a Q-value a uniform shift is the value level, not a redundancy. The bound does not apply, which is no evidence that TD updates are dense. DPO on a fixed preference set also has an unknown sampler and behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the cases is the shift, not RL versus SFT.
 
 ## 5. Sparsity is not a defect
 
 **Under training–inference mismatch, centering is what keeps numerical noise out of the update.**
 
-When the sampler is an inference engine, {{< math >}}$\smu\approx\pmodel${{< /math >}}, and the shift {{< math >}}$m_i${{< /math >}} comes only from numerical differences between two implementations. It carries no reward information, yet it injects gradient into directions with near-zero on-policy Fisher and accumulates along the sequence. In the output layer the shift for row {{< math >}}$c${{< /math >}} is {{< math >}}$(\smu(c)-\pmodel(c))\,h${{< /math >}}. Where the engine draws a token more often than the model would, {{< math >}}$\smu(c)>\pmodel(c)${{< /math >}}, that row is pushed although its on-policy Fisher is near zero. This is consistent with the mismatch doing most of its damage on rare tokens ([When Speed Kills Stability](/rl-collapse)).
+When the sampler is an inference engine, {{< math >}}$\smu\approx\pmodel${{< /math >}}, and the shift {{< math >}}$m_i${{< /math >}} comes only from numerical differences between two implementations. It carries no reward information, yet it accumulates along the sequence and pushes directions with near-zero on-policy Fisher. In the output layer the shift for row {{< math >}}$c${{< /math >}} is {{< math >}}$(\smu(c)-\pmodel(c))\,h${{< /math >}}: where the engine draws a token more often than the model would, that row is pushed although its on-policy Fisher is near zero, consistent with the mismatch doing most of its damage on rare tokens ([When Speed Kills Stability](/rl-collapse)).
 
-Centering removes the shift exactly and keeps the update in the directions spanned by {{< math >}}$C_\mu\approx C_p${{< /math >}}. The engine's full distribution is rarely available, but per-token importance weights do the same job with only the drawn token's two probabilities: with {{< math >}}$\rho_t=\pmodel(y_t\mid s_t)/\smu(y_t\mid s_t)${{< /math >}}, {{< math >}}$\mathbb{E}_{\smu}\big[\rho_t(\kappa_{i,y_t}-\bar\kappa^{p}_i)\big]=\sum_a\pmodel(a)\big(\kappa_{i,a}-\bar\kappa^{p}_i\big)=0${{< /math >}} at every prefix. Clipping a token's ratio breaks this. [Trust Region Masking](/post/trust-region-masking/) never clips a token, so it leaves the weights that do the centering intact; it only drops whole sequences that left the trust region. Sparsity here means not moving the parameters that only noise would push.
+Centering removes the shift exactly. Without the engine's full distribution, per-token importance weights do the same job with only the drawn token's two probabilities: with {{< math >}}$\rho_t=\pmodel(y_t\mid s_t)/\smu(y_t\mid s_t)${{< /math >}}, {{< math >}}$\mathbb{E}_{\smu}\big[\rho_t(\kappa_{i,y_t}-\bar\kappa^{p}_i)\big]=\sum_a\pmodel(a)\big(\kappa_{i,a}-\bar\kappa^{p}_i\big)=0${{< /math >}} at every prefix. Clipping a token's ratio breaks this; [Trust Region Masking](/post/trust-region-masking/) never clips a token and only drops whole sequences that left the trust region. Sparsity here means not moving the parameters that only noise would push.
 
 ## 6. Scope and open questions
 
-- **What centering needs.** The sampler's full next-token distribution at every prefix: engine log-probabilities or a stale model. Human demonstrations have no such distribution, which is why SFT cannot be centered. Per-token importance weights need only the drawn token's probability under both (section 5). With top-k or top-p, the sampler is the truncated, renormalized distribution. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
+- **What centering needs.** The sampler's full next-token distribution at every prefix (engine log-probabilities or a stale model; with top-k or top-p, the truncated distribution), or per-token importance weights, which need only the drawn token's two probabilities. Human demonstrations offer neither. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
 - **What it changes.** Off-policy, centering drops the pull toward the sampler; the coefficient {{< math >}}$\beta${{< /math >}} in [Around the Sampler](/post/offpolicy-around-the-sampler/#6-one-knob-how-hard-to-pull-toward-the-sampler) adds it back on purpose.
-- **Two mechanisms, not yet separated.** A concentrated sampler and candidates that react alike both lower the Fisher. Two clean tests: permute which tokens get which probabilities at fixed entropy, and measure per coordinate the share centering removes, {{< math >}}$\rho_i=(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}. If low-Fisher coordinates have {{< math >}}$\rho_i\approx1${{< /math >}}, the sparsity comes mostly from the common component, as an untested heuristic suggests: likely tokens have large logits, so {{< math >}}$h${{< /math >}} may lean along {{< math >}}$\bar w_\mu${{< /math >}}.
-- **One step.** The Fisher itself changes during training, which is where [Part 3](/post/what-policy-gradient-can-reach/) starts.
+- **Two mechanisms, not yet separated.** A concentrated sampler and candidates that react alike both lower the Fisher. Zhang et al. find the token Fisher under the model's probabilities at 0.16 of its value under a uniform distribution, falling to 0.04 after 1,000 steps, but that comparison changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure the share centering removes per coordinate, {{< math >}}$\rho_i=(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; {{< math >}}$\rho_i\approx1${{< /math >}} on low-Fisher coordinates would mean the common part dominates.
+- **One step.** The Fisher itself changes during training; [Part 3](/post/what-policy-gradient-can-reach/) shows what a one-step bound does and does not rule out.
 
 **Next.** [Part 3](/post/what-policy-gradient-can-reach/) turns the bound around: how far can one update move a response the model almost never produces?
 
@@ -211,7 +227,6 @@ Centering removes the shift exactly and keeps the update in the directions spann
 
 - Y. Zhang, S. Mukherjee, H. Peng. [Understanding LLM Parameter Update Sparsity through the Lens of Fisher](https://arxiv.org/abs/2609.36262). arXiv, 2026.
 - S. Mukherjee, L. Yuan, D. Hakkani-Tür, H. Peng. [Reinforcement Learning Finetunes Small Subnetworks in Large Language Models](https://arxiv.org/abs/2505.11711). NeurIPS 2025.
-- A. Karan, S. Chen, Y. Du. [Finetuning with Sampling: SFT Learns Better Than You Think](https://arxiv.org/abs/2610.02140). arXiv, 2026.
 - Y. Li. [Logit Dynamics in Softmax Policy Gradient Methods](https://arxiv.org/abs/2506.12912). arXiv, 2025.
 - J. Liu, Y. Li, et al. [When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch](/rl-collapse). Blog, 2025.
 - Y. Li, J. Liu, et al. [Trust Region Masking for Long-Horizon LLM Reinforcement Learning](https://arxiv.org/abs/2512.23075). ICML 2026.
@@ -220,7 +235,7 @@ Centering removes the shift exactly and keeps the update in the directions spann
 
 ```bibtex
 @online{li-2026-sparsity-score-centering,
-  title  = {Sparsity Comes from Score Centering},
+  title  = {Sparsity Requires Score Centering},
   author = {Li, Yingru},
   year   = {2026},
   month  = oct,

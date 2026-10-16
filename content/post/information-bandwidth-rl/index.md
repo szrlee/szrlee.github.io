@@ -160,7 +160,7 @@ For the scalar form, {{< math >}}$B${{< /math >}} counts the values {{< math >}}
 - **The sampler.** {{< math >}}$H(\mathbf r\mid\tau,\mathcal H)${{< /math >}} depends on which response is drawn, so a sampler that goes where the outcome is uncertain gets more bits per episode. Information-directed sampling ([Russo & Van Roy, 2018](https://arxiv.org/abs/1403.5556)) picks samples by trading this information against regret. Thompson sampling sends the learner where plausible models disagree, which is where outcomes are uncertain, and [Exploration at Scale](/post/scalable-exploration/) makes it affordable for deep networks.
 - **Someone else's responses.** The lemma rests on one fact: the learner drew {{< math >}}$\tau${{< /math >}} itself. A demonstration is drawn by someone else, so the response itself carries information, up to {{< math >}}$T\log_2\lvert\mathcal V\rvert${{< /math >}} bits for a vocabulary {{< math >}}$\mathcal V${{< /math >}}. This is why SFT can teach far more per episode, and why it lifts rare responses that policy gradient raises only slowly ([What Policy Gradient Can Reach](/post/what-policy-gradient-can-reach/)).
 
-Few bits explain why an RL update is small. Which coordinates it moves is a separate question, the subject of [Why Post-Training Is Sparse](/post/gradient-is-covariance/).
+Few bits explain why an RL update carries little. Which coordinates it moves is a separate question, the subject of [Why Post-Training Is Sparse](/post/gradient-is-covariance/).
 
 ## 6. Scope
 
