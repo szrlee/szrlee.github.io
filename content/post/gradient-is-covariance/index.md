@@ -95,7 +95,7 @@ $$
 
 Subtracting {{< math >}}$\mathbb{E}[r]\,\mathbb{E}[\mathrm{score}_i]=0${{< /math >}} turns the product into a covariance, and the same step turns {{< math >}}$\mathbb{E}[\mathrm{score}_i^2]${{< /math >}} into a variance. Both hold per prompt, so {{< math >}}$G_i=\mathbb{E}_x[\operatorname{Cov}(r,\mathrm{score}_i\mid x)]${{< /math >}}, which is why a baseline {{< math >}}$b(x)${{< /math >}} drops out.
 
-The Fisher is also the expected curvature: {{< math >}}$\partial_j\mathrm{score}_i=\partial_i\partial_j\pi_\theta/\pi_\theta-\mathrm{score}_i\,\mathrm{score}_j${{< /math >}}, and the first term has mean {{< math >}}$\sum_y\partial_i\partial_j\pi_\theta=0${{< /math >}}, so {{< math >}}$F_{ij}=-\mathbb{E}[\partial_i\partial_j\log\pi_\theta]${{< /math >}}. It must be estimated on responses the model samples. On data labels the same formula gives the empirical Fisher, a different quantity ([Part 2](/post/sparsity-score-centering/)).
+The full Fisher {{< math >}}$F_{ij}=\mathbb{E}[\mathrm{score}_i\,\mathrm{score}_j]${{< /math >}} is also the expected curvature: {{< math >}}$\partial_j\mathrm{score}_i=\partial_i\partial_j\pi_\theta/\pi_\theta-\mathrm{score}_i\,\mathrm{score}_j${{< /math >}}, and the first term has mean {{< math >}}$\sum_y\partial_i\partial_j\pi_\theta=0${{< /math >}}, so {{< math >}}$F_{ij}=-\mathbb{E}[\partial_i\partial_j\log\pi_\theta]${{< /math >}}. It must be estimated on responses the model samples. On data labels the same formula gives the empirical Fisher, a different quantity ([Part 2](/post/sparsity-score-centering/)).
 
 </details>
 
@@ -143,7 +143,7 @@ F_i=\mathbb{E}\Big[\sum_t f_i(s_t)\Big].
 $$
 {{< /math >}}
 
-Given the prefix {{< math >}}$s_t${{< /math >}}, the next token is drawn from {{< math >}}$\pmodel(\cdot\mid s_t)${{< /math >}}, so its score averages to zero. For {{< math >}}$u\lt t${{< /math >}} the earlier token is part of that prefix: its score is already fixed and comes out of the inner expectation. The cancellation holds in expectation, not sample by sample. It makes the Fisher grow with length but treats every parameter alike, so it sets the scale, not which coordinates are large.
+Here {{< math >}}$\mathrm{score}_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{p}_i(s_t)${{< /math >}} is the token score at position {{< math >}}$t${{< /math >}}. Given the prefix {{< math >}}$s_t${{< /math >}}, the next token is drawn from {{< math >}}$\pmodel(\cdot\mid s_t)${{< /math >}}, so its score averages to zero. For {{< math >}}$u\lt t${{< /math >}} the earlier token is part of that prefix: its score is already fixed and comes out of the inner expectation. The cancellation holds in expectation, not sample by sample. It makes the Fisher grow with length but treats every parameter alike, so it sets the scale, not which coordinates are large.
 
 ## 5. What this needs: a centered score
 
@@ -153,7 +153,10 @@ Given the prefix {{< math >}}$s_t${{< /math >}}, the next token is drawn from {{
 
 {{< math >}}
 $$
-c_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t),\qquad \bar\kappa^{\mu}_i=\sum_a\smu(a\mid s)\,\kappa_{i,a},
+c_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t),\qquad c_i=\sum_t c_i^{(t)},
+$$
+$$
+\bar\kappa^{\mu}_i=\sum_a\smu(a\mid s)\,\kappa_{i,a},
 $$
 $$
 G_i=\mathbb{E}_{\smu}\big[A\,c_i\big]=\operatorname{Cov}_{\smu}(A,c_i),

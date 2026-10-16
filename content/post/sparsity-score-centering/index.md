@@ -96,7 +96,7 @@ $$
 $$
 {{< /math >}}
 
-The total {{< math >}}$1-\sum_c\smu(c)^2${{< /math >}} is also the expected squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912): averaged over the drawn token, its {{< math >}}$1-2P_c+C(P)${{< /math >}} becomes {{< math >}}$1-C(P)${{< /math >}}, with {{< math >}}$C(P)=\sum_aP_a^2${{< /math >}}.
+The total {{< math >}}$1-\sum_c\smu(c)^2${{< /math >}} is also the expected squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912): for a drawn token {{< math >}}$c${{< /math >}} that update is {{< math >}}$1-2\smu(c)+\sum_a\smu(a)^2${{< /math >}}, and its average over {{< math >}}$c${{< /math >}} is {{< math >}}$1-\sum_a\smu(a)^2${{< /math >}}.
 
 </details>
 
@@ -159,7 +159,7 @@ $$
 $$
 {{< /math >}}
 
-Even with a known sampler, centering would delete the whole signal: with {{< math >}}$A\equiv1${{< /math >}} the centered update is {{< math >}}$\operatorname{Cov}_{\smu}(1,c_i)=0${{< /math >}}. Imitation is the mean shift, so how sparse SFT is depends only on how far the data is from the model. The measurements agree: SFT on rejection-sampled, in-distribution data leaves 91% of parameters unchanged, SFT on out-of-distribution data 7% ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). In the output layer a demonstrated token the model almost never produces gets a nearly full-size push, {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}}, on a row whose on-policy Fisher is about {{< math >}}$\pmodel(y^\star)${{< /math >}}: data that leaves the model's distribution touches parameters the model itself never touches.
+Even with a known sampler, centering would delete the whole signal: with {{< math >}}$A\equiv1${{< /math >}} the centered update is {{< math >}}$\operatorname{Cov}_{\smu}(1,c_i)=0${{< /math >}}. Imitation is the mean shift, so how sparse SFT is depends only on how far the data is from the model. The measurements agree: SFT on rejection-sampled, in-distribution data leaves 91% of parameters unchanged, SFT on out-of-distribution data 7% ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). In the output layer a demonstrated token {{< math >}}$y^\star${{< /math >}} that the model almost never produces gets a nearly full-size push, {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}}, on a row whose on-policy Fisher is about {{< math >}}$\pmodel(y^\star)${{< /math >}}: data that leaves the model's distribution touches parameters the model itself never touches.
 
 <details class="spoiler">
 <summary>The same cost, booked as a χ² signal</summary>

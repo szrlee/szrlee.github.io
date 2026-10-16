@@ -51,7 +51,7 @@ const q = P(0.5, -2.7);
 const iso = star(q[0], q[1], 15, {fill: C.gray}) +
   line(q[0] - 26, q[1] + 24, q[0] + 26, q[1] + 24, {stroke: C.gray, w: 3.5, cap: 'round'}) +
   text(q[0] + 28, q[1] - 4, 'off every direction the cloud covers:', {size: 18, fill: C.mute, weight: 600}) +
-  text(q[0] + 28, q[1] + 20, '*v*\u1d40*F*^{*μ*}*v* \u2248 0, barely moves', {size: 18, fill: C.mute, weight: 600});
+  text(q[0] + 28, q[1] + 20, 'Fisher along it \u2248 0, so it barely moves', {size: 18, fill: C.mute, weight: 600});
 
 export default {
   name: 'reach',

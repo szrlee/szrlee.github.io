@@ -28,7 +28,7 @@ series_order: 3
 
 - **Reach follows resemblance.** One update moves the log-odds of a response against another by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
 - **Never drawn is not out of reach.** A response that resembles nothing the sampler produces barely moves; one never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them.
-- **Growth is proportional to probability.** With one logit per response, getting from probability ε to one half takes time about 1/ε; a demonstration needs only about log(1/ε).
+- **Growth is proportional to probability.** On-policy, with one logit per response, getting from probability ε to one half takes time about 1/ε; a demonstration needs only about log(1/ε).
 - **One step of one estimator.** Shared structure, a changing Fisher, and a centered estimator with a different sampler all widen what is reachable.
 {{% /callout %}}
 
@@ -81,7 +81,7 @@ v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big].
 $$
 {{< /math >}}
 
-The similarity {{< math >}}$K(y,y'')${{< /math >}} says how much raising a sampled {{< math >}}$y''${{< /math >}} raises {{< math >}}$y${{< /math >}} along the way. Matcha is never sampled, but if its score shares directions with tea's, rewarding tea lifts matcha too. A response whose score is orthogonal to everything the sampler draws has {{< math >}}$v^\top F^{\mu}v\approx0${{< /math >}} and does not move to first order, however high its reward. With {{< math >}}$v${{< /math >}} a coordinate vector it is the per-parameter cap {{< math >}}$|G_i|\le\operatorname{std}_{\smu}(A)\sqrt{F^{\mu}_{ii}}${{< /math >}}; here it holds in any direction.
+The similarity {{< math >}}$K(y,y'')${{< /math >}} says how much raising a sampled {{< math >}}$y''${{< /math >}} raises {{< math >}}$y${{< /math >}} along the way. Matcha is never sampled, but if its score shares directions with tea's, rewarding tea lifts matcha too. A response whose score is orthogonal to the centered scores of everything the sampler draws gets {{< math >}}$\mathrm{score}(y)^\top G=0${{< /math >}}: to first order its log-probability does not move, however high its reward. With {{< math >}}$v${{< /math >}} a coordinate vector it is the per-parameter cap {{< math >}}$|G_i|\le\operatorname{std}_{\smu}(A)\sqrt{F^{\mu}_{ii}}${{< /math >}}; here it holds in any direction.
 
 <details class="spoiler">
 <summary>Proof, and the preconditioned version</summary>
