@@ -44,7 +44,7 @@ The figures step through like slides. Use **→** or **▶**, and step back with
 
 ## 1. Small is not sparse
 
-**Reweighting what the model already samples explains why the update is small, not why it lands on a few coordinates.**
+**Why the update is small, or carries little, does not explain why it lands on a few coordinates.**
 
 RL fine-tuning changes only 5–30% of a model's parameters, across seven algorithms and ten models ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). On-policy distillation and SFT on near-policy data behave the same way ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Two common explanations are that RL only reweights answers the model can already produce, and that a scalar advantage with {{< math >}}$B${{< /math >}} possible values carries at most {{< math >}}$\log_2 B${{< /math >}} bits per episode ([Information Bandwidth](/post/information-bandwidth-rl/)). The first says the update is small, the second that it carries little. Neither makes it sparse: a hundred million parameters each moving a little is small and dense, and can carry those few bits just as well. The question is which coordinates move, and why the same few can be found before any reward is seen.
 

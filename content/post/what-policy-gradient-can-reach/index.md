@@ -26,7 +26,7 @@ series_order: 3
 {{% callout note %}}
 **Why Post-Training Is Sparse · Part 3 of 3.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/).
 
-- **Reach follows resemblance.** One update moves the log-odds of a response against another by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
+- **Reach follows resemblance.** One update moves the log-odds of a response against another by at most std(*A*) · √(*v*ᵀ*Fv*) per unit step, with *v* their score difference and *F* the sampler's Fisher.
 - **Never drawn is not out of reach.** A response that resembles nothing the sampler produces barely moves; one never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them.
 - **Growth is proportional to probability.** On-policy, with one logit per response, getting from probability ε to one half takes time about 1/ε; a demonstration needs only about log(1/ε).
 - **One step of one estimator.** Shared structure, a changing Fisher, and a centered estimator with a different sampler all widen what is reachable.
@@ -182,7 +182,7 @@ No similarity to sampled outputs enters, and the push stays near one however unl
 
 **The bound limits one first-order step of one estimator. It does not say RL can only sharpen.**
 
-- **Shared structure.** In a network the similarity {{< math >}}$K${{< /math >}} is not diagonal. A response never sampled is lifted if it shares structure with rewarded samples, so new solutions recombined from existing pieces are within reach.
+- **Shared structure.** In a network the similarity {{< math >}}$K${{< /math >}} is not diagonal, so a response never sampled moves with the rewarded samples it resembles ([section 2](#2-a-response-moves-as-far-as-it-resembles-the-samplers-outputs)): new solutions recombined from existing pieces are within reach.
 - **Many steps.** The Fisher moves. In [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262), the initial high-Fisher set keeps only 70–78% of its coordinates through 1,000 steps, and the mean Fisher of the initial low-Fisher set rises by 15–17%. Directions that were invisible can open; a multi-step bound would need control over that drift, and none exists yet.
 - **First order.** Large steps and strong nonlinearity add higher-order terms.
 - **Which estimator, and which sampler.** With full importance weighting (each sampled response weighted by {{< math >}}$\pi_\theta/\smu${{< /math >}}), the expected update is the on-policy gradient, bounded by the model's own Fisher whatever the sampler, so exploring alone does not widen a single step. With the score centered under the sampler, the update is {{< math >}}$\operatorname{Cov}_{\smu}(A,c)${{< /math >}}, bounded by {{< math >}}$F^{\mu}${{< /math >}}: a different sampler (a higher temperature, an exploration bonus, or posterior sampling as in [Exploration at Scale](/post/scalable-exploration/)) changes which directions are visible. Value-based temporal-difference learning is not score-weighted at all, so the bound does not apply to it.
@@ -203,7 +203,7 @@ $$
 
 The debate over whether RL extends a base model's abilities usually looks at probability: at large *k*, the base model's pass@*k*, the chance that one of *k* samples is correct, can be higher ([Yue et al., 2025](https://arxiv.org/abs/2504.13837)). The bound points to a different quantity, the overlap between the target behavior's score and what the sampler produces. Among equally unlikely responses, those that share structure with high-reward samples can be amplified and isolated ones cannot. Policy gradient is similarity-driven amplification. Whether it yields new capabilities depends on how new behavior connects, through shared parameters, to what the sampler already generates, and on which sampler is used.
 
-**The series in one line.** A score centered under the sampler makes the update a covariance capped by the Fisher ([Part 1](/post/gradient-is-covariance/)); that Fisher is concentrated because the sampler is, so updates are sparse ([Part 2](/post/sparsity-score-centering/)); and the same Fisher bounds how far one step can move any response. Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
+**The series in one line.** A score centered under the sampler makes the update a covariance capped by the Fisher ([Part 1](/post/gradient-is-covariance/)); that Fisher is concentrated, because the sampler favors a few tokens that react alike, so updates are sparse ([Part 2](/post/sparsity-score-centering/)); and the same Fisher bounds how far one step can move any response. Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
 
 ## References
 
