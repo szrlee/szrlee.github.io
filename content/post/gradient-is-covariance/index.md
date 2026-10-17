@@ -28,7 +28,7 @@ series_order: 1
 
 - Reinforcement learning (RL), on-policy distillation and supervised fine-tuning (SFT) on near-policy data change only a small fraction of parameters. **Small** and **sparse** are different claims.
 - On the sampler's own samples the score has **zero mean**. So the expected gradient is a **covariance**, the Fisher is a **variance**, and the Fisher caps the gradient for any reward.
-- At one position the Fisher is the **variance of logit sensitivities**: whatever moves every candidate together counts for nothing.
+- At one position the Fisher is the **variance of logit sensitivities**: whatever moves every candidate together counts for nothing, so it is small when the sampler is confident or its likely candidates react alike.
 - None of this needs on-policy sampling. It needs a **score centered under the sampling distribution**.
 {{% /callout %}}
 
