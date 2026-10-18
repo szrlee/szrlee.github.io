@@ -1,7 +1,7 @@
 ---
 title: "Sparsity Requires Score Centering"
 subtitle: "Why Post-Training Is Sparse, Part 2: where the Fisher concentrates, and what escapes the cap without centering"
-summary: "Sparsity needs two ingredients. A score centered under the sampler makes the Fisher a cap on each parameter's update, and the Fisher is concentrated because the sampler puts its mass on a few likely tokens, which react alike. Without centering, a mean shift escapes the cap; supervised fine-tuning cannot be centered at all."
+summary: "Sparsity needs two ingredients. A score centered under the sampler makes the Fisher a cap on each parameter's update, and the Fisher is concentrated when the sampler puts its mass on a few likely tokens that react alike. Without centering, a mean shift escapes the cap; supervised fine-tuning cannot be centered at all."
 authors:
   - admin
 tags:
@@ -27,14 +27,14 @@ series_order: 2
 {{% callout note %}}
 **Why Post-Training Is Sparse · Part 2 of 3.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach.
 
-- **Two ingredients.** A centered score makes the Fisher a cap on each parameter's expected update; a concentrated Fisher leaves room under that cap for only a few parameters. The reward picks which of those move.
-- **Centering is the condition, not on-policy data.** On-policy sampling centers the score for free; off-policy, centering or per-token importance weights do it.
-- **Concentration comes from a confident sampler whose likely tokens react alike, not from on-policy data.** A diffuse sampler, such as high-temperature sampling, spreads the Fisher however well the score is centered. On-policy reinforcement learning (RL) gets both ingredients at once: the model centers its own score and is a confident sampler, more so as RL sharpens it.
-- **Where it concentrates.** In the output layer, exactly on the rows of tokens the sampler emits; in hidden layers, on a few directions, with coordinate sparsity measured rather than derived.
-- **Without centering**, a mean shift adds up along the sequence and escapes the cap: numerical noise under training–inference mismatch, and the whole gradient of supervised fine-tuning (SFT), whose sampler is unknown. SFT stays sparse only when the data is close to the model.
+- **Two ingredients.** A score centered under the sampler makes the Fisher a cap on each parameter's expected update, and a concentrated Fisher leaves room under that cap for only a few parameters. The reward picks which of those move.
+- **Centering works with any known sampler.** On-policy sampling centers the score for free; off-policy, subtracting the score's average under the sampler, or weighting each token by its importance ratio, does the same.
+- **A confident sampler concentrates the Fisher.** In the output layer the Fisher sits exactly on the rows of the tokens the sampler emits. In hidden layers it sits on the few directions that tell those tokens apart, and shrinks further when they react alike; experiments also find it on few coordinates. A diffuse sampler, such as high-temperature sampling, spreads it.
+- **On-policy reinforcement learning (RL) has both ingredients for free.** The model centers its own score and is a confident sampler, more so as RL sharpens it.
+- **Without centering**, a mean shift adds up along the sequence and escapes the cap. Under training–inference mismatch it is numerical noise; in supervised fine-tuning (SFT), whose sampler is unknown, it is the whole gradient, so SFT stays sparse only when the data is close to the model.
 {{% /callout %}}
 
-**Starting point.** Write {{< math >}}$\smu${{< /math >}} for the sampler, {{< math >}}$\pmodel${{< /math >}} for the model's next-token distribution, {{< math >}}$A${{< /math >}} for the learning signal (a reward or advantage), and {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} for how strongly parameter {{< math >}}$i${{< /math >}} moves the logit of token {{< math >}}$a${{< /math >}}. For the token {{< math >}}$y_t${{< /math >}} drawn after prefix {{< math >}}$s_t${{< /math >}}, the softmax score subtracts the average under the model, {{< math >}}$\mathrm{score}_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{p}_i(s_t)${{< /math >}}; centering subtracts the average under the sampler instead, {{< math >}}$c_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t)${{< /math >}}. Over a response of {{< math >}}$T${{< /math >}} tokens, {{< math >}}$c_i=\sum_{t=1}^{T}c_i^{(t)}${{< /math >}}. With centering, the expected update is a covariance and the Fisher caps it ([Part 1](/post/gradient-is-covariance/) has the derivation):
+**Starting point.** Write {{< math >}}$\smu${{< /math >}} for the sampler, {{< math >}}$\pmodel${{< /math >}} for the model's next-token distribution, {{< math >}}$A${{< /math >}} for the learning signal (a reward or advantage), and {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} for how strongly parameter {{< math >}}$i${{< /math >}} moves the logit of token {{< math >}}$a${{< /math >}}. For the token {{< math >}}$y_t${{< /math >}} drawn after prefix {{< math >}}$s_t${{< /math >}}, the softmax score subtracts the average under the model, {{< math >}}$\mathrm{score}_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{p}_i(s_t)${{< /math >}}; centering subtracts the average under the sampler, {{< math >}}$c_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{\mu}_i(s_t)${{< /math >}}. Over a response of {{< math >}}$T${{< /math >}} tokens, {{< math >}}$c_i=\sum_{t=1}^{T}c_i^{(t)}${{< /math >}}. With centering, the expected update is a covariance and the Fisher caps it ([Part 1](/post/gradient-is-covariance/) has the derivation):
 
 {{< math >}}
 $$
@@ -102,7 +102,7 @@ The total {{< math >}}$1-\sum_c\smu(c)^2${{< /math >}} is also the expected squa
 
 </details>
 
-## 2. Hidden layers: few directions, not few coordinates
+## 2. Hidden layers: a few directions
 
 **In hidden layers the Fisher sees only the few directions that tell the likely candidates apart.**
 
@@ -130,7 +130,7 @@ With {{< math >}}$\bar w_\mu=\sum_a\smu(a)\,w_a${{< /math >}} the average output
 
 So the hidden-layer Fisher is small for two reasons: the sampler puts its mass on few tokens, and those tokens react alike, as Zhang et al. find for likely next tokens. Under the model's own probabilities the token Fisher is 0.16 of its value under a uniform distribution at the start of RL and 0.04 after 1,000 steps ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)): the model is a confident sampler, and RL makes it more so. How much each reason contributes is still open ([section 6](#6-scope-and-open-questions)).
 
-Few directions are not yet few coordinates: for that, most {{< math >}}$u_i${{< /math >}} would have to be nearly orthogonal to these directions, which depends on the architecture and on pretraining. The evidence is empirical. In RL on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Sparse is not low rank either: the measured updates touch few coordinates yet are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
+Few directions become few coordinates only if most {{< math >}}$u_i${{< /math >}} are nearly orthogonal to these directions, which depends on the architecture and on pretraining, so here the evidence is empirical. In RL on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Sparsity and low rank are separate properties: the measured updates touch few coordinates and are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
 
 ## 3. Without centering: the mean shift
 
@@ -153,7 +153,7 @@ $$
 $$
 {{< /math >}}
 
-Draw tokens from {{< math >}}$\smu${{< /math >}} but subtract only the model's mean, as the plain softmax score does, and each position averages to {{< math >}}$m_i${{< /math >}} instead of zero. With per-position variance {{< math >}}$\sigma^2${{< /math >}} and a shift {{< math >}}$m${{< /math >}} of constant sign, the positions add up coherently: roughly {{< math >}}$T\sigma^2+T^2m^2${{< /math >}} against {{< math >}}$T\sigma^2${{< /math >}} with centering (an estimate, not a theorem).
+Draw tokens from {{< math >}}$\smu${{< /math >}} but subtract only the model's mean, as the plain softmax score does, and each position averages to {{< math >}}$m_i${{< /math >}}. With per-position variance {{< math >}}$\sigma^2${{< /math >}} and a shift {{< math >}}$m${{< /math >}} of constant sign, the positions add up coherently; as a rough estimate, {{< math >}}$T\sigma^2+T^2m^2${{< /math >}} against {{< math >}}$T\sigma^2${{< /math >}} with centering.
 
 SFT is the extreme case, and a different one. Its sampler is the data's next-token distribution, which is unknown because each prefix shows a single token, so its score cannot be centered. By the tower property its gradient is exactly the accumulated shift:
 
@@ -207,7 +207,7 @@ The bound still holds, but its signal scale grows at least exponentially with di
 
 ## 4. Four cases side by side
 
-**The bound is a property of the estimator, not of RL.**
+**The bound belongs to the estimator: it holds whenever the score is centered under the sampler.**
 
 | Case | Samples from | Score centered under | Fisher bound |
 |---|---|---|---|
@@ -216,22 +216,22 @@ The bound still holds, but its signal scale grows at least exponentially with di
 | SFT | the data, an unknown sampler | the model only; centering is impossible | holds formally; the signal scale is the {{< math >}}$\chi^2${{< /math >}} divergence of the data from the model |
 | Value-based temporal-difference (TD) learning | a replay buffer | nothing | does not apply |
 
-TD weights a raw logit gradient by the TD error {{< math >}}$\delta${{< /math >}}, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component: for a Q-value a uniform shift is the value level, not a redundancy. The bound does not apply, which is no evidence that TD updates are dense. DPO (direct preference optimization) on a fixed preference set also has an unknown sampler and behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the cases is the shift, not RL versus SFT.
+TD weights a raw logit gradient by the TD error {{< math >}}$\delta${{< /math >}}, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component, since for a Q-value a uniform shift carries the value level. The bound does not apply, which leaves open whether TD updates are sparse. DPO (direct preference optimization) on a fixed preference set also has an unknown sampler and behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the first three rows is the mean shift: zero when the score is centered, the whole signal in SFT.
 
-## 5. Sparsity is not a defect
+## 5. Training–inference mismatch {#5-sparsity-is-not-a-defect}
 
 **Under training–inference mismatch, centering is what keeps numerical noise out of the update.**
 
 When the sampler is an inference engine, {{< math >}}$\smu\approx\pmodel${{< /math >}}, and the shift {{< math >}}$m_i${{< /math >}} comes only from numerical differences between two implementations. It carries no reward information, yet it accumulates along the sequence and pushes directions with near-zero on-policy Fisher. In the output layer the shift for row {{< math >}}$c${{< /math >}} is {{< math >}}$(\smu(c)-\pmodel(c))\,h${{< /math >}}: where the engine draws a token more often than the model would, that row is pushed although its on-policy Fisher is near zero, consistent with the mismatch doing most of its damage on rare tokens ([When Speed Kills Stability](/rl-collapse)).
 
-Centering removes the shift exactly. Without the engine's full distribution, per-token importance weights do the same job with only the drawn token's two probabilities: with {{< math >}}$\rho_t=\pmodel(y_t\mid s_t)/\smu(y_t\mid s_t)${{< /math >}}, {{< math >}}$\mathbb{E}_{\smu}\big[\rho_t(\kappa_{i,y_t}-\bar\kappa^{p}_i)\big]=\sum_a\pmodel(a)\big(\kappa_{i,a}-\bar\kappa^{p}_i\big)=0${{< /math >}} at every prefix. Clipping a token's ratio breaks this; [Trust Region Masking](/post/trust-region-masking/) never clips a token and only drops whole sequences that left the trust region. Sparsity here means not moving the parameters that only noise would push.
+Centering removes the shift exactly. Without the engine's full distribution, per-token importance weights do the same job with only the drawn token's two probabilities: with {{< math >}}$\rho_t=\pmodel(y_t\mid s_t)/\smu(y_t\mid s_t)${{< /math >}}, {{< math >}}$\mathbb{E}_{\smu}\big[\rho_t(\kappa_{i,y_t}-\bar\kappa^{p}_i)\big]=\sum_a\pmodel(a)\big(\kappa_{i,a}-\bar\kappa^{p}_i\big)=0${{< /math >}} at every prefix. Clipping a token's ratio breaks this; [Trust Region Masking](/post/trust-region-masking/) never clips a token and only drops whole sequences that left the trust region. Here sparsity means leaving alone the parameters that only noise would push.
 
 ## 6. Scope and open questions
 
 - **What centering needs.** The sampler's full next-token distribution at every prefix (engine log-probabilities or a stale model; with top-k or top-p, the truncated distribution), or per-token importance weights, which need only the drawn token's two probabilities. Human demonstrations offer neither. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
 - **What it changes.** Off-policy, centering drops the pull toward the sampler; the coefficient {{< math >}}$\beta${{< /math >}} in [Around the Sampler](/post/offpolicy-around-the-sampler/#6-one-knob-how-hard-to-pull-toward-the-sampler) adds it back on purpose.
-- **Two mechanisms, not yet separated.** A concentrated sampler and candidates that react alike both lower the Fisher, and the ratio in section 2 changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure, per coordinate, the share of the second moment that centering removes, {{< math >}}$(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; a share near 1 on low-Fisher coordinates would mean the common part dominates.
-- **One step.** The Fisher itself changes during training; [Part 3](/post/what-policy-gradient-can-reach/) shows what a one-step bound does and does not rule out.
+- **Two mechanisms, still entangled.** A concentrated sampler and candidates that react alike both lower the Fisher, and the ratio in section 2 changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure, per coordinate, the share of the second moment that centering removes, {{< math >}}$(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; a share near 1 on low-Fisher coordinates would mean the common part dominates.
+- **One step.** The Fisher itself changes during training; [Part 3](/post/what-policy-gradient-can-reach/) works out what a one-step bound implies.
 
 **Next.** [Part 3](/post/what-policy-gradient-can-reach/) turns the bound around: how far can one update move a response the model almost never produces?
 
