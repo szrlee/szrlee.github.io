@@ -571,7 +571,8 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 
 #highlights.home-section,
 #experience.home-section,
-#publications.home-section { padding: 48px 0; }
+#publications.home-section,
+#contact.home-section { padding: 48px 0; }
 
 // ---------- Publications page ----------
 
@@ -607,19 +608,66 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 
 // ---------- Contact ----------
 
-#contact .section-heading h1 { font-size: 1.85rem; }
-
-#contact .form-control {
-  background: var(--hp-paper);
-  border-color: var(--hp-rule);
-  color: var(--hp-ink);
-}
-
-#contact .btn-primary,
 .btn-primary {
   background: var(--hp-accent);
   border-color: var(--hp-accent);
   &:hover { background: var(--hp-accent-strong); border-color: var(--hp-accent-strong); }
+}
+
+.hp-contact-text {
+  max-width: 40rem;
+  margin: 0 0 1.4rem;
+  color: var(--hp-ink-soft);
+}
+
+.hp-contact-book {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem 1rem;
+  margin-bottom: 1.1rem;
+}
+
+.btn-primary.hp-contact-button {
+  padding: 0.55rem 1.4rem;
+  border-radius: var(--hp-radius);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--hp-paper);
+  &:hover, &:focus { color: var(--hp-paper); }
+  &:focus-visible { outline: 2px solid var(--hp-accent); outline-offset: 2px; box-shadow: none; }
+}
+
+.hp-contact-note { color: var(--hp-muted); font-size: 0.92rem; }
+
+.hp-contact-email {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.25rem 0.75rem;
+  margin: 0;
+  color: var(--hp-ink-soft);
+}
+
+.hp-contact-label { font-weight: 600; color: var(--hp-ink); }
+
+.hp-contact-copy {
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--hp-muted);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  &:hover { color: var(--hp-accent); }
+  &:focus-visible { outline: 2px solid var(--hp-accent); outline-offset: 2px; }
+}
+
+@media (max-width: 575.98px) {
+  .btn-primary.hp-contact-button { width: 100%; text-align: center; }
 }
 
 // ---------- Articles and lists ----------

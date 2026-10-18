@@ -26,20 +26,8 @@ sections:
     content:
       title: Selected publications
 
-  - block: contact
+  - block: home.contact
     id: contact
     content:
       title: Get in touch
-      text: |-
-        Open to conversations on research collaboration, advising, and speaking.
-
-        szrlee [at] gmail [dot] com
-      appointment_url: 'https://calendly.com/yrli'
-      autolink: true
-      form:
-        provider: formspree
-        formspree:
-          id: szrlee@gmail.com
-    design:
-      columns: '2'
 ---

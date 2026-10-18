@@ -57,3 +57,14 @@ experience:
     when: "2016"
 
 selected: [otb, trm, drkernel, simpletir, ensemblepp, hyperagent, dapo]
+
+contact:
+  text: Open to conversations on research collaboration, advising, and speaking.
+  booking:
+    label: Book a call
+    url: https://cal.com/yingru
+    cal_link: yingru
+    note: "15, 30, 45 or 60 minutes, on Cal.com"
+  email:
+    user: szrlee
+    domain: gmail.com

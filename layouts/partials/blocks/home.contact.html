@@ -1,0 +1,142 @@
+{{ $block := .wcBlock }}
+{{ $c := site.Data.home.contact }}
+
+<div class="hp-contact">
+  {{ with $block.content.title }}<h2 class="hp-title hp-title-sm">{{ . }}</h2>{{ end }}
+  {{ with $c.text }}<p class="hp-contact-text">{{ . | markdownify }}</p>{{ end }}
+
+  {{ with $c.booking }}
+  <div class="hp-contact-book">
+    <a class="btn btn-primary hp-contact-button" href="{{ .url }}" target="_blank" rel="noopener" data-booking-link="{{ .cal_link }}">{{ .label }}</a>
+    {{ with .note }}<span class="hp-contact-note">{{ . }}</span>{{ end }}
+  </div>
+  {{ end }}
+
+  {{ with $c.email }}
+  <p class="hp-contact-email">
+    <span class="hp-contact-label">Email</span>
+    <a class="hp-contact-address" href="#contact" data-user="{{ .user }}" data-domain="{{ .domain }}">{{ .user }} [at] {{ replace .domain "." " [dot] " }}</a>
+    <button type="button" class="hp-contact-copy" hidden>Copy</button>
+    <span class="sr-only" aria-live="polite"></span>
+  </p>
+  {{ end }}
+</div>
+
+<script>
+(function () {
+  var root = document.querySelector('.hp-contact');
+  if (!root) return;
+
+  // The attribute is data-booking-link, since embed.js opens its own popup for any data-cal-link click.
+  var book = root.querySelector('[data-booking-link]');
+  if (book) {
+    var state = 'idle';
+    var pending = false;
+    var timer = null;
+    var fallback = function () {
+      var w = window.open(book.href, '_blank', 'noopener');
+      if (!w) window.location.assign(book.href);
+    };
+    var load = function () {
+      if (state !== 'idle') return;
+      state = 'loading';
+      (function (C, L) {
+        var p = function (a, ar) { a.q.push(ar); };
+        C.Cal = C.Cal || function () {
+          var cal = C.Cal, ar = arguments;
+          if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; cal.loaded = true; }
+          if (ar[0] === L) {
+            var api = function () { p(api, arguments); };
+            var ns = ar[1];
+            api.q = api.q || [];
+            if (typeof ns === 'string') {
+              cal.ns[ns] = cal.ns[ns] || api;
+              p(cal.ns[ns], ar);
+              p(cal, ['initNamespace', ns]);
+            } else p(cal, ar);
+            return;
+          }
+          p(cal, ar);
+        };
+      })(window, 'init');
+      Cal('init', 'contact', { origin: 'https://cal.com' });
+      Cal.ns.contact('ui', {
+        hideEventTypeDetails: false,
+        layout: 'month_view',
+        cssVarsPerTheme: { light: { 'cal-brand': '#b4481c' }, dark: { 'cal-brand': '#e8956a' } }
+      });
+      var s = document.createElement('script');
+      s.src = 'https://app.cal.com/embed/embed.js';
+      s.async = true;
+      s.onload = function () { state = 'ready'; pending = false; clearTimeout(timer); };
+      s.onerror = function () {
+        state = 'failed';
+        clearTimeout(timer);
+        if (pending) { pending = false; fallback(); }
+      };
+      document.head.appendChild(s);
+    };
+    ['pointerenter', 'focus', 'touchstart'].forEach(function (ev) {
+      book.addEventListener(ev, load, { once: true, passive: true });
+    });
+    book.addEventListener('click', function (e) {
+      if (state === 'failed') return;
+      e.preventDefault();
+      load();
+      pending = state === 'loading';
+      var theme = document.body.classList.contains('dark') ? 'dark' : 'light';
+      Cal.ns.contact('modal', {
+        calLink: book.getAttribute('data-booking-link'),
+        config: { layout: 'month_view', theme: theme }
+      });
+      if (pending) {
+        clearTimeout(timer);
+        // Under 5 s, so window.open still counts as following the click.
+        timer = setTimeout(function () {
+          if (state !== 'loading' || !pending) return;
+          pending = false;
+          var q = Cal.ns.contact.q || [];
+          for (var i = q.length - 1; i >= 0; i--) if (q[i][0] === 'modal') q.splice(i, 1);
+          fallback();
+        }, 4000);
+      }
+    });
+  }
+
+  // The plain address stays out of the HTML.
+  var addr = root.querySelector('.hp-contact-address');
+  if (addr) {
+    var email = addr.getAttribute('data-user') + '@' + addr.getAttribute('data-domain');
+    addr.addEventListener('click', function (e) {
+      e.preventDefault();
+      window.location.href = 'mailto:' + email;
+    });
+    var copy = root.querySelector('.hp-contact-copy');
+    var status = root.querySelector('.hp-contact-email [aria-live]');
+    var done = function () {
+      copy.textContent = 'Copied';
+      status.textContent = 'Email address copied';
+      setTimeout(function () { copy.textContent = 'Copy'; status.textContent = ''; }, 2000);
+    };
+    var legacy = function () {
+      var t = document.createElement('textarea');
+      t.value = email;
+      t.setAttribute('readonly', '');
+      t.style.position = 'fixed';
+      t.style.opacity = '0';
+      document.body.appendChild(t);
+      t.select();
+      try { document.execCommand('copy'); done(); } catch (err) {}
+      document.body.removeChild(t);
+    };
+    if (copy) {
+      copy.hidden = false;
+      copy.addEventListener('click', function () {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(email).then(done, legacy);
+        } else legacy();
+      });
+    }
+  }
+})();
+</script>
