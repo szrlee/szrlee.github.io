@@ -1,7 +1,7 @@
 ---
 title: "What Policy Gradient Can Reach"
 subtitle: "Why Post-Training Is Sparse, Part 3: a one-step bound on how far any response can move, and its limits"
-summary: "One policy-gradient update changes the log-odds between two responses at a rate of at most std(A) times their score difference measured in the sampler's Fisher: a response moves only as far as it resembles what the sampler produces. With one logit per response, a rare response takes time proportional to one over its probability, while a demonstration needs only logarithmic time. The bound covers one step of one estimator; shared structure, many steps and a different sampler can all widen what RL reaches."
+summary: "Per unit step of policy gradient, the log-odds between two responses change by at most std(A) times their score difference measured in the sampler's Fisher: a response moves only as far as it resembles what the sampler produces. With one logit per response, a rare response takes time proportional to one over its probability, while a demonstration needs only logarithmic time. The bound covers one step of one estimator; shared structure, many steps and a different sampler can all widen what policy gradient reaches."
 authors:
   - admin
 tags:
@@ -26,7 +26,7 @@ series_order: 3
 {{% callout note %}}
 **Why Post-Training Is Sparse · Part 3 of 3.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/).
 
-- **Reach follows resemblance.** One update moves the log-odds of a response against another by at most std(*A*) · √(*v*ᵀ*Fv*) per unit step, with *v* their score difference and *F* the sampler's Fisher.
+- **Reach follows resemblance.** Per unit step, the log-odds of a response against another change by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
 - **Resemblance reaches unsampled responses.** A response never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them; one that resembles nothing the sampler produces barely moves.
 - **Growth is proportional to probability.** On-policy, with one logit per response, getting from probability ε to one half takes time about 1/ε; a demonstration needs only about log(1/ε).
 - **One step of one estimator.** Shared structure, a changing Fisher, and a centered estimator with a different sampler all widen what is reachable.
@@ -40,7 +40,7 @@ G=\mathbb{E}_{y\sim\smu}\big[A\,c(y)\big],\qquad F^{\mu}=\mathbb{E}_{\smu}\big[c
 $$
 {{< /math >}}
 
-Centering makes {{< math >}}$\mathbb{E}_{\smu}[c]=0${{< /math >}}, so {{< math >}}$G${{< /math >}} is a covariance ([Part 1](/post/gradient-is-covariance/)); on-policy, {{< math >}}$c${{< /math >}} is the plain score and {{< math >}}$G${{< /math >}} the policy gradient. [Part 2](/post/sparsity-score-centering/) shows that {{< math >}}$F^{\mu}${{< /math >}} is concentrated on a few directions; this part asks how far {{< math >}}$G${{< /math >}} can move one response.
+Centering makes {{< math >}}$\mathbb{E}_{\smu}[c]=0${{< /math >}}, so {{< math >}}$G${{< /math >}} is a covariance ([Part 1](/post/gradient-is-covariance/)); on-policy, {{< math >}}$c${{< /math >}} is the plain score and {{< math >}}$G${{< /math >}} the policy gradient. [Part 2](/post/sparsity-score-centering/) shows that a confident sampler concentrates {{< math >}}$F^{\mu}${{< /math >}} on a few directions; this part asks how far {{< math >}}$G${{< /math >}} can move one response.
 
 ## 1. A question that can be answered
 
@@ -122,7 +122,7 @@ $$
 $$
 {{< /math >}}
 
-The second term comes from the normalizer and is the same for every response: it raises or lowers the whole tail without changing ratios inside it. The log-odds keep only the first term, which is small for any response the model rarely produces. The kernel bound agrees: with the on-policy Fisher in logits, {{< math >}}$F^{\mu}=\operatorname{diag}(\pi)-\pi\pi^\top${{< /math >}}, and {{< math >}}$v=e_y-e_{y'}${{< /math >}}, where {{< math >}}$e_y${{< /math >}} is the indicator of {{< math >}}$y${{< /math >}}, we get
+The second term comes from the normalizer: it shifts every log-probability by the same amount and leaves their ratios unchanged. The log-odds keep only the first term, which is small for any response the model rarely produces. The kernel bound agrees: with the on-policy Fisher in logits, {{< math >}}$F^{\mu}=\operatorname{diag}(\pi)-\pi\pi^\top${{< /math >}}, and {{< math >}}$v=e_y-e_{y'}${{< /math >}}, where {{< math >}}$e_y${{< /math >}} is the indicator of {{< math >}}$y${{< /math >}}, we get
 
 {{< math >}}
 $$
@@ -176,11 +176,11 @@ $$
 $$
 {{< /math >}}
 
-The push depends only on {{< math >}}$y^\star${{< /math >}} itself and stays near one however unlikely it is. The tabular expression, {{< math >}}$1-2\pi(y^\star)+\sum_y\pi(y)^2${{< /math >}}, is the squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912) for a chosen action; in the output layer, the row of {{< math >}}$y^\star${{< /math >}} receives {{< math >}}$1-\pi(y^\star)${{< /math >}} times the last hidden state ([Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)). Supervised fine-tuning can inject mass into a response the sampler never produces. Policy gradient can only amplify what it already reaches through similarity: {{< math >}}$1/\varepsilon${{< /math >}} against {{< math >}}$\log(1/\varepsilon)${{< /math >}} in the figure.
+The push comes from {{< math >}}$y^\star${{< /math >}}'s own score and stays of order one however unlikely {{< math >}}$y^\star${{< /math >}} is. The tabular expression, {{< math >}}$1-2\pi(y^\star)+\sum_y\pi(y)^2${{< /math >}}, is the squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912) for a chosen action; in the output layer, the row of {{< math >}}$y^\star${{< /math >}} receives {{< math >}}$1-\pi(y^\star)${{< /math >}} times the last hidden state ([Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)). Supervised fine-tuning can inject mass into a response the sampler never produces. Policy gradient can only amplify what it already reaches through similarity: {{< math >}}$1/\varepsilon${{< /math >}} against {{< math >}}$\log(1/\varepsilon)${{< /math >}} in the figure.
 
 ## 5. Limits of the bound
 
-**The bound covers one first-order step of one estimator, and leaves room for RL to learn new behavior.**
+**The bound covers one first-order step of one estimator, and leaves room for policy gradient to learn new behavior.**
 
 - **Shared structure.** In a network the similarity {{< math >}}$K${{< /math >}} has off-diagonal entries, so a response never sampled moves with the rewarded samples it resembles ([section 2](#2-a-response-moves-as-far-as-it-resembles-the-samplers-outputs)): new solutions recombined from existing pieces are within reach.
 - **Many steps.** The Fisher moves. In [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262), the initial high-Fisher set keeps only 70–78% of its coordinates through 1,000 steps, and the mean Fisher of the initial low-Fisher set rises by 15–17%. Directions that were invisible can open; a multi-step bound would need control over that drift, and none exists yet.
@@ -192,16 +192,7 @@ The push depends only on {{< math >}}$y^\star${{< /math >}} itself and stays nea
 
 **Whether policy gradient can learn a behavior depends on score similarity as well as on probability.**
 
-{{< math >}}
-$$
-v^\top F^{\mu}v=\mathbb{E}_{y''\sim\smu}\Big[\big(v^\top c(y'')\big)^2\Big],
-$$
-$$
-v=\mathrm{score}(y)-\mathrm{score}(y').
-$$
-{{< /math >}}
-
-The debate over whether RL extends a base model's abilities usually looks at probability: at large *k*, the base model's pass@*k*, the chance that one of *k* samples is correct, can be higher ([Yue et al., 2025](https://arxiv.org/abs/2504.13837)). The bound points to a different quantity, the overlap between the target behavior's score and what the sampler produces. Among equally unlikely responses, those that share structure with high-reward samples can be amplified and isolated ones cannot. Policy gradient is similarity-driven amplification. Whether it yields new capabilities depends on how new behavior connects, through shared parameters, to what the sampler already generates, and on which sampler is used.
+The debate over whether RL extends a base model's abilities usually looks at probability: at large *k*, the base model's pass@*k*, the chance that one of *k* samples is correct, can exceed that of the RL-trained model ([Yue et al., 2025](https://arxiv.org/abs/2504.13837)). The bound points to {{< math >}}$v^\top F^{\mu}v${{< /math >}} from section 2, the overlap between the target behavior's score and what the sampler produces. Among equally unlikely responses, those that share structure with high-reward samples can be amplified and isolated ones cannot. Policy gradient is similarity-driven amplification. Whether it yields new capabilities depends on how new behavior connects, through shared parameters, to what the sampler already generates, and on which sampler is used.
 
 **The series in one line.** A score centered under the sampler makes the update a covariance capped by the Fisher ([Part 1](/post/gradient-is-covariance/)); that Fisher is concentrated when the sampler favors a few tokens that react alike, so updates are sparse ([Part 2](/post/sparsity-score-centering/)); and the same Fisher bounds how far one step can move any response. Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
 

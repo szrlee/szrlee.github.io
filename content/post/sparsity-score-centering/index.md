@@ -28,9 +28,9 @@ series_order: 2
 **Why Post-Training Is Sparse · Part 2 of 3.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach.
 
 - **Two ingredients.** A score centered under the sampler makes the Fisher a cap on each parameter's expected update, and a concentrated Fisher leaves room under that cap for only a few parameters. The reward picks which of those move.
-- **Centering works with any known sampler.** On-policy sampling centers the score for free; off-policy, subtracting the score's average under the sampler, or weighting each token by its importance ratio, does the same.
+- **Centering works with any known sampler.** On-policy sampling centers the score for free; off-policy, subtracting the score's average under the sampler, or weighting each token by its importance ratio, restores the zero mean.
 - **A confident sampler concentrates the Fisher.** In the output layer the Fisher sits exactly on the rows of the tokens the sampler emits. In hidden layers it sits on the few directions that tell those tokens apart, and shrinks further when they react alike; experiments also find it on few coordinates. A diffuse sampler, such as high-temperature sampling, spreads it.
-- **On-policy reinforcement learning (RL) has both ingredients for free.** The model centers its own score and is a confident sampler, more so as RL sharpens it.
+- **On-policy policy gradient has both ingredients in practice.** Its score is centered by construction, and its sampler, the model, is confident, more so as reinforcement learning (RL) sharpens it.
 - **Without centering**, a mean shift adds up along the sequence and escapes the cap. Under training–inference mismatch it is numerical noise; in supervised fine-tuning (SFT), whose sampler is unknown, it is the whole gradient, so SFT stays sparse only when the data is close to the model.
 {{% /callout %}}
 
@@ -75,9 +75,9 @@ $$
 
 The weight {{< math >}}$W_{c,k}${{< /math >}} touches only token {{< math >}}$c${{< /math >}}'s logit, so for it the next token is a coin flip, {{< math >}}$c${{< /math >}} or not {{< math >}}$c${{< /math >}}, and its Fisher is the coin's variance times {{< math >}}$h_k^2${{< /math >}}: near zero when the sampler almost never considers {{< math >}}$c${{< /math >}}, or is almost sure of it. With tea at 0.5, coffee at 0.4 and 0.1 spread over a hundred thousand other tokens, the tea and coffee rows hold 83% of the total, and every other row about a millionth.
 
-The factor {{< math >}}$\smu(c)${{< /math >}} comes from the sampler and decides which rows matter; without centering the second moment {{< math >}}$\smu(c)\,h_k^2${{< /math >}} would be concentrated on the same rows. A diffuse sampler, such as high-temperature sampling, spreads {{< math >}}$\smu(c)${{< /math >}}, and with it the Fisher, however well the score is centered. Centering contributes {{< math >}}$1-\smu(c)${{< /math >}}, which silences a token the sampler is sure of; its main job is to make the cap hold at all ([section 3](#3-without-centering-the-mean-shift)).
+The factor {{< math >}}$\smu(c)${{< /math >}} comes from the sampler and decides which rows matter; even the raw second moment {{< math >}}$\smu(c)\,h_k^2${{< /math >}}, with no mean subtracted, sits on the same rows. A diffuse sampler, such as high-temperature sampling, spreads {{< math >}}$\smu(c)${{< /math >}}, and with it the Fisher, however well the score is centered. Centering contributes {{< math >}}$1-\smu(c)${{< /math >}}, which silences a token the sampler is sure of; its main job is to make the cap hold at all ([section 3](#3-without-centering-the-mean-shift)).
 
-Along a response, {{< math >}}$\mathbb{E}[\smu(c\mid s_t)]=\Pr(y_t=c)${{< /math >}}, so a row's Fisher is bounded by how often the sampler emits its token. A task emits a few thousand of the vocabulary's hundred thousand tokens; the other rows barely move.
+Along a response, {{< math >}}$\mathbb{E}[\smu(c\mid s_t)]=\Pr(y_t=c)${{< /math >}}, so a row's Fisher is bounded by how often the sampler emits its token. A task emits only a small part of the vocabulary, and the rows of the other tokens barely move.
 
 {{< livefig "s-coinflip" "Drag the sliders. As the sampler grows sure of one token the total Fisher collapses, and what is left sits in the rows it still hesitates over." 470 >}}
 
@@ -126,7 +126,7 @@ $$
 $$
 {{< /math >}}
 
-With {{< math >}}$\bar w_\mu=\sum_a\smu(a)\,w_a${{< /math >}} the average output vector, centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that common part counts for nothing, and what remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean span at most {{< math >}}$n-1${{< /math >}} directions; concentration alone would leave {{< math >}}$n${{< /math >}}.
+With {{< math >}}$\bar w_\mu=\sum_a\smu(a)\,w_a${{< /math >}} the average output vector, centering deletes the rank-one term {{< math >}}$\bar w_\mu\bar w_\mu^\top${{< /math >}}: what a parameter does to the average likely logit, {{< math >}}$\bar\kappa^{\mu}_i=\bar w_\mu^\top u_i${{< /math >}}. Raising every likely logit alike moves no probability, so that common part counts for nothing, and what remains is the covariance of the candidates. If the sampler puts mass on {{< math >}}$n${{< /math >}} tokens, their deviations from the mean span at most {{< math >}}$n-1${{< /math >}} directions, one fewer than the {{< math >}}$n${{< /math >}} of the raw second moment.
 
 So the hidden-layer Fisher is small for two reasons: the sampler puts its mass on few tokens, and those tokens react alike, as Zhang et al. find for likely next tokens. Under the model's own probabilities the token Fisher is 0.16 of its value under a uniform distribution at the start of RL and 0.04 after 1,000 steps ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)): the model is a confident sampler, and RL makes it more so. How much each reason contributes is still open ([section 6](#6-scope-and-open-questions)).
 
@@ -163,7 +163,7 @@ $$
 $$
 {{< /math >}}
 
-Even with a known sampler, centering would delete the whole signal: with {{< math >}}$A\equiv1${{< /math >}} the centered update is {{< math >}}$\operatorname{Cov}_{\smu}(1,c_i)=0${{< /math >}}. Imitation is the mean shift, so how sparse SFT is depends only on how far the data is from the model. The measurements agree: SFT on rejection-sampled, in-distribution data leaves 91% of parameters unchanged, SFT on out-of-distribution data 7% ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). In the output layer a demonstrated token {{< math >}}$y^\star${{< /math >}} that the model almost never produces gets a nearly full-size push, {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}}, on a row whose on-policy Fisher is about {{< math >}}$\pmodel(y^\star)${{< /math >}}: data that leaves the model's distribution touches parameters the model itself never touches.
+Even with a known sampler, centering would delete the whole signal: with {{< math >}}$A\equiv1${{< /math >}} the centered update is {{< math >}}$\operatorname{Cov}_{\smu}(1,c_i)=0${{< /math >}}. Imitation is the mean shift, so how sparse SFT is depends on how far the data is from the model. The measurements agree: SFT on rejection-sampled, in-distribution data leaves 91% of parameters unchanged, SFT on out-of-distribution data 7% ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). In the output layer a demonstrated token {{< math >}}$y^\star${{< /math >}} that the model almost never produces gets a nearly full-size push, {{< math >}}$(1-\pmodel(y^\star))\,h${{< /math >}}, on a row whose on-policy Fisher is about {{< math >}}$\pmodel(y^\star)${{< /math >}}: data that leaves the model's distribution touches parameters the model itself never touches.
 
 <details class="spoiler">
 <summary>The same cost, booked as a χ² signal</summary>
@@ -201,7 +201,7 @@ $$
 $$
 {{< /math >}}
 
-The bound still holds, but its signal scale grows at least exponentially with distance from the model. It is the same {{< math >}}$(1+\chi^2)^T${{< /math >}} form as the variance of sequence-level importance sampling in [rl-collapse Part 2](/post/rl-collapse-part2/), and the {{< math >}}$\chi^2${{< /math >}} that makes per-token importance sampling noisy in [Around the Sampler](/post/offpolicy-around-the-sampler/#5-per-token-importance-sampling-same-tangent-more-variance). Booked directly under the data, the cost moves into the empirical Fisher {{< math >}}$\mathbb{E}_D[\mathrm{score}_i^2]${{< /math >}}, which a small {{< math >}}$F_i${{< /math >}} does not bound.
+The bound still holds, but its signal scale grows at least exponentially in the number of positions where the data leaves the model's distribution. It is the same {{< math >}}$(1+\chi^2)^T${{< /math >}} form as the variance of sequence-level importance sampling in [rl-collapse Part 2](/post/rl-collapse-part2/), and the {{< math >}}$\chi^2${{< /math >}} that makes per-token importance sampling noisy in [Around the Sampler](/post/offpolicy-around-the-sampler/#5-per-token-importance-sampling-same-tangent-more-variance). Booked directly under the data, the cost moves into the empirical Fisher {{< math >}}$\mathbb{E}_D[\mathrm{score}_i^2]${{< /math >}}, which a small {{< math >}}$F_i${{< /math >}} does not bound.
 
 </details>
 
@@ -211,10 +211,12 @@ The bound still holds, but its signal scale grows at least exponentially with di
 
 | Case | Samples from | Score centered under | Fisher bound |
 |---|---|---|---|
-| On-policy RL, on-policy distillation | the model | the model, for free | holds, with the model's Fisher |
-| Off-policy with score centering | a known sampler | the sampler | holds, with the sampler's Fisher |
-| SFT | the data, an unknown sampler | the model only; centering is impossible | holds formally; the signal scale is the {{< math >}}$\chi^2${{< /math >}} divergence of the data from the model |
+| On-policy policy gradient, including reverse-KL distillation | the model | the model, for free | holds, with the model's Fisher |
+| Off-policy policy gradient with score centering | a known sampler | the sampler | holds, with the sampler's Fisher |
+| SFT | the data, an unknown sampler | the model only; centering is impossible | holds formally; the signal scale is set by the {{< math >}}$\chi^2${{< /math >}} divergence of the data from the model |
 | Value-based temporal-difference (TD) learning | a replay buffer | nothing | does not apply |
+
+On-policy distillation with a reverse-KL loss is policy gradient whose per-token reward is the teacher's log-probability minus the model's, so it shares the first row. With a forward-KL loss, the gradient at each prefix is the shift toward the teacher's next-token distribution, and distillation behaves like SFT.
 
 TD weights a raw logit gradient by the TD error {{< math >}}$\delta${{< /math >}}, {{< math >}}$\mathbb{E}[\delta\cdot\kappa_{i,a}]${{< /math >}}, which keeps the common component, since for a Q-value a uniform shift carries the value level. The bound does not apply, which leaves open whether TD updates are sparse. DPO (direct preference optimization) on a fixed preference set also has an unknown sampler and behaves like SFT: sparse on in-distribution data, dense on out-of-distribution data ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). What separates the first three rows is the mean shift: zero when the score is centered, the whole signal in SFT.
 
@@ -228,7 +230,7 @@ Centering removes the shift exactly. Without the engine's full distribution, per
 
 ## 6. Scope and open questions
 
-- **What centering needs.** The sampler's full next-token distribution at every prefix (engine log-probabilities or a stale model; with top-k or top-p, the truncated distribution), or per-token importance weights, which need only the drawn token's two probabilities. Human demonstrations offer neither. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
+- **What centering needs.** The sampler's full next-token distribution at every prefix (a stale model, or an engine that returns full log-probabilities; with top-k or top-p, the truncated distribution), or per-token importance weights, which need only the drawn token's two probabilities. Human demonstrations offer neither. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
 - **What it changes.** Off-policy, centering drops the pull toward the sampler; the coefficient {{< math >}}$\beta${{< /math >}} in [Around the Sampler](/post/offpolicy-around-the-sampler/#6-one-knob-how-hard-to-pull-toward-the-sampler) adds it back on purpose.
 - **Two mechanisms, still entangled.** A concentrated sampler and candidates that react alike both lower the Fisher, and the ratio in section 2 changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure, per coordinate, the share of the second moment that centering removes, {{< math >}}$(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; a share near 1 on low-Fisher coordinates would mean the common part dominates.
 - **One step.** The Fisher itself changes during training; [Part 3](/post/what-policy-gradient-can-reach/) works out what a one-step bound implies.

@@ -1,7 +1,7 @@
 ---
 title: "The Gradient Is a Covariance"
 subtitle: "Why Post-Training Is Sparse, Part 1: the score, the Fisher, and a bound that holds for any reward"
-summary: "On the model's own samples the score has zero mean, so the expected policy gradient is the covariance between the learning signal and the score, and the Fisher is the score's variance. A parameter can move only where its Fisher is large; whether it does is up to the reward. Off-policy, all of this holds once the score is centered under the sampling distribution."
+summary: "On the model's own samples the score has zero mean, so the expected policy gradient is the covariance between the learning signal and the score, and the Fisher is the score's variance. A parameter can move only if its Fisher is large; whether it does is up to the reward. Off-policy, all of this holds once the score is centered under the sampler."
 authors:
   - admin
 tags:
@@ -39,7 +39,7 @@ The figures step through like slides. Use **→** or **▶**, and step back with
 | {{< math >}}$\smu(a\mid s)${{< /math >}} | the distribution that drew the next token after prefix {{< math >}}$s${{< /math >}}: the sampler |
 | {{< math >}}$\pmodel(a\mid s),\ \pi_\theta(y\mid x)${{< /math >}} | the model's next-token distribution, and its probability of a response {{< math >}}$y=(y_1,\dots,y_T)${{< /math >}} to prompt {{< math >}}$x${{< /math >}}; {{< math >}}$\smu=\pmodel${{< /math >}} on-policy |
 | {{< math >}}$\kappa_{i,a}=\partial z_a/\partial\theta_i${{< /math >}} | how strongly parameter {{< math >}}$i${{< /math >}} moves the logit {{< math >}}$z_a${{< /math >}} of token {{< math >}}$a${{< /math >}} |
-| {{< math >}}$A${{< /math >}} | the learning signal: a reward or advantage, possibly times an importance ratio |
+| {{< math >}}$A${{< /math >}} | the learning signal: a reward or advantage |
 | {{< math >}}$G_i,\ F_i${{< /math >}} | the expected update and the diagonal Fisher of parameter {{< math >}}$i${{< /math >}} |
 
 ## 1. Sparsity needs its own explanation
@@ -72,7 +72,7 @@ $$
 $$
 {{< /math >}}
 
-Probabilities sum to one, so whatever a parameter does, the responses it raises are paid for by others, and weighted by probability the changes cancel. With the score's mean at zero, the policy gradient {{< math >}}$\mathbb{E}[A\cdot\mathrm{score}_i]${{< /math >}} is a covariance and the Fisher is a variance; Cauchy–Schwarz gives the bound. A baseline that depends only on the prompt changes nothing in {{< math >}}$G_i${{< /math >}}, since {{< math >}}$\operatorname{Cov}(A-b,\mathrm{score}_i)=\operatorname{Cov}(A,\mathrm{score}_i)${{< /math >}}. It changes only {{< math >}}$\operatorname{std}(A)${{< /math >}} and the noise of the estimate, and the [Optimal Token Baseline](/optimal-token-baseline) is the choice that minimizes that noise.
+Probabilities sum to one, so whatever a parameter does, the responses it raises are paid for by others, and weighted by probability the changes cancel. With the score's mean at zero, the policy gradient {{< math >}}$\mathbb{E}[A\cdot\mathrm{score}_i]${{< /math >}} is a covariance and the Fisher is a variance; Cauchy–Schwarz gives the bound. A baseline that depends only on the prompt changes nothing in {{< math >}}$G_i${{< /math >}}, since {{< math >}}$\operatorname{Cov}(A-b,\mathrm{score}_i)=\operatorname{Cov}(A,\mathrm{score}_i)${{< /math >}}. It changes only {{< math >}}$\operatorname{std}(A)${{< /math >}} and the noise of the estimate, and the [Optimal Token Baseline](/optimal-token-baseline), set per token, is the choice that minimizes that noise.
 
 The Fisher says where learning can happen; the reward decides where it does. After "She drank a cup of", the output rows for *tea* and *coffee* have a large Fisher, yet if the reward does not care which one is chosen, their gradient is zero. Measured before RL training, the top 1% of coordinates by Fisher hold 47.40% of the top 1% by gradient magnitude, against 1% at random ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)).
 
@@ -143,7 +143,7 @@ F_i=\mathbb{E}\Big[\sum_t f_i(s_t)\Big].
 $$
 {{< /math >}}
 
-Here {{< math >}}$\mathrm{score}_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{p}_i(s_t)${{< /math >}} is the token score at position {{< math >}}$t${{< /math >}}. Given the prefix {{< math >}}$s_t${{< /math >}}, the next token is drawn from {{< math >}}$\pmodel(\cdot\mid s_t)${{< /math >}}, so its score averages to zero. For {{< math >}}$u\lt t${{< /math >}} the earlier token is part of that prefix: its score is already fixed and comes out of the inner expectation. The cancellation holds on average over samples. It makes the Fisher grow with length and treats every parameter alike, so length sets the overall scale and the token Fishers decide which coordinates are large.
+Here {{< math >}}$\mathrm{score}_i^{(t)}=\kappa_{i,y_t}-\bar\kappa^{p}_i(s_t)${{< /math >}} is the token score at position {{< math >}}$t${{< /math >}}. Given the prefix {{< math >}}$s_t${{< /math >}}, the next token is drawn from {{< math >}}$\pmodel(\cdot\mid s_t)${{< /math >}}, so its score averages to zero. For {{< math >}}$u\lt t${{< /math >}} the earlier token is part of that prefix: its score is already fixed and comes out of the inner expectation. Summing over positions makes the Fisher grow with length and treats every parameter alike, so length sets the overall scale and the token Fishers decide which coordinates are large.
 
 ## 5. What this needs: a centered score
 
@@ -169,7 +169,7 @@ F^{\mu}_i=\mathbb{E}_{\smu}\Big[\sum_t\operatorname{Var}_{a\sim\smu}\big[\kappa_
 $$
 {{< /math >}}
 
-Off-policy, the token was drawn by an inference engine or a stale model, and under that sampler the softmax score averages to {{< math >}}$\bar\kappa^{\mu}_i-\bar\kappa^{p}_i${{< /math >}}. Subtracting this average at every prefix is score centering. Sections 2–4 then go through word for word with {{< math >}}$\smu${{< /math >}} in place of {{< math >}}$\pmodel${{< /math >}}; on-policy the average is already zero, so centering comes free. The centered update is the gradient of the covariance loss in [Around the Sampler](/post/offpolicy-around-the-sampler/#4-score-centering): the drawn token is raised and every token is lowered by how often the sampler draws it. Centering needs the sampler's full next-token distribution at every prefix. Engine log-probabilities and stale models provide it; human demonstrations lack it, which is why SFT cannot be centered ([Part 2](/post/sparsity-score-centering/)).
+Off-policy, the token was drawn by an inference engine or a stale model, and under that sampler the softmax score averages to {{< math >}}$\bar\kappa^{\mu}_i-\bar\kappa^{p}_i${{< /math >}}. Subtracting this average at every prefix is score centering. Sections 2–4 then go through word for word with {{< math >}}$\smu${{< /math >}} in place of {{< math >}}$\pmodel${{< /math >}}; on-policy the average is already zero, so centering comes free. The centered update is the gradient of the covariance loss in [Around the Sampler](/post/offpolicy-around-the-sampler/#4-score-centering): the drawn token is raised and every token is lowered by how often the sampler draws it. Centering needs the sampler's full next-token distribution at every prefix. Stale models provide it, and so do inference engines that return full log-probabilities; human demonstrations lack it, which is why SFT cannot be centered ([Part 2](/post/sparsity-score-centering/)).
 
 <details class="spoiler">
 <summary>The theorem, proved</summary>
