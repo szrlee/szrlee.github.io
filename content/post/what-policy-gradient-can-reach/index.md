@@ -122,7 +122,7 @@ $$
 $$
 {{< /math >}}
 
-The second term comes from the normalizer: it shifts every log-probability by the same amount and leaves their ratios unchanged. The log-odds keep only the first term, which is small for any response the model rarely produces. The kernel bound agrees: with the on-policy Fisher in logits, {{< math >}}$F^{\mu}=\operatorname{diag}(\pi)-\pi\pi^\top${{< /math >}}, and {{< math >}}$v=e_y-e_{y'}${{< /math >}}, where {{< math >}}$e_y${{< /math >}} is the indicator of {{< math >}}$y${{< /math >}}, we get
+The second term comes from the normalizer: it shifts every log-probability by the same amount and leaves their ratios unchanged. The log-odds keep only the first term, which is small for any response the model rarely produces. The kernel bound agrees for two rare responses: with the on-policy Fisher in logits, {{< math >}}$F^{\mu}=\operatorname{diag}(\pi)-\pi\pi^\top${{< /math >}}, and {{< math >}}$v=e_y-e_{y'}${{< /math >}}, where {{< math >}}$e_y${{< /math >}} is the indicator of {{< math >}}$y${{< /math >}}, we get
 
 {{< math >}}
 $$
@@ -183,7 +183,7 @@ The push comes from {{< math >}}$y^\star${{< /math >}}'s own score and stays of 
 **The bound covers one first-order step of one estimator, and leaves room for policy gradient to learn new behavior.**
 
 - **Shared structure.** In a network the similarity {{< math >}}$K${{< /math >}} has off-diagonal entries, so a response never sampled moves with the rewarded samples it resembles ([section 2](#2-a-response-moves-as-far-as-it-resembles-the-samplers-outputs)): new solutions recombined from existing pieces are within reach.
-- **Many steps.** The Fisher moves. In [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262), the initial high-Fisher set keeps only 70–78% of its coordinates through 1,000 steps, and the mean Fisher of the initial low-Fisher set rises by 15–17%. Directions that were invisible can open; a multi-step bound would need control over that drift, and none exists yet.
+- **Many steps.** The Fisher drifts. In [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262), the initial high-Fisher set keeps 70–78% of its coordinates through 1,000 steps, well above chance, and the mean Fisher of the initial low-Fisher set rises by 15–17%. Directions that were invisible can open; a multi-step bound would need control over that drift, and none exists yet.
 - **First order.** Large steps and strong nonlinearity add higher-order terms.
 - **Which estimator, and which sampler.** With full importance weighting (each sampled response weighted by {{< math >}}$\pi_\theta/\smu${{< /math >}}), the expected update is the on-policy gradient, bounded by the model's own Fisher whatever the sampler, so changing the sampler leaves the reach of a single step unchanged. With the score centered under the sampler, the update is {{< math >}}$\operatorname{Cov}_{\smu}(A,c)${{< /math >}}, bounded by {{< math >}}$F^{\mu}${{< /math >}}: a different sampler (a higher temperature, an exploration bonus, or posterior sampling as in [Exploration at Scale](/post/scalable-exploration/)) changes which directions are visible. Value-based temporal-difference learning has no score weighting, so the bound does not apply to it.
 - **Sparse can be substantial.** A new capability can live in a few parameters.
