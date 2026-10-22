@@ -18,7 +18,7 @@ organizations:
     url: https://x.ai/
 
 # Short bio (displayed in user profile at end of posts)
-bio: Core contributor to RL fundamentals at xAI (now SpaceX Super Intelligence); I make reinforcement learning on frontier models stable, efficient, and scalable.
+bio: Core contributor to RL fundamentals at xAI (now SpaceX Super Intelligence), working on stable, efficient, and scalable reinforcement learning for frontier models.
 
 interests:
   - Reinforcement learning at scale
@@ -63,7 +63,7 @@ social:
 highlight_name: true
 ---
 
-I make reinforcement learning on frontier models stable, efficient, and scalable.
+Learning from experience, at frontier scale.
 
 I am a core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), contributing to the Grok RL big runs and to one of the longest stable RL runs to date.
 Before that I led RL stability and efficiency research for LLM reasoning and agents at ByteDance.

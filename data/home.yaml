@@ -4,9 +4,9 @@
 hero:
   kicker: Member of Technical Staff · <span class="hp-nocase">xAI</span>
   display_name: Yingru (Richard) Li
-  pitch: I make reinforcement learning on frontier models stable, efficient, and scalable.
+  pitch: Learning from experience, at frontier scale.
   text: |-
-    Core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), on the Grok RL big runs and one of the longest stable RL runs to date. Previously led RL stability and efficiency research at ByteDance.
+    Core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), on the **Grok RL big runs** and **one of the longest stable RL runs to date**. Previously led RL stability and efficiency research at ByteDance.
 
     PhD, The Chinese University of Hong Kong (2025), advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford & DeepMind) on my thesis committee.
   research_link: Research overview →

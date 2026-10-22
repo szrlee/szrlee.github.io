@@ -41,6 +41,9 @@ body.dark {
 
 // ---------- Base ----------
 
+// The theme shrinks the root to 77% below 58em; with font_size S that leaves 12.3px text on phones.
+html { font-size: 16px; }
+
 body {
   background: var(--hp-paper);
   color: var(--hp-ink-soft);
@@ -223,7 +226,10 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 .hp-hero-bio {
   font-size: 1rem;
   line-height: 1.65;
+  color: var(--hp-ink);
   p { margin-bottom: 0.6rem; }
+  p + p { font-size: 0.9rem; line-height: 1.6; color: var(--hp-muted); }
+  strong { font-weight: 600; }
 }
 
 .hp-social {
@@ -523,6 +529,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
     border-radius: 0;
     padding: 0;
     margin: 0 0 1.2rem;
+    &:last-child { margin-bottom: 0; }
     p { font-size: 0.96rem; line-height: 1.6; color: var(--hp-ink-soft); margin: 0 0 0.4rem; }
   }
   .hp-card-title { font-size: 1.02rem; margin: 0 0 0.3rem; }
@@ -578,21 +585,26 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 @media (min-width: 1200px) {
   .page-body:has(> .wg-home-hero) {
     display: grid;
-    grid-template-columns: 360px 660px;
+    grid-template-columns: 400px minmax(0, 700px);
     column-gap: 88px;
-    justify-content: center;
+    justify-content: space-between;
+    // Matches the navbar's content box: .container-xl (1290px, 15px padding) inside the navbar's 16px padding.
+    width: 100%;
+    max-width: 1322px;
+    margin: 0 auto;
+    padding: 0 31px;
     > section { grid-column: 2; }
     > section > .container { max-width: none; padding-left: 0; padding-right: 0; }
     > #about {
       grid-column: 1;
-      grid-row: 1 / span 5;
+      // Spans more rows than there are sections, so the column stays pinned through the last one.
+      grid-row: 1 / span 20;
       align-self: start;
       padding-top: 56px;
     }
-    > #highlights { padding-top: 64px; }
+    > #highlights { padding-top: 50px; }
     .hp-hero-name { font-size: 2.5rem; }
     .hp-hero-title { font-size: 1.05rem; }
-    .hp-hero-bio { font-size: 0.95rem; }
   }
 }
 
