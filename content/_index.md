@@ -1,7 +1,7 @@
 ---
 # Leave the homepage title empty to use the site title
 title: ''
-date: 2023-12-07
+date: 2026-10-22
 type: landing
 
 # Blocks live in layouts/partials/blocks/home.*.html; their content comes from data/home.yaml.
