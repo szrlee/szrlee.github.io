@@ -2,9 +2,16 @@
 {{ $block := .wcBlock }}
 {{ $hero := site.Data.home.hero }}
 {{ $author := site.GetPage (printf "/authors/%s" ($block.content.username | default "admin")) }}
-{{ $avatar := ($author.Resources.ByType "image").GetMatch "*avatar*" }}
+{{ $images := $author.Resources.ByType "image" }}
+{{ $avatar := or ($images.GetMatch "*face*") ($images.GetMatch "*avatar*") }}
 
 <div class="hp-hero">
+  {{ with $avatar }}
+    {{ $img := .Fill "160x160 Center webp q85" }}
+    <figure class="hp-hero-photo">
+      <img src="{{ $img.RelPermalink }}" width="64" height="64" alt="{{ $author.Title }}">
+    </figure>
+  {{ end }}
   <div class="hp-hero-text">
     {{ with $hero.kicker }}<div class="hp-label">{{ . | safeHTML }}</div>{{ end }}
     <h1 class="hp-hero-name">{{ $hero.display_name | default $author.Title }}</h1>
@@ -13,10 +20,4 @@
     {{ partial "home/social" $author }}
     {{ with $hero.research_link }}<p class="hp-hero-more"><a href="{{ "research/" | relLangURL }}">{{ . }}</a></p>{{ end }}
   </div>
-  {{ with $avatar }}
-    {{ $img := .Fill "600x800 Center webp q85" }}
-    <figure class="hp-hero-photo">
-      <img src="{{ $img.RelPermalink }}" width="{{ $img.Width }}" height="{{ $img.Height }}" alt="{{ $author.Title }}">
-    </figure>
-  {{ end }}
 </div>

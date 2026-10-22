@@ -1,0 +1,8 @@
+name = "Minimal"
+
+google_fonts = "family=Inter:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500"
+
+heading_font = "Instrument Serif"
+body_font = "Inter"
+nav_font = "Inter"
+mono_font = "JetBrains Mono"

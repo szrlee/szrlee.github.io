@@ -6,9 +6,9 @@
 # Appearance
 
 appearance:
-  theme_day: editorial
-  theme_night: editorial
-  font: editorial
+  theme_day: minimal
+  theme_night: minimal
+  font: minimal
   font_size: S
 
 # SEO

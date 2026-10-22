@@ -6,36 +6,31 @@ hero:
   display_name: Yingru (Richard) Li
   pitch: I make reinforcement learning on frontier models stable, efficient, and scalable.
   text: |-
-    I am a core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), contributing to the Grok RL big runs and to one of the longest stable RL runs to date.
-    Before that I led RL stability and efficiency research for LLM reasoning and agents at ByteDance.
+    Core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), on the Grok RL big runs and one of the longest stable RL runs to date. Previously led RL stability and efficiency research at ByteDance.
 
-    Ph.D. in Computer and Information Engineering, The Chinese University of Hong Kong (2025), advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford & DeepMind) on my thesis committee.
+    PhD, The Chinese University of Hong Kong (2025), advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy](https://web.stanford.edu/~bvr/) (Stanford & DeepMind) on my thesis committee.
   research_link: Research overview →
 
 highlights:
   - title: Why LLM-RL collapses, and the fix
     text: >-
-      One of the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch, an
-      off-policy bias.
+      Among the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch.
       Our fix, **masked importance sampling (MIS)**, made principled as Trust Region Masking (TRM),
-      masks sequences without token clipping, so token scores stay centered.
-      Adopted, shipped, or discussed by:
+      is adopted, shipped or discussed by:
     chips: adoption
     links:
       - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
   - title: Open-source RL infrastructure
     text: >-
-      Authored the Rollout Correction framework for general off-policy training in veRL
-      (20k+ GitHub stars), where MIS and TRM ship, and contributed the Optimal Token Baseline,
-      its variance-reducing token-level baseline.
+      Authored two parts of veRL (20k+ GitHub stars): the Rollout Correction framework for
+      off-policy training, where MIS and TRM ship, and the Optimal Token Baseline.
     links:
       - {text: Rollout Correction docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
       - {text: Token baseline docs, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
   - title: Data‑efficient exploration at scale
     text: >-
       Exploration whose cost stays one SGD step as data grows: human-level Atari with 15% of DDQN's
-      interaction data, online language tasks on a GPT-2 backbone ahead of standard ensembles, and
-      Thompson-sampling regret with only Θ(d log T) ensemble directions.
+      interaction data, and Thompson-sampling regret with only Θ(d log T) ensemble directions.
     links:
       - {text: How it works, url: "/research/#q-explore"}
 

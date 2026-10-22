@@ -1,0 +1,29 @@
+name = "Minimal"
+
+[light]
+  primary = "#c2410c"
+  link = "#c2410c"
+  link_hover = "#9a3412"
+  background = "#ffffff"
+
+  menu_primary = "#ffffff"
+  menu_text = "#6e6e76"
+  menu_text_active = "#111111"
+  menu_title = "#111111"
+
+  home_section_odd = "#ffffff"
+  home_section_even = "#ffffff"
+
+[dark]
+  primary = "#fb923c"
+  link = "#fb923c"
+  link_hover = "#fdba74"
+  background = "#0f0f11"
+
+  menu_primary = "#0f0f11"
+  menu_text = "#9a9aa2"
+  menu_text_active = "#ededee"
+  menu_title = "#ededee"
+
+  home_section_odd = "#0f0f11"
+  home_section_even = "#0f0f11"
