@@ -7,9 +7,9 @@
 
 <div class="hp-hero">
   {{ with $avatar }}
-    {{ $img := .Fill "160x160 Center webp q85" }}
+    {{ $img := .Fill "264x264 Center webp q85" }}
     <figure class="hp-hero-photo">
-      <img src="{{ $img.RelPermalink }}" width="64" height="64" alt="{{ $author.Title }}">
+      <img src="{{ $img.RelPermalink }}" width="88" height="88" alt="{{ $author.Title }}">
     </figure>
   {{ end }}
   <div class="hp-hero-text">
