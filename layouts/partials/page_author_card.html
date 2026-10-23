@@ -1,0 +1,28 @@
+{{ $page := .page }}
+{{ $author_page := .author_page }}
+{{ $site_type := site.Params.marketing.seo.site_type | default "Person" }}
+{{- $has_profile := not (eq nil $author_page.Params.superuser) -}}
+
+{{/* Check an author profile exists. */}}
+{{ if $has_profile }}
+  {{/* If it's a personal site and primary page author is superuser, link to the homepage rather than their profile page. */}}
+  {{ $profile_url := $author_page.RelPermalink }}
+  {{ if and (eq $site_type "Person") (eq $author_page.Params.superuser true) }}
+    {{ $profile_url = site.BaseURL }}
+  {{ end }}
+  {{ $images := $author_page.Resources.ByType "image" }}
+  {{ $avatar := or ($images.GetMatch "*face*") ($images.GetMatch "*avatar*") }}
+  <div class="media author-card content-widget-hr">
+    {{ with $avatar }}
+      {{ $avatar_image := .Fill "180x180 Center webp q85" }}
+      {{if $profile_url}}<a href="{{$profile_url}}">{{end}}<img class="avatar mr-3 avatar-circle" src="{{ $avatar_image.RelPermalink }}" width="60" height="60" alt="{{$author_page.Title}}">{{if $profile_url}}</a>{{end}}
+    {{ end }}
+
+    <div class="media-body">
+      <h5 class="card-title">{{if $profile_url}}<a href="{{$profile_url}}">{{end}}{{$author_page.Title}}{{if $profile_url}}</a>{{end}}</h5>
+      {{ with $author_page.Params.role }}<h6 class="card-subtitle">{{. | markdownify | emojify}}</h6>{{end}}
+      {{ with $author_page.Params.bio }}<p class="card-text">{{. | markdownify | emojify}}</p>{{end}}
+      {{ partial "home/social" $author_page }}
+    </div>
+  </div>
+{{end}}{{/* Profile page block */}}

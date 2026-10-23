@@ -153,3 +153,20 @@
 
 {{/* JSONLD page metadata. */}}
 {{ partial "jsonld/main" (dict "page" . "summary" $desc) }}
+
+{{/* The theme emits only WebSite on the homepage; describe the person from the author profile. */}}
+{{ if and .IsHome $superuser }}
+  {{ $p := $superuser.Params }}
+  {{ $person := dict "@context" "https://schema.org" "@type" "Person" "name" $superuser.Title "url" site.BaseURL "description" $desc }}
+  {{ with site.Data.home.hero.display_name }}{{ $person = merge $person (dict "alternateName" .) }}{{ end }}
+  {{ with $p.role }}{{ $person = merge $person (dict "jobTitle" .) }}{{ end }}
+  {{ with $p.organizations }}{{ with index . 0 }}{{ $person = merge $person (dict "worksFor" (dict "@type" "Organization" "name" .name "url" .url)) }}{{ end }}{{ end }}
+  {{ $schools := slice }}
+  {{ range $p.education.courses }}{{ $schools = $schools | append (dict "@type" "CollegeOrUniversity" "name" .institution) }}{{ end }}
+  {{ with $schools }}{{ $person = merge $person (dict "alumniOf" .) }}{{ end }}
+  {{ $same := slice }}
+  {{ range $p.social }}{{ if in (slice "http" "https") (urls.Parse .link).Scheme }}{{ $same = $same | append .link }}{{ end }}{{ end }}
+  {{ with $same }}{{ $person = merge $person (dict "sameAs" .) }}{{ end }}
+  {{ with ($superuser.Resources.ByType "image").GetMatch "*face*" }}{{ $person = merge $person (dict "image" .Permalink) }}{{ end }}
+  <script type="application/ld+json">{{ $person | jsonify | safeJS }}</script>
+{{ end }}

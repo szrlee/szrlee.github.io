@@ -18,7 +18,7 @@ series:
 series_order: 1
 ---
 
-**Authors:** [Yingru Li](http://richardli.xyz), [Jiacai Liu](https://www.jiacailiu.cn/)
+**Authors:** [Yingru Li](/), [Jiacai Liu](https://scholar.google.com/citations?user=zt9Jfh4AAAAJ)
 
 {{% callout note %}}
 **Original Blog:** [When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch](https://richardli.xyz/rl-collapse)

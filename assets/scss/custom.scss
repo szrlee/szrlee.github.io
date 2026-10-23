@@ -720,6 +720,22 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 
 .article-subtitle { color: var(--hp-muted); font-family: var(--hp-sans); }
 
+.author-card .hp-social {
+  margin: 0.4rem 0 0;
+  gap: 0.2rem 1rem;
+  a {
+    font-size: 0.85rem;
+    color: var(--hp-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--hp-underline);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    &:hover { color: var(--hp-accent); }
+  }
+}
+
+.share-icon-svg { width: 1em; height: 1em; vertical-align: -0.125em; }
+
 .article-metadata, .stream-meta { color: var(--hp-muted); font-size: 0.85rem; }
 
 .article-style {

@@ -19,7 +19,7 @@ series:
 series_order: 3
 ---
 
-**Authors:** [Yingru Li](http://richardli.xyz), [Jiacai Liu](https://www.jiacailiu.cn/)
+**Authors:** [Yingru Li](/), [Jiacai Liu](https://scholar.google.com/citations?user=zt9Jfh4AAAAJ)
 
 {{% callout note %}}
 **Original Blog:** [When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch](https://richardli.xyz/rl-collapse)
@@ -117,7 +117,7 @@ $$
 
 The key difference from the surrogate is that the true improvement uses the context distribution $d_{\pi,t}$ (under the new policy), while the surrogate uses $d_{\mu,t}$ (under the old policy).
 
-Using the **Simulation Lemma** ([Kearns & Singh, 2002](https://dl.acm.org/doi/10.5555/645531.757765)), which bounds how context distributions diverge over the sequence:
+Using the **Simulation Lemma** ([Kearns & Singh, 2002](https://doi.org/10.1023/A:1017984413808)), which bounds how context distributions diverge over the sequence:
 
 {{< math >}}
 $$
@@ -617,7 +617,7 @@ For long-horizon reasoning tasks, **Geometric Sequence Masking (Geo-Mask)** prov
 **Trust Region Methods:**
 
 - Kakade, S. & Langford, J. (2002). "Approximately Optimal Approximate Reinforcement Learning." *ICML*. https://dl.acm.org/doi/10.5555/645531.656005
-- Kearns, M. & Singh, S. (2002). "Near-Optimal Reinforcement Learning in Polynomial Time." *Machine Learning*.
+- Kearns, M. & Singh, S. (2002). "Near-Optimal Reinforcement Learning in Polynomial Time." *Machine Learning*, 49, 209–232. https://doi.org/10.1023/A:1017984413808
 - Schulman, J., Levine, S., Moritz, P., Jordan, M. I., & Abbeel, P. (2015). "Trust Region Policy Optimization." *ICML*. https://arxiv.org/abs/1502.05477
 - Schulman, J., Wolski, F., Dhariwal, P., Radford, A., & Klimov, O. (2017). "Proximal Policy Optimization Algorithms." arXiv:1707.06347. https://arxiv.org/abs/1707.06347
 
