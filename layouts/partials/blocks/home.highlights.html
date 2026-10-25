@@ -1,6 +1,11 @@
 {{ $block := .wcBlock }}
 
-{{ with $block.content.title }}<h2 class="hp-title hp-title-sm">{{ . }}</h2>{{ end }}
+{{ with $block.content.title }}
+<div class="hp-head-row">
+  <h2 class="hp-title hp-title-sm">{{ . }}</h2>
+  <span class="hp-hint" aria-hidden="true"><span class="hp-hint-click">click a title to expand</span><span class="hp-hint-tap">tap a title to expand</span></span>
+</div>
+{{ end }}
 <div class="hp-cards hp-cards-3 hp-highlights">
   {{ range site.Data.home.highlights }}
   <div class="hp-card">

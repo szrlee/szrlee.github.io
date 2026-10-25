@@ -535,6 +535,28 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   .hp-card-title { font-size: 1.02rem; margin: 0 0 0.3rem; }
 }
 
+.hp-head-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0.2rem 0.9rem;
+  margin-bottom: 0.8rem;
+  .hp-title-sm { margin-bottom: 0; }
+}
+
+.hp-hint {
+  font-family: var(--hp-mono);
+  font-size: 0.74rem;
+  color: var(--hp-muted);
+}
+
+.hp-hint-tap { display: none; }
+
+@media (hover: none) {
+  .hp-hint-click { display: none; }
+  .hp-hint-tap { display: inline; }
+}
+
 // One line per highlight; the title opens the rest in place.
 .hp-fold {
   margin: 0;
@@ -549,7 +571,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   .hp-chev {
     display: inline-block;
     margin-left: 0.4rem;
-    color: var(--hp-muted);
+    color: var(--hp-accent);
     font-weight: 400;
     transition: transform 0.2s ease;
   }
