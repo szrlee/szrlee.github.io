@@ -13,38 +13,40 @@ hero:
 
 highlights:
   - title: Why LLM-RL collapses, and the fix
+    lede: Among the first to trace LLM-RL collapse to the training–inference mismatch.
     text: >-
-      Among the first (Sep 2025) to trace LLM-RL collapse to the training–inference mismatch.
-      Our fix, masked importance sampling (MIS), made principled as Trust Region Masking (TRM),
+      First published in September 2025. Our fix, masked importance sampling (MIS), made principled as Trust Region Masking (TRM),
       is adopted, shipped or discussed by:
     chips: adoption
     links:
       - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
   - title: The science of RL training at frontier scale
+    lede: Optimization, scaling laws, stability and efficiency of RL on frontier models.
     text: >-
-      Optimization, scaling laws, stability and efficiency of reinforcement learning on frontier
-      models: core algorithms and training recipes, optimizer behavior and numerics at scale, and
+      Core algorithms and training recipes, optimizer behavior and numerics at scale, and
       first-principles theory of how an update moves a model and how training should scale.
   - title: Open-source RL infrastructure
+    lede: Authored veRL's Rollout Correction framework and its Optimal Token Baseline.
     text: >-
-      Authored two parts of veRL (20k+ GitHub stars): the Rollout Correction framework for
-      off-policy training, where MIS and TRM ship, and the Optimal Token Baseline.
+      veRL has 20k+ GitHub stars. Rollout Correction is its framework for off-policy training,
+      and MIS and TRM ship in it.
     links:
       - {text: Rollout Correction docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
       - {text: Token baseline docs, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
   - title: Agentic RL for GPU kernel generation
+    lede: Dr. Kernel-14B writes Triton kernels and refines them using execution feedback.
     text: >-
-      Dr. Kernel-14B writes Triton kernels and refines them using execution feedback; its multi-turn RL
-      pairs an unbiased turn-level advantage with our mismatch correction against early collapse.
-      With test-time scaling, 31.6% of its KernelBench Level 2 kernels run at least 1.2× faster than
+      Its multi-turn RL pairs an unbiased turn-level advantage with our mismatch correction against
+      early collapse. With test-time scaling, 31.6% of its KernelBench Level 2 kernels run at least 1.2× faster than
       PyTorch, ahead of Claude-4.5-Sonnet (26.7%) and GPT-5 (28.6%).
     links:
       - {text: Paper, url: "https://arxiv.org/abs/2602.05885"}
       - {text: "Code, models and data", url: "https://github.com/hkust-nlp/KernelGYM"}
   - title: Data‑efficient exploration at scale
+    lede: Exploration whose cost stays one SGD step as data grows.
     text: >-
-      Exploration whose cost stays one SGD step as data grows: human-level Atari with 15% of DDQN's
-      interaction data, and Thompson-sampling regret with only Θ(d log T) ensemble directions.
+      Human-level Atari with 15% of DDQN's interaction data, and Thompson-sampling regret with only
+      Θ(d log T) ensemble directions.
     links:
       - {text: How it works, url: "/research/#q-explore"}
 
@@ -52,7 +54,7 @@ experience:
   - org: xAI (now SpaceX Super Intelligence)
     role: Member of Technical Staff
     when: Dec 2025 –
-    text: Optimizer and scaling laws, stability and efficiency; long-horizon agentic RL; on-policy distillation; RL infrastructure.
+    text: RL fundamentals for the Grok RL big runs; long-horizon agentic RL; on-policy distillation; RL infrastructure.
   - org: ByteDance
     role: LLM Algorithm Research Scientist
     when: "2025"

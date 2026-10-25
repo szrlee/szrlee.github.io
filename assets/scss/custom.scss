@@ -535,6 +535,35 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   .hp-card-title { font-size: 1.02rem; margin: 0 0 0.3rem; }
 }
 
+// One line per highlight; the title opens the rest in place.
+.hp-fold {
+  margin: 0;
+  > summary {
+    display: block;
+    list-style: none;
+    cursor: pointer;
+    &::-webkit-details-marker { display: none; }
+    &:hover .hp-card-title { color: var(--hp-accent); }
+    &:focus-visible { outline: 2px solid var(--hp-accent); outline-offset: 3px; border-radius: 2px; }
+  }
+  .hp-chev {
+    display: inline-block;
+    margin-left: 0.4rem;
+    color: var(--hp-muted);
+    font-weight: 400;
+    transition: transform 0.2s ease;
+  }
+  &[open] .hp-chev { transform: rotate(90deg); }
+  .hp-lede {
+    display: block;
+    margin: 0 0 0.4rem;
+    font-size: 0.96rem;
+    line-height: 1.6;
+    color: var(--hp-ink-soft);
+  }
+  .hp-fold-body { margin: 0 0 0.4rem; }
+}
+
 .hp-chips {
   display: flex;
   flex-wrap: wrap;

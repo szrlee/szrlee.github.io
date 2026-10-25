@@ -4,16 +4,19 @@
 <div class="hp-cards hp-cards-3 hp-highlights">
   {{ range site.Data.home.highlights }}
   <div class="hp-card">
+    {{ if .lede }}
+    <details class="hp-fold">
+      <summary>
+        <h3 class="hp-card-title">{{ .title }}<span class="hp-chev" aria-hidden="true">›</span></h3>
+        <span class="hp-lede">{{ .lede | markdownify }}</span>
+      </summary>
+      {{ with .text }}<div class="hp-fold-body"><p>{{ . | markdownify }}</p></div>{{ end }}
+    </details>
+    {{ else }}
     <h3 class="hp-card-title">{{ .title }}</h3>
-    <p>{{ .text | markdownify }}</p>
-    {{ if eq .chips "adoption" }}
-    <ul class="hp-chips">
-      {{ range site.Data.research.adoption.items }}
-      <li>{{ partial "home/link" (dict "url" .url "text" .name "class" "hp-chip") }}</li>
-      {{ end }}
-    </ul>
+    {{ with .text }}<p>{{ . | markdownify }}</p>{{ end }}
     {{ end }}
-    {{ with .links }}<p class="hp-card-link">{{ range . }}{{ partial "home/link" (dict "url" .url "text" (printf "%s →" .text)) }}{{ end }}</p>{{ end }}
+    {{ partial "home/highlight_body" . }}
   </div>
   {{ end }}
 </div>

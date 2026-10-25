@@ -1,0 +1,9 @@
+{{- /* Context: one highlight from data/home.yaml. Renders its chips and links, which stay visible. */ -}}
+{{ if eq .chips "adoption" }}
+<ul class="hp-chips">
+  {{ range site.Data.research.adoption.items }}
+  <li>{{ partial "home/link" (dict "url" .url "text" .name "class" "hp-chip") }}</li>
+  {{ end }}
+</ul>
+{{ end }}
+{{ with .links }}<p class="hp-card-link">{{ range . }}{{ partial "home/link" (dict "url" .url "text" (printf "%s →" .text)) }}{{ end }}</p>{{ end }}
