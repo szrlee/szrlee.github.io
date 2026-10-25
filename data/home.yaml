@@ -6,7 +6,7 @@ hero:
   display_name: Yingru (Richard) Li
   pitch: Learning from experience, at frontier scale.
   text: |-
-    Core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence), on the **Grok RL big runs** and **one of the longest stable RL runs to date**. Previously led RL stability and efficiency research at ByteDance.
+    Core contributor to RL fundamentals at [xAI](https://x.ai/) (now SpaceX Super Intelligence): the science of RL training behind the **Grok RL big runs**, including **one of the longest stable RL runs to date**. Previously led RL stability and efficiency research at ByteDance.
 
     PhD, The Chinese University of Hong Kong (2025), advised by [Prof. Zhi-Quan (Tom) Luo](https://tomluo123.github.io/), with [Prof. Benjamin Van Roy (Stanford & DeepMind)](https://web.stanford.edu/~bvr/) on my thesis committee.
   research_link: Research overview →
@@ -20,6 +20,15 @@ highlights:
     chips: adoption
     links:
       - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
+  - title: The science of RL training
+    text: >-
+      Why post-training is sparse: on the model's own samples the policy gradient is a covariance,
+      and the Fisher caps how far each parameter can move. How RL should scale: on a data clock, a
+      step size that follows the optimizer and a queue sized in rollouts keep the off-policy gap
+      fixed as the batch grows.
+    links:
+      - {text: Why Post-Training Is Sparse, url: "/post/gradient-is-covariance/"}
+      - {text: Off-Policy RL at Scale, url: "/post/offpolicy-around-the-sampler/"}
   - title: Open-source RL infrastructure
     text: >-
       Authored two parts of veRL (20k+ GitHub stars): the Rollout Correction framework for
@@ -47,7 +56,7 @@ experience:
   - org: xAI (now SpaceX Super Intelligence)
     role: Member of Technical Staff
     when: Dec 2025 –
-    text: Stability, efficiency, optimizer and scaling laws; long-horizon agentic RL; on-policy distillation; RL infrastructure.
+    text: Optimizer and scaling laws, stability and efficiency; long-horizon agentic RL; on-policy distillation; RL infrastructure.
   - org: ByteDance
     role: LLM Algorithm Research Scientist
     when: "2025"
@@ -60,7 +69,7 @@ experience:
     role: Research Intern
     when: "2016"
 
-selected: [otb, trm, drkernel, simpletir, ensemblepp, hyperagent, dapo]
+selected: [otb, trm, beyondprecision, logit, drkernel, simpletir, ensemblepp, hyperagent, dapo]
 
 contact:
   text: Open to conversations on research collaboration, advising, and speaking.
