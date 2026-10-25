@@ -94,7 +94,7 @@ questions:
       - value: O(T)
         caption: trust-region bound for long sequences, down from the classical O(T²)
     papers: [speedkills, trm, beyondprecision, dapo]
-    posts: [rl-collapse-training-inference, offpolicy-around-the-sampler, offpolicy-gap-at-scale, gradient-is-covariance, sparsity-score-centering, what-policy-gradient-can-reach, topk-routing-stability-gap]
+    posts: [rl-collapse-training-inference, offpolicy-around-the-sampler, offpolicy-gap-at-scale, gradient-is-covariance, sparsity-score-centering, what-policy-gradient-can-reach, low-rank-hidden-space, topk-routing-stability-gap]
 
   - id: variance
     label: Question 3 · Variance
@@ -172,9 +172,10 @@ timeline:
       where: Blog, 2026
       text: >-
         Centering the score under the sampler confines each update to the few directions its own
-        samples can see, and bounds how far one update can move any response.
+        samples can see, bounds how far one update can move any response, and bounds the rank of
+        the update by the tokens that compete at forks.
       url: "/post/gradient-is-covariance/"
-      parts: ["/post/gradient-is-covariance/", "/post/sparsity-score-centering/", "/post/what-policy-gradient-can-reach/"]
+      parts: ["/post/gradient-is-covariance/", "/post/sparsity-score-centering/", "/post/what-policy-gradient-can-reach/", "/post/low-rank-hidden-space/"]
       current: true
 
 adoption:

@@ -24,7 +24,7 @@ series_order: 3
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 3 of 3.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/).
+**Why Post-Training Is Sparse · Part 3 of 4.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/); [Part 4](/post/low-rank-hidden-space/) bounds the rank of the update.
 
 - **Reach follows resemblance.** Per unit step, the log-odds of a response against another change by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
 - **Resemblance reaches unsampled responses.** A response never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them; one that resembles nothing the sampler produces barely moves.
@@ -194,7 +194,9 @@ The push comes from {{< math >}}$y^\star${{< /math >}}'s own score and stays of 
 
 The debate over whether RL extends a base model's abilities usually looks at probability: at large *k*, the base model's pass@*k*, the chance that one of *k* samples is correct, can exceed that of the RL-trained model ([Yue et al., 2025](https://arxiv.org/abs/2504.13837)). The bound points to {{< math >}}$v^\top F^{\mu}v${{< /math >}} from section 2, the overlap between the target behavior's score and what the sampler produces. Among equally unlikely responses, those that share structure with high-reward samples can be amplified and isolated ones cannot. Policy gradient is similarity-driven amplification. Whether it yields new capabilities depends on how new behavior connects, through shared parameters, to what the sampler already generates, and on which sampler is used.
 
-**The series in one line.** A score centered under the sampler makes the update a covariance capped by the Fisher ([Part 1](/post/gradient-is-covariance/)); that Fisher is concentrated when the sampler favors a few tokens that react alike, so updates are sparse ([Part 2](/post/sparsity-score-centering/)); and the same Fisher bounds how far one step can move any response. Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
+Choosing the sampler is the exploration problem, which [Exploration at Scale](/post/scalable-exploration/) treats on its own terms.
+
+**Next.** [Part 4](/post/low-rank-hidden-space/) follows the competing tokens into hidden space: the directions that cap each parameter also bound the rank of the whole update, and a LoRA of that rank carries it.
 
 ## References
 

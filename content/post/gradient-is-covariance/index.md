@@ -24,7 +24,7 @@ series_order: 1
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 1 of 3.** [Part 2](/post/sparsity-score-centering/) finds where the sparsity comes from. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach.
+**Why Post-Training Is Sparse · Part 1 of 4.** [Part 2](/post/sparsity-score-centering/) finds where the sparsity comes from. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach. [Part 4](/post/low-rank-hidden-space/) turns the same few directions into a bound on the rank of the update.
 
 - Reinforcement learning (RL), on-policy distillation and supervised fine-tuning (SFT) on near-policy data change only a small fraction of parameters. **Small** and **sparse** are different claims; the question is which coordinates move.
 - On the model's own samples the score has **zero mean**. So the expected gradient is a **covariance**, the Fisher is a **variance**, and the Fisher caps the gradient for any reward.

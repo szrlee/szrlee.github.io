@@ -25,7 +25,7 @@ series_order: 2
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 2 of 3.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach.
+**Why Post-Training Is Sparse · Part 2 of 4.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach, and [Part 4](/post/low-rank-hidden-space/) follows the hidden-layer directions of section 2 to the rank of the update.
 
 - **Two ingredients.** Centering under the sampler makes the Fisher a cap on each parameter's expected update, and a concentrated Fisher leaves room under that cap for only a few parameters. The reward picks which of those move.
 - **Centering can be done on either side.** On-policy sampling centers the score for free. Off-policy, subtract the score's average under the sampler, weight each token by its importance ratio, or subtract from the signal a per-prefix value baseline fitted on the samples, which needs no sampler probabilities.
@@ -130,7 +130,7 @@ With {{< math >}}$\bar w_\mu=\sum_a\smu(a)\,w_a${{< /math >}} the average output
 
 So the hidden-layer Fisher is small for two reasons: the sampler puts its mass on few tokens, and those tokens react alike, as [Zhang, Mukherjee & Peng (2026)](https://arxiv.org/abs/2609.36262) propose for likely next tokens. In their runs the token Fisher under the model's own probabilities is 0.16 of its value under a uniform distribution at the start of RL and 0.04 after 1,000 steps: the model is a confident sampler, and RL makes it more so. How much each reason contributes is still open ([section 6](#6-scope-and-open-questions)).
 
-Few directions become few coordinates only if most {{< math >}}$u_i${{< /math >}} are nearly orthogonal to these directions, which depends on the architecture and on pretraining, so here the evidence is empirical. In RL on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Sparsity and low rank are separate properties: the measured updates touch few coordinates and are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)).
+Few directions become few coordinates only if most {{< math >}}$u_i${{< /math >}} are nearly orthogonal to these directions, which depends on the architecture and on pretraining, so here the evidence is empirical. In RL on Qwen3-1.7B-Base, training only the top 0.1% of parameters by initial Fisher recovers 85.21% of the full-training gain on MATH-500, and 5% recovers 98.82% ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)). Sparsity and low rank are separate properties: the measured updates touch few coordinates and are nearly full rank in every matrix ([Mukherjee et al., 2025](https://arxiv.org/abs/2505.11711)). [Part 4](/post/low-rank-hidden-space/) shows that one expected step is low-rank in these directions, and what spreads the accumulated change over the rest.
 
 ## 3. Without centering: the mean shift
 

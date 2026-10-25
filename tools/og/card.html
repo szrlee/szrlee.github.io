@@ -13,6 +13,7 @@
   .main { margin: auto 0; }
   .avatar { position: absolute; right: 84px; top: 50%; transform: translateY(-58%); width: 200px; height: 200px; border-radius: 50%; }
   .url-only { font-family: "JetBrains Mono", monospace; font-size: 26px; color: var(--muted); margin: 0; }
+  .nowrap { white-space: nowrap; }
   .title { font-family: "Instrument Serif", serif; font-weight: 400; font-size: 88px; line-height: 1.04; letter-spacing: -0.01em; margin: 0; max-width: 1020px; }
   .sub { font-size: 30px; line-height: 1.35; color: var(--muted); margin: 22px 0 0; max-width: 980px;
          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -27,12 +28,13 @@
   const d = JSON.parse(new URLSearchParams(location.search).get('d'));
   const card = document.getElementById('card');
   const esc = (t) => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const keepCompounds = (t) => t.replace(/[^\s<>]+-[^\s<>]+/g, (w) => `<span class="nowrap">${w}</span>`);
   const avatar = '../../content/authors/admin/face.jpg';
   if (d.kind === 'post') {
     card.innerHTML =
       `<p class="kicker">${esc(d.kicker)}</p>` +
-      `<h1 class="title">${esc(d.title)}</h1>` +
-      (d.sub ? `<p class="sub">${esc(d.sub)}</p>` : '') +
+      `<h1 class="title">${keepCompounds(esc(d.title))}</h1>` +
+      (d.sub ? `<p class="sub">${keepCompounds(esc(d.sub))}</p>` : '') +
       `<div class="foot"><img src="${avatar}" alt=""><span class="who">${esc(d.name)}</span><span class="url">${esc(d.url)}</span></div>`;
   } else {
     card.innerHTML =

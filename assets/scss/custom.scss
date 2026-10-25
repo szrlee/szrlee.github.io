@@ -841,7 +841,9 @@ body.dark .mjx-pt { color: #8FB4FF; }
   }
 }
 
-.stepfig-sizer { position: relative; overflow: hidden; }
+.stepfig-sizer { position: relative; overflow: hidden; margin: 0 auto; }
+
+.stepfig--single .stepfig-bar { display: none; }
 
 .stepfig-stage {
   position: relative;
