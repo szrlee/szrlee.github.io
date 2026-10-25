@@ -1,6 +1,6 @@
 ---
 title: "What Policy Gradient Can Reach"
-subtitle: "Why Post-Training Is Sparse, Part 3: a one-step bound on how far any response can move, and its limits"
+subtitle: "The Shape of a Post-Training Update, Part 3: a one-step bound on how far any response can move, and its limits"
 summary: "Per unit step of policy gradient, the log-odds between two responses change by at most std(A) times their score difference measured in the sampler's Fisher: a response moves only as far as it resembles what the sampler produces. With one logit per response, a rare response takes time proportional to one over its probability, while a demonstration needs only logarithmic time. The bound covers one step of one estimator; shared structure, many steps and a different sampler can all widen what policy gradient reaches."
 authors:
   - admin
@@ -19,12 +19,12 @@ lastmod: '2026-10-15T00:20:00Z'
 math: true
 draft: false
 series:
-  - Why Post-Training Is Sparse
+  - The Shape of a Post-Training Update
 series_order: 3
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 3 of 4.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/); [Part 4](/post/low-rank-hidden-space/) bounds the rank of the update.
+**The Shape of a Post-Training Update · Part 3 of 4.** Starts from the cap of [Part 1](/post/gradient-is-covariance/) and the concentrated Fisher of [Part 2](/post/sparsity-score-centering/); [Part 4](/post/low-rank-hidden-space/) bounds the rank of the update.
 
 - **Reach follows resemblance.** Per unit step, the log-odds of a response against another change by at most std(*A*) · √(*v*ᵀ*Fv*), with *v* their score difference and *F* the sampler's Fisher.
 - **Resemblance reaches unsampled responses.** A response never drawn but similar to rewarded samples, like *matcha* after *tea*, moves with them; one that resembles nothing the sampler produces barely moves.

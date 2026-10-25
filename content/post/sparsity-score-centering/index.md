@@ -1,6 +1,6 @@
 ---
 title: "Sparsity Requires Score Centering"
-subtitle: "Why Post-Training Is Sparse, Part 2: where the Fisher concentrates, and what escapes the cap without centering"
+subtitle: "The Shape of a Post-Training Update, Part 2: where the Fisher concentrates, and what escapes the cap without centering"
 summary: "Sparsity needs two ingredients. A score centered under the sampler makes the Fisher a cap on each parameter's update, and the Fisher is concentrated when the sampler puts its mass on a few likely tokens that react alike. Without centering, a mean shift escapes the cap. Supervised fine-tuning is all mean shift, because its signal is constant, so centering would leave nothing to learn."
 authors:
   - admin
@@ -20,12 +20,12 @@ lastmod: '2026-10-15T00:10:00Z'
 math: true
 draft: false
 series:
-  - Why Post-Training Is Sparse
+  - The Shape of a Post-Training Update
 series_order: 2
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 2 of 4.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach, and [Part 4](/post/low-rank-hidden-space/) follows the hidden-layer directions of section 2 to the rank of the update.
+**The Shape of a Post-Training Update · Part 2 of 4.** Starts from the cap derived in [Part 1](/post/gradient-is-covariance/); [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach, and [Part 4](/post/low-rank-hidden-space/) follows the hidden-layer directions of section 2 to the rank of the update.
 
 - **Two ingredients.** Centering under the sampler makes the Fisher a cap on each parameter's expected update, and a concentrated Fisher leaves room under that cap for only a few parameters. The reward picks which of those move.
 - **Centering can be done on either side.** On-policy sampling centers the score for free. Off-policy, subtract the score's average under the sampler, weight each token by its importance ratio, or subtract from the signal a per-prefix value baseline fitted on the samples, which needs no sampler probabilities.

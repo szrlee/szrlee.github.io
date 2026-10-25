@@ -1,6 +1,6 @@
 ---
 title: "Sparse in the Vocabulary, Low-Rank in Hidden Space"
-subtitle: "Why Post-Training Is Sparse, Part 4: the tokens that compete at forks bound the rank of the update"
+subtitle: "The Shape of a Post-Training Update, Part 4: the tokens that compete at forks bound the rank of the update"
 summary: "At the output layer only the rows of tokens that compete can move. The signal that backpropagation carries into the network is the drawn token's output vector minus the sampler's average, so it lies in the span of differences of those vectors and vanishes where the sampler is sure. A linear map that feeds the unembedding therefore gets an expected update of rank at most the number of competing tokens minus one, plus a leak set by the tail mass, and a LoRA of that rank carries the main part. Measured updates are numerically full rank yet spectrally concentrated; the optimizer and many steps account for the difference."
 authors:
   - admin
@@ -20,12 +20,12 @@ lastmod: '2026-10-24T00:00:00Z'
 math: true
 draft: false
 series:
-  - Why Post-Training Is Sparse
+  - The Shape of a Post-Training Update
 series_order: 4
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 4 of 4.** Follows the hidden-layer Fisher of [Part 2](/post/sparsity-score-centering/#2-hidden-layers-a-few-directions) from a cap on each parameter to the rank of a whole update.
+**The Shape of a Post-Training Update · Part 4 of 4.** Follows the hidden-layer Fisher of [Part 2](/post/sparsity-score-centering/#2-hidden-layers-a-few-directions) from a cap on each parameter to the rank of a whole update.
 
 - **The same tokens, in two bases.** At the output layer only the rows of tokens that compete can move: sparsity in the vocabulary. Inside the network those tokens appear through their output vectors, and the update is confined to the few directions that tell them apart: low rank in hidden space.
 - **Only forks send signal.** Backpropagation carries the drawn token's output vector minus the sampler's average. Its expected size shrinks to zero as the sampler's top token approaches probability one, so positions where the sampler is sure contribute almost nothing.

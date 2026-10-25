@@ -168,7 +168,7 @@ timeline:
       parts: ["/post/offpolicy-around-the-sampler/", "/post/offpolicy-gap-at-scale/"]
       current: true
     - when: Oct 2026
-      title: Why post-training is sparse
+      title: The shape of a post-training update
       where: Blog, 2026
       text: >-
         Centering the score under the sampler confines each update to the few directions its own

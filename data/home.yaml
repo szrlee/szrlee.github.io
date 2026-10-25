@@ -20,15 +20,11 @@ highlights:
     chips: adoption
     links:
       - {text: "Read: When Speed Kills Stability", url: "/rl-collapse"}
-  - title: The science of RL training
+  - title: The science of RL training at frontier scale
     text: >-
-      Why post-training is sparse: on the model's own samples the policy gradient is a covariance,
-      and the Fisher caps how far each parameter can move. How RL should scale: on a data clock, a
-      step size that follows the optimizer and a queue sized in rollouts keep the off-policy gap
-      fixed as the batch grows.
-    links:
-      - {text: Why Post-Training Is Sparse, url: "/post/gradient-is-covariance/"}
-      - {text: Off-Policy RL at Scale, url: "/post/offpolicy-around-the-sampler/"}
+      Optimization, scaling laws, stability and efficiency of reinforcement learning on frontier
+      models: core algorithms and training recipes, optimizer behavior and numerics at scale, and
+      first-principles theory of how an update moves a model and how training should scale.
   - title: Open-source RL infrastructure
     text: >-
       Authored two parts of veRL (20k+ GitHub stars): the Rollout Correction framework for

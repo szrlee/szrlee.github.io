@@ -163,7 +163,7 @@ s_{y_t} - \bar s_t \;\to\; e_{y_t} - \ps \ \text{ at the logits}.
 $$
 {{< /math >}}
 
-Averaged over what the sampler draws, the raises and lowerings cancel, so a constant reward moves nothing. The plain score averages to zero under the trainer, not under the sampler, so without centering even a constant reward pushes the policy. That is the off-policy bias in its simplest form. Score centering has an independent public treatment in [Marek & Ryabinin (2026)](https://arxiv.org/abs/2609.20807); here it is simply the gradient of the tangent. It is also why post-training updates are sparse: see [Why Post-Training Is Sparse](/post/sparsity-score-centering/).
+Averaged over what the sampler draws, the raises and lowerings cancel, so a constant reward moves nothing. The plain score averages to zero under the trainer, not under the sampler, so without centering even a constant reward pushes the policy. That is the off-policy bias in its simplest form. Score centering has an independent public treatment in [Marek & Ryabinin (2026)](https://arxiv.org/abs/2609.20807); here it is simply the gradient of the tangent. It is also why post-training updates are sparse: see [The Shape of a Post-Training Update, Part 2](/post/sparsity-score-centering/).
 
 ## 5. Per-token importance sampling: same tangent, more variance
 

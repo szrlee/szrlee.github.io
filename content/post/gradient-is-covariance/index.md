@@ -1,6 +1,6 @@
 ---
 title: "The Gradient Is a Covariance"
-subtitle: "Why Post-Training Is Sparse, Part 1: the score, the Fisher, and a bound that holds for any reward"
+subtitle: "The Shape of a Post-Training Update, Part 1: the score, the Fisher, and a bound that holds for any reward"
 summary: "On the model's own samples the score has zero mean, so the expected policy gradient is the covariance between the learning signal and the score, and the Fisher is the score's variance. A parameter can move only if its Fisher is large; whether it does is up to the reward. Off-policy, all of this holds once the score is centered under the sampler."
 authors:
   - admin
@@ -19,12 +19,12 @@ lastmod: '2026-10-15T00:00:00Z'
 math: true
 draft: false
 series:
-  - Why Post-Training Is Sparse
+  - The Shape of a Post-Training Update
 series_order: 1
 ---
 
 {{% callout note %}}
-**Why Post-Training Is Sparse · Part 1 of 4.** [Part 2](/post/sparsity-score-centering/) finds where the sparsity comes from. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach. [Part 4](/post/low-rank-hidden-space/) turns the same few directions into a bound on the rank of the update.
+**The Shape of a Post-Training Update · Part 1 of 4.** [Part 2](/post/sparsity-score-centering/) finds where the sparsity comes from. [Part 3](/post/what-policy-gradient-can-reach/) asks what policy gradient can reach. [Part 4](/post/low-rank-hidden-space/) turns the same few directions into a bound on the rank of the update.
 
 - Reinforcement learning (RL), on-policy distillation and supervised fine-tuning (SFT) on near-policy data change only a small fraction of parameters. **Small** and **sparse** are different claims; the question is which coordinates move.
 - On the model's own samples the score has **zero mean**. So the expected gradient is a **covariance**, the Fisher is a **variance**, and the Fisher caps the gradient for any reward.
