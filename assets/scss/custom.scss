@@ -229,7 +229,16 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
   color: var(--hp-ink);
   p { margin-bottom: 0.6rem; }
   p + p { font-size: 0.9rem; line-height: 1.6; color: var(--hp-muted); }
-  strong { font-weight: 600; }
+  strong {
+    font-weight: 600;
+    padding: 0 0.08em;
+    background: linear-gradient(transparent 55%, rgba(194, 65, 12, 0.16) 55%);
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
+  }
+}
+.dark .hp-hero-bio strong {
+  background: linear-gradient(transparent 55%, rgba(251, 146, 60, 0.24) 55%);
 }
 
 .hp-social {
