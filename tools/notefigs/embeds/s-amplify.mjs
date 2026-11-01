@@ -51,6 +51,6 @@ export default {
     var tpg = (Math.exp(-l0) - 2 * l0 - Math.exp(l0)) / (2 * p.gap), tsf = (1 - l0 - Math.exp(l0)) / 2;
     return 'Time to reach one half: policy gradient <b>' + (tpg < 100 ? tpg.toFixed(1) : Math.round(tpg)) +
       '</b>, demonstration <b>' + tsf.toFixed(1) + '</b>, a ratio of <b>' + Math.round(tpg / tsf) + '\u00d7</b>. ' +
-      'Policy gradient grows like 1/(<i>ε</i>Δ); the demonstration like log(1/<i>ε</i>).';
+      'Against one competitor, policy gradient takes about 1/(2<i>ε</i>Δ) and the demonstration about ½ log(1/<i>ε</i>).';
   },
 };

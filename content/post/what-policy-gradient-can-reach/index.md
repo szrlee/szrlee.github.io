@@ -15,7 +15,7 @@ categories:
   - Research
   - Theory
 date: '2026-10-15T00:20:00Z'
-lastmod: '2026-10-15T00:20:00Z'
+lastmod: '2026-11-01T14:40:00Z'
 math: true
 draft: false
 series:
@@ -107,22 +107,18 @@ If the step is {{< math >}}$\Delta\theta=\eta\,DG${{< /math >}} with a diagonal 
 
 {{< stepfig "amplify" >}}
 
+**The model.** Fix a prompt with finitely many responses and give each response {{< math >}}$y${{< /math >}} its own logit {{< math >}}$z_y${{< /math >}}: the parameters are the logits, and {{< math >}}$\pi=\operatorname{softmax}(z)${{< /math >}}. Sampling is on-policy ({{< math >}}$\smu=\pi${{< /math >}}), the update is the expected gradient, and time {{< math >}}$t${{< /math >}} is step size times number of steps, so the logits follow {{< math >}}$dz/dt=G${{< /math >}}. Write {{< math >}}$r(y)${{< /math >}} for the reward, {{< math >}}$\bar r=\mathbb{E}_\pi[r]${{< /math >}} for its mean, and {{< math >}}$A(y)=r(y)-\bar r${{< /math >}} for the advantage. In these coordinates the score is {{< math >}}$\mathrm{score}(u)=e_u-\pi${{< /math >}}, with {{< math >}}$e_u${{< /math >}} the indicator of {{< math >}}$u${{< /math >}}.
+
 {{< math >}}
 $$
-\frac{\partial\,\mathbb{E}_\pi[r]}{\partial z_y}=\pi(y)\big(r(y)-\mathbb{E}_\pi[r]\big)=\pi(y)\,\Delta(y),
+\frac{dz_y}{dt}=\frac{\partial\bar r}{\partial z_y}=\pi(y)\big(r(y)-\bar r\big)=\pi(y)\,A(y),
 $$
 $$
-\frac{d\log\pi(y)}{d\eta}=\pi(y)\,\Delta(y)-\sum_{y''}\pi(y'')^2\,\Delta(y''),
-$$
-$$
-\frac{d}{d\eta}\big[\log\pi(y)-\log\pi(y')\big]
-$$
-$$
-=\pi(y)\,\Delta(y)-\pi(y')\,\Delta(y').
+\frac{d}{dt}\log\frac{\pi(y)}{\pi(y')}=\pi(y)\,A(y)-\pi(y')\,A(y').
 $$
 {{< /math >}}
 
-The second term comes from the normalizer: it shifts every log-probability by the same amount and leaves their ratios unchanged. The log-odds keep only the first term, which is small for any response the model rarely produces. The kernel bound agrees for two rare responses: with the on-policy Fisher in logits, {{< math >}}$F^{\mu}=\operatorname{diag}(\pi)-\pi\pi^\top${{< /math >}}, and {{< math >}}$v=e_y-e_{y'}${{< /math >}}, where {{< math >}}$e_y${{< /math >}} is the indicator of {{< math >}}$y${{< /math >}}, we get
+Component {{< math >}}$y${{< /math >}} of a sampled score is {{< math >}}$1-\pi(y)${{< /math >}} when {{< math >}}$y${{< /math >}} itself is drawn, which happens with probability {{< math >}}$\pi(y)${{< /math >}}, and only {{< math >}}$-\pi(y)${{< /math >}} otherwise, so every push on {{< math >}}$z_y${{< /math >}} carries a factor {{< math >}}$\pi(y)${{< /math >}}. A log-probability, {{< math >}}$\log\pi(y)=z_y-\log\sum_u e^{z_u}${{< /math >}}, also moves with the normalizer, which shifts every log-probability by the same amount; the log-odds cancel it. For two rare responses both rates are small, as the bound of section 2 says: with the on-policy Fisher in logits, {{< math >}}$F^{\mu}=\operatorname{diag}(\pi)-\pi\pi^\top${{< /math >}}, and {{< math >}}$v=e_y-e_{y'}${{< /math >}},
 
 {{< math >}}
 $$
@@ -133,31 +129,47 @@ $$
 $$
 {{< /math >}}
 
-Measuring time {{< math >}}$t${{< /math >}} as step size times number of steps and ignoring the normalizer, {{< math >}}$d\pi/dt\approx\Delta\,\pi^2${{< /math >}}, so {{< math >}}$1/\pi${{< /math >}} falls at rate {{< math >}}$\Delta${{< /math >}} and getting from {{< math >}}$\varepsilon${{< /math >}} to one half takes about {{< math >}}$(1/\varepsilon-2)/\Delta${{< /math >}}. This matches the theory of softmax policy gradient, whose rate depends on how much probability the optimal action keeps ([Mei et al., 2020](https://arxiv.org/abs/2005.06392)), and which can take exponential time in the worst case ([Li et al., 2021](https://arxiv.org/abs/2102.11270)).
+**A rare rewarded response.** Let a target {{< math >}}$y^\star${{< /math >}} start at probability {{< math >}}$\varepsilon${{< /math >}} with reward {{< math >}}$\Delta${{< /math >}}, the reward gap, while every other response earns 0. Write {{< math >}}$p=\pi(y^\star)${{< /math >}}. Then {{< math >}}$\bar r=p\Delta${{< /math >}}, {{< math >}}$A(y^\star)=\Delta(1-p)${{< /math >}}, and every other response has {{< math >}}$A(u)=-p\Delta${{< /math >}}:
+
+{{< math >}}
+$$
+\frac{dz_{y^\star}}{dt}=\Delta\,p\,(1-p),
+$$
+$$
+\frac{dz_u}{dt}=-\Delta\,p\,\pi(u)\quad(u\ne y^\star).
+$$
+{{< /math >}}
+
+How long {{< math >}}$p${{< /math >}} takes to reach one half depends on where the competing probability sits:
+
+- **One dominant competitor.** Its logit falls as fast as the target's rises, so the log-odds between them grow at {{< math >}}$2\Delta p(1-p)${{< /math >}} and the time is about {{< math >}}$1/(2\varepsilon\Delta)${{< /math >}}. The figures use this case.
+- **Many small competitors.** Each competitor's logit barely moves, only the target's does, and the time is about {{< math >}}$1/(\varepsilon\Delta)${{< /math >}}.
+
+Either way the time grows like {{< math >}}$1/\varepsilon${{< /math >}}: most of it is spent near the start, where the growth rate is proportional to {{< math >}}$p${{< /math >}} itself. This matches the theory of softmax policy gradient, whose rate depends on how much probability the optimal action keeps ([Mei et al., 2020](https://arxiv.org/abs/2005.06392)), and which can take exponential time in the worst case ([Li et al., 2021](https://arxiv.org/abs/2102.11270)).
 
 {{< livefig "s-amplify" "Drag the sliders. Each tenfold drop in the starting probability costs policy gradient about ten times more time, and the demonstration a constant." 430 >}}
 
 <details class="spoiler">
-<summary>The two-response case, solved exactly</summary>
+<summary>Both cases, solved exactly</summary>
 
-With two responses, rewards {{< math >}}$\Delta${{< /math >}} and 0, and log-odds {{< math >}}$\ell=\log\frac{\pi}{1-\pi}${{< /math >}} starting at {{< math >}}$\ell_0=\log\frac{\varepsilon}{1-\varepsilon}${{< /math >}}:
+Track the target's log-odds {{< math >}}$\ell=\log\frac{p}{1-p}${{< /math >}}, which start at {{< math >}}$\ell_0=\log\frac{\varepsilon}{1-\varepsilon}${{< /math >}}, and write {{< math >}}$t_{1/2}${{< /math >}} for the time to reach {{< math >}}$p=\tfrac12${{< /math >}}, that is {{< math >}}$\ell=0${{< /math >}}. With one competitor, of probability {{< math >}}$1-p${{< /math >}}, both logits move. With many competitors, each of vanishing probability, only {{< math >}}$z_{y^\star}${{< /math >}} moves, and {{< math >}}$d\ell/dt=dz_{y^\star}/dt${{< /math >}}:
 
 {{< math >}}
 $$
-\text{policy gradient: }\ \frac{d\ell}{dt}=2\Delta\,\pi(1-\pi),
+\text{one competitor: }\ \frac{d\ell}{dt}=2\Delta\,p(1-p),
 $$
 $$
 t_{1/2}=\frac{e^{-\ell_0}-2\ell_0-e^{\ell_0}}{2\Delta}\approx\frac{1}{2\varepsilon\Delta},
 $$
 $$
-\text{demonstration: }\ \frac{d\ell}{dt}=2(1-\pi),
+\text{many competitors: }\ \frac{d\ell}{dt}=\Delta\,p(1-p),
 $$
 $$
-t_{1/2}=\frac{1-\ell_0-e^{\ell_0}}{2}\approx\tfrac12\log\frac1\varepsilon .
+t_{1/2}=\frac{e^{-\ell_0}-2\ell_0-e^{\ell_0}}{\Delta}\approx\frac{1}{\varepsilon\Delta}.
 $$
 {{< /math >}}
 
-From {{< math >}}$\varepsilon=0.01${{< /math >}} with {{< math >}}$\Delta=1${{< /math >}} these give 54.1 and 2.8; from {{< math >}}$\varepsilon=0.001${{< /math >}}, 506 and 4.0.
+With {{< math >}}$\Delta=1${{< /math >}}, from {{< math >}}$\varepsilon=0.01${{< /math >}} these give 54.1 and 108; from {{< math >}}$\varepsilon=0.001${{< /math >}}, 506 and 1012.
 
 </details>
 
@@ -165,18 +177,39 @@ From {{< math >}}$\varepsilon=0.01${{< /math >}} with {{< math >}}$\Delta=1${{< 
 
 **A demonstration pushes a response at a rate that does not shrink with its probability.**
 
-Imitating a response {{< math >}}$y^\star${{< /math >}} moves the parameters along its own score:
+In any model, imitating a response {{< math >}}$y^\star${{< /math >}} moves the parameters along its own score:
 
 {{< math >}}
 $$
-\frac{d}{d\eta}\log\pi_{\theta+\eta\,\mathrm{score}(y^\star)}(y^\star)\Big|_{\eta=0}=\big\|\mathrm{score}(y^\star)\big\|^2,
-$$
-$$
-\big\|e_{y^\star}-\pi\big\|^2=\big(1-\pi(y^\star)\big)^2+\sum_{y\ne y^\star}\pi(y)^2 .
+\frac{d}{d\eta}\log\pi_{\theta+\eta\,\mathrm{score}(y^\star)}(y^\star)\Big|_{\eta=0}=\big\|\mathrm{score}(y^\star)\big\|^2.
 $$
 {{< /math >}}
 
-The push comes from {{< math >}}$y^\star${{< /math >}}'s own score and stays of order one however unlikely {{< math >}}$y^\star${{< /math >}} is. The tabular expression, {{< math >}}$1-2\pi(y^\star)+\sum_y\pi(y)^2${{< /math >}}, is the squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912) for a chosen action; in the output layer, the row of {{< math >}}$y^\star${{< /math >}} receives {{< math >}}$1-\pi(y^\star)${{< /math >}} times the last hidden state ([Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)). Supervised fine-tuning can inject mass into a response the sampler never produces. Policy gradient can only amplify what it already reaches through similarity: {{< math >}}$1/\varepsilon${{< /math >}} against {{< math >}}$\log(1/\varepsilon)${{< /math >}} in the figure.
+In the one-logit model of section 3 the step is {{< math >}}$e_{y^\star}-\pi${{< /math >}}, again with {{< math >}}$p=\pi(y^\star)${{< /math >}}:
+
+{{< math >}}
+$$
+\frac{dz_{y^\star}}{dt}=1-p,\qquad\frac{dz_u}{dt}=-\pi(u),
+$$
+$$
+\big\|e_{y^\star}-\pi\big\|^2=1-2p+\sum_y\pi(y)^2 .
+$$
+{{< /math >}}
+
+The target's logit rises at nearly 1 however small {{< math >}}$p${{< /math >}} is. With one dominant competitor the log-odds grow at {{< math >}}$2(1-p)${{< /math >}}, and reaching one half takes {{< math >}}$\tfrac12(1-\ell_0-e^{\ell_0})\approx\tfrac12\log(1/\varepsilon)${{< /math >}}, with {{< math >}}$\ell_0${{< /math >}} the starting log-odds; with many small competitors it takes twice that, about {{< math >}}$\log(1/\varepsilon)${{< /math >}}. From {{< math >}}$\varepsilon=0.01${{< /math >}} these are 2.8 and 5.6; from {{< math >}}$\varepsilon=0.001${{< /math >}}, 4.0 and 7.9. The expression {{< math >}}$1-2p+\sum_y\pi(y)^2${{< /math >}} is the squared logit update of [Logit Dynamics](https://arxiv.org/abs/2506.12912) for a chosen action; in the output layer, the row of {{< math >}}$y^\star${{< /math >}} receives {{< math >}}$1-p${{< /math >}} times the last hidden state ([Part 2](/post/sparsity-score-centering/#3-without-centering-the-mean-shift)).
+
+**Policy gradient is a demonstration scaled by probability.** On-policy, in any model,
+
+{{< math >}}
+$$
+G=\mathbb{E}_{y\sim\pi}\big[r(y)\,\mathrm{score}(y)\big]
+$$
+$$
+=\sum_y\pi(y)\,r(y)\,\mathrm{score}(y)=p\,\Delta\,\mathrm{score}(y^\star),
+$$
+{{< /math >}}
+
+since only {{< math >}}$y^\star${{< /math >}} is rewarded. Policy gradient takes the demonstration's step shrunk by {{< math >}}$p\Delta${{< /math >}}. At equal step size and {{< math >}}$\Delta=1${{< /math >}}, that factor is the whole difference: {{< math >}}$1/\varepsilon${{< /math >}} against {{< math >}}$\log(1/\varepsilon)${{< /math >}}, in either case of section 3. Supervised fine-tuning can inject mass into a response the sampler never produces. Policy gradient can only amplify what it already reaches through similarity.
 
 ## 5. Limits of the bound
 
