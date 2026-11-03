@@ -26,17 +26,16 @@ highlights:
       Core algorithms and training recipes, optimizer behavior and numerics at scale, and
       first-principles theory of how an update moves a model and how training should scale.
   - title: Open-source RL infrastructure
-    lede: Authored veRL's Rollout Correction framework and its Optimal Token Baseline.
+    lede: Authored Rollout Correction and Optimal Token Baseline in veRL (20k+ GitHub stars).
     text: >-
-      veRL has 20k+ GitHub stars. Rollout Correction is its framework for off-policy training,
-      and MIS and TRM ship in it.
+      Rollout Correction is veRL's framework for off-policy training, and MIS and TRM ship in it.
     links:
       - {text: Rollout Correction docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
       - {text: Token baseline docs, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
   - title: Agentic RL for GPU kernel generation
-    lede: Dr. Kernel-14B writes Triton kernels and refines them using execution feedback.
+    lede: A 14B Triton-kernel agent that, with test-time scaling, beats GPT-5 on KernelBench Level 2.
     text: >-
-      Its multi-turn RL pairs an unbiased turn-level advantage with our mismatch correction against
+      Dr. Kernel-14B writes Triton kernels and refines them using execution feedback. Its multi-turn RL pairs an unbiased turn-level advantage with our mismatch correction against
       early collapse. With test-time scaling, 31.6% of its KernelBench Level 2 kernels run at least 1.2× faster than
       PyTorch, ahead of Claude-4.5-Sonnet (26.7%) and GPT-5 (28.6%).
     links:
