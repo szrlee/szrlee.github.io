@@ -1,0 +1,21 @@
+{{ $page := . }}
+{{ $title := .Title }}
+{{ $series := "" }}
+{{ $part := 0 }}
+{{ $total := 0 }}
+{{ with .Params.series }}
+  {{ $series = index . 0 }}
+  {{ $members := (where site.RegularPages "Params.series" "intersect" (slice $series)).ByDate }}
+  {{ $total = len $members }}
+  {{ range $i, $p := $members }}{{ if eq $p.File.Path $page.File.Path }}{{ $part = add $i 1 }}{{ end }}{{ end }}
+  {{ $title = replaceRE `^Part \d+:\s*` "" $title }}
+{{ end }}
+{{ $summary := .Params.summary | default .Summary | plainify | htmlUnescape }}
+<li class="wx-row">
+  <time class="wx-date" datetime="{{ .Date.Format "2006-01-02" }}">{{ .Date.Format "Jan 2" }}</time>
+  <div class="wx-main">
+    <a class="wx-title" href="{{ .RelPermalink }}">{{ $title }}</a>
+    {{ with $series }}<span class="wx-series">{{ . }} · <span class="wx-part">Part {{ $part }} of {{ $total }}</span></span>{{ end }}
+    {{ with $summary }}<p class="wx-summary">{{ . }}</p>{{ end }}
+  </div>
+</li>

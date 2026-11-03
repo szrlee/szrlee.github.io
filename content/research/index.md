@@ -30,4 +30,7 @@ sections:
     content:
       label: Talks
       title: Selected talks
+
+  - block: home.howiwork
+    id: how-i-work
 ---

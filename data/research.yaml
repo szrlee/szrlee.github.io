@@ -233,6 +233,31 @@ outlook:
     Open questions: forgetting over long horizons, exploration at frontier scale, and where
     uncertainty should live in the architecture.
 
+howiwork:
+  label: How I work
+  title: Four habits behind the work above
+  items:
+    - title: Find the cause before tuning around it
+      text: >-
+        LLM-RL collapse looked like a tuning problem. Tracing it to the gap between the sampler and
+        the trainer gave a fix that others now ship.
+      post: rl-collapse-training-inference
+    - title: Prove it on the smallest case that shows it, then check it at scale
+      text: >-
+        A bound on one policy-gradient step, or on a tabular softmax, says what an update can do.
+        Measured updates then show which part of the bound carries over to a real model.
+      post: gradient-is-covariance
+    - title: State scaling rules in units that stay fixed as the run grows
+      text: >-
+        A step size that follows the optimizer and a queue sized in rollouts keep the off-policy
+        gap where it was when the run was small.
+      post: offpolicy-gap-at-scale
+    - title: Ship the fix where others can use it
+      text: >-
+        MIS, TRM and the Optimal Token Baseline live in veRL, so anyone who trains with it can
+        check and reuse them.
+      link: {text: veRL Rollout Correction docs, url: "https://verl.readthedocs.io/en/latest/algo/rollout_corr.html"}
+
 talks:
   items:
     - title: Revisiting Trust Region Policy Optimization in the Era of LLMs

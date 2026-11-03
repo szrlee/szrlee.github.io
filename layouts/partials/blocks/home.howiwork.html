@@ -1,0 +1,15 @@
+{{ with site.Data.research.howiwork }}
+{{ partial "home/head" (dict "label" .label "title" .title) }}
+<div class="hp-cards hp-cards-2">
+  {{ range .items }}
+  <div class="hp-card">
+    <h3 class="hp-card-title">{{ .title }}</h3>
+    <p>{{ .text }}</p>
+    {{ with .post }}{{ with site.GetPage (printf "/post/%s" .) }}
+    <div class="hp-card-link"><a href="{{ .RelPermalink }}">{{ index (split .Title ":") 0 }} →</a></div>
+    {{ end }}{{ end }}
+    {{ with .link }}<div class="hp-card-link"><a href="{{ .url }}">{{ .text }} →</a></div>{{ end }}
+  </div>
+  {{ end }}
+</div>
+{{ end }}

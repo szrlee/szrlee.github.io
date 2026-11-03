@@ -184,6 +184,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 }
 
 .hp-cards-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.hp-cards-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 
 .hp-card,
 .hp-cards > .hp-paper {
@@ -1016,10 +1017,72 @@ footer.site-footer {
   .hp-hero-name { font-size: 2.5rem; }
   .hp-hero-title { font-size: 1.05rem; }
   .hp-title { font-size: 1.5rem; }
-  .hp-loop-grid, .hp-cards-3, .hp-q-posts { grid-template-columns: 1fr; gap: 0.5rem; }
+  .hp-loop-grid, .hp-cards-3, .hp-cards-2, .hp-q-posts { grid-template-columns: 1fr; gap: 0.5rem; }
   .hp-exp li { grid-template-columns: 1fr; gap: 0.2rem; }
   .hp-eq-panel { padding: 1.6rem 1.3rem; }
   .hp-tl-row { grid-template-columns: 1fr; gap: 0.25rem; }
   .hp-talk-list li { grid-template-columns: 1fr; gap: 0.2rem; }
   .hp-results { grid-template-columns: 1fr; }
+}
+
+// ---------- Writing index ----------
+
+.wx-index { margin: 0.5rem 0 3rem; }
+.wx-year + .wx-year { margin-top: 2.2rem; }
+.wx-year-label {
+  font-family: var(--hp-mono);
+  font-size: 0.8rem;
+  font-weight: 400;
+  letter-spacing: 0.04em;
+  color: var(--hp-muted);
+  margin: 0;
+  padding-bottom: 0.45rem;
+  border-bottom: 1px solid var(--hp-rule);
+}
+.wx-list { list-style: none; margin: 0; padding: 0; }
+.wx-row {
+  display: grid;
+  grid-template-columns: 4.2rem minmax(0, 1fr);
+  gap: 0 1rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid var(--hp-rule);
+}
+.wx-date {
+  font-family: var(--hp-mono);
+  font-size: 0.76rem;
+  line-height: 1.6rem;
+  color: var(--hp-muted);
+  white-space: nowrap;
+}
+.wx-main { min-width: 0; }
+.wx-title {
+  font-family: var(--hp-sans);
+  font-size: 1rem;
+  font-weight: 500;
+  line-height: 1.5;
+  color: var(--hp-ink);
+  text-decoration: none;
+  &:hover, &:focus-visible { color: var(--hp-accent); text-decoration: none; }
+}
+.dark .wx-title { color: var(--hp-ink); &:hover { color: var(--hp-accent); } }
+.wx-series {
+  display: block;
+  margin-top: 0.1rem;
+  font-family: var(--hp-mono);
+  font-size: 0.72rem;
+  color: var(--hp-accent);
+  .wx-part { white-space: nowrap; }
+}
+.wx-summary {
+  margin: 0.2rem 0 0;
+  font-size: 0.86rem;
+  line-height: 1.55;
+  color: var(--hp-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+@media (max-width: 575px) {
+  .wx-row { grid-template-columns: 3.4rem minmax(0, 1fr); gap: 0 0.7rem; }
+  .wx-summary { display: none; }
 }
