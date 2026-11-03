@@ -1,5 +1,6 @@
 ---
 title: Writing
+summary: "Writing by Yingru Li on reinforcement learning for LLMs: training stability, off-policy correction, exploration, and the shape of a post-training update."
 cms_exclude: true
 
 # View.

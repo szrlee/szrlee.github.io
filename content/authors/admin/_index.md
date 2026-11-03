@@ -18,7 +18,7 @@ organizations:
     url: https://x.ai/
 
 # Short bio (displayed in user profile at end of posts)
-bio: Core contributor to RL fundamentals at xAI (now SpaceX Super Intelligence), working on stable, efficient, and scalable reinforcement learning for frontier models.
+bio: Core contributor to RL fundamentals at xAI (now SpaceX Super Intelligence), working on the science of RL training at frontier scale.
 
 interests:
   - Reinforcement learning at scale

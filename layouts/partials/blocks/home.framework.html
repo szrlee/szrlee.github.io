@@ -1,7 +1,7 @@
 {{ $r := site.Data.research }}
 
 <div class="hp-loop">
-  {{ partial "home/head" (dict "label" "The problem" "title" $r.loop.title) }}
+  {{ partial "home/head" (dict "label" "The problem" "title" $r.loop.title "level" 1) }}
   <div class="hp-loop-grid">
     <svg class="hp-loop-svg" viewBox="0 0 560 170" role="img" aria-label="Model acts to produce experience, experience is used to estimate an update, the update steps the model.">
       <defs>

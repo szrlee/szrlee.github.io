@@ -3,6 +3,8 @@
 {{/* Request search engines not to index private pages. */}}
 {{ if .Params.private }}
   <meta name="robots" content="noindex" />
+{{- else if in (slice "taxonomy" "term") .Kind -}}
+  <meta name="robots" content="noindex, follow" />
 {{- end -}}
 
 {{/* Attempt to load superuser (the main site author). */}}
@@ -31,6 +33,10 @@
   {{ $desc = .Params.abstract }}
 {{ else if .IsPage }}
   {{ $desc = .Summary }}
+{{ else if eq .Kind "term" }}
+  {{ $desc = printf "Writing and publications by Yingru Li on %s." .Title }}
+{{ else if eq .Kind "taxonomy" }}
+  {{ $desc = printf "%s in Yingru Li's writing and publications." .Title }}
 {{ else if site.Params.marketing.seo.description }}
   {{ $desc = site.Params.marketing.seo.description }}
 {{ else }}

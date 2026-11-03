@@ -12,5 +12,5 @@ sections:
       title: Papers, grouped by the question they answer
       text: |-
         \* equal contribution · † corresponding author.
-        Full list on [Google Scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en); details in the {{< staticref "uploads/cv.pdf" "newtab" >}}CV{{< /staticref >}}.
+        Full list on [Google Scholar](https://scholar.google.com/citations?user=OOhB7fcAAAAJ&hl=en); details in the [CV](/uploads/cv.pdf).
 ---

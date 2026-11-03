@@ -3,7 +3,7 @@
 {{ $pubs := site.Data.publications }}
 
 <div class="hp-pubs-intro">
-  {{ partial "home/head" (dict "label" $block.content.label "title" $block.content.title) }}
+  {{ partial "home/head" (dict "label" $block.content.label "title" $block.content.title "level" 1) }}
   {{ with $block.content.text }}<div class="hp-lede">{{ . | $page.RenderString }}</div>{{ end }}
   <nav class="hp-pubs-nav">
     {{ range $pubs.groups }}<a href="#pubs-{{ .id }}">{{ .label }}</a>{{ end }}
