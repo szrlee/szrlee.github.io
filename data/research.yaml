@@ -244,13 +244,14 @@ howiwork:
       post: rl-collapse-training-inference
     - title: Prove it on the smallest case that shows it, then check it at scale
       text: >-
-        A bound on one policy-gradient step, or on a tabular softmax, says what an update can do.
-        Measured updates then show which part of the bound carries over to a real model.
+        A bound on one policy-gradient step, or on one logit per response, says what an update can
+        do. Measured updates then show which part of the bound carries over to a real model.
       post: gradient-is-covariance
+      link_text: The Shape of a Post-Training Update
     - title: State scaling rules in units that stay fixed as the run grows
       text: >-
         A step size that follows the optimizer and a queue sized in rollouts keep the off-policy
-        gap where it was when the run was small.
+        gap fixed as the batch grows.
       post: offpolicy-gap-at-scale
     - title: Ship the fix where others can use it
       text: >-

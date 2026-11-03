@@ -5,8 +5,9 @@
   <div class="hp-card">
     <h3 class="hp-card-title">{{ .title }}</h3>
     <p>{{ .text }}</p>
+    {{ $linkText := .link_text }}
     {{ with .post }}{{ with site.GetPage (printf "/post/%s" .) }}
-    <div class="hp-card-link"><a href="{{ .RelPermalink }}">{{ index (split .Title ":") 0 }} →</a></div>
+    <div class="hp-card-link"><a href="{{ .RelPermalink }}">{{ $linkText | default (index (split .Title ":") 0) }} →</a></div>
     {{ end }}{{ end }}
     {{ with .link }}<div class="hp-card-link"><a href="{{ .url }}">{{ .text }} →</a></div>{{ end }}
   </div>
