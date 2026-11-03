@@ -1,0 +1,9 @@
+{{ $block := .wcBlock }}
+
+{{ with $block.content.title }}<h2 class="hp-title hp-title-sm">{{ . }}</h2>{{ end }}
+{{ with site.Data.home.beliefs }}
+<ul class="hp-beliefs">
+  {{ range .items }}<li>{{ . | markdownify }}</li>{{ end }}
+</ul>
+{{ with .note }}<p class="hp-beliefs-note">{{ . | markdownify }}</p>{{ end }}
+{{ end }}

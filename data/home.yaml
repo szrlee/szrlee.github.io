@@ -68,6 +68,15 @@ experience:
 
 selected: [otb, trm, beyondprecision, logit, drkernel, simpletir, ensemblepp, hyperagent, dapo]
 
+beliefs:
+  items:
+    - Learning from experience is the part of intelligence that keeps going.
+    - Stable runs are designed. Collapses have causes.
+    - Write the derivation down; the bug is usually in the step you skipped.
+    - The smallest example that shows the failure is the best place to start.
+    - Uncertainty is worth acting on.
+  note: I started [RL-Seminar](https://rlseminar.github.io/), an RL theory seminar, in 2019 and ran it through 2023.
+
 contact:
   text: Open to conversations on research collaboration, advising, and speaking. I read every email and write back.
   booking:

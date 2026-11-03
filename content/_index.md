@@ -26,6 +26,11 @@ sections:
     content:
       title: Selected publications
 
+  - block: home.beliefs
+    id: beliefs
+    content:
+      title: Things I believe in
+
   - block: home.contact
     id: contact
     content:

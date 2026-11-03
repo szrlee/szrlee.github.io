@@ -520,9 +520,10 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 .wg-home-highlights,
 .wg-home-experience,
 .wg-home-selected,
+.wg-home-beliefs,
 .wg-home-contact {
   > .container { max-width: 760px; }
-  .hp-hero a, .hp-card a:not(.hp-chip), .hp-more a, .hp-paper-title a, .hp-contact a:not(.btn), .hp-social a {
+  .hp-hero a, .hp-beliefs-note a, .hp-card a:not(.hp-chip), .hp-more a, .hp-paper-title a, .hp-contact a:not(.btn), .hp-social a {
     color: var(--hp-ink);
     text-decoration: underline;
     text-decoration-color: var(--hp-underline);
@@ -638,6 +639,7 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 #highlights.home-section,
 #experience.home-section,
 #publications.home-section,
+#beliefs.home-section,
 #contact.home-section { padding: 28px 0; }
 
 #highlights.home-section { padding-top: 36px; }
@@ -676,6 +678,37 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
     top: 72px;
   }
 }
+
+// ---------- Beliefs ----------
+
+.hp-beliefs {
+  columns: 2;
+  column-gap: 2.2rem;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 0.9rem;
+  li {
+    break-inside: avoid;
+    position: relative;
+    padding-left: 1rem;
+    margin-bottom: 0.5rem;
+    font-size: 0.96rem;
+    line-height: 1.55;
+    color: var(--hp-ink-soft);
+    &::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.62em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--hp-accent);
+    }
+  }
+}
+.hp-beliefs-note { margin: 0; font-size: 0.92rem; line-height: 1.6; color: var(--hp-muted); }
+@media (max-width: 575px) { .hp-beliefs { columns: 1; } }
 
 // ---------- Publications page ----------
 
