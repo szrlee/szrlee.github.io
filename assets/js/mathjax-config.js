@@ -23,6 +23,9 @@ window.MathJax = {
       pt: '{\\class{mjx-pt}{\\pi_{\\text{trainer}}}}',
       smu: '{\\class{mjx-ps}{\\mu}}',
       pmodel: '{\\class{mjx-pt}{p}}',
+      // The vLLM sampler and the FSDP trainer in "When Speed Kills Stability".
+      pvllm: '{\\class{mjx-ps}{\\pi_{\\theta}^{\\text{vllm}}}}',
+      pfsdp: '{\\class{mjx-pt}{\\pi_{\\theta}^{\\text{fsdp}}}}',
     },
   },
   loader: {
