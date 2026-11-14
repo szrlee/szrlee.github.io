@@ -1119,3 +1119,144 @@ footer.site-footer {
   .wx-row { grid-template-columns: 3.4rem minmax(0, 1fr); gap: 0 0.7rem; }
   .wx-summary { display: none; }
 }
+
+// ---------- Post sidebar (layouts/partials/post/sidebar.html) ----------
+// Narrow screens: the blocks follow the article. Wide screens: they sit in the right margin,
+// so the title and text column stay where they are, and the TOC and notation stick.
+
+.post-sidebar {
+  margin: 3rem 0 0;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--hp-rule);
+  font-family: var(--hp-sans);
+  font-size: 0.85rem;
+  color: var(--hp-ink-soft);
+
+  .ps-toc { display: none; }
+}
+
+.ps-block { margin-bottom: 1.6rem; }
+
+.ps-title {
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: var(--hp-muted);
+  margin: 0 0 0.55rem;
+}
+
+.ps-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-bottom: 0.55rem;
+  .ps-title { margin: 0; }
+}
+
+.ps-copy {
+  font: 500 0.72rem var(--hp-sans);
+  color: var(--hp-accent);
+  background: none;
+  border: 1px solid var(--hp-rule);
+  border-radius: var(--hp-radius);
+  padding: 0.15rem 0.55rem;
+  cursor: pointer;
+  &:hover { border-color: var(--hp-accent); }
+  &:focus-visible { outline: 2px solid var(--hp-accent); outline-offset: 2px; }
+}
+
+.ps-bibtex {
+  font: 0.66rem/1.5 var(--hp-mono);
+  background: var(--hp-panel);
+  color: var(--hp-ink-soft);
+  border: 0;
+  border-radius: var(--hp-radius);
+  padding: 0.6rem 0.7rem;
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  max-height: 14rem;
+  overflow-y: auto;
+}
+
+.ps-links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  li { margin: 0 0 0.6rem; line-height: 1.35; }
+  a {
+    color: var(--hp-ink);
+    text-decoration: underline;
+    text-decoration-color: var(--hp-underline);
+    text-decoration-thickness: 1px;
+    text-underline-offset: 3px;
+    &:hover { color: var(--hp-accent); }
+  }
+}
+
+.ps-note { display: block; margin-top: 0.15rem; font-size: 0.78rem; color: var(--hp-muted); }
+
+.ps-updates {
+  summary { cursor: pointer; margin: 0; }
+  ul { list-style: none; margin: 0.6rem 0 0; padding: 0; }
+  li { margin: 0 0 0.6rem; font-size: 0.8rem; line-height: 1.4; }
+}
+
+.ps-date { display: block; font-size: 0.7rem; font-weight: 600; color: var(--hp-muted); }
+
+.ps-toc {
+  ul { list-style: none; margin: 0; padding: 0; }
+  ul ul { padding-left: 0.75rem; }
+  ul ul ul > li { display: none; }
+  li.is-open > ul > li,
+  ul ul ul > li.is-pinned { display: block; }
+  a {
+    display: block;
+    padding: 0.16rem 0 0.16rem 0.6rem;
+    border-left: 2px solid transparent;
+    color: var(--hp-muted);
+    text-decoration: none;
+    line-height: 1.3;
+    &:hover { color: var(--hp-ink); }
+    &.is-active { color: var(--hp-ink); border-left-color: var(--hp-accent); }
+  }
+  .is-pinned > a { color: var(--hp-accent); font-weight: 600; }
+  code { font-size: 0.9em; padding: 0; background: none; color: inherit; }
+}
+
+.ps-notation dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 0.4rem 0.7rem;
+  align-items: baseline;
+  margin: 0;
+  dt { font-weight: 400; }
+  dd { margin: 0; font-size: 0.8rem; line-height: 1.35; }
+}
+
+@media (min-width: 1400px) {
+  .article-container.has-post-sidebar { position: relative; }
+
+  .post-sidebar {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: calc(100% + 40px);
+    width: 250px;
+    margin: 0;
+    padding: 0;
+    border: 0;
+
+    .ps-toc { display: block; }
+  }
+
+  .post-sidebar-sticky {
+    position: sticky;
+    top: 88px;
+    max-height: calc(100vh - 110px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+  }
+}

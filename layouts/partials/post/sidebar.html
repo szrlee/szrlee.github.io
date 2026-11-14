@@ -1,0 +1,133 @@
+{{- /*
+  Post sidebar, driven by front matter:
+
+    citation: |            BibTeX, shown with a copy button
+    sidebar:
+      toc: true            table of contents from the post's headings
+      toc_depth: 4         deepest heading level listed (default 4; level 4 opens with its section)
+      toc_pin: [id, ...]   heading ids that stay visible even when their section is closed
+      links:               groups of links: [{title, items: [{text, url, note}]}]
+      notation:            [{sym: 'LaTeX', text: 'markdown'}]
+      updates:             [{date, text: 'markdown'}]
+
+  Wide screens: it sits in the right margin, and the table of contents and notation stick while reading.
+  Narrow screens: the blocks follow the article and the table of contents is hidden.
+*/ -}}
+{{- $p := .Params.sidebar -}}
+<aside class="post-sidebar" aria-label="About this post">
+
+  <div class="post-sidebar-static">
+    {{- with .Params.citation }}
+    <section class="ps-block ps-cite">
+      <div class="ps-head">
+        <div class="ps-title">Cite this</div>
+        <button type="button" class="ps-copy" data-copy-target="ps-bibtex">Copy BibTeX</button>
+      </div>
+      <pre class="ps-bibtex" id="ps-bibtex">{{ trim . " \n" }}</pre>
+    </section>
+    {{- end }}
+
+    {{- range $p.links }}
+    <section class="ps-block">
+      <div class="ps-title">{{ .title }}</div>
+      <ul class="ps-links">
+        {{- range .items }}
+        <li><a href="{{ .url }}">{{ .text }}</a>{{ with .note }}<span class="ps-note">{{ . | markdownify }}</span>{{ end }}</li>
+        {{- end }}
+      </ul>
+    </section>
+    {{- end }}
+
+    {{- with $p.updates }}
+    <section class="ps-block">
+      <details class="ps-updates">
+        <summary class="ps-title">Updates since publication ({{ len . }})</summary>
+        <ul>
+          {{- range . }}
+          <li><span class="ps-date">{{ .date }}</span>{{ .text | markdownify }}</li>
+          {{- end }}
+        </ul>
+      </details>
+    </section>
+    {{- end }}
+  </div>
+
+  <div class="post-sidebar-sticky">
+    {{- if and $p.toc .Fragments.Headings }}
+    <nav class="ps-block ps-toc" aria-label="On this page">
+      <div class="ps-title">On this page</div>
+      <ul>{{ partial "post/sidebar_toc" (dict "headings" .Fragments.Headings "level" 1 "depth" ($p.toc_depth | default 4) "pin" ($p.toc_pin | default slice)) }}</ul>
+    </nav>
+    {{- end }}
+
+    {{- with $p.notation }}
+    <section class="ps-block ps-notation">
+      <div class="ps-title">Notation</div>
+      <dl>
+        {{- range . }}
+        <dt>{{ printf "$%s$" .sym }}</dt><dd>{{ .text | markdownify }}</dd>
+        {{- end }}
+      </dl>
+    </section>
+    {{- end }}
+  </div>
+
+</aside>
+
+<script>
+(function () {
+  document.querySelectorAll('.post-sidebar .ps-copy').forEach(function (button) {
+    button.addEventListener('click', function () {
+      var source = document.getElementById(button.dataset.copyTarget);
+      if (!source) return;
+      var label = button.textContent;
+      var done = function () {
+        button.textContent = 'Copied';
+        setTimeout(function () { button.textContent = label; }, 1500);
+      };
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(source.textContent).then(done);
+        return;
+      }
+      var range = document.createRange();
+      range.selectNodeContents(source);
+      var selection = window.getSelection();
+      selection.removeAllRanges();
+      selection.addRange(range);
+      try { document.execCommand('copy'); done(); } catch (e) {}
+      selection.removeAllRanges();
+    });
+  });
+
+  var toc = document.querySelector('.post-sidebar .ps-toc');
+  if (!toc) return;
+  var links = [].slice.call(toc.querySelectorAll('a[data-toc-id]'));
+  var headings = links.map(function (a) { return document.getElementById(a.dataset.tocId); });
+  var box = toc.closest('.post-sidebar-sticky');
+  var pending = false;
+
+  function update() {
+    pending = false;
+    var current = -1;
+    for (var i = 0; i < headings.length; i++) {
+      if (headings[i] && headings[i].getBoundingClientRect().top < 120) current = i; else if (headings[i]) break;
+    }
+    toc.querySelectorAll('.is-open, .is-active').forEach(function (el) { el.classList.remove('is-open', 'is-active'); });
+    if (current < 0) return;
+    var link = links[current];
+    link.classList.add('is-active');
+    for (var el = link.parentElement; el && el !== toc; el = el.parentElement) {
+      if (el.tagName === 'LI') el.classList.add('is-open');
+    }
+    if (box && box.scrollHeight > box.clientHeight) {
+      var r = link.getBoundingClientRect(), b = box.getBoundingClientRect();
+      if (r.top < b.top || r.bottom > b.bottom) box.scrollTop += r.top - b.top - b.height / 3;
+    }
+  }
+
+  window.addEventListener('scroll', function () {
+    if (!pending) { pending = true; requestAnimationFrame(update); }
+  }, { passive: true });
+  update();
+})();
+</script>

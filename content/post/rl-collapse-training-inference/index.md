@@ -24,6 +24,70 @@ lastmod: '2026-11-15T00:00:00Z'
 featured: true
 math: true
 draft: false
+
+citation: |
+  @online{liu-li-2025-rl-collapse,
+    title = {When Speed Kills Stability: Demystifying {RL} Collapse from the Training-Inference Mismatch},
+    author = {Liu, Jiacai and Li, Yingru and Fu, Yuqian and Wang, Jiawei and Liu, Qian and Shen, Yu},
+    year = {2025},
+    month = sep,
+    url = {https://richardli.xyz/rl-collapse}
+  }
+
+sidebar:
+  toc: true
+  toc_pin: [mis]
+  links:
+    - title: 'Series: RL Collapse'
+      items:
+        - text: 'Part 1: Why Off-Policy Breaks RL'
+          note: 'Bias (total variation) and variance (χ²) as two failure modes, in an SGA framework.'
+          url: '/post/rl-collapse-part1/'
+        - text: 'Part 2: Token vs. Sequence-Level Correction'
+          note: 'Token-level IS is biased; sequence-level IS is unbiased but has exponential variance.'
+          url: '/post/rl-collapse-part2/'
+        - text: 'Part 3: Trust Region Optimization via Sequence Masking'
+          note: 'Seq-MIS, and the two-sided, length-invariant Geo-Mask.'
+          url: '/post/rl-collapse-part3/'
+    - title: Related
+      items:
+        - text: 'Trust Region Masking (ICML 2026)'
+          note: 'The follow-up paper.'
+          url: 'https://arxiv.org/abs/2512.23075'
+        - text: 'Rollout Correction in VeRL'
+          note: 'MIS and sequence-level correction in a public training stack.'
+          url: 'https://verl.readthedocs.io/en/latest/algo/rollout_corr.html'
+        - text: 'Original Notion version'
+          note: 'As first published, September 17, 2025.'
+          url: 'https://yingru.notion.site/When-Speed-Kills-Stability-Demystifying-RL-Collapse-from-the-Training-Inference-Mismatch-271211a558b7808d8b12d403fd15edda'
+  notation:
+    - sym: '\pvllm'
+      text: 'vLLM sampler, the behavior policy; written μ in Parts 1–3.'
+    - sym: '\pfsdp'
+      text: 'FSDP trainer, the target policy; written π in Parts 1–3.'
+    - sym: '\rho(y|x)'
+      text: 'Sequence-level ratio, trainer over sampler; per-token ratio ρ_t.'
+    - sym: 'C'
+      text: 'Threshold: TIS clips the ratio at C, MIS masks sequences above it.'
+  updates:
+    - date: 'Dec 2, 2025'
+      text: '[DeepSeek-V3.2](https://arxiv.org/abs/2512.02556) uses a length-normalized sequence mask, closely related to our geometric sequence masking.'
+    - date: 'Dec 1, 2025'
+      text: 'Discussed in [Stabilizing Reinforcement Learning with LLMs: Formulation and Practices](https://arxiv.org/abs/2512.01374) from the Qwen team.'
+    - date: 'Nov 12, 2025'
+      text: 'Rollout Correction for general off-policy problems merged into VeRL: [usage](https://verl.readthedocs.io/en/latest/algo/rollout_corr.html), [more details](https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html) (Yingru Li).'
+    - date: 'Nov 10, 2025'
+      text: 'Discussed in a [vLLM blog post](https://blog.vllm.ai/2025/11/10/bitwise-consistent-train-inference.html), which implemented bitwise-consistent on-policy RL.'
+    - date: 'Oct 31, 2025'
+      text: 'The VeRL fully async module integrated our work ([PR](https://github.com/volcengine/verl/pull/3955)).'
+    - date: 'Oct 20, 2025'
+      text: 'Slime integrated our work ([PR](https://github.com/THUDM/slime/pull/429)), by SGLang RL: Chenyang Zhao and Jiajun Li.'
+    - date: 'Oct 16, 2025'
+      text: 'Cited by [SWE-grep](https://cognition.ai/blog/swe-grep#motivation) at Cognition, which also uses sequence-level masked importance sampling.'
+    - date: 'Oct 15, 2025'
+      text: 'A Megatron training crash was resolved with geometric-level masking.'
+    - date: 'Oct 13, 2025'
+      text: '[VeRL 0.6.0](https://github.com/volcengine/verl/releases/tag/v0.6.0) integrated our work ([PR](https://github.com/volcengine/verl/pull/3694)), including sequence masking with the geometric mean of the importance weight (Geo-MIS/Geo-RS) (Yingru Li).'
 ---
 
 **Authors:** [Jiacai Liu](https://www.jiacailiu.cn/)\*, [Yingru Li](/)\*†, Yuqian Fu, Jiawei Wang, Qian Liu, Yu Shen†
@@ -56,33 +120,6 @@ The relentless push for faster inference has created a dangerous "training-infer
 - **Low-probability tokens are where training breaks.** The training-inference mismatch is most severe for these tokens, and the batches where it spikes are the ones where gradients explode and training suddenly fails ([§3.3](#low-probability-tokens)).
 - **Hardware variability complicates the problem.** Different GPU architectures change the size of the mismatch unpredictably, so the same agentic training setup can train stably on one machine and collapse on another ([§3.5](#hardware)).
 - **Sequence-level correction is the principled fix, and MIS is our practical form of it.** Token-level corrections reweight each token but not the distribution of prefixes, and in our multi-turn tool-use runs they still collapsed. A single sequence-level ratio corrects the whole trajectory, and masking the sequences outside the trust region (MIS) kept training stable more than twice as long as the uncorrected run ([§4.2.1](#distribution-correction), [§4.2.2](#mis)).
-
-<details class="spoiler">
-<summary>Updates since publication</summary>
-
-- **Dec 2, 2025.** [DeepSeek-V3.2](https://arxiv.org/abs/2512.02556) uses a length-normalized sequence mask, closely related to our **geometric sequence masking**, to deal with training-inference mismatch and general off-policy training instability.
-- **Dec 1, 2025.** Our work is discussed in [Stabilizing Reinforcement Learning with LLMs: Formulation and Practices](https://arxiv.org/abs/2512.01374) from the **Qwen team**.
-- **Nov 12, 2025.** Rollout Correction for general off-policy problems was merged into VeRL: [usage](https://verl.readthedocs.io/en/latest/algo/rollout_corr.html), [more details](https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html) ([Yingru Li](/)).
-- **Nov 10, 2025.** Our work was discussed in a [vLLM blog post](https://blog.vllm.ai/2025/11/10/bitwise-consistent-train-inference.html), where they implemented "Bitwise Consistent On-Policy Reinforcement Learning".
-- **Oct 31, 2025.** The VeRL fully async module integrated our work ([PR](https://github.com/volcengine/verl/pull/3955)).
-- **Oct 20, 2025.** Slime integrated our work ([PR](https://github.com/THUDM/slime/pull/429)), by SGLang RL: [Chenyang Zhao](https://github.com/zhaochenyang20) and [Jiajun Li](https://www.linkedin.com/in/jiajun-li-guapisolo/).
-- **Oct 16, 2025.** Our work is cited by [SWE-grep](https://cognition.ai/blog/swe-grep#motivation) at Cognition, which also uses sequence-level **masked** importance sampling (MIS) to address the training-inference mismatch.
-- **Oct 15, 2025.** A Megatron training crash was resolved with geometric-level masking.
-- **Oct 13, 2025.** VeRL integrated our work in [VeRL 0.6.0](https://github.com/volcengine/verl/releases/tag/v0.6.0) ([PR](https://github.com/volcengine/verl/pull/3694)), including the newly introduced ***sequence masking/rejection with the geometric mean of the importance weight (Geo-MIS/Geo-RS)*** ([Yingru Li](/)).
-
-</details>
-
-<div class="alert alert-note">
-<div>
-
-**Deeper analysis.** For a rigorous theoretical breakdown of this problem, we published a three-part series. It writes the sampler ({{< math >}}$\pvllm${{< /math >}} here) as {{< math >}}$\mu${{< /math >}} and the trainer ({{< math >}}$\pfsdp${{< /math >}} here) as {{< math >}}$\pi${{< /math >}}.
-
-- **[Part 1: Why Off-Policy Breaks RL — An SGA Analysis Framework](/post/rl-collapse-part1/).** *Known (TRPO theory):* the surrogate objective {{< math >}}$L_\mu(\pi)${{< /math >}} is a first-order Taylor approximation of the RL objective {{< math >}}$J(\pi)${{< /math >}}; the TRPO lower bound {{< math >}}$J(\pi) \ge L_\mu(\pi) - \kappa \cdot T^2 \cdot D_{TV}^{\max}${{< /math >}} shows the approximation error grows with {{< math >}}$T^2${{< /math >}}, so the trust region must shrink as {{< math >}}$\delta \propto 1/T^2${{< /math >}}. *Our insight:* token-level IS (PPO/GRPO) computes {{< math >}}$\nabla L_\mu${{< /math >}}, not {{< math >}}$\nabla J${{< /math >}}. It corrects the token distribution but not the state distribution mismatch ({{< math >}}$d_\mu \ne d_\pi${{< /math >}}), resulting in {{< math >}}$O(T^2 D_{TV}^{\max})${{< /math >}} bias. We formalize two failure modes via a stochastic-gradient-ascent (SGA) lemma: **bias** (measured by {{< math >}}$D_{TV}${{< /math >}}) and **variance** (measured by {{< math >}}$\chi^2${{< /math >}}-divergence), and these metrics are not interchangeable.
-- **[Part 2: Applying the SGA Framework — Token vs. Sequence-Level Correction](/post/rl-collapse-part2/).** Token-level IS (PPO/GRPO) has {{< math >}}$O(T^2 D_{TV}^{\max})${{< /math >}} bias from the surrogate's first-order approximation error; sequence-level IS is unbiased but has exponential variance {{< math >}}$O((1+\bar{\chi}^2_{\max})^T)${{< /math >}}. Seq-TIS achieves a controllable bias-variance trade-off by clipping {{< math >}}$\rho(y) \to \min(\rho(y), C)${{< /math >}}. **Key conclusion: this bias is a sequence-level problem requiring sequence-level solutions when it is non-negligible.**
-- **[Part 3: Trust Region Optimization via Sequence Masking](/post/rl-collapse-part3/).** Trust region constraints keep the surrogate a valid approximation. (1) **Seq-MIS** enforces a hard trust region via rejection, {{< math >}}$\mathbb{I}(\rho \le C) \cdot \rho \cdot f${{< /math >}}, excluding OOD samples entirely. (2) **Geo-Mask** keeps a sequence only when the geometric mean {{< math >}}$\rho_{\text{geo}}=\rho^{1/T}${{< /math >}} lies in {{< math >}}$[C_{\text{low}}, C_{\text{high}}]${{< /math >}}: a two-sided, **length-invariant per-token trust region**, a practical form of TRPO's hard trust region for LLMs that avoids systematically rejecting long sequences.
-
-</div>
-</div>
 
 ---
 
@@ -707,15 +744,3 @@ The training-inference mismatch is not a niche bug but a fundamental, growing ch
 We hypothesize that the mismatch between inference engines (e.g., vLLM) and training frameworks (e.g., Megatron-LM) will also be a significant issue for **Mixture-of-Experts (MoE) RL**, an interesting and critical direction for future work.
 
 **Since publication.** [Part 3](/post/rl-collapse-part3/) of the series and the follow-up paper, [Trust Region Masking](https://arxiv.org/abs/2512.23075), develop MIS into a two-sided geometric sequence mask (Geo-Mask in Part 3; Geo-MIS/Geo-RS in VeRL). It keeps a sequence only when the per-token geometric mean of the ratio, {{< math >}}$\rho^{1/T}${{< /math >}}, lies within {{< math >}}$[C_{\text{low}}, C_{\text{high}}]${{< /math >}}, so long responses are not rejected systematically and the low tail of [§3.3](#low-probability-tokens) is masked too. This length-invariant form is the one now in VeRL, DeepSeek-V3.2 uses a closely related length-normalized sequence mask, and it is what we recommend today.
-
-## Citation
-
-```bibtex
-@online{liu-li-2025-rl-collapse,
-  title = {When Speed Kills Stability: Demystifying {RL} Collapse from the Training-Inference Mismatch},
-  author = {Liu, Jiacai and Li, Yingru and Fu, Yuqian and Wang, Jiawei and Liu, Qian and Shen, Yu},
-  year = {2025},
-  month = sep,
-  url = {https://richardli.xyz/rl-collapse}
-}
-```

@@ -1,0 +1,22 @@
+{{- /* List items for the sidebar table of contents, from .Fragments.Headings.
+       `level` is the heading level of `headings` (Hugo 0.119 headings carry no Level field, so it is
+       tracked by recursion); items deeper than `depth` are dropped. Headings without an id (the
+       level-1 root above the h2s, or a skipped level) are not listed, but their children are.
+       Ids in `pin` stay visible when their section is closed. */ -}}
+{{- $level := .level -}}
+{{- $depth := .depth -}}
+{{- $pin := .pin -}}
+{{- range .headings }}
+  {{- if not .ID }}
+    {{- if lt $level $depth }}
+    {{- partial "post/sidebar_toc" (dict "headings" .Headings "level" (add $level 1) "depth" $depth "pin" $pin) }}
+    {{- end }}
+  {{- else if le $level $depth }}
+  <li{{ if in $pin .ID }} class="is-pinned"{{ end }}>
+    <a href="#{{ .ID }}" data-toc-id="{{ .ID }}">{{ .Title | safeHTML }}</a>
+    {{- if and .Headings (lt $level $depth) }}
+    <ul>{{ partial "post/sidebar_toc" (dict "headings" .Headings "level" (add $level 1) "depth" $depth "pin" $pin) }}</ul>
+    {{- end }}
+  </li>
+  {{- end }}
+{{- end }}
