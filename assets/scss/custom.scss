@@ -1295,15 +1295,6 @@ footer.site-footer {
 
   .post-sidebar-left { left: auto; right: calc(100% + 40px); }
 
-  // The right margin belongs to the sidebar, so wide figures break out to the left only and
-  // keep their right edge on the text column. 50vw + 316px leaves 24px at the window edge.
-  .has-post-sidebar .stepfig--wide {
-    --wide: min(1100px, calc(50vw + 316px));
-    width: var(--wide);
-    max-width: none;
-    margin-left: calc(100% - var(--wide));
-    transform: none;
-  }
 
   .post-sidebar-sticky {
     position: sticky;
@@ -1311,5 +1302,14 @@ footer.site-footer {
     max-height: calc(100vh - 110px);
     overflow-y: auto;
     scrollbar-width: thin;
+  }
+
+  // Posts with wide figures use both margins further down the page, so nothing may travel
+  // there: the blocks at the top stay, the table of contents is left out.
+  .has-post-sidebar:has(.stepfig--wide) .post-sidebar-sticky {
+    position: static;
+    max-height: none;
+    overflow: visible;
+    .ps-toc { display: none; }
   }
 }
