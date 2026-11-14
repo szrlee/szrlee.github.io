@@ -111,7 +111,7 @@ papers:
     group: bias
     selected: true
     title: Trust Region Masking for Long-Horizon LLM Reinforcement Learning
-    authors: Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Baoxiang Wang
+    authors: Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Qian Liu, Baoxiang Wang
     venue: ICML 2026
     note: "The principled form of MIS: a sequence-level trust-region mask with per-token importance sampling; a first-class algorithm in veRL."
     links:

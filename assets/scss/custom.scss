@@ -1295,6 +1295,16 @@ footer.site-footer {
 
   .post-sidebar-left { left: auto; right: calc(100% + 40px); }
 
+  // The right margin belongs to the sidebar, so wide figures break out to the left only and
+  // keep their right edge on the text column. 50vw + 316px leaves 24px at the window edge.
+  .has-post-sidebar .stepfig--wide {
+    --wide: min(1100px, calc(50vw + 316px));
+    width: var(--wide);
+    max-width: none;
+    margin-left: calc(100% - var(--wide));
+    transform: none;
+  }
+
   .post-sidebar-sticky {
     position: sticky;
     top: 88px;

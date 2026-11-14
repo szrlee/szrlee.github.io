@@ -64,7 +64,7 @@ citation: |
   }
 ---
 
-**Authors:** Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Baoxiang Wang
+**Authors:** Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Qian Liu, Baoxiang Wang
 
 ---
 
