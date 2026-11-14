@@ -116,8 +116,47 @@
     });
   });
 
+  // Article content wider than the text column (wide figures, long formulas) passes under the
+  // margin columns. A sidebar block fades out while such an element is beside it.
+  var article = document.querySelector('.article-style');
+  var units = [].slice.call(document.querySelectorAll('.post-sidebar-static, .post-sidebar-sticky, .post-sidebar-left .ps-block'));
+  var wideOnes = [];
+  function findWide() {
+    wideOnes = [];
+    if (!article || !units.length || getComputedStyle(units[0].closest('.post-sidebar')).position !== 'absolute') return yieldToWide();
+    var col = article.getBoundingClientRect();
+    article.querySelectorAll('figure, img, table, pre, iframe, .alert, mjx-container').forEach(function (el) {
+      var r = el.getBoundingClientRect();
+      if (r.width && (r.right > col.right + 24 || r.left < col.left - 24)) wideOnes.push(el);
+    });
+    yieldToWide();
+  }
+  function yieldToWide() {
+    var rects = wideOnes.map(function (el) { return el.getBoundingClientRect(); });
+    units.forEach(function (unit) {
+      var u = unit.getBoundingClientRect();
+      var hit = rects.some(function (r) {
+        return r.right > u.left - 16 && r.left < u.right + 16 && r.bottom > u.top - 16 && r.top < u.bottom + 16;
+      });
+      unit.classList.toggle('is-yielding', hit);
+    });
+  }
+  // Run `fn` on the next frame, or shortly after if no frame comes (background tab).
+  function soon(fn) {
+    var ran = false;
+    function run() { if (!ran) { ran = true; fn(); } }
+    requestAnimationFrame(run);
+    setTimeout(run, 120);
+  }
+  findWide();
+  window.addEventListener('load', function () { findWide(); setTimeout(findWide, 2000); });
+  window.addEventListener('resize', findWide);
+
   var toc = document.querySelector('.post-sidebar .ps-toc');
-  if (!toc) return;
+  if (!toc) {
+    window.addEventListener('scroll', function () { soon(yieldToWide); }, { passive: true });
+    return;
+  }
   var links = [].slice.call(toc.querySelectorAll('a[data-toc-id]'));
   var headings = links.map(function (a) { return document.getElementById(a.dataset.tocId); });
   var box = toc.closest('.post-sidebar-sticky');
@@ -125,6 +164,7 @@
 
   function update() {
     pending = false;
+    yieldToWide();
     var current = -1;
     for (var i = 0; i < headings.length; i++) {
       if (headings[i] && headings[i].getBoundingClientRect().top < 120) current = i; else if (headings[i]) break;
@@ -143,7 +183,7 @@
   }
 
   window.addEventListener('scroll', function () {
-    if (!pending) { pending = true; requestAnimationFrame(update); }
+    if (!pending) { pending = true; soon(update); }
   }, { passive: true });
   update();
 })();

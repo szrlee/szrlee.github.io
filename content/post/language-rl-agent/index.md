@@ -441,8 +441,8 @@ The agent's macro actions {{< math >}}$A_k${{< /math >}} are a series of predefi
 
 - **edit**: Modify files—itself is a composite tool
   - View file: {{< math >}}$A_k = (\text{edit}, \{\text{command: "view", path: string, view\_range: [int, int]}\})${{< /math >}}
-  - String replacement: {{< math >}}$A_k = (\text{edit}, \{\text{command: "str\_replace", path: string, old\_str: string, new\_str: string}\})${{< /math >}}
-  - Insert code: {{< math >}}$A_k = (\text{edit}, \{\text{command: "insert", path: string, new\_str: string, insert\_line: int}\})${{< /math >}}
+  - String replacement: {{< math >}}$A_k = (\text{edit}, \{\text{command: "str\_replace", path: string,}${{< /math >}} {{< math >}}$\text{old\_str: string, new\_str: string}\})${{< /math >}}
+  - Insert code: {{< math >}}$A_k = (\text{edit}, \{\text{command: "insert", path: string,}${{< /math >}} {{< math >}}$\text{new\_str: string, insert\_line: int}\})${{< /math >}}
 
 - **submit**: Terminate task and submit final solution
   - Formal representation: {{< math >}}$A_k = (\text{submit}, \{\})${{< /math >}}
