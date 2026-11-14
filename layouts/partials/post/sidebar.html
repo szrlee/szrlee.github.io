@@ -1,10 +1,11 @@
 {{- /*
-  Post sidebar, driven by front matter:
+  Post sidebar, on for every post that has something to show (see post/sidebar_data.html).
+  Front matter, all optional:
 
     citation: |            BibTeX, shown with a copy button
     series: [name]         (existing param) adds the series list, ordered by series_order
     sidebar:
-      toc: true            table of contents from the post's headings
+      toc: false           turn off the table of contents (on by default for 3+ headings)
       toc_depth: 4         deepest heading level listed (default 4; level 4 opens with its section)
       toc_pin: [id, ...]   heading ids that stay visible even when their section is closed
       links:               groups of links: [{title, items: [{text, url, note}]}]
@@ -15,7 +16,8 @@
   notation, which stick while reading; the left margin holds the updates.
   Narrow screens: the blocks follow the article, updates last, and the table of contents is hidden.
 */ -}}
-{{- $p := .Params.sidebar -}}
+{{- $sd := partial "post/sidebar_data" . -}}
+{{- $p := $sd.p -}}
 <aside class="post-sidebar" aria-label="About this post">
 
   <div class="post-sidebar-static">
@@ -29,20 +31,16 @@
     </section>
     {{- end }}
 
-    {{- with .Params.series }}
-    {{- $name := index . 0 }}
-    {{- $parts := sort (where (where site.RegularPages "Section" "post") "Params.series" "intersect" (slice $name)) "Params.series_order" }}
-    {{- if gt (len $parts) 1 }}
+    {{- if gt (len $sd.parts) 1 }}
     <section class="ps-block">
-      <div class="ps-title">Series: {{ $name }}</div>
+      <div class="ps-title">Series: {{ $sd.series }}</div>
       <ol class="ps-links ps-series">
-        {{- range $parts }}
+        {{- range $sd.parts }}
         {{- $title := replaceRE `^Part \d+:\s*` "" .LinkTitle }}
         <li><span class="ps-part">Part {{ .Params.series_order }}</span>{{ if eq .RelPermalink $.RelPermalink }}<span class="ps-current" aria-current="page">{{ $title }}</span>{{ else }}<a href="{{ .RelPermalink }}">{{ $title }}</a>{{ end }}</li>
         {{- end }}
       </ol>
     </section>
-    {{- end }}
     {{- end }}
 
     {{- range $p.links }}
@@ -59,7 +57,7 @@
   </div>
 
   <div class="post-sidebar-sticky">
-    {{- if and $p.toc .Fragments.Headings }}
+    {{- if $sd.toc }}
     <nav class="ps-block ps-toc" aria-label="On this page">
       <div class="ps-title">On this page</div>
       <ul>{{ partial "post/sidebar_toc" (dict "headings" .Fragments.Headings "level" 1 "depth" ($p.toc_depth | default 4) "pin" ($p.toc_pin | default slice)) }}</ul>

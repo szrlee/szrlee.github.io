@@ -30,6 +30,20 @@ image:
 
 # Projects (optional)
 projects: []
+
+sidebar:
+  links:
+    - title: Links
+      items:
+        - text: 'Mathematical formulations'
+          note: 'The full documentation page.'
+          url: 'https://verl.readthedocs.io/en/latest/algo/rollout_corr_math.html'
+        - text: 'Usage guide'
+          note: 'How to enable it in veRL.'
+          url: 'https://verl.readthedocs.io/en/latest/algo/rollout_corr.html'
+        - text: 'Code'
+          note: 'The veRL repository.'
+          url: 'https://github.com/volcengine/verl'
 ---
 
 **Author:** [Yingru Li](https://richardli.xyz)

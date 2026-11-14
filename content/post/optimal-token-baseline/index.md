@@ -39,6 +39,26 @@ image:
 
 # Projects (optional)
 projects: []
+
+sidebar:
+  links:
+    - title: Links
+      items:
+        - text: 'Full article'
+          note: 'On Notion.'
+          url: 'https://yingru.notion.site/The-Optimal-Token-Baseline-399211a558b782cfa936014c0d42dfb8'
+        - text: 'Paper'
+          note: 'arXiv 2602.07078.'
+          url: 'https://arxiv.org/abs/2602.07078'
+        - text: 'OTB in veRL'
+          note: 'Documentation.'
+          url: 'https://verl.readthedocs.io/en/latest/algo/otb.html'
+        - text: 'Code'
+          note: 'veRL pull request.'
+          url: 'https://github.com/volcengine/verl/pull/4678'
+        - text: 'Dataset'
+          note: 'On Hugging Face.'
+          url: 'https://huggingface.co/datasets/Jiawei415/DPAO_filter'
 ---
 
 **Project Lead: Yingru Li**

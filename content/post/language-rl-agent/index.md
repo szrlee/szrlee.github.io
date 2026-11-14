@@ -28,20 +28,15 @@ image:
 
 # Projects (optional)
 projects: []
----
 
-## Citation
-
-```bibtex
-@article{li2025languageagent,
-  title   = {Language as a Universal Interface for Reinforcement Learning Agents},
-  author  = {Li, Yingru},
-  journal = {Richard Li's Blog},
-  year    = {2025},
-  url     = {https://richardli.xyz/post/language-rl-agent/}
-}
-```
-
+citation: |
+  @article{li2025languageagent,
+    title   = {Language as a Universal Interface for Reinforcement Learning Agents},
+    author  = {Li, Yingru},
+    journal = {Richard Li's Blog},
+    year    = {2025},
+    url     = {https://richardli.xyz/post/language-rl-agent/}
+  }
 ---
 
 ## Introduction

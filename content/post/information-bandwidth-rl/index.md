@@ -18,6 +18,15 @@ lastmod: '2026-10-15T00:00:00Z'
 featured: true
 draft: false
 math: true
+
+citation: |
+  @article{li2025information,
+    title   = {Information Bandwidth in Reinforcement Learning},
+    author  = {Li, Yingru},
+    journal = {Richard Li's Blog},
+    year    = {2025},
+    url     = {https://richardli.xyz/post/information-bandwidth-rl/}
+  }
 ---
 
 {{% callout note %}}
@@ -185,17 +194,5 @@ Few bits explain why an RL update carries little. Which coordinates and directio
 ## Acknowledgements
 
 I thank [@mgostIH](https://x.com/mgostIH) for pointing out that REINFORCE with per-token returns {{< math >}}$G_t-b${{< /math >}} keeps the reward sequence, since each {{< math >}}$r_t${{< /math >}} can be read off two consecutive returns. The first version of this post analyzed only the scalar advantage and TD errors.
-
-## Citation
-
-```bibtex
-@article{li2025information,
-  title   = {Information Bandwidth in Reinforcement Learning},
-  author  = {Li, Yingru},
-  journal = {Richard Li's Blog},
-  year    = {2025},
-  url     = {https://richardli.xyz/post/information-bandwidth-rl/}
-}
-```
 
 *First posted October 2025; revised November 2025 and October 2026.*

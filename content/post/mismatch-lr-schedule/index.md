@@ -32,6 +32,17 @@ image:
 
 # Projects (optional)
 projects: []
+
+sidebar:
+  links:
+    - title: Links
+      items:
+        - text: 'Full article'
+          note: 'On Notion.'
+          url: 'https://yingru.notion.site/Beyond-Precision-Why-Training-Inference-Mismatch-is-an-Optimization-Problem-and-How-Simple-LR-Sched-2d9211a558b780f1a710f99dbdc403d3'
+        - text: 'Paper'
+          note: 'arXiv 2602.01826.'
+          url: 'https://arxiv.org/abs/2602.01826'
 ---
 
 **Corresponding Author: Yingru Li**

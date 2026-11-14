@@ -1,0 +1,15 @@
+{{- /* What the post sidebar has to show for this page; used by layouts/post/single.html and
+       partials/post/sidebar.html. The sidebar is on by default and appears whenever any block has
+       content. The table of contents is on unless `sidebar: {toc: false}`, and needs 3+ headings. */ -}}
+{{- $p := .Params.sidebar | default dict -}}
+{{- $toc := true -}}
+{{- if isset $p "toc" }}{{ $toc = index $p "toc" }}{{ end -}}
+{{- $toc = and $toc (ge (len .Fragments.Identifiers) 3) -}}
+{{- $series := "" -}}
+{{- $parts := slice -}}
+{{- with .Params.series -}}
+  {{- $series = index . 0 -}}
+  {{- $parts = sort (where (where site.RegularPages "Section" "post") "Params.series" "intersect" (slice $series)) "Params.series_order" -}}
+{{- end -}}
+{{- $show := or $toc .Params.citation $p.links $p.notation $p.updates (gt (len $parts) 1) -}}
+{{- return dict "p" $p "toc" $toc "series" $series "parts" $parts "show" (not (not $show)) -}}

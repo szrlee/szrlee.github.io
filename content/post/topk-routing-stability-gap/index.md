@@ -29,20 +29,15 @@ image:
 
 # Projects (optional)
 projects: []
----
 
-## Citation
-
-```bibtex
-@online{li-2025-topk-stability,
-  title = {The Stability Gap: Why Top-K Routing Breaks {RL} Optimization},
-  author = {Li, Yingru},
-  year = {2025},
-  month = dec,
-  url = {https://richardli.xyz/post/topk-routing-stability-gap/}
-}
-```
-
+citation: |
+  @online{li-2025-topk-stability,
+    title = {The Stability Gap: Why Top-K Routing Breaks {RL} Optimization},
+    author = {Li, Yingru},
+    year = {2025},
+    month = dec,
+    url = {https://richardli.xyz/post/topk-routing-stability-gap/}
+  }
 ---
 
 ## The Problem

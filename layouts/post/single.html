@@ -1,17 +1,19 @@
-{{- /* Post page: the theme's single layout plus an opt-in sidebar (front matter `sidebar:`). */ -}}
+{{- /* Post page: the theme's single layout plus the post sidebar (partials/post/sidebar.html),
+       shown whenever the post has something to put in it. */ -}}
 {{- define "main" -}}
+{{- $sd := partial "post/sidebar_data" . -}}
 
 <article class="article">
 
   {{ partial "page_header" . }}
 
-  <div class="article-container{{ with .Params.sidebar }} has-post-sidebar{{ end }}">
+  <div class="article-container{{ if $sd.show }} has-post-sidebar{{ end }}">
 
     <div class="article-style">
       {{ .Content }}
     </div>
 
-    {{ with .Params.sidebar }}{{ partial "post/sidebar" $ }}{{ end }}
+    {{ if $sd.show }}{{ partial "post/sidebar" . }}{{ end }}
 
     {{ partial "page_footer" . }}
 

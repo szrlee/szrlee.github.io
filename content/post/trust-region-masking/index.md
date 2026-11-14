@@ -31,6 +31,10 @@ projects: []
 
 # Links
 links:
+  - name: ICML 2026
+    url: 'https://proceedings.mlr.press/v306/li26dp.html'
+    icon_pack: fas
+    icon: file-alt
   - name: arXiv
     url: 'https://arxiv.org/abs/2512.23075'
     icon_pack: ai
@@ -43,6 +47,21 @@ links:
     url: 'https://github.com/volcengine/verl/pull/4544'
     icon_pack: fab
     icon: github
+
+citation: |
+  @InProceedings{pmlr-v306-li26dp,
+    title     = {Trust Region Masking for Long-Horizon {LLM} Reinforcement Learning},
+    author    = {Li, Yingru and Liu, Jiacai and Xu, Jiawei and Tong, Yuxuan and Li, Ziniu and Wang, Baoxiang},
+    booktitle = {Proceedings of the 43rd International Conference on Machine Learning},
+    pages     = {68742--68754},
+    year      = {2026},
+    editor    = {Zhang, Tong and Dudik, Miroslav and Jaggi, Martin and Agarwal, Alekh and Li, Sharon and Schuurmans, Dale and Zhu, Jerry and Berkenkamp, Felix and Dong, Hanze and Bietti, Alberto},
+    volume    = {306},
+    series    = {Proceedings of Machine Learning Research},
+    month     = {06--11 Jul},
+    publisher = {PMLR},
+    url       = {https://proceedings.mlr.press/v306/li26dp.html}
+  }
 ---
 
 **Authors:** Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Baoxiang Wang
@@ -173,16 +192,3 @@ TRM provides the **first non-vacuous monotonic improvement guarantees** for long
 6. **Discussion**: Limitations, Practical Considerations, Future Work
 7. **Conclusion**
 
----
-
-## Citation
-
-```bibtex
-@article{li2025trustregion,
-  title   = {Trust Region Masking for Long-Horizon LLM Reinforcement Learning},
-  author  = {Li, Yingru and Liu, Jiacai and Xu, Jiawei and Tong, Yuxuan and Li, Ziniu and Wang, Baoxiang},
-  journal = {arXiv preprint arXiv:2512.23075},
-  year    = {2025},
-  url     = {https://arxiv.org/abs/2512.23075}
-}
-```
