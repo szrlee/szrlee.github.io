@@ -20,6 +20,18 @@ draft: false
 series:
   - Off-Policy RL at Scale
 series_order: 2
+
+citation: |
+  @online{li-2026-offpolicy-gap-at-scale,
+    title  = {Keeping the Off-Policy Gap Fixed as RL Scales},
+    author = {Li, Yingru},
+    year   = {2026},
+    month  = oct,
+    url    = {https://richardli.xyz/post/offpolicy-gap-at-scale/}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -137,15 +149,3 @@ The same gauges tell you when a run has left the regime where the rule holds.
 - Y. Li, J. Liu, et al. [Trust Region Masking for Long-Horizon LLM Reinforcement Learning](https://arxiv.org/abs/2512.23075). ICML 2026.
 - P. Goyal, P. Dollár, R. Girshick, et al. [Accurate, Large Minibatch SGD: Training ImageNet in 1 Hour](https://arxiv.org/abs/1706.02677). 2017.
 - S. Malladi, K. Lyu, A. Panigrahi, S. Arora. [On the SDEs and Scaling Rules for Adaptive Gradient Algorithms](https://arxiv.org/abs/2205.10287). NeurIPS 2022.
-
-## Citation
-
-```bibtex
-@online{li-2026-offpolicy-gap-at-scale,
-  title  = {Keeping the Off-Policy Gap Fixed as RL Scales},
-  author = {Li, Yingru},
-  year   = {2026},
-  month  = oct,
-  url    = {https://richardli.xyz/post/offpolicy-gap-at-scale/}
-}
-```

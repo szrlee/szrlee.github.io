@@ -22,6 +22,18 @@ draft: false
 series:
   - The Shape of a Post-Training Update
 series_order: 2
+
+citation: |
+  @online{li-2026-sparsity-score-centering,
+    title  = {Sparsity Requires Score Centering},
+    author = {Li, Yingru},
+    year   = {2026},
+    month  = oct,
+    url    = {https://richardli.xyz/post/sparsity-score-centering/}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -290,15 +302,3 @@ Centering removes the shift exactly, and on its own it matches or beats importan
 - R. Rafailov, A. Sharma, E. Mitchell, et al. [Direct Preference Optimization: Your Language Model is Secretly a Reward Model](https://arxiv.org/abs/2305.18290). NeurIPS 2023.
 - J. Schulman, F. Wolski, P. Dhariwal, et al. [Proximal Policy Optimization Algorithms](https://arxiv.org/abs/1707.06347). arXiv, 2017.
 - Z. Shao, P. Wang, Q. Zhu, et al. [DeepSeekMath: Pushing the Limits of Mathematical Reasoning in Open Language Models](https://arxiv.org/abs/2402.03300). arXiv, 2024.
-
-## Citation
-
-```bibtex
-@online{li-2026-sparsity-score-centering,
-  title  = {Sparsity Requires Score Centering},
-  author = {Li, Yingru},
-  year   = {2026},
-  month  = oct,
-  url    = {https://richardli.xyz/post/sparsity-score-centering/}
-}
-```

@@ -90,7 +90,7 @@ sidebar:
       text: '[VeRL 0.6.0](https://github.com/volcengine/verl/releases/tag/v0.6.0) integrated our work ([PR](https://github.com/volcengine/verl/pull/3694)), including sequence masking with the geometric mean of the importance weight (Geo-MIS/Geo-RS) (Yingru Li).'
 ---
 
-**Authors:** [Jiacai Liu](https://www.jiacailiu.cn/)\*, [Yingru Li](/)\*†, Yuqian Fu, Jiawei Wang, Qian Liu, Yu Shen†
+**Authors:** [Jiacai Liu](https://scholar.google.com/citations?user=zt9Jfh4AAAAJ)\*, [Yingru Li](/)\*†, Yuqian Fu, Jiawei Wang, Qian Liu, Yu Shen†
 
 *\*Co-first authors. †Corresponding authors. Work done at ByteDance. First published September 17, 2025.*
 

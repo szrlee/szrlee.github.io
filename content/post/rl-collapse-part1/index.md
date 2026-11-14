@@ -16,6 +16,24 @@ categories:
 series:
   - RL Collapse
 series_order: 1
+
+citation: |
+  @online{liu-li-2025-rl-collapse,
+    title = {When Speed Kills Stability: Demystifying {RL} Collapse from the Training-Inference Mismatch},
+    author = {Liu, Jiacai and Li, Yingru and Fu, Yuqian and Wang, Jiawei and Liu, Qian and Shen, Yu},
+    year = {2025},
+    month = sep,
+    url = {https://richardli.xyz/rl-collapse}
+  }
+
+sidebar:
+  toc: true
+  links:
+    - title: Related
+      items:
+        - text: 'When Speed Kills Stability'
+          note: 'The original post that introduced MIS.'
+          url: '/post/rl-collapse-training-inference/'
 ---
 
 **Authors:** [Yingru Li](/), [Jiacai Liu](https://scholar.google.com/citations?user=zt9Jfh4AAAAJ)
@@ -50,20 +68,6 @@ This off-policy mismatch is not a minor technicality—it's a fundamental mathem
 
 **When does bias become catastrophic?** When off-policiness has diverse, uncontrolled sources—such as distributed system discrepancies, MoE expert routing shifts, or large policy changes.
 {{% /callout %}}
-
----
-
-## Citation
-
-```bibtex
-@online{liu-li-2025-rl-collapse,
-  title = {When Speed Kills Stability: Demystifying {RL} Collapse from the Training-Inference Mismatch},
-  author = {Liu, Jiacai and Li, Yingru and Fu, Yuqian and Wang, Jiawei and Liu, Qian and Shen, Yu},
-  year = {2025},
-  month = sep,
-  url = {https://richardli.xyz/rl-collapse}
-}
-```
 
 ---
 

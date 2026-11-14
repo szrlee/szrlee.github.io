@@ -22,6 +22,18 @@ draft: false
 series:
   - The Shape of a Post-Training Update
 series_order: 4
+
+citation: |
+  @online{li-2026-low-rank-hidden-space,
+    title  = {Sparse in the Vocabulary, Low-Rank in Hidden Space},
+    author = {Li, Yingru},
+    year   = {2026},
+    month  = oct,
+    url    = {https://richardli.xyz/post/low-rank-hidden-space/}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -277,15 +289,3 @@ This is the mean shift of [Part 2, section 3](/post/sparsity-score-centering/#3-
 - C. Eckart, G. Young. [The Approximation of One Matrix by Another of Lower Rank](https://doi.org/10.1007/BF02288367). Psychometrika, 1936.
 - B. Zhang, R. Sennrich. [Root Mean Square Layer Normalization](https://arxiv.org/abs/1910.07467). NeurIPS 2019.
 - Y. Li. [Information Bandwidth in Reinforcement Learning](/post/information-bandwidth-rl/). Blog, 2025.
-
-## Citation
-
-```bibtex
-@online{li-2026-low-rank-hidden-space,
-  title  = {Sparse in the Vocabulary, Low-Rank in Hidden Space},
-  author = {Li, Yingru},
-  year   = {2026},
-  month  = oct,
-  url    = {https://richardli.xyz/post/low-rank-hidden-space/}
-}
-```

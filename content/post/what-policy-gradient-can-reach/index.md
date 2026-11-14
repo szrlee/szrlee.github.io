@@ -21,6 +21,18 @@ draft: false
 series:
   - The Shape of a Post-Training Update
 series_order: 3
+
+citation: |
+  @online{li-2026-what-policy-gradient-can-reach,
+    title  = {What Policy Gradient Can Reach},
+    author = {Li, Yingru},
+    year   = {2026},
+    month  = oct,
+    url    = {https://richardli.xyz/post/what-policy-gradient-can-reach/}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -239,15 +251,3 @@ Choosing the sampler is the exploration problem, which [Exploration at Scale](/p
 - Y. Li. [Logit Dynamics in Softmax Policy Gradient Methods](https://arxiv.org/abs/2506.12912). arXiv, 2025.
 - Y. Zhang, S. Mukherjee, H. Peng. [Understanding LLM Parameter Update Sparsity through the Lens of Fisher](https://arxiv.org/abs/2609.36262). arXiv, 2026.
 - Y. Li, J. Xu, B. Wang, Z.-Q. Luo. [Scalable Exploration via Ensemble++](https://arxiv.org/abs/2407.13195). NeurIPS 2025.
-
-## Citation
-
-```bibtex
-@online{li-2026-what-policy-gradient-can-reach,
-  title  = {What Policy Gradient Can Reach},
-  author = {Li, Yingru},
-  year   = {2026},
-  month  = oct,
-  url    = {https://richardli.xyz/post/what-policy-gradient-can-reach/}
-}
-```

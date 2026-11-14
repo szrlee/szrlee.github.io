@@ -20,6 +20,17 @@ math: true
 series:
   - Exploration at Scale
 series_order: 1
+
+citation: |
+  @inproceedings{li2025ensemble,
+    title     = {Scalable Exploration via Ensemble++},
+    author    = {Li, Yingru and Xu, Jiawei and Wang, Baoxiang and Luo, Zhi-Quan},
+    booktitle = {Advances in Neural Information Processing Systems},
+    year      = {2025}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -119,14 +130,3 @@ This is Thompson sampling at the cost of one incremental step per data point and
 - Y. Li, J. Xu, L. Han, Z.-Q. Luo. [Q-Star Meets Scalable Posterior Sampling: Bridging Theory and Practice via HyperAgent](https://arxiv.org/abs/2402.10228). ICML 2024.
 - Z. Li, Y. Li, Y. Zhang, T. Zhang, Z.-Q. Luo. [HyperDQN: A Randomized Exploration Method for Deep Reinforcement Learning](https://openreview.net/forum?id=X0nrKAXu7g-). ICLR 2022.
 - D. Russo, B. Van Roy, A. Kazerouni, I. Osband, Z. Wen. [A Tutorial on Thompson Sampling](https://arxiv.org/abs/1707.02038). 2018.
-
-## Citation
-
-```bibtex
-@inproceedings{li2025ensemble,
-  title     = {Scalable Exploration via Ensemble++},
-  author    = {Li, Yingru and Xu, Jiawei and Wang, Baoxiang and Luo, Zhi-Quan},
-  booktitle = {Advances in Neural Information Processing Systems},
-  year      = {2025}
-}
-```

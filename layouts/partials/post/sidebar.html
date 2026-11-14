@@ -2,16 +2,18 @@
   Post sidebar, driven by front matter:
 
     citation: |            BibTeX, shown with a copy button
+    series: [name]         (existing param) adds the series list, ordered by series_order
     sidebar:
       toc: true            table of contents from the post's headings
       toc_depth: 4         deepest heading level listed (default 4; level 4 opens with its section)
       toc_pin: [id, ...]   heading ids that stay visible even when their section is closed
       links:               groups of links: [{title, items: [{text, url, note}]}]
       notation:            [{sym: 'LaTeX', text: 'markdown'}]
-      updates:             [{date, text: 'markdown'}]
+      updates:             [{date, text: 'markdown'}], shown in full in the left margin
 
-  Wide screens: it sits in the right margin, and the table of contents and notation stick while reading.
-  Narrow screens: the blocks follow the article and the table of contents is hidden.
+  Wide screens: the right margin holds citation, series and links, then the table of contents and
+  notation, which stick while reading; the left margin holds the updates.
+  Narrow screens: the blocks follow the article, updates last, and the table of contents is hidden.
 */ -}}
 {{- $p := .Params.sidebar -}}
 <aside class="post-sidebar" aria-label="About this post">
@@ -27,6 +29,22 @@
     </section>
     {{- end }}
 
+    {{- with .Params.series }}
+    {{- $name := index . 0 }}
+    {{- $parts := sort (where (where site.RegularPages "Section" "post") "Params.series" "intersect" (slice $name)) "Params.series_order" }}
+    {{- if gt (len $parts) 1 }}
+    <section class="ps-block">
+      <div class="ps-title">Series: {{ $name }}</div>
+      <ol class="ps-links ps-series">
+        {{- range $parts }}
+        {{- $title := replaceRE `^Part \d+:\s*` "" .LinkTitle }}
+        <li><span class="ps-part">Part {{ .Params.series_order }}</span>{{ if eq .RelPermalink $.RelPermalink }}<span class="ps-current" aria-current="page">{{ $title }}</span>{{ else }}<a href="{{ .RelPermalink }}">{{ $title }}</a>{{ end }}</li>
+        {{- end }}
+      </ol>
+    </section>
+    {{- end }}
+    {{- end }}
+
     {{- range $p.links }}
     <section class="ps-block">
       <div class="ps-title">{{ .title }}</div>
@@ -38,18 +56,6 @@
     </section>
     {{- end }}
 
-    {{- with $p.updates }}
-    <section class="ps-block">
-      <details class="ps-updates">
-        <summary class="ps-title">Updates since publication ({{ len . }})</summary>
-        <ul>
-          {{- range . }}
-          <li><span class="ps-date">{{ .date }}</span>{{ .text | markdownify }}</li>
-          {{- end }}
-        </ul>
-      </details>
-    </section>
-    {{- end }}
   </div>
 
   <div class="post-sidebar-sticky">
@@ -73,6 +79,19 @@
   </div>
 
 </aside>
+
+{{- with $p.updates }}
+<aside class="post-sidebar post-sidebar-left" aria-label="Updates since publication">
+  <section class="ps-block ps-updates">
+    <div class="ps-title">Updates since publication</div>
+    <ul>
+      {{- range . }}
+      <li><span class="ps-date">{{ .date }}</span>{{ .text | markdownify }}</li>
+      {{- end }}
+    </ul>
+  </section>
+</aside>
+{{- end }}
 
 <script>
 (function () {

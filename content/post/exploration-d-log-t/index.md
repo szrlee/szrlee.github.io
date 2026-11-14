@@ -20,6 +20,17 @@ draft: false
 series:
   - Exploration at Scale
 series_order: 2
+
+citation: |
+  @inproceedings{li2024hyperagent,
+    title     = {Q-Star Meets Scalable Posterior Sampling: Bridging Theory and Practice via HyperAgent},
+    author    = {Li, Yingru and Xu, Jiawei and Han, Lei and Luo, Zhi-Quan},
+    booktitle = {International Conference on Machine Learning},
+    year      = {2024}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -149,14 +160,3 @@ The sampler also decides which directions a policy-gradient update can see at al
 - Y. Li. [Probability Tools for Sequential Random Projection](https://arxiv.org/abs/2402.14026). arXiv, 2024.
 - Z. Li, Y. Li, Y. Zhang, T. Zhang, Z.-Q. Luo. [HyperDQN: A Randomized Exploration Method for Deep Reinforcement Learning](https://openreview.net/forum?id=X0nrKAXu7g-). ICLR 2022.
 - C. Qin, Z. Wen, X. Lu, B. Van Roy. [An Analysis of Ensemble Sampling](https://arxiv.org/abs/2203.01303). NeurIPS 2022.
-
-## Citation
-
-```bibtex
-@inproceedings{li2024hyperagent,
-  title     = {Q-Star Meets Scalable Posterior Sampling: Bridging Theory and Practice via HyperAgent},
-  author    = {Li, Yingru and Xu, Jiawei and Han, Lei and Luo, Zhi-Quan},
-  booktitle = {International Conference on Machine Learning},
-  year      = {2024}
-}
-```

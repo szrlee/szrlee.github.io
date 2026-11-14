@@ -20,6 +20,18 @@ draft: false
 series:
   - Off-Policy RL at Scale
 series_order: 1
+
+citation: |
+  @online{li-2026-around-the-sampler,
+    title  = {Around the Sampler: Tangent, Remainder and KL},
+    author = {Li, Yingru},
+    year   = {2026},
+    month  = oct,
+    url    = {https://richardli.xyz/post/offpolicy-around-the-sampler/}
+  }
+
+sidebar:
+  toc: true
 ---
 
 {{% callout note %}}
@@ -207,15 +219,3 @@ At the sampler it has the same tangent, so to first order it takes the same step
 - Q. Wang, Y. Li, J. Xiong, T. Zhang. [Divergence-Augmented Policy Optimization](https://arxiv.org/abs/2501.15034). NeurIPS 2019.
 - M. Marek, M. Ryabinin. [Score Centering Stabilizes Off-policy Reinforcement Learning](https://arxiv.org/abs/2609.20807). arXiv, 2026.
 - J. Schulman, S. Levine, P. Abbeel, M. Jordan, P. Moritz. [Trust Region Policy Optimization](https://arxiv.org/abs/1502.05477). ICML 2015.
-
-## Citation
-
-```bibtex
-@online{li-2026-around-the-sampler,
-  title  = {Around the Sampler: Tangent, Remainder and KL},
-  author = {Li, Yingru},
-  year   = {2026},
-  month  = oct,
-  url    = {https://richardli.xyz/post/offpolicy-around-the-sampler/}
-}
-```

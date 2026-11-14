@@ -1198,11 +1198,19 @@ footer.site-footer {
 
 .ps-note { display: block; margin-top: 0.15rem; font-size: 0.78rem; color: var(--hp-muted); }
 
-.ps-updates {
-  summary { cursor: pointer; margin: 0; }
-  ul { list-style: none; margin: 0.6rem 0 0; padding: 0; }
-  li { margin: 0 0 0.6rem; font-size: 0.8rem; line-height: 1.4; }
+.ps-series {
+  .ps-part { display: block; font-size: 0.68rem; font-weight: 600; letter-spacing: 0.04em; color: var(--hp-muted); }
+  .ps-current { color: var(--hp-ink); font-weight: 600; }
 }
+
+.ps-updates {
+  ul { list-style: none; margin: 0; padding: 0; }
+  li { margin: 0 0 0.75rem; font-size: 0.8rem; line-height: 1.4; }
+  a { color: var(--hp-accent); }
+}
+
+// On narrow screens the updates continue the blocks above them.
+.post-sidebar + .post-sidebar-left { margin-top: 0; padding-top: 0; border-top: 0; }
 
 .ps-date { display: block; font-size: 0.7rem; font-weight: 600; color: var(--hp-muted); }
 
@@ -1251,6 +1259,8 @@ footer.site-footer {
 
     .ps-toc { display: block; }
   }
+
+  .post-sidebar-left { left: auto; right: calc(100% + 40px); }
 
   .post-sidebar-sticky {
     position: sticky;
