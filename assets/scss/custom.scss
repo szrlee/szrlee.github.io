@@ -1304,12 +1304,13 @@ footer.site-footer {
     scrollbar-width: thin;
   }
 
-  // Posts with wide figures use both margins further down the page, so nothing may travel
-  // there: the blocks at the top stay, the table of contents is left out.
-  .has-post-sidebar:has(.stepfig--wide) .post-sidebar-sticky {
-    position: static;
-    max-height: none;
-    overflow: visible;
-    .ps-toc { display: none; }
+  // The right margin belongs to the sidebar, so wide figures stay with the text column here.
+  // They sit 35px proud of it on each side: 760px inside the frame, their minimum width, so
+  // they never scroll sideways, and 25px clear of the sidebar.
+  .has-post-sidebar .stepfig--wide {
+    width: calc(100% + 70px);
+    max-width: none;
+    margin-left: -35px;
+    transform: none;
   }
 }
