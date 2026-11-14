@@ -1,8 +1,21 @@
-# OpenReview Reviewer Export
+# Scripts
+
+## Local preview with the pinned Hugo (`hugo.sh`)
+
+The theme (Hugo Blox v5) builds only with the Hugo version CI uses, `WC_HUGO_VERSION` in `.github/workflows/publish.yaml` (currently 0.119.0); newer Hugo from Homebrew fails on its templates. `hugo.sh` downloads that exact release once into `.cache/` (git-ignored), checks its checksum and runs it:
+
+```bash
+scripts/hugo.sh server          # preview at http://localhost:1313
+scripts/hugo.sh --gc --minify   # production build into public/
+```
+
+To move to another Hugo version, change `WC_HUGO_VERSION` in the workflow (and `HUGO_VERSION` in `netlify.toml`); the script follows.
+
+## OpenReview Reviewer Export
 
 Extract your complete peer-review service record from OpenReview for O-1 visa evidence or other purposes.
 
-## What it does
+### What it does
 
 The script authenticates with your OpenReview account and extracts:
 
@@ -13,7 +26,7 @@ The script authenticates with your OpenReview account and extracts:
 
 It queries both the v2 API (`api2.openreview.net`, post-2023 venues) and v1 API (`api.openreview.net`, legacy venues).
 
-## Setup
+### Setup
 
 ```bash
 # From the repo root
@@ -21,7 +34,7 @@ python -m venv .venv
 .venv/bin/pip install openreview-py pandas
 ```
 
-## Usage
+### Usage
 
 ```bash
 # From the repo root
@@ -30,7 +43,7 @@ python -m venv .venv
 
 You will be prompted for your OpenReview email and password. No credentials are stored.
 
-## Output
+### Output
 
 All output files are written to `.openreview/` (git-ignored):
 
@@ -41,11 +54,11 @@ All output files are written to `.openreview/` (git-ignored):
 | `reviews_authored.csv` | Public reviews with submission titles and links |
 | `reviewer_export.json` | Full raw dump of all data for audit/backup |
 
-### Note on public vs. total reviews
+#### Note on public vs. total reviews
 
 `reviews_authored.csv` only contains reviews where both the review and the submission are publicly readable (`readers: everyone`). Reviews at ongoing conferences (e.g., papers still under review) will not appear here but will show up in `reviewer_assignments.csv` as per-paper assignments.
 
-## Example summary output
+### Example summary output
 
 ```
 Papers reviewed per conference (excl. workshops):
