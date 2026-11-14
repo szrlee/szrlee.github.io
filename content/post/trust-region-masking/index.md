@@ -66,12 +66,6 @@ citation: |
 
 **Authors:** Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Baoxiang Wang
 
-📄 **arXiv:** [https://arxiv.org/abs/2512.23075](https://arxiv.org/abs/2512.23075)
-
-📊 **Slides:** [trust_region_masking_slides_yingru.pdf](/trust_region_masking_slides_yingru.pdf)
-
-🔧 **PR #4544:** [feat: trust region sequence masking](https://github.com/volcengine/verl/pull/4544)
-
 ---
 
 ## Abstract

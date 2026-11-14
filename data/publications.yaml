@@ -55,7 +55,7 @@ papers:
     selected: true
     title: Probability Tools for Sequential Random Projection
     authors: Yingru Li
-    venue: arXiv 2024
+    venue: Preprint 2024
     note: A martingale extension of the Johnson–Lindenstrauss lemma to sequentially dependent, adaptively chosen data.
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2402.14026"}
@@ -86,14 +86,14 @@ papers:
     group: explore
     title: Robust Search with Uncertainty-Aware Value Models for Language Model Reasoning
     authors: Fei Yu, Yingru Li, Benyou Wang
-    venue: arXiv 2025
+    venue: Preprint 2025
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2502.11155"}
   - key: jl
     group: explore
     title: Simple, Unified Analysis of Johnson-Lindenstrauss with Applications
     authors: Yingru Li
-    venue: arXiv 2024
+    venue: Preprint 2024
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2402.10232"}
 
@@ -111,10 +111,11 @@ papers:
     group: bias
     selected: true
     title: Trust Region Masking for Long-Horizon LLM Reinforcement Learning
-    authors: Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Qian Liu, Baoxiang Wang
+    authors: Yingru Li, Jiacai Liu, Jiawei Xu, Yuxuan Tong, Ziniu Li, Baoxiang Wang
     venue: ICML 2026
     note: "The principled form of MIS: a sequence-level trust-region mask with per-token importance sampling; a first-class algorithm in veRL."
     links:
+      - {name: PMLR, url: "https://proceedings.mlr.press/v306/li26dp.html"}
       - {name: arXiv, url: "https://arxiv.org/abs/2512.23075"}
       - {name: Blog, url: "/post/trust-region-masking/"}
       - {name: Slides, url: "/trust_region_masking_slides_yingru.pdf"}
@@ -123,7 +124,7 @@ papers:
     selected: true
     title: "Beyond Precision: Training-Inference Mismatch is an Optimization Problem and Simple LR Scheduling Fixes It"
     authors: Yaxiang Zhang*, Yingru Li*†, Jiacai Liu, Jiawei Xu, Ziniu Li, Qian Liu, Haoyuan Li
-    venue: arXiv 2026
+    venue: Preprint 2026
     note: The mismatch is not a static numerical error; it moves with the size of the update.
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2602.01826"}
@@ -132,7 +133,7 @@ papers:
     group: bias
     title: "Dynamic Vocabulary Pruning: Stable LLM-RL by Taming the Tail"
     authors: Yingru Li, Jiawei Xu, Jiacai Liu, Yuxuan Tong, Ziniu Li, Tianle Cai, Ge Zhang, Qian Liu, Baoxiang Wang
-    venue: arXiv 2025
+    venue: Preprint 2025
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2512.23087"}
   - key: dapo
@@ -148,7 +149,7 @@ papers:
     group: bias
     title: "A Note on Hybrid Online Reinforcement and Imitation Learning for LLMs: Formulations and Algorithms"
     authors: Yingru Li, Ziniu Li, Jiacai Liu
-    venue: arXiv 2025
+    venue: Preprint 2025
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2512.23097"}
 
@@ -161,6 +162,7 @@ papers:
     venue: ICML 2026
     note: A per-token baseline weighted by realized gradient energy; group size 4 matches 32.
     links:
+      - {name: PMLR, url: "https://proceedings.mlr.press/v306/li26hy.html"}
       - {name: arXiv, url: "https://arxiv.org/abs/2602.07078"}
       - {name: Blog, url: "/optimal-token-baseline"}
       - {name: veRL, url: "https://verl.readthedocs.io/en/latest/algo/otb.html"}
@@ -169,7 +171,7 @@ papers:
     selected: true
     title: Logit Dynamics in Softmax Policy Gradient Methods
     authors: Yingru Li
-    venue: arXiv 2025
+    venue: Preprint 2025
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2506.12912"}
       - {name: Blog, url: "/post/what-policy-gradient-can-reach/"}
@@ -201,6 +203,7 @@ papers:
     venue: ICML 2026
     note: A 14B kernel agent; ahead of Claude-4.5-Sonnet and GPT-5 on KernelBench Level 2 with test-time scaling.
     links:
+      - {name: PMLR, url: "https://proceedings.mlr.press/v306/liu26fd.html"}
       - {name: arXiv, url: "https://arxiv.org/abs/2602.05885"}
       - {name: KernelGYM, url: "https://github.com/hkust-nlp/KernelGYM"}
   - key: simpletir
@@ -224,7 +227,7 @@ papers:
     group: other
     title: Learning an Opponent-Aware Anti-Jamming Strategy via Online Convex Optimization
     authors: Liangqi Liu, Wenqiang Pu, Yingru Li, Zhi-Quan Luo
-    venue: arXiv 2026
+    venue: Preprint 2026
     links:
       - {name: arXiv, url: "https://arxiv.org/abs/2604.11016"}
   - key: radar

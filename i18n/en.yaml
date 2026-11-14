@@ -1,2 +1,5 @@
 - id: published_with
   translation: "Built with {hugoblox}."
+
+- id: open_project_site
+  translation: "Read the full article"

@@ -7,8 +7,8 @@ authors:
   - Jiawei Xu
   - Ziniu Li
   - Jiacai Liu
-  - Yuxuan Tong
   - Wei Liu
+  - Yuxuan Tong
   - Longtao Zheng
   - Zhenghai Xue
   - Yaxiang Zhang

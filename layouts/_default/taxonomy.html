@@ -1,0 +1,16 @@
+{{- /* Index of a taxonomy (/tags/, /categories/): every term as a chip with its post count. */ -}}
+{{- define "main" -}}
+
+{{ partial "page_header.html" . }}
+
+<div class="universal-wrapper">
+  {{ with .Content }}<div class="article-style">{{ . }}</div>{{ end }}
+
+  <ul class="tx-cloud">
+    {{ range .Data.Terms.ByCount }}
+    <li><a class="tx-term" href="{{ .Page.RelPermalink }}">{{ .Page.Title }}<span class="tx-count">{{ .Count }}</span></a></li>
+    {{ end }}
+  </ul>
+</div>
+
+{{- end -}}
