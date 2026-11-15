@@ -140,7 +140,7 @@ $$
 where:
 - $C$ is a constant depending on the maximum advantage $\max_{x, y_{\le t}}|A_\mu(x, y_{\le t})|$
 - $T$ is the sequence length
-- $D_{TV}^{\max} = \max_{x, y_{\lt t}} D_{TV}(\pi(\cdot|x, y_{\lt t}) \| \mu(\cdot|x, y_{\lt t}))$ is the maximum per-token TV distance
+- {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_{x, y_{\lt t}}${{< /math >}} {{< math >}}$D_{TV}(\pi(\cdot|x, y_{\lt t}) \| \mu(\cdot|x, y_{\lt t}))${{< /math >}} is the maximum per-token TV distance
 
 ### The Trust Region Requirement
 
@@ -440,8 +440,8 @@ This is the **sample average of the per-token log-ratios** along trajectory $y$.
 
 **Connection to KL Divergence:** Recall that at each step $t$, given context $(x, y_{\lt t})$:
 
-- **Forward KL:** {{< math >}}$D_{KL}(\pi \| \mu) = \mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
-- **Reverse KL:** {{< math >}}$D_{KL}(\mu \| \pi) = \mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|x, y_{\lt t})}{\pi(y_t|x, y_{\lt t})}\right] = -\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
+- **Forward KL:** {{< math >}}$D_{KL}(\pi \| \mu) =${{< /math >}} {{< math >}}$\mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
+- **Reverse KL:** {{< math >}}$D_{KL}(\mu \| \pi) =${{< /math >}} {{< math >}}$\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|x, y_{\lt t})}{\pi(y_t|x, y_{\lt t})}\right] =${{< /math >}} {{< math >}}$-\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
 
 Since samples are drawn from $\mu$ (the behavior policy), each term $\log \rho_t = \log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}$ is a single-sample estimate of the **negative reverse KL**:
 
@@ -463,7 +463,7 @@ $$
 
 - **k1:** $-\log r = \log(\pi/\mu) = \log \rho$ (unbiased, high variance)
 - **k2:** $(\log r)^2 / 2 = (\log \rho)^2 / 2$ (low variance, biased)
-- **k3:** $(r - 1) - \log r = (1/\rho - 1) + \log \rho$ (unbiased, low variance)
+- **k3:** $(r - 1) - \log r =$ $(1/\rho - 1) + \log \rho$ (unbiased, low variance)
 
 In our notation with $\rho = \pi/\mu$, we have $r = 1/\rho$, so the k1 estimator equals $\log \rho$.
 

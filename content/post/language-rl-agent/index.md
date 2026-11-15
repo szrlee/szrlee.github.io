@@ -91,7 +91,7 @@ The objectively occurring, externally observable event sequence—the "ground tr
 
 The complete information accessible to the agent during decision-making, including its internal thought process:
 
-{{< math >}}$$H_k^{\text{agent}} = (\text{system\_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$${{< /math >}}
+{{< math >}}$$H_k^{\text{agent}} = (\text{system_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$${{< /math >}}
 
 This history is the complete information foundation for the agent's learning and construction of its internal mental model.
 
@@ -149,7 +149,7 @@ This is why language is a universal interface: it unifies expressiveness (vocabu
 
 **The implication is stark**: State compression is not a design choice. It's a physical necessity.
 
-#### Inevitable Conclusion: Agent State ({{< math >}}$X_k${{< /math >}})
+#### Inevitable Conclusion: Agent State ($X_k$) {#agent-state}
 
 To make decisions possible, the agent **must** compress the infinitely growing agent-centric history {{< math >}}$H_k^{\text{agent}}${{< /math >}} into a fixed-size internal representation. We call this representation the **agent state** {{< math >}}$X_k${{< /math >}}:
 
@@ -159,7 +159,7 @@ This state {{< math >}}$X_k${{< /math >}} is the agent's "mental model" or "work
 
 {{< math >}}$$\pi(A_k | X_k)$${{< /math >}}
 
-#### The Critical Function: State Update ({{< math >}}$f_{\text{agent}}${{< /math >}})
+#### The Critical Function: State Update ($f_{\text{agent}}$) {#state-update}
 
 State must evolve as new information arrives:
 
@@ -169,7 +169,7 @@ State must evolve as new information arrives:
 
 **Why it matters**: Compression is lossy. {{< math >}}$X_k${{< /math >}}'s quality sets the performance ceiling. Even the world's most powerful LLM cannot compensate for bad memory management.
 
-#### Practical Paradigms for {{< math >}}$f_{\text{agent}}${{< /math >}}
+#### Practical Paradigms for $f_{\text{agent}}$ {#state-update-paradigms}
 
 **Sliding Window**: The simplest approach—{{< math >}}$X_k${{< /math >}} only contains the most recent {{< math >}}$N${{< /math >}} turns of {{< math >}}$(th, A, O)${{< /math >}} tuples.
 
@@ -211,11 +211,11 @@ In any practically operational system, reward {{< math >}}$R_{k+1}${{< /math >}}
 
 This creates a two-layer structure with profound implications.
 
-#### Layer 1: Macro Task Layer ({{< math >}}$M_{\text{turn}}${{< /math >}})
+#### Layer 1: Macro Task Layer ($M_{\text{turn}}$) {#macro-task-layer}
 
 This layer completely inherits from the general framework—it's the level where the agent conducts meaningful interaction with the environment. Its state is macro state {{< math >}}$X_k${{< /math >}}, action is macro action {{< math >}}$A_k${{< /math >}}. Its ultimate goal is learning an optimal macro policy {{< math >}}$\pi^*(A_k | X_k)${{< /math >}} to maximize long-term return {{< math >}}$G_k${{< /math >}}.
 
-#### Layer 2: Micro Generation Layer ({{< math >}}$M_{\text{micro}}${{< /math >}})
+#### Layer 2: Micro Generation Layer ($M_{\text{micro}}$) {#micro-generation-layer}
 
 This layer's core function is to **implement** the macro policy {{< math >}}$\pi${{< /math >}}. It describes how the agent's "thought" is generated token by token by the LLM.
 
@@ -421,7 +421,7 @@ for turn in range(MAX_TURNS):
 
 To connect the above abstract theoretical framework with real-world agent systems, we take an agent running on the Software Engineering Benchmark (SWE-Bench) as an example, analyzing in detail how its components correspond one-to-one with our formal definitions.
 
-#### Environment ({{< math >}}$\mathcal{E}${{< /math >}})
+#### Environment ($\mathcal{E}$) {#swe-environment}
 
 In SWE-Benchmark settings, the environment {{< math >}}$\mathcal{E}${{< /math >}} is a highly isolated and standardized code repository.
 
@@ -436,13 +436,13 @@ In SWE-Benchmark settings, the environment {{< math >}}$\mathcal{E}${{< /math >}
 The agent's macro actions {{< math >}}$A_k${{< /math >}} are a series of predefined, structured tool calls. Action space {{< math >}}$\mathcal{A}${{< /math >}} is the set of all these legal tool calls. Typical tools include:
 
 - **bash**: Execute a shell command
-  - Formal representation: {{< math >}}$A_k = (\text{tool: "bash"}, \{\text{command: string}\})${{< /math >}}
-  - Example: {{< math >}}$A_k = (\text{bash}, \{\text{command: "ls -F /testbed"}\})${{< /math >}}
+  - Formal representation: {{< math >}}$A_k = (\text{tool: "bash"},${{< /math >}} {{< math >}}$\{\text{command: string}\})${{< /math >}}
+  - Example: {{< math >}}$A_k = (\text{bash},${{< /math >}} {{< math >}}$\{\text{command:}${{< /math >}} {{< math >}}$\text{"ls -F /testbed"}\})${{< /math >}}
 
 - **edit**: Modify files—itself is a composite tool
-  - View file: {{< math >}}$A_k = (\text{edit}, \{\text{command: "view", path: string, view\_range: [int, int]}\})${{< /math >}}
-  - String replacement: {{< math >}}$A_k = (\text{edit}, \{\text{command: "str\_replace", path: string,}${{< /math >}} {{< math >}}$\text{old\_str: string, new\_str: string}\})${{< /math >}}
-  - Insert code: {{< math >}}$A_k = (\text{edit}, \{\text{command: "insert", path: string,}${{< /math >}} {{< math >}}$\text{new\_str: string, insert\_line: int}\})${{< /math >}}
+  - View file: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command: "view",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{view_range: [int, int]}\})${{< /math >}}
+  - String replacement: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command: "str_replace",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{old_str: string,}${{< /math >}} {{< math >}}$\text{new_str: string}\})${{< /math >}}
+  - Insert code: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command: "insert",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{new_str: string,}${{< /math >}} {{< math >}}$\text{insert_line: int}\})${{< /math >}}
 
 - **submit**: Terminate task and submit final solution
   - Formal representation: {{< math >}}$A_k = (\text{submit}, \{\})${{< /math >}}
@@ -466,11 +466,11 @@ Let's look at the utils module, which seems to handle parameter parsing:
 
 - **External Observation** ({{< math >}}$O_k${{< /math >}}): Information returned to the agent after the environment executes action {{< math >}}$A_{k-1}${{< /math >}}. In SWE-Benchmark, this is usually the combination of bash command stdout and stderr. To avoid information overload, returned observations are typically truncated or abbreviated. A well-designed tool should have clear success or failure return information so the agent can understand the consequences of its actions
 
-#### State Construction and Update ({{< math >}}$X_k${{< /math >}} and {{< math >}}$f_{\text{agent}}${{< /math >}})
+#### State Construction and Update ($X_k$ and $f_{\text{agent}}$) {#swe-state-update}
 
 - **Agent-Centric History** ({{< math >}}$H_k^{\text{agent}}${{< /math >}}): This is the complete information source for agent decision-making. In SWE-Benchmark practice, it's usually organized as a dialogue-style record:
 
-{{< math >}}$$H_k^{\text{agent}} = (\text{system\_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$${{< /math >}}
+{{< math >}}$$H_k^{\text{agent}} = (\text{system_prompt}, O_0, th_0, A_0, O_1, th_1, A_1, O_2, \ldots, th_{k-1}, A_{k-1}, O_k)$${{< /math >}}
 
 where {{< math >}}$O_0${{< /math >}} contains the initial task description (Problem Statement) and environment introduction.
 
@@ -482,7 +482,7 @@ where {{< math >}}$O_0${{< /math >}} contains the initial task description (Prob
 
   - **Complete History**: In early SWE-agent or training stages, sometimes the entire {{< math >}}$H_k^{\text{agent}}${{< /math >}} is concatenated as {{< math >}}$X_k${{< /math >}}. While this is information-lossless, it's extremely costly and limited by model context length
 
-#### Optimization Objective and Reward Formation ({{< math >}}$r${{< /math >}})
+#### Optimization Objective and Reward Formation ($r$) {#swe-reward}
 
 - **Reward Function** ({{< math >}}$R_{k+1} = r(X_k, th_k, A_k, O_{k+1})${{< /math >}}): In SWE-Benchmark, reward implementation is **sparse and delayed**.
 

@@ -162,7 +162,7 @@ The surrogate is a **first-order Taylor approximation** of the true objective—
 
 ### The TRPO Lower Bound
 
-CPI established the foundational identity {{< math >}}$J(\pi) - J(\mu) = \frac{1}{1-\gamma}\mathbb{E}_{s \sim d_\pi, a \sim \pi}[A_\mu(s,a)]${{< /math >}}, showing that policy improvement can be measured via advantages. TRPO refined this into a practical bound by quantifying exactly how much the surrogate approximation degrades. The original theorem ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)) gives:
+CPI established the foundational identity {{< math >}}$J(\pi) - J(\mu) =${{< /math >}} {{< math >}}$\frac{1}{1-\gamma}\mathbb{E}_{s \sim d_\pi, a \sim \pi}[A_\mu(s,a)]${{< /math >}}, showing that policy improvement can be measured via advantages. TRPO refined this into a practical bound by quantifying exactly how much the surrogate approximation degrades. The original theorem ([Schulman et al., 2015](https://arxiv.org/abs/1502.05477)) gives:
 
 {{< math >}}
 $$J(\pi) \geq L_{\mu}(\pi) - \frac{4\epsilon\gamma}{(1-\gamma)^2} \cdot (D_{TV}^{\max})^2$$

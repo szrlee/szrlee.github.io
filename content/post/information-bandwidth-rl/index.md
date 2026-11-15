@@ -124,7 +124,7 @@ u_{\text{per-token}}=\sum_t\psi_t\,A_t .
 $$
 {{< /math >}}
 
-The scalar form depends on {{< math >}}$\mathbf r${{< /math >}} only through {{< math >}}$\mathrm{Adv}=\sum_t r_t-b${{< /math >}}, one number with at most {{< math >}}$B${{< /math >}} values, so the lemma tightens to {{< math >}}$I(u;\pi^\star\mid\mathcal H)\le H(\mathrm{Adv}\mid\tau,\mathcal H)\le\log_2 B${{< /math >}}. Per-token advantages, whether returns-to-go, TD errors or GAE, are an invertible function of {{< math >}}$\mathbf r${{< /math >}} given {{< math >}}$(\tau,\mathcal H)${{< /math >}}. When the token scores are linearly independent, the update keeps everything the rewards say about {{< math >}}$\pi^\star${{< /math >}}.
+The scalar form depends on {{< math >}}$\mathbf r${{< /math >}} only through {{< math >}}$\mathrm{Adv}=\sum_t r_t-b${{< /math >}}, one number with at most {{< math >}}$B${{< /math >}} values, so the lemma tightens to {{< math >}}$I(u;\pi^\star\mid\mathcal H)\le${{< /math >}} {{< math >}}$H(\mathrm{Adv}\mid\tau,\mathcal H)\le\log_2 B${{< /math >}}. Per-token advantages, whether returns-to-go, TD errors or GAE, are an invertible function of {{< math >}}$\mathbf r${{< /math >}} given {{< math >}}$(\tau,\mathcal H)${{< /math >}}. When the token scores are linearly independent, the update keeps everything the rewards say about {{< math >}}$\pi^\star${{< /math >}}.
 
 {{< stepfig "outcomes" >}}
 

@@ -133,7 +133,7 @@ G_M=\mathbb{E}_{\smu}\Big[(A-\mathbb{E}A)\sum_t\delta_t x_t^\top\Big].
 $$
 {{< /math >}}
 
-**The rank.** Every column of {{< math >}}$PG_M${{< /math >}} lies in {{< math >}}$D${{< /math >}}, so {{< math >}}$\operatorname{rank}(PG_M)\le\dim D${{< /math >}}. For a fixed {{< math >}}$a_0\in K_{\mathrm{fork}}${{< /math >}}, {{< math >}}$w_a-w_b=(w_a-w_{a_0})-(w_b-w_{a_0})${{< /math >}}, so {{< math >}}$D${{< /math >}} lies in the span of the {{< math >}}$|K_{\mathrm{fork}}|-1${{< /math >}} vectors {{< math >}}$w_a-w_{a_0}${{< /math >}}; candidate sets with one token contribute no differences.
+**The rank.** Every column of {{< math >}}$PG_M${{< /math >}} lies in {{< math >}}$D${{< /math >}}, so {{< math >}}$\operatorname{rank}(PG_M)\le\dim D${{< /math >}}. For a fixed {{< math >}}$a_0\in K_{\mathrm{fork}}${{< /math >}}, {{< math >}}$w_a-w_b=${{< /math >}} {{< math >}}$(w_a-w_{a_0})-(w_b-w_{a_0})${{< /math >}}, so {{< math >}}$D${{< /math >}} lies in the span of the {{< math >}}$|K_{\mathrm{fork}}|-1${{< /math >}} vectors {{< math >}}$w_a-w_{a_0}${{< /math >}}; candidate sets with one token contribute no differences.
 
 **The leak.** The norm of an expectation is at most the expectation of the norm, and Cauchy–Schwarz splits off the signal:
 

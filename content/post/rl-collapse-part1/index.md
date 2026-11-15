@@ -376,7 +376,7 @@ $$
 
 **Proof by Induction:**
 
-Let {{< math >}}$\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 = 2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu,t})${{< /math >}}.
+Let {{< math >}}$\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 =${{< /math >}} {{< math >}}$2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu,t})${{< /math >}}.
 
 **Base case:** $\delta_0 = 0$ (same initial distribution).
 

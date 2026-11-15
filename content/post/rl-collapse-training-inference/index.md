@@ -501,7 +501,7 @@ g(\theta) = \sum_{t=0}^{\infty} \mathbb{E}_{y \sim \pi_{\theta}} \left[ A^{\pi_{
 $$
 {{< /math >}}
 
-*(b) Expand the expectation into an explicit sum* over every state {{< math >}}$s${{< /math >}} and action {{< math >}}$a${{< /math >}}, weighted by their joint probability {{< math >}}$P(s_t=s, a_t=a) = P(s_t=s) \cdot \pi_{\theta}(a|s)${{< /math >}}:
+*(b) Expand the expectation into an explicit sum* over every state {{< math >}}$s${{< /math >}} and action {{< math >}}$a${{< /math >}}, weighted by their joint probability {{< math >}}$P(s_t=s, a_t=a) =${{< /math >}} {{< math >}}$P(s_t=s) \cdot \pi_{\theta}(a|s)${{< /math >}}:
 
 {{< math >}}
 $$
@@ -752,7 +752,7 @@ seq_weight = torch.exp(geo_log_ratio) * keep                 # Geo-MIS weight; m
 pg_loss = pg_loss * seq_weight.unsqueeze(-1)
 ```
 
-**Step 1: {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} is a one-sample estimate of the mean KL.** Write {{< math >}}$D_t = \mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|\,\pfsdp(\cdot|x,y_{\lt t})\big)${{< /math >}} for the KL divergence from the sampler to the trainer at the context of token {{< math >}}$t${{< /math >}}. The token {{< math >}}$y_t${{< /math >}} was drawn from {{< math >}}$\pvllm${{< /math >}}, so by the definition of the KL divergence
+**Step 1: {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} is a one-sample estimate of the mean KL.** Write {{< math >}}$D_t =${{< /math >}} {{< math >}}$\mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|\,\pfsdp(\cdot|x,y_{\lt t})\big)${{< /math >}} for the KL divergence from the sampler to the trainer at the context of token {{< math >}}$t${{< /math >}}. The token {{< math >}}$y_t${{< /math >}} was drawn from {{< math >}}$\pvllm${{< /math >}}, so by the definition of the KL divergence
 
 {{< math >}}
 $$

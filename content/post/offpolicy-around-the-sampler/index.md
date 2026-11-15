@@ -102,7 +102,7 @@ $$
 **The bound, in three facts.**
 
 1. Both weights are non-negative.
-2. Both have the same mean, {{< math >}}$\mathbb{E}[e^{\ell}-1-\ell] = \mathbb{E}[\sum_t \mathrm{KL}_t] = \mathrm{KL}_{\text{seq}}${{< /math >}}.
+2. Both have the same mean, {{< math >}}$\mathbb{E}[e^{\ell}-1-\ell] =${{< /math >}} {{< math >}}$\mathbb{E}[\sum_t \mathrm{KL}_t] = \mathrm{KL}_{\text{seq}}${{< /math >}}.
 3. The reward lies in {{< math >}}$[0, R_{\max}]${{< /math >}}.
 
 So each expectation lies in {{< math >}}$[0, R_{\max}\mathrm{KL}_{\text{seq}}]${{< /math >}}, and therefore
@@ -156,7 +156,7 @@ Since the bound is zero at the sampler, this step is never worse than the sample
 <details class="spoiler">
 <summary>Why, in the one-token case</summary>
 
-The bound equals {{< math >}}$\sum_y \ps(y)\big(A(y)+R_{\max}\big)\log\pt(y)${{< /math >}} plus a constant. It is maximized by {{< math >}}$\pt \propto \ps\,(A+R_{\max})${{< /math >}}, which already sums to one because {{< math >}}$\sum_y \ps A = 0${{< /math >}}.
+The bound equals {{< math >}}$\sum_y \ps(y)\big(A(y)+R_{\max}\big)${{< /math >}} {{< math >}}$\log\pt(y)${{< /math >}} plus a constant. It is maximized by {{< math >}}$\pt \propto \ps\,(A+R_{\max})${{< /math >}}, which already sums to one because {{< math >}}$\sum_y \ps A = 0${{< /math >}}.
 
 </details>
 

@@ -107,7 +107,7 @@ $$
 
 Subtracting {{< math >}}$\mathbb{E}[r]\,\mathbb{E}[\mathrm{score}_i]=0${{< /math >}} turns the product into a covariance, and the same step turns {{< math >}}$\mathbb{E}[\mathrm{score}_i^2]${{< /math >}} into a variance. Both hold per prompt, so {{< math >}}$G_i=\mathbb{E}_x[\operatorname{Cov}(r,\mathrm{score}_i\mid x)]${{< /math >}}, which is why a baseline {{< math >}}$b(x)${{< /math >}} drops out.
 
-The full Fisher {{< math >}}$F_{ij}=\mathbb{E}[\mathrm{score}_i\,\mathrm{score}_j]${{< /math >}} is also the expected curvature: {{< math >}}$\partial_j\mathrm{score}_i=\partial_i\partial_j\pi_\theta/\pi_\theta-\mathrm{score}_i\,\mathrm{score}_j${{< /math >}}, and the first term has mean {{< math >}}$\sum_y\partial_i\partial_j\pi_\theta=0${{< /math >}}, so {{< math >}}$F_{ij}=-\mathbb{E}[\partial_i\partial_j\log\pi_\theta]${{< /math >}}. It must be estimated on responses the model samples. On data labels the same formula gives the empirical Fisher, a different quantity ([Part 2](/post/sparsity-score-centering/)).
+The full Fisher {{< math >}}$F_{ij}=\mathbb{E}[\mathrm{score}_i\,\mathrm{score}_j]${{< /math >}} is also the expected curvature: {{< math >}}$\partial_j\mathrm{score}_i=${{< /math >}} {{< math >}}$\partial_i\partial_j\pi_\theta/\pi_\theta-\mathrm{score}_i\,\mathrm{score}_j${{< /math >}}, and the first term has mean {{< math >}}$\sum_y\partial_i\partial_j\pi_\theta=0${{< /math >}}, so {{< math >}}$F_{ij}=-\mathbb{E}[\partial_i\partial_j\log\pi_\theta]${{< /math >}}. It must be estimated on responses the model samples. On data labels the same formula gives the empirical Fisher, a different quantity ([Part 2](/post/sparsity-score-centering/)).
 
 </details>
 
@@ -189,7 +189,7 @@ Off-policy, the token was drawn by an inference engine or a stale model, and und
 For any sampler {{< math >}}$\smu${{< /math >}} whose full next-token distribution is known at every prefix:
 
 1. Zero conditional mean, by construction: {{< math >}}$\mathbb{E}_{a\sim\smu}\big[\kappa_{i,a}-\bar\kappa^{\mu}_i\big]=0${{< /math >}}.
-2. Cross terms vanish: for {{< math >}}$u\lt t${{< /math >}}, {{< math >}}$c_i^{(u)}${{< /math >}} is fixed by {{< math >}}$s_t${{< /math >}}, so {{< math >}}$\mathbb{E}_{\smu}\big[c_i^{(u)}c_i^{(t)}\big]=\mathbb{E}_{\smu}\big[c_i^{(u)}\,\mathbb{E}_{\smu}[c_i^{(t)}\mid s_t]\big]=0${{< /math >}}.
+2. Cross terms vanish: for {{< math >}}$u\lt t${{< /math >}}, {{< math >}}$c_i^{(u)}${{< /math >}} is fixed by {{< math >}}$s_t${{< /math >}}, so {{< math >}}$\mathbb{E}_{\smu}\big[c_i^{(u)}c_i^{(t)}\big]=${{< /math >}} {{< math >}}$\mathbb{E}_{\smu}\big[c_i^{(u)}\,\mathbb{E}_{\smu}[c_i^{(t)}\mid s_t]\big]=0${{< /math >}}.
 3. The Fisher is a variance: by 2 only diagonal terms survive, and by 1 each is {{< math >}}$\operatorname{Var}_{a\sim\smu}[\kappa_{i,a}(s_t)]${{< /math >}}. By 1 and the tower property {{< math >}}$\mathbb{E}_{\smu}[c_i]=0${{< /math >}}, so the second moment is the variance.
 4. The update is a covariance: {{< math >}}$\operatorname{Cov}_{\smu}(A,c_i)=\mathbb{E}_{\smu}[A\,c_i]=G_i${{< /math >}}, and Cauchy–Schwarz gives the bound.
 

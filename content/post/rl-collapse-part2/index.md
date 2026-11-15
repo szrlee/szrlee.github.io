@@ -218,7 +218,7 @@ The variance is always bounded by the second moment: $\mathbf{Var}(\hat{g}) \le 
 
 **1. Naive Estimator:**
 
-Let $f(y) = \hat{g}\_{\text{naive}}(y) = R(y|x) \cdot \nabla\_\theta \log \pi(y|x)$.
+Let $f(y) = \hat{g}\_{\text{naive}}(y) =$ $R(y|x) \cdot \nabla\_\theta \log \pi(y|x)$.
 
 As we show in the "Factor 1" part of the bias proof below, the score function $\nabla\_\theta \log \pi(y|x) = \sum\_t \nabla\_\theta \log \pi\_t$ has a magnitude that scales as $O(T)$.
 
@@ -236,7 +236,7 @@ The variance is definitively polynomial.
 
 **2. Token-Level IS (Token-IS) Estimator:**
 This estimator is a sum of $T$ terms: $\hat{g}\_{\text{tok}} = \sum\_{t=0}^{T-1} X\_t$.
-The variance of a sum is $\mathbf{Var}(\sum\_t X\_t) = \sum\_t \mathbf{Var}(X\_t) + \sum\_{t \neq t'} \mathbf{Cov}(X\_t, X\_{t'})$.
+The variance of a sum is $\mathbf{Var}(\sum\_t X\_t) =$ $\sum\_t \mathbf{Var}(X\_t)$ $+\mkern4mu \sum\_{t \neq t'} \mathbf{Cov}(X\_t, X\_{t'})$.
 This has $T$ diagonal (variance) terms and $T(T-1) \approx O(T^2)$ off-diagonal (covariance) terms.
 
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t\|^2]$.
@@ -281,7 +281,7 @@ $$
 \text{Bias}(\hat{g}\_{\text{naive}}) = \mathbb{E}\_\mu[f(y)] - \mathbb{E}\_\pi[f(y)]
 $$
 
-where $f(y) = \hat{g}\_{\text{naive}}(y) = R(y|x) \cdot \nabla\_\theta \log \pi(y|x)$.
+where $f(y) = \hat{g}\_{\text{naive}}(y) =$ $R(y|x) \cdot \nabla\_\theta \log \pi(y|x)$.
 
 This is the difference in the expectation of the same function $f(y)$ under two different distributions, $\mu$ and $\pi$. We can bound this difference:
 
@@ -330,7 +330,7 @@ a. Define Hybrid Distributions:
 We create a "bridge" of distributions from $\pi$ to $\mu$, swapping one token at a time.
 
 - $H\_0(y) = \pi(y)$
-- $H\_t(y) = \left( \prod\_{i=0}^{t-1} \mu(y\_i|s\_i) \right) \cdot \left( \prod\_{j=t}^{T-1} \pi(y\_j|s\_j) \right)$ (First $t$ tokens from $\mu$, the rest from $\pi$)
+- {{< math >}}$H_t(y) = \left( \prod_{i=0}^{t-1} \mu(y_i|s_i) \right)${{< /math >}} {{< math >}}$\cdot\mkern4mu \left( \prod_{j=t}^{T-1} \pi(y_j|s_j) \right)${{< /math >}} (First $t$ tokens from $\mu$, the rest from $\pi$)
 - $H\_T(y) = \mu(y)$
 
 b. Use the Triangle Inequality (Telescoping Sum):
@@ -437,7 +437,7 @@ This proof is nearly identical to the variance proof for Token-IS in Analysis 2.
 
 The estimator is a sum of $T$ terms: $\hat{g}\_{\text{tl-tis}} = \sum\_{t=0}^{T-1} X\_t'$, where $X\_t' = \min(\rho\_t, C) A\_t \nabla\_\theta \log \pi\_t$.
 
-The variance is $\mathbf{Var}(\sum\_t X\_t') = \sum\_t \mathbf{Var}(X\_t') + \sum\_{t \neq t'} \mathbf{Cov}(X\_t', X\_{t'})$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
+The variance is $\mathbf{Var}(\sum\_t X\_t') =$ $\sum\_t \mathbf{Var}(X\_t')$ $+\mkern4mu \sum\_{t \neq t'} \mathbf{Cov}(X\_t', X\_{t'})$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
 
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t'\|^2]$.
 
@@ -534,7 +534,7 @@ The key insight is this:
 2. Why? Because *rare* samples can have an *enormous* sequence ratio $\rho \to \infty$.
 3. What's the simplest fix? **Just clip the full sequence ratio** $\rho$**.**
 
-- **The Estimator:** {{< math >}}$\hat{g}_{\text{sl-tis}}(y) = \min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}, C\right) \cdot f(y)${{< /math >}}
+- **The Estimator:** {{< math >}}$\hat{g}_{\text{sl-tis}}(y) =${{< /math >}} {{< math >}}$\min\left(\prod_{t=0}^{T-1} \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}, C\right)${{< /math >}} {{< math >}}$\cdot\mkern4mu f(y)${{< /math >}}
 
 ### The Analysis
 
