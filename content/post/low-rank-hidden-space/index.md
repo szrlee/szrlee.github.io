@@ -59,7 +59,10 @@ In hidden layers, with {{< math >}}$u_i=\partial h/\partial\theta_i${{< /math >}
 
 {{< math >}}
 $$
-f_i(s)=u_i^\top C_\mu(s)\,u_i,\qquad C_\mu=\sum_a\smu(a)\,(w_a-\bar w_\mu)(w_a-\bar w_\mu)^\top,\qquad \bar w_\mu=\sum_a\smu(a)\,w_a .
+\begin{gathered}
+f_i(s)=u_i^\top C_\mu(s)\,u_i, \\
+C_\mu=\sum_a\smu(a)\,(w_a-\bar w_\mu)(w_a-\bar w_\mu)^\top,\qquad \bar w_\mu=\sum_a\smu(a)\,w_a .
+\end{gathered}
 $$
 {{< /math >}}
 

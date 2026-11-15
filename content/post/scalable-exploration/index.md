@@ -118,7 +118,10 @@ The minimizer is linear in the Gaussian perturbations {{< math >}}$Z_{s,m}${{< /
 
 {{< math >}}
 $$
-\tilde\theta(\xi) = \mu_t + \mathbf{A}_t\,\xi = \mu_t + \tfrac{1}{\sqrt M}\sum_{m}\xi_m\big(\tilde\theta_{t,m}-\mu_t\big), \qquad \text{a posterior sample if } \mathbf{A}_t\mathbf{A}_t^{\top} \approx \Sigma_t .
+\begin{gathered}
+\tilde\theta(\xi) = \mu_t + \mathbf{A}_t\,\xi = \mu_t + \tfrac{1}{\sqrt M}\sum_{m}\xi_m\big(\tilde\theta_{t,m}-\mu_t\big), \\
+\text{a posterior sample if } \mathbf{A}_t\mathbf{A}_t^{\top} \approx \Sigma_t .
+\end{gathered}
 $$
 {{< /math >}}
 

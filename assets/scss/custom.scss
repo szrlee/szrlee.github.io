@@ -1304,13 +1304,18 @@ footer.site-footer {
     scrollbar-width: thin;
   }
 
-  // The right margin belongs to the sidebar, so wide figures stay with the text column here.
-  // They sit 35px proud of it on each side: 760px inside the frame, their minimum width, so
-  // they never scroll sideways, and 25px clear of the sidebar.
-  .has-post-sidebar .stepfig--wide {
-    width: calc(100% + 70px);
-    max-width: none;
-    margin-left: -35px;
-    transform: none;
+  // Posts with wide figures: the figures stay centred on the text column and take the width the
+  // window allows, and the sidebar sits 25px outside them. 100vw - 598px leaves the 250px
+  // sidebar 24px from the window edge: 802px at 1400, the full 1100px from 1698 up.
+  .has-post-sidebar:has(.stepfig--wide) {
+    --wide: min(1100px, calc(100vw - 598px));
+    .stepfig--wide {
+      width: var(--wide);
+      max-width: none;
+      margin-left: calc(50% - var(--wide) / 2);
+      transform: none;
+    }
+    .post-sidebar { left: calc(50% + var(--wide) / 2 + 25px); }
+    .post-sidebar-left { left: auto; right: calc(50% + var(--wide) / 2 + 25px); }
   }
 }
