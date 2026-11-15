@@ -115,7 +115,7 @@ $$
 
 Let's analyze the second moment.
 
-The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod\_{t=0}^{T-1} \rho\_t = \prod\_{t=0}^{T-1} \frac{\pi(y\_t|x,y\_{\lt t})}{\mu(y\_t|x,y\_{\lt t})}$
+The ratio $\rho(y)$ is a product of per-token ratios: $\rho(y) = \prod\_{t=0}^{T-1} \rho\_t =$ $\prod\_{t=0}^{T-1} \frac{\pi(y\_t|x,y\_{\lt t})}{\mu(y\_t|x,y\_{\lt t})}$
 
 Using the tower property of expectation and conditional independence:
 
@@ -129,7 +129,7 @@ $$
 \mathbb{E}\_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2\_{\max}
 $$
 
-Let $\bar{\chi}^2\_{\max} = \max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} \gt 0$.
+Let $\bar{\chi}^2\_{\max} =$ $\max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} \gt 0$.
 This gives the exponential upper bound:
 
 $$
@@ -196,7 +196,7 @@ So while SNIS is "stable" (it doesn't explode), it becomes incredibly inefficien
 
 This family of estimators "solves" the exponential variance problem by avoiding the full sequence-level product $\rho = \prod_t \rho_t$. The Naive estimator ignores it entirely, and Token-Level IS (Token-IS) handles each token's ratio $\rho_t$ independently.
 
-- **The Estimator (Naive):** {{< math >}}$\hat{g}_{\text{naive}}(y) = R(y|x) \cdot \nabla_\theta \log \pi(y|x)${{< /math >}}
+- **The Estimator (Naive):** {{< math >}}$\hat{g}_{\text{naive}}(y) =${{< /math >}} {{< math >}}$R(y|x) \cdot \nabla_\theta \log \pi(y|x)${{< /math >}}
 - **The Estimator (Token-IS / PPO-like):**
 
 {{< math >}}
@@ -250,7 +250,7 @@ So, each diagonal term is $O(1+\bar{\chi}^2)$. The sum of all $T$ diagonal terms
 
 **Cross Terms ($O(T^2)$ of them):** We bound $\mathbf{Cov}(X\_t, X\_{t'})$.
 
-By the Cauchy-Schwarz inequality, $|\mathbb{E}[X\_t^\top X\_{t'}]| \le \sqrt{\mathbb{E}[\|X\_t\|^2] \mathbb{E}[\|X\_{t'}\|^2]}$.
+By the Cauchy-Schwarz inequality, $|\mathbb{E}[X\_t^\top X\_{t'}]| \le$ $\sqrt{\mathbb{E}[\|X\_t\|^2] \mathbb{E}[\|X\_{t'}\|^2]}$.
 
 Since we just showed $\mathbb{E}[\|X\_t\|^2]$ is $O(1+\bar{\chi}^2)$, the covariance/cross-term is also $O(1+\bar{\chi}^2)$.
 
@@ -379,7 +379,7 @@ D_{TV}(\pi \| \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\p
 $$
 {{< /math >}}
 
-Let $\Delta\_{\max} = \max\_{t,s\_t} D\_{TV}(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. The bound becomes:
+Let $\Delta\_{\max} =$ $\max\_{t,s\_t} D\_{TV}(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. The bound becomes:
 
 $$
 D_{TV}(\pi \| \mu) \le T \cdot \Delta\_{\max}
@@ -437,7 +437,7 @@ This proof is nearly identical to the variance proof for Token-IS in Analysis 2.
 
 The estimator is a sum of $T$ terms: $\hat{g}\_{\text{tl-tis}} = \sum\_{t=0}^{T-1} X\_t'$, where $X\_t' = \min(\rho\_t, C) A\_t \nabla\_\theta \log \pi\_t$.
 
-The variance is $\mathbf{Var}(\sum\_t X\_t') =$ $\sum\_t \mathbf{Var}(X\_t')$ $+\mkern4mu \sum\_{t \neq t'} \mathbf{Cov}(X\_t', X\_{t'})$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
+The variance is $\mathbf{Var}(\sum\_t X\_t') =$ $\sum\_t \mathbf{Var}(X\_t')$ $+\mkern4mu \sum\_{t \neq t'} \mathbf{Cov}(X\_t', X\_{t'}')$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
 
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t'\|^2]$.
 
@@ -449,7 +449,7 @@ Since $\min(\rho\_t, C)^2 \le C^2$ by definition, the expectation is bounded by 
 
 **Cross Terms ($O(T^2)$ of them):**
 
-By Cauchy-Schwarz, $|\mathbb{E}[X\_t'^\top X\_{t'}']| \le \sqrt{\mathbb{E}[\|X\_t'\|^2] \mathbb{E}[\|X\_{t'}'\|^2]}$. Since the second moments are $O(C^2)$, each cross-term is also $O(C^2)$. The sum of all $O(T^2)$ cross terms is $O(T^2 C^2)$.
+By Cauchy-Schwarz, $|\mathbb{E}[X\_t'^\top X\_{t'}']| \le$ $\sqrt{\mathbb{E}[\|X\_t'\|^2] \mathbb{E}[\|X\_{t'}'\|^2]}$. Since the second moments are $O(C^2)$, each cross-term is also $O(C^2)$. The sum of all $O(T^2)$ cross terms is $O(T^2 C^2)$.
 
 **Total Variance:**
 
@@ -560,7 +560,7 @@ $$
 $$
 {{< /math >}}
 
-- This bias is $\mathbf{Bias} = \mathbb{E}_\mu[(\min(\rho, C) - \rho) f(y)]$*. This term is only non-zero for the tail (*$\rho \gt C$*), and **it can be shown that** this bias is inversely proportional to* $C$*:*
+- This bias is $\mathbf{Bias} =$ $\mathbb{E}_\mu[(\min(\rho, C) - \rho) f(y)]$*. This term is only non-zero for the tail (*$\rho \gt C$*), and **it can be shown that** this bias is inversely proportional to* $C$*:*
 
 {{< math >}}
 $$

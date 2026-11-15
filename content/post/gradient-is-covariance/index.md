@@ -84,7 +84,7 @@ $$
 $$
 {{< /math >}}
 
-Probabilities sum to one, so whatever a parameter does, the responses it raises are paid for by others, and weighted by probability the changes cancel. With the score's mean at zero, the policy gradient {{< math >}}$\mathbb{E}[A\cdot\mathrm{score}_i]${{< /math >}} is a covariance and the Fisher is a variance; Cauchy–Schwarz gives the bound. A baseline that depends only on the prompt changes nothing in {{< math >}}$G_i${{< /math >}}, since {{< math >}}$\operatorname{Cov}(A-b,\mathrm{score}_i)=\operatorname{Cov}(A,\mathrm{score}_i)${{< /math >}}. It changes only {{< math >}}$\operatorname{std}(A)${{< /math >}} and the noise of the estimate, and the [Optimal Token Baseline](/optimal-token-baseline), set per token, is the choice that minimizes that noise.
+Probabilities sum to one, so whatever a parameter does, the responses it raises are paid for by others, and weighted by probability the changes cancel. With the score's mean at zero, the policy gradient {{< math >}}$\mathbb{E}[A\cdot\mathrm{score}_i]${{< /math >}} is a covariance and the Fisher is a variance; Cauchy–Schwarz gives the bound. A baseline that depends only on the prompt changes nothing in {{< math >}}$G_i${{< /math >}}, since {{< math >}}$\operatorname{Cov}(A-b,\mathrm{score}_i)=${{< /math >}} {{< math >}}$\operatorname{Cov}(A,\mathrm{score}_i)${{< /math >}}. It changes only {{< math >}}$\operatorname{std}(A)${{< /math >}} and the noise of the estimate, and the [Optimal Token Baseline](/optimal-token-baseline), set per token, is the choice that minimizes that noise.
 
 The Fisher says where learning can happen; the reward decides where it does. After "She drank a cup of", the output rows for *tea* and *coffee* have a large Fisher, yet if the reward does not care which one is chosen, their gradient is zero. Measured before RL training, the top 1% of coordinates by Fisher hold 47.40% of the top 1% by gradient magnitude, against 1% at random ([Zhang, Mukherjee & Peng, 2026](https://arxiv.org/abs/2609.36262)).
 
@@ -191,7 +191,7 @@ For any sampler {{< math >}}$\smu${{< /math >}} whose full next-token distributi
 1. Zero conditional mean, by construction: {{< math >}}$\mathbb{E}_{a\sim\smu}\big[\kappa_{i,a}-\bar\kappa^{\mu}_i\big]=0${{< /math >}}.
 2. Cross terms vanish: for {{< math >}}$u\lt t${{< /math >}}, {{< math >}}$c_i^{(u)}${{< /math >}} is fixed by {{< math >}}$s_t${{< /math >}}, so {{< math >}}$\mathbb{E}_{\smu}\big[c_i^{(u)}c_i^{(t)}\big]=${{< /math >}} {{< math >}}$\mathbb{E}_{\smu}\big[c_i^{(u)}\,\mathbb{E}_{\smu}[c_i^{(t)}\mid s_t]\big]=0${{< /math >}}.
 3. The Fisher is a variance: by 2 only diagonal terms survive, and by 1 each is {{< math >}}$\operatorname{Var}_{a\sim\smu}[\kappa_{i,a}(s_t)]${{< /math >}}. By 1 and the tower property {{< math >}}$\mathbb{E}_{\smu}[c_i]=0${{< /math >}}, so the second moment is the variance.
-4. The update is a covariance: {{< math >}}$\operatorname{Cov}_{\smu}(A,c_i)=\mathbb{E}_{\smu}[A\,c_i]=G_i${{< /math >}}, and Cauchy–Schwarz gives the bound.
+4. The update is a covariance: {{< math >}}$\operatorname{Cov}_{\smu}(A,c_i)=${{< /math >}} {{< math >}}$\mathbb{E}_{\smu}[A\,c_i]=G_i${{< /math >}}, and Cauchy–Schwarz gives the bound.
 
 On-policy, {{< math >}}$c_i=\mathrm{score}_i${{< /math >}} and {{< math >}}$G_i${{< /math >}} is the gradient of the expected reward. Off-policy, {{< math >}}$G_i${{< /math >}} is the expected update of the centered estimator, which is the gradient of the covariance loss.
 

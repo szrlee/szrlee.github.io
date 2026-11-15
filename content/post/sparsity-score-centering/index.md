@@ -200,7 +200,7 @@ $$
 $$
 {{< /math >}}
 
-With {{< math >}}$\chi^2(D\,\|\,\pi_\theta)=\mathbb{E}_{\pi_\theta}\big[(D/\pi_\theta-1)^2\big]${{< /math >}}, the expectation under the root is {{< math >}}$\chi^2(D\,\|\,\pi_\theta)+(1-b)^2\ge\chi^2(D\,\|\,\pi_\theta)${{< /math >}}. The weight {{< math >}}$D/\pi_\theta${{< /math >}} is a product over positions of {{< math >}}$q(y_t\mid s_t)/\pmodel(y_t\mid s_t)${{< /math >}}, where {{< math >}}$q${{< /math >}} is the data's next-token distribution, and {{< math >}}$1+\chi^2(D\,\|\,\pi_\theta)=\mathbb{E}_D[D/\pi_\theta]${{< /math >}}. At the last position,
+With {{< math >}}$\chi^2(D\,\|\,\pi_\theta)=${{< /math >}} {{< math >}}$\mathbb{E}_{\pi_\theta}\big[(D/\pi_\theta-1)^2\big]${{< /math >}}, the expectation under the root is {{< math >}}$\chi^2(D\,\|\,\pi_\theta)+(1-b)^2\ge${{< /math >}} {{< math >}}$\chi^2(D\,\|\,\pi_\theta)${{< /math >}}. The weight {{< math >}}$D/\pi_\theta${{< /math >}} is a product over positions of {{< math >}}$q(y_t\mid s_t)/\pmodel(y_t\mid s_t)${{< /math >}}, where {{< math >}}$q${{< /math >}} is the data's next-token distribution, and {{< math >}}$1+\chi^2(D\,\|\,\pi_\theta)=\mathbb{E}_D[D/\pi_\theta]${{< /math >}}. At the last position,
 
 {{< math >}}
 $$

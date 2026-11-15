@@ -113,7 +113,7 @@ sidebar:
 4. **Hardware is a first-order variable.** With identical code the mismatch ranks H20 < L20 < A100, and a run that collapses on one GPU trains on another ([§3.4](#hardware)).
 5. **The mismatch grows during training.** Once a run enters a high-mismatch state it stays there; we hypothesize a feedback loop between the optimizer and numerical error ([§3.5](#36-the-mismatch-is-not-static-a-vicious-cycle-driven-by-optimization)).
 
-**Fix: sequence-level masking** ([§4](#4-attempts-to-alleviate-the-training-inference-mismatch)). Token-level corrections reweight each token but not the distribution of prefixes, and in our multi-turn tool-use runs they still collapsed. **Masked importance sampling (MIS)** computes one ratio for the whole response, {{< math >}}$\rho(y|x) = \pfsdp(y|x)/\pvllm(y|x)${{< /math >}}, and masks the policy loss of every sequence whose ratio exceeds a threshold {{< math >}}$C${{< /math >}}. **Geo-MIS** applies the mask, on both sides, to the geometric mean of the per-token ratios, so that one pair of thresholds serves responses of every length {{< math >}}$T${{< /math >}}:
+**Fix: sequence-level masking** ([§4](#4-attempts-to-alleviate-the-training-inference-mismatch)). Token-level corrections reweight each token but not the distribution of prefixes, and in our multi-turn tool-use runs they still collapsed. **Masked importance sampling (MIS)** computes one ratio for the whole response, {{< math >}}$\rho(y|x) =${{< /math >}} {{< math >}}$\pfsdp(y|x)/\pvllm(y|x)${{< /math >}}, and masks the policy loss of every sequence whose ratio exceeds a threshold {{< math >}}$C${{< /math >}}. **Geo-MIS** applies the mask, on both sides, to the geometric mean of the per-token ratios, so that one pair of thresholds serves responses of every length {{< math >}}$T${{< /math >}}:
 
 {{< math >}}
 $$
@@ -483,7 +483,7 @@ g(\theta) = \mathbb{E}_{y \sim \pi_{\theta}} \left[ \sum_{t=0}^{|y|-1} G_t \cdot
 $$
 {{< /math >}}
 
-**Step 3: introduce the advantage function.** Replacing {{< math >}}$G_t${{< /math >}} by its conditional expectation given {{< math >}}$(s_t, a_t)${{< /math >}}, the action value {{< math >}}$Q^{\pi_{\theta}}(s_t, a_t)${{< /math >}}, leaves the gradient unchanged (tower property). For variance reduction, we then subtract a state-dependent **baseline**, the value function {{< math >}}$V^{\pi_{\theta}}(s_t)${{< /math >}}, whose contribution is zero in expectation. This gives the **advantage** {{< math >}}$A^{\pi_{\theta}}(s_t, a_t) = Q^{\pi_{\theta}}(s_t, a_t) - V^{\pi_{\theta}}(s_t)${{< /math >}}:
+**Step 3: introduce the advantage function.** Replacing {{< math >}}$G_t${{< /math >}} by its conditional expectation given {{< math >}}$(s_t, a_t)${{< /math >}}, the action value {{< math >}}$Q^{\pi_{\theta}}(s_t, a_t)${{< /math >}}, leaves the gradient unchanged (tower property). For variance reduction, we then subtract a state-dependent **baseline**, the value function {{< math >}}$V^{\pi_{\theta}}(s_t)${{< /math >}}, whose contribution is zero in expectation. This gives the **advantage** {{< math >}}$A^{\pi_{\theta}}(s_t, a_t) =${{< /math >}} {{< math >}}$Q^{\pi_{\theta}}(s_t, a_t) - V^{\pi_{\theta}}(s_t)${{< /math >}}:
 
 {{< math >}}
 $$
@@ -649,7 +649,7 @@ This theory suggests that, despite the potentially lower variance of token-level
 
 **Importance sampling of either kind prevents the gradient explosion. In multi-turn tool use the token-level run still collapses, while the sequence-level run survives but plateaus.**
 
-Our analysis predicts that token-level corrections become unstable when the mismatch is large, while sequence-level corrections are more robust. Pure sequence-level IS has exponential variance, so we test truncated and masked variants. With the per-token ratio {{< math >}}$\rho_t = \pfsdp(y_t|x,y_{\lt t})/\pvllm(y_t|x,y_{\lt t})${{< /math >}} and the sequence ratio {{< math >}}$\rho = \prod_t \rho_t${{< /math >}}, both over model-generated tokens:
+Our analysis predicts that token-level corrections become unstable when the mismatch is large, while sequence-level corrections are more robust. Pure sequence-level IS has exponential variance, so we test truncated and masked variants. With the per-token ratio {{< math >}}$\rho_t =${{< /math >}} {{< math >}}$\pfsdp(y_t|x,y_{\lt t})/\pvllm(y_t|x,y_{\lt t})${{< /math >}} and the sequence ratio {{< math >}}$\rho = \prod_t \rho_t${{< /math >}}, both over model-generated tokens:
 
 - **Token-TIS** weights each token by {{< math >}}$\min(\rho_t, C)${{< /math >}}.
 - **Seq-TIS** weights the whole sequence by {{< math >}}$\min(\rho, C)${{< /math >}}.
@@ -752,7 +752,7 @@ seq_weight = torch.exp(geo_log_ratio) * keep                 # Geo-MIS weight; m
 pg_loss = pg_loss * seq_weight.unsqueeze(-1)
 ```
 
-**Step 1: {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} is a one-sample estimate of the mean KL.** Write {{< math >}}$D_t =${{< /math >}} {{< math >}}$\mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|\,\pfsdp(\cdot|x,y_{\lt t})\big)${{< /math >}} for the KL divergence from the sampler to the trainer at the context of token {{< math >}}$t${{< /math >}}. The token {{< math >}}$y_t${{< /math >}} was drawn from {{< math >}}$\pvllm${{< /math >}}, so by the definition of the KL divergence
+**Step 1: {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} is a one-sample estimate of the mean KL.** Write {{< math >}}$D_t =${{< /math >}} {{< math >}}$\mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|${{< /math >}} {{< math >}}$\pfsdp(\cdot|x,y_{\lt t})\big)${{< /math >}} for the KL divergence from the sampler to the trainer at the context of token {{< math >}}$t${{< /math >}}. The token {{< math >}}$y_t${{< /math >}} was drawn from {{< math >}}$\pvllm${{< /math >}}, so by the definition of the KL divergence
 
 {{< math >}}
 $$

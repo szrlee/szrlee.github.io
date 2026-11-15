@@ -109,7 +109,7 @@ $$
 $$
 {{< /math >}}
 
-If the step is {{< math >}}$\Delta\theta=\eta\,DG${{< /math >}} with a diagonal preconditioner {{< math >}}$D${{< /math >}}, as in one Adam step, replace {{< math >}}$v${{< /math >}} with {{< math >}}$Dv${{< /math >}}: {{< math >}}$|v^\top DG|\le\operatorname{std}_{\smu}(A)\sqrt{v^\top DF^{\mu}D\,v}${{< /math >}}.
+If the step is {{< math >}}$\Delta\theta=\eta\,DG${{< /math >}} with a diagonal preconditioner {{< math >}}$D${{< /math >}}, as in one Adam step, replace {{< math >}}$v${{< /math >}} with {{< math >}}$Dv${{< /math >}}: {{< math >}}$|v^\top DG|\le${{< /math >}} {{< math >}}$\operatorname{std}_{\smu}(A)\sqrt{v^\top DF^{\mu}D\,v}${{< /math >}}.
 
 </details>
 

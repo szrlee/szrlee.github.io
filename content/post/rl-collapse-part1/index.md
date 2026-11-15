@@ -343,7 +343,7 @@ $$
 where:
 - $C$ = constant depending on max advantage $\max_{s,a}|A_\mu(s,a)|$
 - $T$ = horizon (sequence length)
-- $D_{TV}^{\max} = \max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))$
+- {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))${{< /math >}}
 
 **The penalty scales quadratically with horizon $T^2$** because state distribution errors accumulate linearly with $t$, and summing over all timesteps gives $O(T^2)$.
 

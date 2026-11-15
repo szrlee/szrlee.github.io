@@ -369,7 +369,7 @@ The agent is the system's core, integrating five major functions: **perception, 
 **learn(trajectory_batch: List[Tuple])**
 
 - **Implements**: Connects to a specific reinforcement learning backend (e.g., [VeRL](https://github.com/volcengine/verl) - Volcano Engine Reinforcement Learning for LLMs)
-- **Behavior**: Receives a batch of complete experience trajectories, where each trajectory point contains {{< math >}}$(X_k, th_k, A_k, R_{k+1}, X_{k+1}, ...)${{< /math >}}. It formats this data and passes it to the RL backend's optimizer (e.g., PPO, GRPO, ReMax, etc.) to perform updates to model parameters {{< math >}}$\theta${{< /math >}}
+- **Behavior**: Receives a batch of complete experience trajectories, where each trajectory point contains {{< math >}}$(X_k, th_k, A_k,${{< /math >}} {{< math >}}$R_{k+1}, X_{k+1}, ...)${{< /math >}}. It formats this data and passes it to the RL backend's optimizer (e.g., PPO, GRPO, ReMax, etc.) to perform updates to model parameters {{< math >}}$\theta${{< /math >}}
 
 ---
 
@@ -441,7 +441,7 @@ The agent's macro actions {{< math >}}$A_k${{< /math >}} are a series of predefi
 
 - **edit**: Modify files—itself is a composite tool
   - View file: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command: "view",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{view_range: [int, int]}\})${{< /math >}}
-  - String replacement: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command: "str_replace",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{old_str: string,}${{< /math >}} {{< math >}}$\text{new_str: string}\})${{< /math >}}
+  - String replacement: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command:}${{< /math >}} {{< math >}}$\text{"str_replace",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{old_str: string,}${{< /math >}} {{< math >}}$\text{new_str: string}\})${{< /math >}}
   - Insert code: {{< math >}}$A_k = (\text{edit},${{< /math >}} {{< math >}}$\{\text{command: "insert",}${{< /math >}} {{< math >}}$\text{path: string,}${{< /math >}} {{< math >}}$\text{new_str: string,}${{< /math >}} {{< math >}}$\text{insert_line: int}\})${{< /math >}}
 
 - **submit**: Terminate task and submit final solution
@@ -474,7 +474,7 @@ Let's look at the utils module, which seems to handle parameter parsing:
 
 where {{< math >}}$O_0${{< /math >}} contains the initial task description (Problem Statement) and environment introduction.
 
-- **State Update** ({{< math >}}$X_{k+1} = f_{\text{agent}}(X_k, th_k, A_k, O_{k+1})${{< /math >}}): Due to the "history explosion" problem, complete {{< math >}}$H_k^{\text{agent}}${{< /math >}} cannot directly serve as LLM input. The agent's state {{< math >}}$X_k${{< /math >}} is actually the Prompt input to the LLM. {{< math >}}$f_{\text{agent}}${{< /math >}} is the strategy for constructing this Prompt from history—the memory and forgetting mechanism. Common implementations include:
+- **State Update** ({{< math >}}$X_{k+1} =${{< /math >}} {{< math >}}$f_{\text{agent}}(X_k, th_k, A_k, O_{k+1})${{< /math >}}): Due to the "history explosion" problem, complete {{< math >}}$H_k^{\text{agent}}${{< /math >}} cannot directly serve as LLM input. The agent's state {{< math >}}$X_k${{< /math >}} is actually the Prompt input to the LLM. {{< math >}}$f_{\text{agent}}${{< /math >}} is the strategy for constructing this Prompt from history—the memory and forgetting mechanism. Common implementations include:
 
   - **Sliding Window**: A simple strategy, e.g., SWE-agent-lm only retains the most recent 5 observations {{< math >}}$O_i${{< /math >}} and complete thought-action history {{< math >}}$(th, A)${{< /math >}} when constructing next state {{< math >}}$X_k${{< /math >}}
 
@@ -484,7 +484,7 @@ where {{< math >}}$O_0${{< /math >}} contains the initial task description (Prob
 
 #### Optimization Objective and Reward Formation ($r$) {#swe-reward}
 
-- **Reward Function** ({{< math >}}$R_{k+1} = r(X_k, th_k, A_k, O_{k+1})${{< /math >}}): In SWE-Benchmark, reward implementation is **sparse and delayed**.
+- **Reward Function** ({{< math >}}$R_{k+1} =${{< /math >}} {{< math >}}$r(X_k, th_k, A_k, O_{k+1})${{< /math >}}): In SWE-Benchmark, reward implementation is **sparse and delayed**.
 
   - For most intermediate steps (like bash, edit), reward {{< math >}}$R_{k+1}${{< /math >}} is constantly 0. The agent receives no explicit right/wrong signal during exploration
   - Only when the agent executes final action {{< math >}}$A_k = (\text{submit}, \{\})${{< /math >}} is a non-zero reward calculation triggered

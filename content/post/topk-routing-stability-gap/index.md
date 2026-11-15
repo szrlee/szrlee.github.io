@@ -168,7 +168,7 @@ CPI established the foundational identity {{< math >}}$J(\pi) - J(\mu) =${{< /ma
 $$J(\pi) \geq L_{\mu}(\pi) - \frac{4\epsilon\gamma}{(1-\gamma)^2} \cdot (D_{TV}^{\max})^2$$
 {{< /math >}}
 
-where {{< math >}}$\epsilon = \max_{s,a}|A(s,a)|${{< /math >}} and {{< math >}}$D_{TV}^{\max} = \max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))${{< /math >}}. For finite-horizon undiscounted settings ({{< math >}}$\gamma = 1${{< /math >}}, horizon {{< math >}}$T${{< /math >}}), the bound becomes:
+where {{< math >}}$\epsilon = \max_{s,a}|A(s,a)|${{< /math >}} and {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))${{< /math >}}. For finite-horizon undiscounted settings ({{< math >}}$\gamma = 1${{< /math >}}, horizon {{< math >}}$T${{< /math >}}), the bound becomes:
 
 {{< math >}}
 $$J(\pi) \geq L_{\mu}(\pi) - C \cdot T^2 \cdot (D_{TV}^{\max})^2$$

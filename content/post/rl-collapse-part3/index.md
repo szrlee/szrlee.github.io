@@ -510,7 +510,7 @@ $$
 This bounds the **average per-token KL divergence** (via the k1 estimator) along the trajectory. The key insight is that this constraint is **independent of sequence length $T$**:
 
 - **Sequence-level trust region:** Requires $\rho(y) = \prod\_t \rho\_t \le C$, where $C$ must shrink as $O(1/T^2)$ to satisfy TRPO
-- **Per-token trust region (Geo-Mask):** Requires $\rho\_{\text{geo}}(y) = (\prod\_t \rho\_t)^{1/T} \le C$, where $C$ can be fixed (e.g., $C=2$) for all $T$
+- **Per-token trust region (Geo-Mask):** Requires $\rho\_{\text{geo}}(y) =$ $(\prod\_t \rho\_t)^{1/T} \le C$, where $C$ can be fixed (e.g., $C=2$) for all $T$
 
 Since $\log \rho\_{\text{geo}}(y) = \frac{1}{T}\sum\_t \log \rho\_t$ is the average k1 estimate (where k1 = $\log \rho$), the constraint $|\log \rho\_{\text{geo}}| \le \epsilon$ approximately enforces that the average per-token KL divergence remains bounded. This is precisely the intensive (per-token) version of the trust region constraint, automatically adapting to sequence length by measuring the *average* rather than the *total* divergence.
 
