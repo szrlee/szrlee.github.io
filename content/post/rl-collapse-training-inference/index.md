@@ -1,7 +1,7 @@
 ---
 title: 'When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch'
 subtitle: 'Why the gap between fast inference and faithful training silently collapses LLM-RL, and how masked importance sampling (MIS) fixes it'
-summary: 'The relentless push for faster inference creates a dangerous training-inference mismatch that silently kills RL with LLMs. We reveal the vicious cycle—particularly acute in reasoning and agentic RL—and propose masked importance sampling (MIS): one importance ratio per response, with sequences outside the trust region masked out of the loss. Its length-normalized form, Geo-MIS, masks on the geometric mean of the per-token ratios, a one-sample estimate of the mean per-token KL that Trust Region Masking later computes exactly. In our multi-turn tool-use runs, token-level corrections still collapsed, while MIS trained past 700 steps where the uncorrected run collapsed near step 280.'
+summary: 'The relentless push for faster inference creates a dangerous training-inference mismatch that silently kills RL with LLMs. We trace how it leads to collapse, most acutely in reasoning and agentic RL, and propose masked importance sampling (MIS): one importance ratio per response, with sequences outside the trust region masked out of the loss. Its length-normalized form, Geo-MIS, masks on the geometric mean of the per-token ratios, a one-sample estimate of the mean per-token KL that Trust Region Masking later computes exactly. In our multi-turn tool-use runs, token-level corrections still collapsed, while MIS trained past 700 steps where the uncorrected run collapsed near step 280.'
 authors:
   - Jiacai Liu
   - admin
@@ -36,7 +36,6 @@ citation: |
 
 sidebar:
   toc: true
-  toc_depth: 5
   toc_pin: [mis, geo-mis]
   links:
     - title: 'Series: RL Collapse'
@@ -101,57 +100,38 @@ sidebar:
 
 **Follow-up paper:** [Trust Region Masking for Long-Horizon LLM Reinforcement Learning](https://arxiv.org/abs/2512.23075) (ICML 2026)
 
-<div class="alert alert-note">
+<div class="alert alert-note" id="tldr">
 <div>
 
-**Our contribution: masked importance sampling (MIS) and its geometric form (Geo-MIS).** The training-inference mismatch silently turns on-policy RL into off-policy RL. We propose **sequence-level masked importance sampling**: compute one importance ratio for the whole response, {{< math >}}$\rho(y|x) = \pfsdp(y|x)/\pvllm(y|x)${{< /math >}}, and mask the policy loss of every sequence whose ratio exceeds a threshold {{< math >}}$C${{< /math >}}:
+**What this post contributes.** Fast inference engines and faithful training frameworks compute slightly different probabilities from the same weights. This training-inference mismatch silently turns on-policy RL into off-policy RL, and in reasoning and agentic RL it can collapse a run. The post gives a diagnosis and a fix.
 
-{{< math >}}
-$$
-\rho(y|x) \gets \rho(y|x)\,\mathbb{I}\{\rho(y|x) \le C\}.
-$$
-{{< /math >}}
+**Diagnosis: five findings** ([§3](#3-anatomy-of-the-training-collapse))
 
-Truncation (TIS) keeps such a sequence and caps its weight; MIS drops it. In our multi-turn tool-use runs on L20 GPUs, MIS trained for more than 700 steps where the uncorrected run collapsed near step 280, raised the peak training reward from 0.56 to 0.64, and matched the uncorrected peak test accuracy (0.70 vs. 0.68; Figure 17). The same mask applied per token still collapsed (Figure 18). [Details →](#mis)
+1. **A metric that warns.** `vllm-kl` measures the mismatch, and its spikes come together with the spikes in entropy, perplexity and gradient norm that precede a collapse ([§3.1](#31-measuring-the-mismatch-the-vllm-kl-metric)).
+2. **The engines disagree on low-probability tokens.** The trainer can give a sampled token a probability orders of magnitude below the sampler's, and the batches where this happens are the ones whose gradients explode ([§3.2](#low-probability-tokens)).
+3. **Out-of-distribution tool responses make it worse.** After a tool response the model samples low-probability tokens more often, so multi-turn agentic runs fail first ([§3.3](#ood-tool-responses)).
+4. **Hardware is a first-order variable.** With identical code the mismatch ranks H20 < L20 < A100, and a run that collapses on one GPU trains on another ([§3.4](#hardware)).
+5. **The mismatch grows during training.** Once a run enters a high-mismatch state it stays there; we hypothesize a feedback loop between the optimizer and numerical error ([§3.5](#36-the-mismatch-is-not-static-a-vicious-cycle-driven-by-optimization)).
 
-For a response of {{< math >}}$T${{< /math >}} tokens, **Geo-MIS** applies the same mask to the geometric mean of the per-token ratios {{< math >}}$\rho_t${{< /math >}} (trainer probability over sampler probability for token {{< math >}}$y_t${{< /math >}}), so that one pair of thresholds serves responses of every length:
-
-{{< math >}}
-$$
-\begin{gathered}
-\rho_{\mathrm{geo}}(y|x) = \rho(y|x)^{1/T} = \exp\Big(\frac{1}{T}\sum_{t=1}^{T}\log\rho_t\Big), \\
-\rho_{\mathrm{geo}} \gets \rho_{\mathrm{geo}}\,\mathbb{I}\{C_{\text{low}} \le \rho_{\mathrm{geo}} \le C_{\text{high}}\}.
-\end{gathered}
-$$
-{{< /math >}}
-
-It was released in VeRL 0.6.0 (October 2025), and DeepSeek-V3.2 uses a closely related length-normalized sequence mask. The experiments in this post use the product form above.
-
-**Relation to Trust Region Masking.** The sampler {{< math >}}$\pvllm${{< /math >}} drew the response, so each term of {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} has the token-level KL divergence between the two engines as its mean:
+**Fix: sequence-level masking** ([§4](#4-attempts-to-alleviate-the-training-inference-mismatch)). Token-level corrections reweight each token but not the distribution of prefixes, and in our multi-turn tool-use runs they still collapsed. **Masked importance sampling (MIS)** computes one ratio for the whole response, {{< math >}}$\rho(y|x) = \pfsdp(y|x)/\pvllm(y|x)${{< /math >}}, and masks the policy loss of every sequence whose ratio exceeds a threshold {{< math >}}$C${{< /math >}}. **Geo-MIS** applies the mask, on both sides, to the geometric mean of the per-token ratios, so that one pair of thresholds serves responses of every length {{< math >}}$T${{< /math >}}:
 
 {{< math >}}
 $$
 \begin{gathered}
--\log\rho_{\mathrm{geo}}(y|x) = \frac{1}{T}\sum_{t=1}^{T}\big(-\log\rho_t\big), \\
-\mathbb{E}_{y_t\sim\pvllm}\big[-\log\rho_t\big] = \mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|\,\pfsdp(\cdot|x,y_{\lt t})\big).
+\text{MIS:}\quad \rho(y|x) \gets \rho(y|x)\,\mathbb{I}\{\rho(y|x) \le C\}, \\
+\text{Geo-MIS:}\quad \rho_{\mathrm{geo}} = \rho(y|x)^{1/T}, \qquad \rho_{\mathrm{geo}} \gets \rho_{\mathrm{geo}}\,\mathbb{I}\{C_{\text{low}} \le \rho_{\mathrm{geo}} \le C_{\text{high}}\}.
 \end{gathered}
 $$
 {{< /math >}}
 
-Geo-MIS is therefore a trust region on the **mean per-token KL** of the response, the quantity `vllm-kl` monitors, estimated from the sampled tokens. The follow-up paper, [Trust Region Masking](https://arxiv.org/abs/2512.23075) (ICML 2026), computes each token's KL exactly from stored logits and masks a sequence on the mean of these KLs and on their maximum; its improvement bounds depend on the maximum, which the mean alone cannot control. [Details →](#geo-mis)
+On L20 GPUs, MIS trained for more than 700 steps where the uncorrected run collapsed near step 280, raised the peak training reward from 0.56 to 0.64, and matched the uncorrected peak test accuracy (0.70 vs. 0.68; Figure 14, [§4.3](#mis)). Geo-MIS was released in VeRL 0.6.0. Its statistic {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} is a one-sample estimate of the mean per-token KL of the response, the quantity `vllm-kl` monitors; the follow-up paper, Trust Region Masking (ICML 2026), computes that KL exactly and adds a max-KL criterion ([§4.4](#geo-mis)).
 
 </div>
 </div>
 
-## TL;DR
+{{< stepfig "rlc-loop" >}}
 
-The relentless push for faster inference has created a dangerous "training-inference mismatch" that can silently kill reinforcement learning with LLMs. Our investigation reveals a vicious cycle that is particularly acute in modern reasoning and agentic RL:
-
-- **Out-of-distribution (OOD) contexts drive low-probability sampling.** Agentic workflows expose models to external inputs and dynamic environments, which makes them sample **low-probability tokens** more often, tokens that matter for novel reasoning, tool calls, and adaptive responses ([§3.4](#ood-tool-responses)).
-- **Low-probability tokens are where training breaks.** The training-inference mismatch is most severe for these tokens, and the batches where it spikes are the ones where gradients explode and training suddenly fails ([§3.3](#low-probability-tokens)).
-- **Hardware variability complicates the problem.** Different GPU architectures change the size of the mismatch unpredictably, so the same agentic training setup can train stably on one machine and collapse on another ([§3.5](#hardware)).
-- **Sequence-level correction is the principled fix, and MIS is our practical form of it.** Token-level corrections reweight each token but not the distribution of prefixes, and in our multi-turn tool-use runs they still collapsed. A single sequence-level ratio corrects the whole trajectory, and masking the sequences outside the trust region (MIS) kept training stable more than twice as long as the uncorrected run ([§4.2.1](#distribution-correction), [§4.2.2](#mis)).
-- **Geo-MIS makes the trust region independent of length and ties it to KL.** Masking on the geometric mean of the per-token ratios bounds a one-sample estimate of the mean per-token KL between sampler and trainer, the quantity `vllm-kl` monitors. Trust Region Masking later computes that KL exactly and adds a max-KL criterion ([Geo-MIS and Trust Region Masking](#geo-mis)).
+**How to read this post.** [§1](#1-the-mystery-of-the-sudden-collapse) and [§2](#2-a-fundamental-conflict-the-growing-gap-between-inference-and-training) state the problem. [§3](#3-anatomy-of-the-training-collapse) is the evidence, one finding per subsection. [§4](#4-attempts-to-alleviate-the-training-inference-mismatch) is the method: why the correction must act on the whole sequence, then MIS, then Geo-MIS and its link to Trust Region Masking. [§5](#other-settings) lists the engine and hardware settings we tried, with a summary table, and [§6](#5-conclusion-and-key-takeaways-for-practitioners) has the takeaways for practitioners. Short on time: read the box above, the figure, [§4.3](#mis) and [§6](#5-conclusion-and-key-takeaways-for-practitioners).
 
 ---
 
@@ -164,7 +144,6 @@ We recently encountered this firsthand while conducting agentic RL experiments f
 - We examined the code and confirmed that our agent loop follows a token-in-token-out process.
 - We tuned the hyperparameters `beta1` and `beta2` in the Adam optimizer.
 - We also applied batch normalization to the advantages to balance the updates.
-- ...
 
 However, none of these standard fixes worked. Since even the simpler on-policy experiments failed, we suspected the issue was not with the RL algorithm but with a more fundamental part of the training stack. This led us to investigate a critical and increasingly prevalent challenge in modern LLM-RL: the unavoidable gap between highly optimized inference engines and faithful training frameworks.
 
@@ -177,7 +156,11 @@ However, none of these standard fixes worked. Since even the simpler on-policy e
 
 ## 2. A Fundamental Conflict: The Growing Gap Between Inference and Training
 
-Rollout speed is a core bottleneck in LLM-RL. To achieve the massive throughput required, modern inference engines (e.g., vLLM, SGLang, TensorRT-LLM) employ aggressive optimization strategies like speculative decoding, low-precision computation (INT8/FP8), and specialized, batch-variant CUDA kernels. While maintaining sampling fidelity, **the primary objective of modern inference engines is to maximize throughput**, often measured in tokens per second. **Conversely, training frameworks (e.g., FSDP, DeepSpeed, Megatron-LM) must strike a different balance, prioritizing numerical stability and precision for gradient computation**, often using higher-precision formats like FP32 for master weights and optimizer states. **This divergence in optimization priorities and constraints makes a training-inference mismatch hard to avoid.** The relentless push for faster rollouts is making this gap wider, not smaller. One can enforce identical calculations (e.g., with ["batch invariant kernels"](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/)), but this costs substantial throughput, which works against the reason for using a high-speed inference engine. **This speed-vs-consistency trade-off is at the heart of the problem, making it a persistent challenge rather than a simple engineering fix.**
+Rollout speed is a core bottleneck in LLM-RL. To reach the throughput it needs, modern inference engines (e.g., vLLM, SGLang, TensorRT-LLM) use aggressive optimizations such as speculative decoding, low-precision computation (INT8/FP8), and specialized, batch-variant CUDA kernels. They maintain sampling fidelity, but their primary objective is throughput, often measured in tokens per second.
+
+Training frameworks (e.g., FSDP, DeepSpeed, Megatron-LM) strike a different balance. They prioritize numerical stability and precision for gradient computation, and often keep master weights and optimizer states in higher-precision formats such as FP32.
+
+**This divergence in priorities makes a training-inference mismatch hard to avoid**, and the push for faster rollouts is making the gap wider, not smaller. One can enforce identical calculations (e.g., with ["batch invariant kernels"](https://thinkingmachines.ai/blog/defeating-nondeterminism-in-llm-inference/)), but this costs substantial throughput, which works against the reason for using a high-speed inference engine. The speed-versus-consistency trade-off is at the heart of the problem: it is a persistent challenge rather than a simple engineering fix.
 
 In our stack, this mismatch manifested between our vLLM inference sampler and our FSDP trainer. The actual parameter update was
 
@@ -199,11 +182,11 @@ Here {{< math >}}$x${{< /math >}} is the prompt sampled from the distribution {{
 
 ---
 
-## 3. Anatomy of the Training Collapse
+## 3. Diagnosis: Five Findings {#3-anatomy-of-the-training-collapse}
 
 ### Setup
 
-Unless otherwise specified, the experiments in Sections 3 and 4 use:
+Unless otherwise specified, the experiments in Sections 3 to 5 use:
 
 - **Framework:** [VeRL](https://github.com/volcengine/verl), with the vLLM v1 sampler (AsyncvLLMServer) and an FSDP trainer.
 - **Model and algorithm:** Qwen3-14B-Base trained with GRPO on multi-turn tool-integrated reasoning (TIR).
@@ -212,7 +195,9 @@ Unless otherwise specified, the experiments in Sections 3 and 4 use:
 
 Experiments that change the hardware, the model, or the task (single-turn reasoning RL) say so.
 
-### 3.1 Measuring the Mismatch: The `vllm-kl` Metric
+### 3.1 Finding 1: `vllm-kl` Spikes Come with the Signs of Collapse {#31-measuring-the-mismatch-the-vllm-kl-metric}
+
+**One number, `vllm-kl`, measures the mismatch. Its spikes line up with spikes in entropy, perplexity and gradient norm, and it rises before the reward collapses.**
 
 A very straightforward metric for measuring the training-inference mismatch is **vllm-kl**:
 
@@ -222,7 +207,7 @@ $$
 $$
 {{< /math >}}
 
-where {{< math >}}$s${{< /math >}} is the context prefix (state), {{< math >}}$a${{< /math >}} is the token (action), and {{< math >}}$d_\pi${{< /math >}} is the distribution of prefixes visited by policy {{< math >}}$\pi${{< /math >}} (defined precisely in [§4.2.1](#distribution-correction)). Our experiments involve tool calls, so the response {{< math >}}$y${{< /math >}} may include tool responses; our `vllm-kl` metric only considers tokens generated by the model itself, and averages over them. The formula above is the plain log-ratio form; the code below uses the [K3 estimator](http://joschu.net/blog/kl-approx.html), {{< math >}}$r - 1 - \log r${{< /math >}} with {{< math >}}$r = \pfsdp(a|s)/\pvllm(a|s)${{< /math >}}, which has the same expectation, is never negative, and has lower variance. It computes `vllm-kl` in [VeRL](https://github.com/volcengine/verl), assuming the inference engine's token probabilities are already available:
+where {{< math >}}$s${{< /math >}} is the context prefix (state), {{< math >}}$a${{< /math >}} is the token (action), and {{< math >}}$d_\pi${{< /math >}} is the distribution of prefixes visited by policy {{< math >}}$\pi${{< /math >}} (defined precisely in [§4.1](#distribution-correction)). Our experiments involve tool calls, so the response {{< math >}}$y${{< /math >}} may include tool responses; our `vllm-kl` metric only considers tokens generated by the model itself, and averages over them. The formula above is the plain log-ratio form; the code below uses the [K3 estimator](http://joschu.net/blog/kl-approx.html), {{< math >}}$r - 1 - \log r${{< /math >}} with {{< math >}}$r = \pfsdp(a|s)/\pvllm(a|s)${{< /math >}}, which has the same expectation, is never negative, and has lower variance. It computes `vllm-kl` in [VeRL](https://github.com/volcengine/verl), assuming the inference engine's token probabilities are already available:
 
 <details class="spoiler">
 <summary>K3 estimator for <code>vllm-kl</code></summary>
@@ -238,11 +223,11 @@ vllm_k3_kl = masked_mean(vllm_k3_kl_matrix, response_mask)
 
 </details>
 
-### 3.2 The Warning Signs: Correlated Instability
+<span id="32-the-warning-signs-correlated-instability"></span>
 
 Our first clue was that high `vllm-kl` values were not isolated events. They correlated strongly with other signs of instability.
 
-#### 3.2.1 Fluctuations in FSDP Entropy and Rewards
+#### Entropy and rewards fluctuate with `vllm-kl` {#321-fluctuations-in-fsdp-entropy-and-rewards}
 
 In many of our experiments, abnormal spikes in `vllm-kl` coincide with anomalous fluctuations in the entropy of the FSDP policy {{< math >}}$\pfsdp${{< /math >}} and in rewards. Figure 2 is an intuitive example: **the locations of the entropy spikes almost perfectly match the locations of the `vllm-kl` spikes.** The correlation is less pronounced in the rewards, but a massive `vllm-kl` spike around step 250 coincided with a low-quality batch and a noticeable dip in reward. **When the mismatch is large, both the vLLM policy {{< math >}}$\pvllm${{< /math >}} and the FSDP policy {{< math >}}$\pfsdp${{< /math >}} enter an unstable region.**
 
@@ -251,7 +236,7 @@ In many of our experiments, abnormal spikes in `vllm-kl` coincide with anomalous
 <figcaption><strong>Figure 2.</strong> An on-policy experiment showing entropy (<strong>left</strong>) and rewards (<strong>right</strong>) alongside <code>vllm-kl</code>, illustrating their correlation during training.</figcaption>
 </figure>
 
-#### 3.2.2 Rising FSDP PPL and Gradient Norm Precede Policy Collapse
+#### FSDP perplexity and gradient norm rise before the collapse {#322-rising-fsdp-ppl-and-gradient-norm-precede-policy-collapse}
 
 More critically, spikes in `vllm-kl` coincided with spikes in both the FSDP [perplexity](https://en.wikipedia.org/wiki/Perplexity) (`fsdp-ppl`) and the gradient norm. In our experiments, the `fsdp-ppl` of a response {{< math >}}$y${{< /math >}} is
 
@@ -271,17 +256,17 @@ where {{< math >}}$\mathcal{T}_{\mathcal{M}}(y)${{< /math >}} is the index set o
 
 Late in training the policy's entropy is low (about 0.2 in Figure 2), so its perplexity on its own samples should stay close to 1. In batches with a large mismatch (high `vllm-kl`), `fsdp-ppl` instead spiked (to about 1.27 in Figure 3, top). **The FSDP engine was assigning very low probabilities to some tokens that the inference engine had sampled, and these were the batches whose gradient norm spiked.** This observation helped us pinpoint where mismatches are more likely to occur. As we will see, when these extremely low-FSDP-probability tokens were sampled, their probabilities in the vLLM engine were not nearly as low.
 
-### 3.3 The Smoking Gun: The Low-Probability Token Pitfall {#low-probability-tokens}
+### 3.2 Finding 2: The Mismatch Concentrates in Low-Probability Tokens {#low-probability-tokens}
 
-**The mismatch was not uniform.**
+**The mismatch is not uniform: it sits in the tokens the sampler considers unlikely.**
 
-By analyzing batches with varying levels of `vllm-kl`, we found a stark pattern: **the divergence is most severe for tokens that have a low probability according to the vLLM inference engine.** As a token's inference probability approaches zero, the training probability can become orders of magnitude smaller, making PPL and gradients explode. To make the conclusions as general as possible, we selected batches from various experiments before training collapse, taken at different training steps. Most of them have relatively high `vllm-kl`, which lets us study mismatch patterns under pronounced conditions; Group 1 serves as a low-mismatch reference. We collected rollout batches in three `vllm-kl` ranges, with five batches (around 5M tokens) in each group:
+By analyzing batches with varying levels of `vllm-kl`, we found a stark pattern. As a token's inference probability approaches zero, the training probability can become orders of magnitude smaller, making PPL and gradients explode. To make the conclusions as general as possible, we selected batches from various experiments before training collapse, taken at different training steps. Most of them have relatively high `vllm-kl`, which lets us study mismatch patterns under pronounced conditions; Group 1 serves as a low-mismatch reference. We collected rollout batches in three `vllm-kl` ranges, with five batches (around 5M tokens) in each group:
 
 - **Group 1 (low):** each batch has `vllm-kl` ≤ 1e-3, sampled on H20 GPUs.
 - **Group 2 (medium):** each batch has `vllm-kl` in [1e-3, 2e-2], sampled on L20 GPUs.
 - **Group 3 (high):** each batch has `vllm-kl` in [2e-2, 1e-1], sampled on L20 GPUs.
 
-Group 1 comes from H20 GPUs and Groups 2 and 3 from L20 GPUs, so the level of mismatch and the hardware vary together here. [Section 3.5](#hardware) isolates the effect of the hardware with otherwise identical runs.
+Group 1 comes from H20 GPUs and Groups 2 and 3 from L20 GPUs, so the level of mismatch and the hardware vary together here. [Section 3.4](#hardware) isolates the effect of the hardware with otherwise identical runs.
 
 Figure 4 shows the relationship between the vLLM output probability {{< math >}}$\pvllm(a|s)${{< /math >}} and the mismatch, measured by {{< math >}}$\log \pfsdp(a|s) - \log \pvllm(a|s)${{< /math >}}, at each level of `vllm-kl`:
 
@@ -307,41 +292,48 @@ From the three figures we observe that:
 
 Two caveats in reading these plots. Every token here was sampled by vLLM, so the average of {{< math >}}$\log \pvllm - \log \pfsdp${{< /math >}} over the sampled tokens is the KL divergence, which is never negative: some downward shift is expected, and what matters is the size of the tail, which reaches −15 in group 3. And the upper edge of each cloud is the bound {{< math >}}$\log \pfsdp - \log \pvllm \le -\log \pvllm${{< /math >}}, which widens as {{< math >}}$\pvllm \to 0${{< /math >}} by construction.
 
-### 3.4 OOD Tool Responses Amplify the Mismatch {#ood-tool-responses}
+### 3.3 Finding 3: Out-of-Distribution Tool Responses Amplify the Mismatch {#ood-tool-responses}
 
-#### 3.4.1 The Mismatch Is More Severe in Non-First-Round Outputs
+**After a tool response the model samples low-probability tokens more often. The mismatch therefore sits mainly in non-first-round outputs, and more tool calls bring an earlier collapse.**
 
-The finding in Section 3.3 explains why the problem was so acute in our multi-turn TIR experiments, **particularly in non-first-round model outputs**. The process works as follows:
+#### The mismatch is more severe in non-first-round outputs {#341-the-mismatch-is-more-severe-in-non-first-round-outputs}
+
+Finding 2 explains why the problem was so acute in our multi-turn TIR experiments, **particularly in non-first-round model outputs**. The process works as follows:
 
 1. The **agent** receives a tool response, which is often structured text (e.g., content wrapped in `<python_output>` and `</python_output>` tags) that is OOD compared to its pre-training and SFT data.
 2. Faced with this unfamiliar OOD context, the **agent's policy** becomes more uncertain and more likely to sample low-probability tokens in its subsequent turns (also observed in [SimpleTIR](https://github.com/ltzheng/SimpleTIR)).
 3. As we just established, these low-probability tokens are where severe mismatch occurs, creating the conditions for an `fsdp-ppl` and gradient explosion.
 
-Next, we plot the mismatch in the batches of the three groups (around 5k trajectories per group), separating first-round model outputs from non-first-round outputs. We use two views:
+Next, we plot the mismatch in the batches of the three groups of Finding 2 (around 5k trajectories per group), separating first-round model outputs from non-first-round outputs. We use two views:
 
 1. **Log-ppl scatter plot.** The x-axis is the log of the ppl under the vLLM policy {{< math >}}$\pvllm${{< /math >}} (`vllm-log-ppl`), and the y-axis is the log of the ppl under the FSDP policy {{< math >}}$\pfsdp${{< /math >}} (`fsdp-log-ppl`).
 2. **Probability scatter plot.** The x-axis is the token probability under {{< math >}}$\pvllm${{< /math >}} and the y-axis is the token probability under {{< math >}}$\pfsdp${{< /math >}}.
+
+**Group 3: batches with `vllm-kl` in [2e-2, 1e-1]**
+
+<figure class="post-fig">
+<img src="/figs/img/rl-collapse/scatter-group3.png" alt="Group 3, four scatter plots: first-round outputs stay near the diagonal, while non-first-round outputs spread far above it in log-ppl (mean absolute difference 0.111) and fill the whole square in token probability.">
+<figcaption>Group 3 (<code>vllm-kl</code> in [2e-2, 1e-1]). <strong>Top:</strong> log-ppl under vLLM vs. FSDP. <strong>Bottom:</strong> token probability under vLLM vs. FSDP. <strong>Left:</strong> first-round outputs. <strong>Right:</strong> non-first-round outputs.</figcaption>
+</figure>
+
+<details class="spoiler">
+<summary>Groups 1 and 2: the same plots at lower mismatch</summary>
 
 **Group 1: batches with `vllm-kl` ≤ 1e-3**
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/scatter-group1.png" alt="Group 1, four scatter plots: log-ppl and token probability, vLLM against FSDP, for first-round and non-first-round outputs. All four lie tightly on the diagonal, with correlations of about 0.998 or higher.">
-<figcaption>Group 1 (<code>vllm-kl</code> ≤ 1e-3). <strong>Top:</strong> log-ppl under vLLM vs. FSDP. <strong>Bottom:</strong> token probability under vLLM vs. FSDP. <strong>Left:</strong> first-round outputs. <strong>Right:</strong> non-first-round outputs.</figcaption>
+<figcaption>Group 1 (<code>vllm-kl</code> ≤ 1e-3). Same layout as Group 3.</figcaption>
 </figure>
 
 **Group 2: batches with `vllm-kl` in [1e-3, 2e-2]**
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/scatter-group2.png" alt="Group 2, four scatter plots: first-round outputs stay on the diagonal, while non-first-round outputs show points above it in log-ppl (mean absolute difference 0.021) and a wider spread in token probability.">
-<figcaption>Group 2 (<code>vllm-kl</code> in [1e-3, 2e-2]), same layout as above.</figcaption>
+<figcaption>Group 2 (<code>vllm-kl</code> in [1e-3, 2e-2]), same layout as Group 3.</figcaption>
 </figure>
 
-**Group 3: batches with `vllm-kl` in [2e-2, 1e-1]**
-
-<figure class="post-fig">
-<img src="/figs/img/rl-collapse/scatter-group3.png" alt="Group 3, four scatter plots: first-round outputs stay near the diagonal, while non-first-round outputs spread far above it in log-ppl (mean absolute difference 0.111) and fill the whole square in token probability.">
-<figcaption>Group 3 (<code>vllm-kl</code> in [2e-2, 1e-1]), same layout as above.</figcaption>
-</figure>
+</details>
 
 From these plots we observe that:
 
@@ -350,7 +342,7 @@ From these plots we observe that:
 3. As `vllm-kl` increases, the mismatch worsens mainly in non-first-round outputs.
 4. `fsdp-log-ppl` is consistently above `vllm-log-ppl`. Some gap is expected, as noted above, but it is largest for non-first-round outputs, where FSDP assigns much lower probability than vLLM to the sampled tokens.
 
-#### 3.4.2 More Tool Calls, More Training Instability
+#### More tool calls, more training instability {#342-more-tool-calls-more-training-instability}
 
 The following experiments also show that OOD tool responses exacerbate the training-inference mismatch and training instability. We ran off-policy GRPO on H20 GPUs with Qwen3-14B-Base as the base model, clip-higher 0.28 and 4 mini-batches, and set the maximum number of tool calls per trajectory (`max_tool_turn`) to 20 or 100. Figures 5 and 6 show the results: the more tool calls, the earlier the training collapses. Every collapse comes with a gradient explosion and an explosion in `vllm-kl`.
 
@@ -364,9 +356,9 @@ The following experiments also show that OOD tool responses exacerbate the train
 <figcaption><strong>Figure 6.</strong> Maximum (<strong>left</strong>) and average (<strong>right</strong>) number of tool calls in the same experiments as Figure 5.</figcaption>
 </figure>
 
-### 3.5 The Environmental Factor: The Critical Role of Hardware {#hardware}
+### 3.4 Finding 4: Hardware Is a First-Order Variable {#hardware}
 
-Finally, we discovered that the physical hardware is a critical variable. **The exact same code and model produced drastically different levels of mismatch on different GPUs.** To measure this, we ran on-policy algorithms with identical code and hyperparameters, switching only the GPUs used for inference and training. Figure 7 shows the training dynamics on L20, H20 and A100.
+**The exact same code and model produce drastically different levels of mismatch on different GPUs.** To measure this, we ran on-policy algorithms with identical code and hyperparameters, switching only the GPUs used for inference and training. Figure 7 shows the training dynamics on L20, H20 and A100.
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig07-hardware.png" alt="vllm-kl (left, log scale) and rewards (right) for the same on-policy run on H20, L20 and A100 GPUs: vllm-kl is lowest on H20 and highest on A100, where rewards are unstable.">
@@ -375,8 +367,6 @@ Finally, we discovered that the physical hardware is a critical variable. **The 
 
 In our experiments, the magnitude of `vllm-kl` follows **H20 < L20 < A100**. It is on the order of 5e-4 to 1e-3 on H20, around 1e-3 to 1e-2 on L20, and on A100 it swings between about 1e-3 and 5e-1, with frequent spikes above 1e-1 (that run lasted only about 50 steps). With such a severe mismatch on A100, normal training is not feasible and the reward curve is highly unstable.
 
-We found that disabling cascade attention in the vLLM engine helps a lot to reduce the mismatch in our runs on A100 GPUs. We present these results in [Section 4.2.5](#cascade-attention).
-
 The clearest evidence came when we took a failed L20 experiment and resumed it from a checkpoint on H20 GPUs (Figure 8). On H20 the run stayed stable, with a low gradient norm and rewards around 0.6, while the original run on L20 collapsed: the hardware has a first-order effect on the problem.
 
 <figure class="post-fig">
@@ -384,9 +374,13 @@ The clearest evidence came when we took a failed L20 experiment and resumed it f
 <figcaption><strong>Figure 8.</strong> On-policy GRPO on L20 and H20, showing gradient norm (<strong>left</strong>) and rewards (<strong>right</strong>). We resumed on H20 GPUs (green) from the step-200 checkpoint of the failed L20 experiment (red).</figcaption>
 </figure>
 
-### 3.6 The Mismatch Is Not Static: A Vicious Cycle Driven by Optimization
+Two changes on the hardware side reduce the mismatch: moving from L20 to H20, and disabling cascade attention in vLLM on A100. Both are in [§5.3](#hardware-fixes).
 
-One might assume the training-inference mismatch is a static property of the hardware and software stack. However, our "batch-filter" experiment showed that **the mismatch is coupled with the training dynamics and the model's state.**
+### 3.5 Finding 5: The Mismatch Grows During Training {#36-the-mismatch-is-not-static-a-vicious-cycle-driven-by-optimization}
+
+**The mismatch is not a fixed property of the stack. Once a run enters a high-mismatch state it keeps producing high-mismatch batches, and we hypothesize a feedback loop between the optimizer and numerical error.**
+
+The evidence is our "batch-filter" experiment, which shows that the mismatch is coupled with the training dynamics and the model's state.
 
 In the **batch-filter** experiment, at each training step, if the collected batch has a `vllm-kl` above a threshold, we skip the update on that batch, since such updates are prone to cause collapse. We go straight to the next step and keep collecting data until a batch with `vllm-kl` below the threshold arrives, and only then update the model.
 
@@ -411,50 +405,23 @@ This creates a **vicious feedback loop**: mismatch leads to biased and noisy gra
 
 ---
 
-## 4. Attempts to Alleviate the Training-Inference Mismatch
+## 4. The Fix: Sequence-Level Correction and Masking {#4-attempts-to-alleviate-the-training-inference-mismatch}
 
-Here are the methods we tried to mitigate the training-inference mismatch. Some helped; others did not.
+<span id="42-what-helped"></span>
 
-### 4.1 What Did Not Help
+The mismatch follows from the speed-versus-consistency trade-off of [§2](#2-a-fundamental-conflict-the-growing-gap-between-inference-and-training), and the engine and hardware settings that reduce it are specific to one stack ([§5](#other-settings)). The fix that carries over is algorithmic: treat the sampler as a behavior policy and correct for it in the loss. This section takes four steps: why the correction has to act on the whole sequence ([§4.1](#distribution-correction)), what token-level and sequence-level corrections do in our runs ([§4.2](#experimental-validation)), our method, MIS ([§4.3](#mis)), and its length-normalized form, Geo-MIS, with its link to Trust Region Masking ([§4.4](#geo-mis)).
 
-#### 4.1.1 Use an FP32 LM Head
+### 4.1 Why the Correction Must Act on the Whole Sequence {#distribution-correction}
 
-Inspired by the [MiniMax-M1 technical report](https://arxiv.org/abs/2506.13585) and the blog post [Your Efficient RL Framework Secretly Brings You Off-Policy RL Training](https://fengyao.notion.site/off-policy-rl), we patched vLLM to cast `lm_head` to fp32. In our experiments, the mismatch persisted after the patch and training still collapsed. Figure 11 shows a failed on-policy run on L20 with a bf16 `lm_head` in vLLM, and a run resumed from its step-200 checkpoint with an fp32 `lm_head`. Both ultimately collapsed, and the fp32 run still showed a `vllm-kl` explosion.
-
-<figure class="post-fig">
-<img src="/figs/img/rl-collapse/fig11-fp32-lm-head.png" alt="After resuming from step 200 with an fp32 lm_head (green), vllm-kl still climbs to about 25 and rewards still collapse, just as in the original bf16 run (red).">
-<figcaption><strong>Figure 11.</strong> Ablation on the precision of <code>lm_head</code> in the vLLM engine. <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> training rewards. We resumed training with an fp32 <code>lm_head</code> (green) from step 200 of the failed run with a bf16 <code>lm_head</code> (red).</figcaption>
-</figure>
-
-#### 4.1.2 Disable Chunked Prefill
-
-We also resumed training from step 200 of the failed bf16 `lm_head` run in Section 4.1.1 with [chunked prefill](https://docs.vllm.ai/en/stable/configuration/optimization.html#chunked-prefill) disabled, to see whether it would resolve the crash. It did not prevent a severe crash: `vllm-kl` still spiked to about 1.4 near step 220, and rewards fell to near zero around step 237, as the original run's did, before partly recovering by the end of the run at about step 257 (Figure 12).
-
-<figure class="post-fig">
-<img src="/figs/img/rl-collapse/fig12-chunked-prefill.png" alt="With chunked prefill disabled (green), vllm-kl still spikes to about 1.4 near step 220 and rewards crash to near zero around step 237 before partly recovering, much like the original run (red).">
-<figcaption><strong>Figure 12.</strong> Ablation on chunked prefill. We reran training with chunked prefill disabled (green) from step 200 of the failed run with chunked prefill enabled (red). <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> training rewards.</figcaption>
-</figure>
-
-#### 4.1.3 Toggle `enforce_eager` and `free_cache_engine`
-
-[VeRL's official DAPO recipe](https://verl.readthedocs.io/en/latest/algo/dapo.html) mentions that enabling CUDA graphs (`enforce_eager=False`) may degrade model performance. To see whether it affects the training-inference mismatch, we ran an ablation on the vLLM hyperparameter `enforce_eager` together with `free_cache_engine`, in reasoning RL: on-policy GRPO on H100 GPUs with Qwen3-4B-Base, over all four combinations of the two flags set to `True` or `False`, evaluated on AIME24. Figure 13 shows that neither flag has a significant effect on the training-inference mismatch or on test performance. In these runs `vllm-kl` stayed at or below about 1e-3 in every setting, though, so this ablation could not detect an effect at the mismatch levels where collapse occurs.
-
-<figure class="post-fig">
-<img src="/figs/img/rl-collapse/fig13-enforce-eager.jpg" alt="vllm-kl stays below about 1.1e-3 and AIME24 accuracy plateaus near 0.3 for all four enforce_eager / free_cache_engine combinations.">
-<figcaption><strong>Figure 13.</strong> Ablation on vLLM acceleration and cache hyperparameters in reasoning RL: on-policy GRPO on H100 GPUs with the four combinations of <code>enforce_eager</code> (<strong>E</strong>) and <code>free_cache_engine</code> (<strong>F</strong>). <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> accuracy on AIME24.</figcaption>
-</figure>
-
-### 4.2 What Helped
-
-Sequence-level correction ([§4.2.1](#distribution-correction)), and MIS in particular ([§4.2.2](#mis)), is the fix we recommend. Sections 4.2.3–4.2.5 change the sampler or the hardware instead. Top-p sampling is a diagnostic rather than a fix: it confirms that low-probability tokens drive the mismatch, but it slows learning. Changing GPUs or attention kernels helps only where they are the source of the mismatch.
-
-#### 4.2.1 A Principled Solution: Distribution Correction {#distribution-correction}
+**A per-token ratio corrects how likely each token is given its prefix, but not how likely the prefix is. Only the ratio of the whole sequence corrects both.**
 
 The training-inference mismatch turns our otherwise on-policy RL problem into an off-policy one: the policy that generates rollouts (the *behavior policy*, {{< math >}}$\pvllm${{< /math >}}) differs from the policy being trained (the *target policy*, {{< math >}}$\pfsdp${{< /math >}}). One theoretically sound way to correct for this distribution shift is **importance sampling (IS)**. However, the specific form of IS is critical for keeping the gradient unbiased and the training stable.
 
 Inspired by [Yao et al. (2025)](https://fengyao.notion.site/off-policy-rl), who first highlighted this implicit off-policy issue caused by the training-inference mismatch, we analyze two forms of IS: the theoretically sound **sequence-level IS** and the common but biased **token-level IS** approximation.
 
-##### The principled estimator: sequence-level IS
+{{< stepfig "rlc-tokseq" >}}
+
+#### The principled estimator: sequence-level IS
 
 The correct, unbiased policy gradient estimator applies a single importance ratio to the entire generated sequence (trajectory) {{< math >}}$y${{< /math >}}. This re-weights the expectation from the behavior policy to the target policy and yields the true gradient of the objective {{< math >}}$J(\theta)${{< /math >}}.
 
@@ -576,7 +543,12 @@ g_{\mathrm{seq}}(\theta) = \mathbb{E}_{s \sim d_{\pfsdp}}\, \mathbb{E}_{a \sim \
 $$
 {{< /math >}}
 
-Here {{< math >}}$s=(x,y_{\lt t})${{< /math >}} is the state (prefix) and {{< math >}}$a=y_t${{< /math >}} is the action (token). **The term {{< math >}}$d_{\pfsdp}${{< /math >}} is the state occupancy measure** under the target FSDP policy, the expected number of times a state {{< math >}}$s${{< /math >}} is visited when following policy {{< math >}}$\pi${{< /math >}}:
+Here {{< math >}}$s=(x,y_{\lt t})${{< /math >}} is the state (prefix), {{< math >}}$a=y_t${{< /math >}} is the action (token), and **{{< math >}}$d_{\pfsdp}${{< /math >}} is the state occupancy measure** under the target FSDP policy: the probability that a rollout under that policy reaches the prefix {{< math >}}$s${{< /math >}}. It is the probability of the prompt times the probabilities the policy gives to the model-generated tokens of the prefix.
+
+<details class="spoiler">
+<summary>The formal definition of the occupancy measure</summary>
+
+The occupancy measure of a policy {{< math >}}$\pi${{< /math >}} is the expected number of times a state {{< math >}}$s${{< /math >}} is visited when following {{< math >}}$\pi${{< /math >}}:
 
 {{< math >}}
 $$
@@ -594,23 +566,34 @@ $$
 
 Tool-response tokens come from the environment, not the policy, so only model-generated tokens enter this product.
 
+</details>
+
 This estimator is **unbiased**: {{< math >}}$g_{\mathrm{seq}}(\theta) = g(\theta)${{< /math >}}. For numerical stability, **truncated importance sampling (TIS)** clips the sequence-level ratio {{< math >}}$\rho(y|x) = \pfsdp(y|x)/\pvllm(y|x)${{< /math >}} at a constant {{< math >}}$C${{< /math >}}. Clipping bounds the variance but brings back a controllable bias: the bias-variance trade-off analyzed in [Part 2](/post/rl-collapse-part2/).
 
-##### A common biased estimator: token-level IS
+#### A common biased estimator: token-level IS
 
 A common heuristic, often inspired by algorithms like PPO and used in [Yao et al. (2025)](https://fengyao.notion.site/off-policy-rl), applies a per-token importance ratio. It typically has lower variance than the sequence-level ratio, but for autoregressive models it is a **biased estimator**: it corrects each token's distribution but not the distribution of prefixes.
 
-Let's derive the token-level IS gradient estimator {{< math >}}$g_{\mathrm{tok}}(\theta)${{< /math >}}.
+The estimator applies the importance ratio inside the sum over timesteps, so {{< math >}}$g_{\mathrm{tok}}(\theta)${{< /math >}} is defined as
 
-1. The formulation begins by applying the importance ratio inside the sum over timesteps, so {{< math >}}$g_{\mathrm{tok}}(\theta)${{< /math >}} is defined as
+{{< math >}}
+$$
+\mathbb{E}_{x \sim \mathcal{D},\, y \sim \pvllm(\cdot|x)}\left[ R(x,y) \cdot \sum_{t=0}^{|y|-1} \frac{\pfsdp(y_t|x,y_{\lt t})}{\pvllm(y_t|x,y_{\lt t})} \cdot \nabla_{\theta} \log \pfsdp(y_t|x,y_{\lt t}) \right]
+$$
+{{< /math >}}
 
-   {{< math >}}
-   $$
-   \mathbb{E}_{x \sim \mathcal{D},\, y \sim \pvllm(\cdot|x)}\left[ R(x,y) \cdot \sum_{t=0}^{|y|-1} \frac{\pfsdp(y_t|x,y_{\lt t})}{\pvllm(y_t|x,y_{\lt t})} \cdot \nabla_{\theta} \log \pfsdp(y_t|x,y_{\lt t}) \right]
-   $$
-   {{< /math >}}
+Grouping the terms by state and subtracting a baseline puts it in the same form as the true gradient above:
 
-2. Grouping the terms by state turns the expectation over trajectories into an expectation over the states visited under the **vLLM policy**. The return {{< math >}}$R(x,y)${{< /math >}} of a trajectory sampled by {{< math >}}$\pvllm${{< /math >}} is a Monte Carlo estimate of the state-action value {{< math >}}$Q^{\pvllm}(s,a)${{< /math >}}, so
+{{< math >}}
+$$
+g_{\mathrm{tok}}(\theta) = \mathbb{E}_{s \sim d_{\pvllm}}\, \mathbb{E}_{a \sim \pfsdp(\cdot|s)} \left[ A^{\pvllm}(s,a) \cdot \nabla_{\theta} \log \pfsdp(a|s) \right]
+$$
+{{< /math >}}
+
+<details class="spoiler">
+<summary>The two steps in between</summary>
+
+1. Grouping the terms by state turns the expectation over trajectories into an expectation over the states visited under the **vLLM policy**. The return {{< math >}}$R(x,y)${{< /math >}} of a trajectory sampled by {{< math >}}$\pvllm${{< /math >}} is a Monte Carlo estimate of the state-action value {{< math >}}$Q^{\pvllm}(s,a)${{< /math >}}, so
 
    {{< math >}}
    $$
@@ -618,7 +601,7 @@ Let's derive the token-level IS gradient estimator {{< math >}}$g_{\mathrm{tok}}
    $$
    {{< /math >}}
 
-3. Subtracting the baseline {{< math >}}$V^{\pvllm}(s)${{< /math >}} leaves this unchanged, because
+2. Subtracting the baseline {{< math >}}$V^{\pvllm}(s)${{< /math >}} leaves this unchanged, because
 
    {{< math >}}
    $$
@@ -626,17 +609,13 @@ Let's derive the token-level IS gradient estimator {{< math >}}$g_{\mathrm{tok}}
    $$
    {{< /math >}}
 
-   and it turns {{< math >}}$Q^{\pvllm}${{< /math >}} into the advantage {{< math >}}$A^{\pvllm}${{< /math >}}. Using the per-token ratio to change the expectation over actions from {{< math >}}$\pvllm${{< /math >}} to {{< math >}}$\pfsdp${{< /math >}} gives the final form:
+   and it turns {{< math >}}$Q^{\pvllm}${{< /math >}} into the advantage {{< math >}}$A^{\pvllm}${{< /math >}}. Using the per-token ratio to change the expectation over actions from {{< math >}}$\pvllm${{< /math >}} to {{< math >}}$\pfsdp${{< /math >}} gives the form above.
 
-   {{< math >}}
-   $$
-   g_{\mathrm{tok}}(\theta) = \mathbb{E}_{s \sim d_{\pvllm}}\, \mathbb{E}_{a \sim \pfsdp(\cdot|s)} \left[ A^{\pvllm}(s,a) \cdot \nabla_{\theta} \log \pfsdp(a|s) \right]
-   $$
-   {{< /math >}}
+</details>
 
-This final expression reveals the gradient bias of token-level IS. {{< math >}}$g_\text{tok}(\theta)${{< /math >}} approximates the true gradient well when {{< math >}}$\pvllm${{< /math >}} stays within a trust region of {{< math >}}$\pfsdp${{< /math >}}, so that {{< math >}}$d_{\pvllm}\approx d_{\pfsdp}${{< /math >}} and {{< math >}}$A^{\pvllm}\approx A^{\pfsdp}${{< /math >}}. [Part 1](/post/rl-collapse-part1/) bounds the bias by {{< math >}}$O(T^2 D_{TV}^{\max})${{< /math >}}; it becomes harmful when the mismatch is large or uncontrolled.
+This form reveals the gradient bias of token-level IS. {{< math >}}$g_\text{tok}(\theta)${{< /math >}} approximates the true gradient well when {{< math >}}$\pvllm${{< /math >}} stays within a trust region of {{< math >}}$\pfsdp${{< /math >}}, so that {{< math >}}$d_{\pvllm}\approx d_{\pfsdp}${{< /math >}} and {{< math >}}$A^{\pvllm}\approx A^{\pfsdp}${{< /math >}}. [Part 1](/post/rl-collapse-part1/) bounds the bias by {{< math >}}$O(T^2 D_{TV}^{\max})${{< /math >}}; it becomes harmful when the mismatch is large or uncontrolled.
 
-##### The source of bias in token-level IS
+#### The source of bias in token-level IS
 
 Comparing {{< math >}}$g_{\mathrm{tok}}(\theta)${{< /math >}} with the true gradient {{< math >}}$g_{\mathrm{seq}}(\theta)${{< /math >}} reveals two distinct errors that make the token-level estimator biased.
 
@@ -666,46 +645,50 @@ The gradient for the target policy is scaled by a reward signal that belongs to 
 This theory suggests that, despite the potentially lower variance of token-level methods, their gradient bias persists and can lead to training instability. **Our tool-use experiments bear this out.** Parts [1](/post/rl-collapse-part1/) and [2](/post/rl-collapse-part2/) of the series give the detailed bias and variance analysis of token-level and sequence-level methods.
 {{% /callout %}}
 
-##### Experimental validation
+### 4.2 Token-Level and Sequence-Level Corrections in Practice {#experimental-validation}
+
+**Importance sampling of either kind prevents the gradient explosion. In multi-turn tool use the token-level run still collapses, while the sequence-level run survives but plateaus.**
 
 Our analysis predicts that token-level corrections become unstable when the mismatch is large, while sequence-level corrections are more robust. Pure sequence-level IS has exponential variance, so we test truncated and masked variants. With the per-token ratio {{< math >}}$\rho_t = \pfsdp(y_t|x,y_{\lt t})/\pvllm(y_t|x,y_{\lt t})${{< /math >}} and the sequence ratio {{< math >}}$\rho = \prod_t \rho_t${{< /math >}}, both over model-generated tokens:
 
 - **Token-TIS** weights each token by {{< math >}}$\min(\rho_t, C)${{< /math >}}.
 - **Seq-TIS** weights the whole sequence by {{< math >}}$\min(\rho, C)${{< /math >}}.
 - **Token-MIS** weights each token by {{< math >}}$\rho_t\,\mathbb{I}\{\rho_t \le C\}${{< /math >}}.
-- **Seq-MIS**, or simply MIS, weights the whole sequence by {{< math >}}$\rho\,\mathbb{I}\{\rho \le C\}${{< /math >}} ([§4.2.2](#mis)).
+- **Seq-MIS**, or simply MIS, weights the whole sequence by {{< math >}}$\rho\,\mathbb{I}\{\rho \le C\}${{< /math >}} ([§4.3](#mis)).
 
-**IS prevents gradient explosion, but token-level IS still fails.** We resumed a crashed L20 experiment from step 200 with token-level TIS and with sequence-level TIS ({{< math >}}$C=2${{< /math >}}). As Figure 14 shows, both prevent the gradient explosion seen in the vanilla run, but **the token-level TIS run still collapses**: its reward falls to zero by about step 240, without a gradient spike. The sequence-level TIS run stays stable through the end of the run, about step 280; Figure 16 follows Seq-TIS for longer.
+**IS prevents gradient explosion, but token-level IS still fails.** We resumed a crashed L20 experiment from step 200 with token-level TIS and with sequence-level TIS ({{< math >}}$C=2${{< /math >}}). As Figure 11 shows, both prevent the gradient explosion seen in the vanilla run, but **the token-level TIS run still collapses**: its reward falls to zero by about step 240, without a gradient spike. The sequence-level TIS run stays stable through the end of the run, about step 280; Figure 13 follows Seq-TIS for longer.
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig14-token-vs-seq-tis.png" alt="The vanilla run's gradient norm explodes and its reward crashes by step 280; token-level TIS from step 200 avoids the explosion but its reward drops to zero around step 240, while sequence-level TIS stays near 0.5.">
-<figcaption><strong>Figure 14.</strong> Ablation on TIS strategies. The vanilla on-policy experiment without IS (red) crashes after 200 steps with a gradient explosion. We resumed training from step 200 with token-level TIS (orange) and sequence-level TIS (purple). <strong>Left:</strong> gradient norm. <strong>Right:</strong> training rewards.</figcaption>
+<figcaption><strong>Figure 11.</strong> Ablation on TIS strategies. The vanilla on-policy experiment without IS (red) crashes after 200 steps with a gradient explosion. We resumed training from step 200 with token-level TIS (orange) and sequence-level TIS (purple). <strong>Left:</strong> gradient norm. <strong>Right:</strong> training rewards.</figcaption>
 </figure>
 
-**Token-level TIS in reasoning RL.** Token-level TIS fails in our complex TIR experiments, but it can prevent collapse in simpler reasoning RL, where the mismatch is smaller. In on-policy GRPO and RLOO experiments (Figure 15), token-level TIS prevented the collapse and let training run much longer, but it brought little or no gain in peak test accuracy: none for GRPO or for Qwen3-14B with RLOO, and a small gain for Qwen3-8B with RLOO. Accuracy plateaued and tended to sag late in training, likely because of the remaining gradient bias.
+**Token-level TIS in reasoning RL.** Token-level TIS fails in our complex TIR experiments, but it can prevent collapse in simpler reasoning RL, where the mismatch is smaller. In on-policy GRPO and RLOO experiments (Figure 12), token-level TIS prevented the collapse and let training run much longer, but it brought little or no gain in peak test accuracy: none for GRPO or for Qwen3-14B with RLOO, and a small gain for Qwen3-8B with RLOO. Accuracy plateaued and tended to sag late in training, likely because of the remaining gradient bias.
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig15a-grpo-token-tis.jpg" alt="On-policy GRPO in reasoning RL: without IS (red) the gradient norm explodes and AIME24 accuracy falls to zero by step 620, while token-level TIS (blue) keeps training stable to step 1400 but stays at the same peak of about 0.5.">
-<figcaption><strong>Figure 15 (a).</strong> Gradient norm (<strong>left</strong>) and AIME24 accuracy (<strong>right</strong>) of on-policy GRPO on H100 GPUs without IS (red) and with token-level TIS ({{< math >}}$C=2${{< /math >}}, blue), in reasoning RL. Token-level TIS prevents training collapse but does not improve test performance.</figcaption>
+<figcaption><strong>Figure 12 (a).</strong> Gradient norm (<strong>left</strong>) and AIME24 accuracy (<strong>right</strong>) of on-policy GRPO on H100 GPUs without IS (red) and with token-level TIS ({{< math >}}$C=2${{< /math >}}, blue), in reasoning RL. Token-level TIS prevents training collapse but does not improve test performance.</figcaption>
 </figure>
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig15b-rloo-token-tis.jpg" alt="On-policy RLOO with Qwen3-8B-Base and Qwen3-14B-Base: both runs without IS spike in gradient norm and lose test accuracy after about 400 steps, while token-level TIS keeps both models training to step 680 to 870, with accuracy that plateaus and sags slightly late.">
-<figcaption><strong>Figure 15 (b).</strong> Gradient norm (<strong>left</strong>) and average accuracy on AIME24/AIME25 (<strong>right</strong>) of on-policy RLOO on H100 GPUs, for Qwen3-8B-Base and Qwen3-14B-Base, without IS and with token-level TIS ({{< math >}}$C=2${{< /math >}}), in reasoning RL. Without IS, both models collapse after about 400 steps. Token-level TIS keeps both training much longer; peak accuracy is about the same for 14B and slightly higher for 8B, and it sags late in training.</figcaption>
+<figcaption><strong>Figure 12 (b).</strong> Gradient norm (<strong>left</strong>) and average accuracy on AIME24/AIME25 (<strong>right</strong>) of on-policy RLOO on H100 GPUs, for Qwen3-8B-Base and Qwen3-14B-Base, without IS and with token-level TIS ({{< math >}}$C=2${{< /math >}}), in reasoning RL. Without IS, both models collapse after about 400 steps. Token-level TIS keeps both training much longer; peak accuracy is about the same for 14B and slightly higher for 8B, and it sags late in training.</figcaption>
 </figure>
 
-**TIS prolongs training but can still be unstable.** We ran an on-policy TIR experiment from scratch on L20 GPUs with sequence-level TIS ({{< math >}}$C=2${{< /math >}}). As Figure 16 shows, it prevented a complete collapse, but the reward kept fluctuating after reaching a plateau, and test performance did not exceed the peak the vanilla run reached before it crashed.
+**TIS prolongs training but can still be unstable.** We ran an on-policy TIR experiment from scratch on L20 GPUs with sequence-level TIS ({{< math >}}$C=2${{< /math >}}). As Figure 13 shows, it prevented a complete collapse, but the reward kept fluctuating after reaching a plateau, and test performance did not exceed the peak the vanilla run reached before it crashed.
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig16-seq-tis-scratch.png" alt="Training rewards and test accuracy for vanilla and sequence-level TIS from scratch: TIS avoids the crash but plateaus and fluctuates, without beating the vanilla peak.">
-<figcaption><strong>Figure 16.</strong> Ablation on TIS strategies (continued). The vanilla on-policy experiment without IS (red) crashes after 200 steps. We reran it from scratch with the same configuration plus sequence-level TIS with {{< math >}}$C=2${{< /math >}} (purple). <strong>Left:</strong> training rewards. <strong>Right:</strong> test accuracy.</figcaption>
+<figcaption><strong>Figure 13.</strong> Ablation on TIS strategies (continued). The vanilla on-policy experiment without IS (red) crashes after 200 steps. We reran it from scratch with the same configuration plus sequence-level TIS with {{< math >}}$C=2${{< /math >}} (purple). <strong>Left:</strong> training rewards. <strong>Right:</strong> test accuracy.</figcaption>
 </figure>
 
-#### 4.2.2 Our Method: Masked Importance Sampling (MIS) {#mis}
+### 4.3 Our Method: Masked Importance Sampling (MIS) {#mis}
 
 To improve on TIS, we propose **masked importance sampling (MIS)**: keep the sequence-level ratio, but mask the policy loss of every sequence whose ratio exceeds the threshold {{< math >}}$C${{< /math >}}, i.e. {{< math >}}$\rho(y|x) \gets \rho(y|x)\, \mathbb{I}\{\rho(y|x) \le C\}${{< /math >}}. TIS keeps such a sequence with its weight capped at {{< math >}}$C${{< /math >}}; MIS removes it from the update. The result is an upper-sided hard trust region at the level of the sequence.
 
-**Which tail the mask cuts.** The mask removes sequences on which the trainer is far *more* likely than the sampler ({{< math >}}$\rho > C${{< /math >}}). The pathology of [§3.3](#low-probability-tokens) is the opposite tail, {{< math >}}$\rho \ll 1${{< /math >}}, where the trainer assigns far lower probability; there the importance weight itself shrinks the sequence's contribution toward zero. The geometric form, [Geo-MIS](#geo-mis), is two-sided and length-normalized: it keeps a sequence only when {{< math >}}$C_{\text{low}} \le \rho^{1/T} \le C_{\text{high}}${{< /math >}}, which removes the low tail outright as well.
+**Which tail the mask cuts.** The mask removes sequences on which the trainer is far *more* likely than the sampler ({{< math >}}$\rho > C${{< /math >}}). The pathology of [§3.2](#low-probability-tokens) is the opposite tail, {{< math >}}$\rho \ll 1${{< /math >}}, where the trainer assigns far lower probability; there the importance weight itself shrinks the sequence's contribution toward zero. The geometric form, [Geo-MIS](#geo-mis), is two-sided and length-normalized: it keeps a sequence only when {{< math >}}$C_{\text{low}} \le \rho^{1/T} \le C_{\text{high}}${{< /math >}}, which removes the low tail outright as well.
+
+{{< stepfig "rlc-weights" >}}
 
 **MIS in practice.** The ratio is a product over hundreds of tokens, so compute it in log space, over model-generated tokens only (tool-response tokens are excluded, as in `vllm-kl`):
 
@@ -728,21 +711,23 @@ seq_weight = torch.exp(seq_log_ratio.clamp(max=math.log(C))) * keep   # in [0, C
 pg_loss = pg_loss * seq_weight.unsqueeze(-1)                # scale each sequence's per-token loss
 ```
 
-**Results.** As Figure 17 shows, on L20 GPUs MIS trained for more than 700 steps where the uncorrected run collapsed near step 280. It raised the peak training reward from about 0.56 to 0.64 and matched the uncorrected run's peak test accuracy (0.70 vs. 0.68), well above Seq-TIS (about 0.61). It was not free of instability: its reward dipped to about 0.37 near step 440 before recovering. The length-invariant geometric form is given [below](#geo-mis) and developed further in [Part 3](/post/rl-collapse-part3/).
+**Results.** As Figure 14 shows, on L20 GPUs MIS trained for more than 700 steps where the uncorrected run collapsed near step 280. It raised the peak training reward from about 0.56 to 0.64 and matched the uncorrected run's peak test accuracy (0.70 vs. 0.68), well above Seq-TIS (about 0.61). It was not free of instability: its reward dipped to about 0.37 near step 440 before recovering. The length-invariant geometric form is given in [§4.4](#geo-mis) and developed further in [Part 3](/post/rl-collapse-part3/).
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig17-mis.png" alt="Training rewards and test accuracy: vanilla collapses near step 280 and sequence-level TIS ends near step 410, while sequence-level MIS trains to step 700 with the highest reward (about 0.64) and test accuracy reaching about 0.70.">
-<figcaption><strong>Figure 17.</strong> On-policy GRPO with sequence-level MIS (orange), TIS (purple), and the vanilla version without IS (red), all on L20 GPUs. Both MIS and TIS extend training beyond the vanilla collapse; TIS ends lower and drops at the end of its run, and MIS dips near step 440 before recovering. MIS improves on TIS in both training reward and test accuracy, exceeds the vanilla run's peak reward, and matches its peak test accuracy. <strong>Left:</strong> training rewards. <strong>Right:</strong> test accuracy.</figcaption>
+<figcaption><strong>Figure 14.</strong> On-policy GRPO with sequence-level MIS (orange), TIS (purple), and the vanilla version without IS (red), all on L20 GPUs. Both MIS and TIS extend training beyond the vanilla collapse; TIS ends lower and drops at the end of its run, and MIS dips near step 440 before recovering. MIS improves on TIS in both training reward and test accuracy, exceeds the vanilla run's peak reward, and matches its peak test accuracy. <strong>Left:</strong> training rewards. <strong>Right:</strong> test accuracy.</figcaption>
 </figure>
 
-**Token-level MIS vs. sequence-level MIS.** Finally, we compared token-level and sequence-level MIS. Figure 18 shows that both keep the gradient norm small, but **the token-level MIS run still collapses**: its reward falls from about 0.4 to below 0.2 by step 160, while the sequence-level run keeps improving through step 400. In our long-horizon tool-use runs, only the sequence-level correction was reliable.
+**Token-level MIS vs. sequence-level MIS.** Finally, we compared token-level and sequence-level MIS. Figure 15 shows that both keep the gradient norm small, but **the token-level MIS run still collapses**: its reward falls from about 0.4 to below 0.2 by step 160, while the sequence-level run keeps improving through step 400. In our long-horizon tool-use runs, only the sequence-level correction was reliable.
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig18-token-vs-seq-mis.jpg" alt="Gradient norm and rewards for token-level and sequence-level MIS: the token-level run collapses while the sequence-level run stays stable.">
-<figcaption><strong>Figure 18.</strong> On-policy GRPO with token-level MIS (purple) and sequence-level MIS (orange), on L20 GPUs with the same configuration. <strong>Left:</strong> gradient norm. <strong>Right:</strong> training rewards.</figcaption>
+<figcaption><strong>Figure 15.</strong> On-policy GRPO with token-level MIS (purple) and sequence-level MIS (orange), on L20 GPUs with the same configuration. <strong>Left:</strong> gradient norm. <strong>Right:</strong> training rewards.</figcaption>
 </figure>
 
-##### Geo-MIS and Trust Region Masking {#geo-mis}
+### 4.4 Geo-MIS and Trust Region Masking {#geo-mis}
+
+**Geo-MIS masks on the per-token geometric mean of the ratio. This makes the trust region independent of length and turns it into a bound on an estimate of the mean per-token KL. Trust Region Masking computes that KL exactly and adds a maximum.** This section is analysis: the experiments above use the product form of [§4.3](#mis).
 
 **Why the product form needs a length correction.** {{< math >}}$\log\rho(y|x) = \sum_t \log\rho_t${{< /math >}} is a sum over the {{< math >}}$T${{< /math >}} model-generated tokens of the response, so it scales with length. A per-token log-ratio of {{< math >}}$0.01${{< /math >}} gives {{< math >}}$\rho = e^{1} \approx 2.7${{< /math >}} at {{< math >}}$T = 100${{< /math >}} and {{< math >}}$\rho = e^{10} \approx 22{,}000${{< /math >}} at {{< math >}}$T = 1000${{< /math >}}. A fixed threshold {{< math >}}$C${{< /math >}} therefore tests long responses far more strictly than short ones, whatever their per-token quality.
 
@@ -795,7 +780,7 @@ C_{\text{low}} \le \rho_{\mathrm{geo}} \le C_{\text{high}} \iff -\log C_{\text{h
 $$
 {{< /math >}}
 
-The right-hand inequality caps the estimated mean KL at {{< math >}}$\log(1/C_{\text{low}})${{< /math >}} nats per token. It is the side that removes the low-probability tail of [§3.3](#low-probability-tokens). The left-hand inequality exists because a one-sample estimate of a non-negative quantity can be negative; it removes responses on which the trainer is far more confident than the sampler, the tail that the product-form mask {{< math >}}$\rho \le C${{< /math >}} cuts. With {{< math >}}$C_{\text{low}} = 1/C_{\text{high}}${{< /math >}} the band reads {{< math >}}$|\log\rho_{\mathrm{geo}}| \le \log C_{\text{high}}${{< /math >}}. For example, {{< math >}}$C_{\text{high}} = 1.001${{< /math >}} allows about {{< math >}}$10^{-3}${{< /math >}} nats per token, the scale of `vllm-kl` in our H20 batches (Group 1 in [§3.3](#low-probability-tokens)).
+The right-hand inequality caps the estimated mean KL at {{< math >}}$\log(1/C_{\text{low}})${{< /math >}} nats per token. It is the side that removes the low-probability tail of [§3.2](#low-probability-tokens). The left-hand inequality exists because a one-sample estimate of a non-negative quantity can be negative; it removes responses on which the trainer is far more confident than the sampler, the tail that the product-form mask {{< math >}}$\rho \le C${{< /math >}} cuts. With {{< math >}}$C_{\text{low}} = 1/C_{\text{high}}${{< /math >}} the band reads {{< math >}}$|\log\rho_{\mathrm{geo}}| \le \log C_{\text{high}}${{< /math >}}. For example, {{< math >}}$C_{\text{high}} = 1.001${{< /math >}} allows about {{< math >}}$10^{-3}${{< /math >}} nats per token, the scale of `vllm-kl` in our H20 batches (Group 1 in [§3.2](#low-probability-tokens)).
 
 **Step 3: Trust Region Masking computes the same quantity exactly, and adds a maximum.** [Trust Region Masking](https://arxiv.org/abs/2512.23075) (TRM, ICML 2026) stores the sampler's logits at rollout time, so {{< math >}}$D_t${{< /math >}} is computed over the full vocabulary in the training forward pass instead of being estimated from the one sampled token. It masks a sequence with two criteria:
 
@@ -810,6 +795,8 @@ $$
 - **Without stored logits, TRM falls back to sample-based estimators.** For the mean it uses {{< math >}}$k_3(\rho_t) = \rho_t - 1 - \log\rho_t${{< /math >}}, which is non-negative and unbiased for {{< math >}}$D_t${{< /math >}} (the estimator behind `vllm-kl` in §3.1), and for the maximum a symmetric function of {{< math >}}$\log\rho_t${{< /math >}}. Geo-MIS is the mean criterion with the {{< math >}}$k_1${{< /math >}} estimator, {{< math >}}$-\log\rho_t${{< /math >}}, in place of {{< math >}}$k_3${{< /math >}}.
 - **The weights differ.** Inside an accepted sequence TRM weights each token by its own ratio {{< math >}}$\rho_t${{< /math >}}, where Geo-MIS weights the whole sequence by {{< math >}}$\rho_{\mathrm{geo}}${{< /math >}}.
 
+{{< stepfig "rlc-kl" >}}
+
 | Method | Statistic for one response | Kept when | Weight if kept |
 |---|---|---|---|
 | MIS (this post) | {{< math >}}$\log\rho = \sum_t \log\rho_t${{< /math >}}; {{< math >}}$-\log\rho${{< /math >}} estimates the total KL | {{< math >}}$\rho \le C${{< /math >}} | {{< math >}}$\rho${{< /math >}} |
@@ -817,7 +804,53 @@ $$
 | TRM, mean KL | {{< math >}}$\frac{1}{T}\sum_t D_t${{< /math >}}, exact | at most {{< math >}}$\delta_{\mathrm{avg}}${{< /math >}} | {{< math >}}$\rho_t${{< /math >}} per token |
 | TRM, max KL | {{< math >}}$\max_t D_t${{< /math >}}, exact | at most {{< math >}}$\delta${{< /math >}} | {{< math >}}$\rho_t${{< /math >}} per token |
 
-#### 4.2.3 Top-p Sampling: A Diagnostic
+---
+
+## 5. Other Things We Tried: Engine and Hardware Settings {#other-settings}
+
+Before correcting for the mismatch in the loss, we tried to remove it at its source. The table summarizes the six changes; the details follow.
+
+| What we changed | Setting | What happened | Verdict |
+|---|---|---|---|
+| FP32 `lm_head` in vLLM | L20, resumed at step 200 | `vllm-kl` still exploded and the run collapsed | Did not help |
+| Chunked prefill off | L20, resumed at step 200 | `vllm-kl` spiked to about 1.4; rewards fell to near zero | Did not help |
+| `enforce_eager`, `free_cache_engine` | H100, Qwen3-4B-Base, reasoning RL | No effect, but `vllm-kl` stayed at or below 1e-3 in every run | Inconclusive at low mismatch |
+| Sampling `top-p` 0.98 to 0.999 | L20, 100 steps | Fewer `vllm-kl` spikes, slower reward growth | A diagnostic, not a fix |
+| H20 instead of L20 | From scratch | Much smaller mismatch; trained stably for much longer | Helped |
+| Cascade attention off | A100 | `vllm-kl` from about 3e-2–1e-1 down to about 1e-3 | Helped on A100 |
+
+Top-p sampling is a diagnostic rather than a fix: it confirms that low-probability tokens drive the mismatch, but it slows learning. Changing GPUs or attention kernels helps only where they are the source of the mismatch. None of these replaces the correction of [§4](#4-attempts-to-alleviate-the-training-inference-mismatch).
+
+### 5.1 Sampler Settings That Did Not Help {#41-what-did-not-help}
+
+#### Use an FP32 LM head {#411-use-an-fp32-lm-head}
+
+Inspired by the [MiniMax-M1 technical report](https://arxiv.org/abs/2506.13585) and the blog post [Your Efficient RL Framework Secretly Brings You Off-Policy RL Training](https://fengyao.notion.site/off-policy-rl), we patched vLLM to cast `lm_head` to fp32. In our experiments, the mismatch persisted after the patch and training still collapsed. Figure 16 shows a failed on-policy run on L20 with a bf16 `lm_head` in vLLM, and a run resumed from its step-200 checkpoint with an fp32 `lm_head`. Both ultimately collapsed, and the fp32 run still showed a `vllm-kl` explosion.
+
+<figure class="post-fig">
+<img src="/figs/img/rl-collapse/fig11-fp32-lm-head.png" alt="After resuming from step 200 with an fp32 lm_head (green), vllm-kl still climbs to about 25 and rewards still collapse, just as in the original bf16 run (red).">
+<figcaption><strong>Figure 16.</strong> Ablation on the precision of <code>lm_head</code> in the vLLM engine. <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> training rewards. We resumed training with an fp32 <code>lm_head</code> (green) from step 200 of the failed run with a bf16 <code>lm_head</code> (red).</figcaption>
+</figure>
+
+#### Disable chunked prefill {#412-disable-chunked-prefill}
+
+We also resumed training from step 200 of the failed bf16 `lm_head` run above with [chunked prefill](https://docs.vllm.ai/en/stable/configuration/optimization.html#chunked-prefill) disabled, to see whether it would resolve the crash. It did not prevent a severe crash: `vllm-kl` still spiked to about 1.4 near step 220, and rewards fell to near zero around step 237, as the original run's did, before partly recovering by the end of the run at about step 257 (Figure 17).
+
+<figure class="post-fig">
+<img src="/figs/img/rl-collapse/fig12-chunked-prefill.png" alt="With chunked prefill disabled (green), vllm-kl still spikes to about 1.4 near step 220 and rewards crash to near zero around step 237 before partly recovering, much like the original run (red).">
+<figcaption><strong>Figure 17.</strong> Ablation on chunked prefill. We reran training with chunked prefill disabled (green) from step 200 of the failed run with chunked prefill enabled (red). <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> training rewards.</figcaption>
+</figure>
+
+#### Toggle `enforce_eager` and `free_cache_engine` {#413-toggle-enforce_eager-and-free_cache_engine}
+
+[VeRL's official DAPO recipe](https://verl.readthedocs.io/en/latest/algo/dapo.html) mentions that enabling CUDA graphs (`enforce_eager=False`) may degrade model performance. To see whether it affects the training-inference mismatch, we ran an ablation on the vLLM hyperparameter `enforce_eager` together with `free_cache_engine`, in reasoning RL: on-policy GRPO on H100 GPUs with Qwen3-4B-Base, over all four combinations of the two flags set to `True` or `False`, evaluated on AIME24. Figure 18 shows that neither flag has a significant effect on the training-inference mismatch or on test performance. In these runs `vllm-kl` stayed at or below about 1e-3 in every setting, though, so this ablation could not detect an effect at the mismatch levels where collapse occurs.
+
+<figure class="post-fig">
+<img src="/figs/img/rl-collapse/fig13-enforce-eager.jpg" alt="vllm-kl stays below about 1.1e-3 and AIME24 accuracy plateaus near 0.3 for all four enforce_eager / free_cache_engine combinations.">
+<figcaption><strong>Figure 18.</strong> Ablation on vLLM acceleration and cache hyperparameters in reasoning RL: on-policy GRPO on H100 GPUs with the four combinations of <code>enforce_eager</code> (<strong>E</strong>) and <code>free_cache_engine</code> (<strong>F</strong>). <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> accuracy on AIME24.</figcaption>
+</figure>
+
+### 5.2 Top-p Sampling: A Diagnostic {#423-top-p-sampling-a-diagnostic}
 
 Low-probability tokens under the vLLM policy are where the mismatch is most severe. To test this directly, we ran on-policy GRPO on L20 GPUs with the vLLM sampling `top-p` set to 0.98, 0.99 and 0.999, without importance sampling. A smaller `top-p` removes the rarest tokens at sampling time, and Figure 19 confirms that it reduces the `vllm-kl` spikes. But truncation is itself a mismatch: the sampler now draws from a top-p-truncated distribution while the trainer optimizes the full {{< math >}}$\pfsdp${{< /math >}}, and `vllm-kl`, computed from the logged log-probabilities, need not reflect this shift. Without an IS correction this adds bias, and in Figure 19 the reward rises more slowly as `top-p` decreases. None of these 100-step runs collapsed, so we read top-p as evidence about where the mismatch comes from rather than as a fix.
 
@@ -826,7 +859,11 @@ Low-probability tokens under the vLLM policy are where the mismatch is most seve
 <figcaption><strong>Figure 19.</strong> Ablation on the vLLM sampling <code>top-p</code>: on-policy GRPO with <code>top-p</code> of 0.98, 0.99 and 0.999. A smaller <code>top-p</code> generally gives a smaller <code>vllm-kl</code> and slower reward growth. <strong>Left:</strong> <code>vllm-kl</code>. <strong>Right:</strong> training rewards.</figcaption>
 </figure>
 
-#### 4.2.4 Use Another GPU Series
+### 5.3 Hardware and Kernels {#hardware-fixes}
+
+Finding 4 ([§3.4](#hardware)) says that the hardware sets the size of the mismatch. Two changes on that side helped.
+
+#### Use another GPU series {#424-use-another-gpu-series}
 
 After finding that the training–inference mismatch on H20 GPUs was much smaller than on L20 GPUs, we moved all our TIR experiments to H20, which greatly reduced training crashes. Figure 20 shows two on-policy GRPO runs trained from scratch with identical configurations on L20 and H20. The H20 run trained stably for much longer and performed better.
 
@@ -835,7 +872,7 @@ After finding that the training–inference mismatch on H20 GPUs was much smalle
 <figcaption><strong>Figure 20.</strong> Training rewards (<strong>left</strong>) and test accuracy (<strong>right</strong>) of two on-policy GRPO experiments on L20 and H20 GPUs.</figcaption>
 </figure>
 
-#### 4.2.5 Disable Cascade Attention in vLLM {#cascade-attention}
+#### Disable cascade attention in vLLM {#cascade-attention}
 
 Following [this flash-attention pull request](https://github.com/vllm-project/flash-attention/pull/87), we set `disable_cascade_attn=True` when initializing the vLLM engine, and found that it greatly reduces the training-inference mismatch on A100 GPUs. We ran two on-policy GRPO experiments with Qwen3-14B-Base on A100 GPUs, with `disable_cascade_attn` set to `True` and `False`. As Figure 21 shows, disabling cascade attention brought `vllm-kl` down from about 3e-2–1e-1 to around 1e-3. With cascade attention enabled, the training reward stayed near 0.01 from the first step, so the rollouts were effectively broken from the start rather than degrading over training; with it disabled, training proceeded normally.
 
@@ -846,16 +883,13 @@ Following [this flash-attention pull request](https://github.com/vllm-project/fl
 
 ---
 
-## 5. Conclusion and Key Takeaways for Practitioners
+## 6. Conclusion and Key Takeaways for Practitioners {#5-conclusion-and-key-takeaways-for-practitioners}
 
-The training-inference mismatch is not a niche bug but a fundamental, growing challenge across modern **reasoning and agentic RL**, driven by the necessary pursuit of performance. Our investigation gives a roadmap for diagnosing and mitigating it.
+The training-inference mismatch is not a niche bug. It follows from the pursuit of throughput, and it matters most in **reasoning and agentic RL**. The findings are listed in [the box at the top](#tldr); this is what they mean in practice.
 
-- **Mismatch is a trade-off, not a bug.** Fast inference kernels and training kernels differ for good reasons. [Bitwise-consistent training and inference](https://blog.vllm.ai/2025/11/10/bitwise-consistent-train-inference.html) is possible, but it costs throughput, so most stacks will keep some mismatch.
-- **Monitor your health.** The `vllm-kl` metric is a vital early warning. Track it alongside perplexity (PPL) and gradient norms to predict and diagnose instability before it leads to collapse.
-- **Identify the real culprit.** The problem is not random. It is concentrated in **low-probability tokens**, which are generated more often when the model processes out-of-distribution (OOD) inputs, a common situation in tool use and multi-turn applications.
-- **Hardware is a first-order variable.** The same code can collapse on one GPU architecture and train much longer on another. Validate your setup on your target hardware; results may not port exactly.
-- **Use sequence-level corrections, and prefer masking.** Changing hardware or tuning samplers can help, but the most robust fix is algorithmic. In our multi-turn tool-use runs, **token-level corrections still collapsed**; in simpler reasoning RL they prevented collapse but gave little or no gain in peak accuracy. **Sequence-level methods** correct for the full trajectory, which removes the state-occupancy bias of token-level methods; truncation (Seq-TIS) and masking (Seq-MIS) then trade a controllable bias for bounded variance. Among the corrections we tried on L20, **MIS** trained longest and reached the highest reward. Sequence-level correction should be a default in any serious LLM-RL training stack.
+- **Expect some mismatch.** Fast inference kernels and training kernels differ for good reasons. [Bitwise-consistent training and inference](https://blog.vllm.ai/2025/11/10/bitwise-consistent-train-inference.html) is possible, but it costs throughput, so most stacks will keep some mismatch.
+- **Monitor it.** `vllm-kl` is an early warning. Track it together with perplexity and gradient norm, and watch multi-turn tool-use runs first: out-of-distribution tool responses raise the share of low-probability tokens, where the two engines disagree most.
+- **Validate on your target hardware.** The same code can collapse on one GPU series and train much longer on another.
+- **Correct at the sequence level, and prefer masking.** In our multi-turn tool-use runs token-level corrections still collapsed; in simpler reasoning RL they prevented collapse but gave little or no gain in peak accuracy. Among the corrections we tried on L20, **MIS** trained longest and reached the highest reward. What we recommend today is a length-normalized sequence mask: [Geo-MIS](#geo-mis) (DeepSeek-V3.2 uses a closely related mask), or [Trust Region Masking](https://arxiv.org/abs/2512.23075) when the sampler's logits are stored ([§4.4](#geo-mis)).
 
-We hypothesize that the mismatch between inference engines (e.g., vLLM) and training frameworks (e.g., Megatron-LM) will also be a significant issue for **Mixture-of-Experts (MoE) RL**, an interesting and critical direction for future work.
-
-**Since publication.** MIS has been developed in two steps. [Geo-MIS](#geo-mis), released in VeRL 0.6.0 and analyzed in [Part 3](/post/rl-collapse-part3/) as Geo-Mask, keeps a sequence only when the geometric mean of the per-token ratios, {{< math >}}$\rho^{1/T}${{< /math >}}, lies within {{< math >}}$[C_{\text{low}}, C_{\text{high}}]${{< /math >}}, so long responses are not rejected systematically and the low tail of [§3.3](#low-probability-tokens) is masked too; DeepSeek-V3.2 uses a closely related length-normalized sequence mask. [Trust Region Masking](https://arxiv.org/abs/2512.23075) (ICML 2026) then replaces the sampled statistic with the exact token-level KL: its mean-KL criterion is the quantity that {{< math >}}$-\log\rho^{1/T}${{< /math >}} estimates, and its max-KL criterion is the one its improvement guarantee rests on. A length-normalized sequence mask is what we recommend today.
+We hypothesize that the mismatch between inference engines (e.g., vLLM) and training frameworks (e.g., Megatron-LM) will also be a significant issue for **Mixture-of-Experts (MoE) RL**, a direction for future work.
