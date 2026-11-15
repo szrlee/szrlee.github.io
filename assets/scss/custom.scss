@@ -876,6 +876,8 @@ body.dark details > mjx-container[display="true"] { border-left-color: rgba(255,
   color: var(--hp-ink-soft) !important;
   a { color: var(--hp-accent); }
 }
+// The theme turns code inside a callout black in dark mode, where the callout is dark too.
+.alert code, body.dark .alert code { color: var(--hp-ink); background: transparent; }
 
 .universal-wrapper { max-width: 900px; }
 
