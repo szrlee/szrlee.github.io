@@ -1,9 +1,11 @@
 // Step-through figures (see layouts/shortcodes/stepfig.html).
 // A figure is a list of frames; each frame reveals its layers by build level.
 // Steps are (frame, level) pairs; captions come from the steps JSON.
+// A figure plays by itself once, when most of it has scrolled into view; touching its controls
+// ends that for good, and "reduce motion" turns it off.
 (function () {
   'use strict';
-  var MIN_W = 560, PLAY_MS = 1600;
+  var MIN_W = 560;
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
   function init(fig) {
@@ -19,6 +21,8 @@
     var next = fig.querySelector('.stepfig-next');
     var play = fig.querySelector('.stepfig-play');
     var i = 0, timer = null, visible = false;
+    var auto = steps.length > 1 && !reduce;   // still owes its one automatic run
+    var inView = false;
 
     fig.classList.add('js');
     fig.tabIndex = 0;
@@ -62,27 +66,45 @@
     }
 
     function stop() {
-      if (timer) { clearInterval(timer); timer = null; }
+      if (timer) { clearTimeout(timer); timer = null; }
       play.textContent = '\u25B6';
       play.setAttribute('aria-label', 'Play');
+      caption.setAttribute('aria-live', 'polite');
+    }
+
+    // A step stays up long enough to take in its caption: 1.6 s for a short one, up to 4.5 s.
+    function dwell() {
+      return Math.max(1600, Math.min(4500, 1000 + 18 * caption.textContent.length));
+    }
+
+    function tick() {
+      timer = setTimeout(function () {
+        go(i + 1);
+        if (i >= steps.length - 1) { auto = false; stop(); } else tick();
+      }, dwell());
     }
 
     function start() {
       if (i === steps.length - 1) go(0);
       play.textContent = '\u275A\u275A';
       play.setAttribute('aria-label', 'Pause');
-      timer = setInterval(function () {
-        if (i >= steps.length - 1) { stop(); return; }
-        go(i + 1);
-      }, PLAY_MS);
+      caption.setAttribute('aria-live', 'off');
+      tick();
     }
 
-    prev.addEventListener('click', function () { stop(); go(i - 1); });
-    next.addEventListener('click', function () { stop(); go(i + 1); });
-    play.addEventListener('click', function () { if (timer) stop(); else start(); });
+    // The reader took over: no automatic run from here on.
+    function take() { auto = false; stop(); }
+
+    function autoplay() {
+      if (auto && inView && !timer) start();
+    }
+
+    prev.addEventListener('click', function () { take(); go(i - 1); });
+    next.addEventListener('click', function () { take(); go(i + 1); });
+    play.addEventListener('click', function () { if (timer) take(); else { auto = false; start(); } });
     fig.addEventListener('keydown', function (e) {
-      if (e.key === 'ArrowRight') { stop(); go(i + 1); e.preventDefault(); }
-      if (e.key === 'ArrowLeft') { stop(); go(i - 1); e.preventDefault(); }
+      if (e.key === 'ArrowRight') { take(); go(i + 1); e.preventDefault(); }
+      if (e.key === 'ArrowLeft') { take(); go(i - 1); e.preventDefault(); }
     });
 
     function fit() {
@@ -93,10 +115,34 @@
       stage.style.transform = 'scale(' + scale + ')';
       sizer.style.width = (baseW * scale) + 'px';
       sizer.style.height = (baseH * scale) + 'px';
+      reserve();
     }
+
+    // Room for the tallest caption and note, so the page below does not move from step to step.
+    function reserve() {
+      var shown = caption.innerHTML, shownNote = note.textContent, tallest = 0, tallestNote = 0;
+      caption.style.minHeight = '';
+      note.style.minHeight = '';
+      note.style.display = '';
+      steps.forEach(function (s) {
+        caption.innerHTML = captionHtml(s);
+        tallest = Math.max(tallest, Math.ceil(caption.getBoundingClientRect().height));
+        note.textContent = s.note || '';
+        tallestNote = Math.max(tallestNote, Math.ceil(note.getBoundingClientRect().height));
+      });
+      caption.innerHTML = shown;
+      note.textContent = shownNote;
+      if (tallest) caption.style.minHeight = tallest + 'px';
+      // An empty note is hidden by the stylesheet; keep its line when other steps have one.
+      if (tallestNote) { note.style.minHeight = tallestNote + 'px'; note.style.display = 'block'; }
+    }
+
+    render();
     fit();
     if ('ResizeObserver' in window) new ResizeObserver(fit).observe(viewport);
     else window.addEventListener('resize', fit);
+    window.addEventListener('load', reserve);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(reserve);
 
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
@@ -104,11 +150,17 @@
         if (!visible) stop();
         syncEmbeds();
       }, {rootMargin: '100px'}).observe(fig);
+      // In view: 60% of the figure shows, or it fills 60% of the window (figures taller than it).
+      new IntersectionObserver(function (entries) {
+        var e = entries[entries.length - 1];
+        var room = e.rootBounds ? e.rootBounds.height : window.innerHeight;
+        inView = e.isIntersecting && (e.intersectionRatio >= 0.6 || e.intersectionRect.height >= 0.6 * room);
+        autoplay();
+      }, {threshold: [0, 0.2, 0.4, 0.6, 0.8, 1]}).observe(fig);
     } else {
       visible = true;
+      syncEmbeds();
     }
-
-    render();
   }
 
   function escapeHtml(t) {

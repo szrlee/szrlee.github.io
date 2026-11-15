@@ -985,6 +985,7 @@ body.dark .mjx-pt { color: #8FB4FF; }
 .stepfig-count { margin-left: 0.4rem; font-size: 0.8rem; color: var(--sf-mute); font-variant-numeric: tabular-nums; }
 
 .stepfig-caption {
+  display: flow-root;   // keeps the last line's margin inside, so every step measures the same
   min-height: 3.2rem;
   margin-top: 0.6rem;
   font-size: 0.95rem;
@@ -997,7 +998,7 @@ body.dark .mjx-pt { color: #8FB4FF; }
   .stepfig-inline svg { display: inline-block; vertical-align: middle; max-width: 100%; height: auto; margin-right: 0.35rem; }
 }
 
-.stepfig-note { margin-top: 0.3rem; font-size: 0.8rem; color: var(--sf-mute); &:empty { display: none; } }
+.stepfig-note { font-size: 0.8rem; color: var(--sf-mute); &:empty { display: none; } }
 
 // Slider figures (layouts/shortcodes/livefig.html), framed like the step-through figures.
 .livefig {
