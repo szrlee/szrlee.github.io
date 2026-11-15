@@ -1,7 +1,7 @@
 ---
 title: 'When Speed Kills Stability: Demystifying RL Collapse from the Training-Inference Mismatch'
 subtitle: 'Why the gap between fast inference and faithful training silently collapses LLM-RL, and how masked importance sampling (MIS) fixes it'
-summary: 'The relentless push for faster inference creates a dangerous training-inference mismatch that silently kills RL with LLMs. We reveal the vicious cycle—particularly acute in reasoning and agentic RL—and propose masked importance sampling (MIS): one importance ratio per response, with sequences outside the trust region masked out of the loss. In our multi-turn tool-use runs, token-level corrections still collapsed, while MIS trained past 700 steps where the uncorrected run collapsed near step 280.'
+summary: 'The relentless push for faster inference creates a dangerous training-inference mismatch that silently kills RL with LLMs. We reveal the vicious cycle—particularly acute in reasoning and agentic RL—and propose masked importance sampling (MIS): one importance ratio per response, with sequences outside the trust region masked out of the loss. Its length-normalized form, Geo-MIS, masks on the geometric mean of the per-token ratios, a one-sample estimate of the mean per-token KL that Trust Region Masking later computes exactly. In our multi-turn tool-use runs, token-level corrections still collapsed, while MIS trained past 700 steps where the uncorrected run collapsed near step 280.'
 authors:
   - Jiacai Liu
   - admin
@@ -36,7 +36,8 @@ citation: |
 
 sidebar:
   toc: true
-  toc_pin: [mis]
+  toc_depth: 5
+  toc_pin: [mis, geo-mis]
   links:
     - title: 'Series: RL Collapse'
       items:
@@ -52,7 +53,7 @@ sidebar:
     - title: Related
       items:
         - text: 'Trust Region Masking (ICML 2026)'
-          note: 'The follow-up paper.'
+          note: 'The follow-up paper: sequence masks on the exact mean and max token-level KL.'
           url: 'https://arxiv.org/abs/2512.23075'
         - text: 'Rollout Correction in VeRL'
           note: 'MIS and sequence-level correction in a public training stack.'
@@ -69,6 +70,10 @@ sidebar:
       text: 'Sequence-level ratio, trainer over sampler; per-token ratio ρ_t.'
     - sym: 'C'
       text: 'Threshold: TIS clips the ratio at C, MIS masks sequences above it.'
+    - sym: '\rho_{\mathrm{geo}}'
+      text: 'Geometric mean of the per-token ratios, ρ^(1/T), over the T model-generated tokens; Geo-MIS keeps a sequence when it lies in [C_low, C_high].'
+    - sym: 'D_t'
+      text: 'KL divergence from the sampler to the trainer at the context of token t.'
   updates:
     - date: 'Dec 2, 2025'
       text: '[DeepSeek-V3.2](https://arxiv.org/abs/2512.02556) uses a length-normalized sequence mask, closely related to our geometric sequence masking.'
@@ -99,7 +104,7 @@ sidebar:
 <div class="alert alert-note">
 <div>
 
-**Our contribution: masked importance sampling (MIS).** The training-inference mismatch silently turns on-policy RL into off-policy RL. We propose **sequence-level masked importance sampling**: compute one importance ratio for the whole response, {{< math >}}$\rho(y|x) = \pfsdp(y|x)/\pvllm(y|x)${{< /math >}}, and mask the policy loss of every sequence whose ratio exceeds a threshold {{< math >}}$C${{< /math >}}:
+**Our contribution: masked importance sampling (MIS) and its geometric form (Geo-MIS).** The training-inference mismatch silently turns on-policy RL into off-policy RL. We propose **sequence-level masked importance sampling**: compute one importance ratio for the whole response, {{< math >}}$\rho(y|x) = \pfsdp(y|x)/\pvllm(y|x)${{< /math >}}, and mask the policy loss of every sequence whose ratio exceeds a threshold {{< math >}}$C${{< /math >}}:
 
 {{< math >}}
 $$
@@ -107,7 +112,33 @@ $$
 $$
 {{< /math >}}
 
-Truncation (TIS) keeps such a sequence and caps its weight; MIS drops it. In our multi-turn tool-use runs on L20 GPUs, MIS trained for more than 700 steps where the uncorrected run collapsed near step 280, raised the peak training reward from 0.56 to 0.64, and matched the uncorrected peak test accuracy (0.70 vs. 0.68; Figure 17). The same mask applied per token still collapsed (Figure 18). A two-sided, length-normalized form, the geometric sequence mask, is now in VeRL, and DeepSeek-V3.2 uses a closely related sequence mask. [Details →](#mis)
+Truncation (TIS) keeps such a sequence and caps its weight; MIS drops it. In our multi-turn tool-use runs on L20 GPUs, MIS trained for more than 700 steps where the uncorrected run collapsed near step 280, raised the peak training reward from 0.56 to 0.64, and matched the uncorrected peak test accuracy (0.70 vs. 0.68; Figure 17). The same mask applied per token still collapsed (Figure 18). [Details →](#mis)
+
+For a response of {{< math >}}$T${{< /math >}} tokens, **Geo-MIS** applies the same mask to the geometric mean of the per-token ratios {{< math >}}$\rho_t${{< /math >}} (trainer probability over sampler probability for token {{< math >}}$y_t${{< /math >}}), so that one pair of thresholds serves responses of every length:
+
+{{< math >}}
+$$
+\begin{gathered}
+\rho_{\mathrm{geo}}(y|x) = \rho(y|x)^{1/T} = \exp\Big(\frac{1}{T}\sum_{t=1}^{T}\log\rho_t\Big), \\
+\rho_{\mathrm{geo}} \gets \rho_{\mathrm{geo}}\,\mathbb{I}\{C_{\text{low}} \le \rho_{\mathrm{geo}} \le C_{\text{high}}\}.
+\end{gathered}
+$$
+{{< /math >}}
+
+It was released in VeRL 0.6.0 (October 2025), and DeepSeek-V3.2 uses a closely related length-normalized sequence mask. The experiments in this post use the product form above.
+
+**Relation to Trust Region Masking.** The sampler {{< math >}}$\pvllm${{< /math >}} drew the response, so each term of {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} has the token-level KL divergence between the two engines as its mean:
+
+{{< math >}}
+$$
+\begin{gathered}
+-\log\rho_{\mathrm{geo}}(y|x) = \frac{1}{T}\sum_{t=1}^{T}\big(-\log\rho_t\big), \\
+\mathbb{E}_{y_t\sim\pvllm}\big[-\log\rho_t\big] = \mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|\,\pfsdp(\cdot|x,y_{\lt t})\big).
+\end{gathered}
+$$
+{{< /math >}}
+
+Geo-MIS is therefore a trust region on the **mean per-token KL** of the response, the quantity `vllm-kl` monitors, estimated from the sampled tokens. The follow-up paper, [Trust Region Masking](https://arxiv.org/abs/2512.23075) (ICML 2026), computes each token's KL exactly from stored logits and masks a sequence on the mean of these KLs and on their maximum; its improvement bounds depend on the maximum, which the mean alone cannot control. [Details →](#geo-mis)
 
 </div>
 </div>
@@ -120,6 +151,7 @@ The relentless push for faster inference has created a dangerous "training-infer
 - **Low-probability tokens are where training breaks.** The training-inference mismatch is most severe for these tokens, and the batches where it spikes are the ones where gradients explode and training suddenly fails ([§3.3](#low-probability-tokens)).
 - **Hardware variability complicates the problem.** Different GPU architectures change the size of the mismatch unpredictably, so the same agentic training setup can train stably on one machine and collapse on another ([§3.5](#hardware)).
 - **Sequence-level correction is the principled fix, and MIS is our practical form of it.** Token-level corrections reweight each token but not the distribution of prefixes, and in our multi-turn tool-use runs they still collapsed. A single sequence-level ratio corrects the whole trajectory, and masking the sequences outside the trust region (MIS) kept training stable more than twice as long as the uncorrected run ([§4.2.1](#distribution-correction), [§4.2.2](#mis)).
+- **Geo-MIS makes the trust region independent of length and ties it to KL.** Masking on the geometric mean of the per-token ratios bounds a one-sample estimate of the mean per-token KL between sampler and trainer, the quantity `vllm-kl` monitors. Trust Region Masking later computes that KL exactly and adds a max-KL criterion ([Geo-MIS and Trust Region Masking](#geo-mis)).
 
 ---
 
@@ -586,7 +618,15 @@ Let's derive the token-level IS gradient estimator {{< math >}}$g_{\mathrm{tok}}
    $$
    {{< /math >}}
 
-3. Subtracting the baseline {{< math >}}$V^{\pvllm}(s)${{< /math >}} leaves this unchanged, because {{< math >}}$\mathbb{E}_{a \sim \pvllm(\cdot|s)}\big[\tfrac{\pfsdp(a|s)}{\pvllm(a|s)} \nabla_{\theta} \log \pfsdp(a|s)\big] = \mathbb{E}_{a \sim \pfsdp(\cdot|s)}\big[\nabla_{\theta} \log \pfsdp(a|s)\big] = 0${{< /math >}}, and it turns {{< math >}}$Q^{\pvllm}${{< /math >}} into the advantage {{< math >}}$A^{\pvllm}${{< /math >}}. Using the per-token ratio to change the expectation over actions from {{< math >}}$\pvllm${{< /math >}} to {{< math >}}$\pfsdp${{< /math >}} gives the final form:
+3. Subtracting the baseline {{< math >}}$V^{\pvllm}(s)${{< /math >}} leaves this unchanged, because
+
+   {{< math >}}
+   $$
+   \mathbb{E}_{a \sim \pvllm(\cdot|s)}\Big[\frac{\pfsdp(a|s)}{\pvllm(a|s)} \nabla_{\theta} \log \pfsdp(a|s)\Big] = \mathbb{E}_{a \sim \pfsdp(\cdot|s)}\big[\nabla_{\theta} \log \pfsdp(a|s)\big] = 0,
+   $$
+   {{< /math >}}
+
+   and it turns {{< math >}}$Q^{\pvllm}${{< /math >}} into the advantage {{< math >}}$A^{\pvllm}${{< /math >}}. Using the per-token ratio to change the expectation over actions from {{< math >}}$\pvllm${{< /math >}} to {{< math >}}$\pfsdp${{< /math >}} gives the final form:
 
    {{< math >}}
    $$
@@ -665,7 +705,7 @@ Our analysis predicts that token-level corrections become unstable when the mism
 
 To improve on TIS, we propose **masked importance sampling (MIS)**: keep the sequence-level ratio, but mask the policy loss of every sequence whose ratio exceeds the threshold {{< math >}}$C${{< /math >}}, i.e. {{< math >}}$\rho(y|x) \gets \rho(y|x)\, \mathbb{I}\{\rho(y|x) \le C\}${{< /math >}}. TIS keeps such a sequence with its weight capped at {{< math >}}$C${{< /math >}}; MIS removes it from the update. The result is an upper-sided hard trust region at the level of the sequence.
 
-**Which tail the mask cuts.** The mask removes sequences on which the trainer is far *more* likely than the sampler ({{< math >}}$\rho > C${{< /math >}}). The pathology of [§3.3](#low-probability-tokens) is the opposite tail, {{< math >}}$\rho \ll 1${{< /math >}}, where the trainer assigns far lower probability; there the importance weight itself shrinks the sequence's contribution toward zero. The geometric sequence mask of [Part 3](/post/rl-collapse-part3/) (Geo-Mask) is two-sided and length-normalized: it keeps a sequence only when {{< math >}}$C_{\text{low}} \le \rho^{1/T} \le C_{\text{high}}${{< /math >}}, which removes the low tail outright as well.
+**Which tail the mask cuts.** The mask removes sequences on which the trainer is far *more* likely than the sampler ({{< math >}}$\rho > C${{< /math >}}). The pathology of [§3.3](#low-probability-tokens) is the opposite tail, {{< math >}}$\rho \ll 1${{< /math >}}, where the trainer assigns far lower probability; there the importance weight itself shrinks the sequence's contribution toward zero. The geometric form, [Geo-MIS](#geo-mis), is two-sided and length-normalized: it keeps a sequence only when {{< math >}}$C_{\text{low}} \le \rho^{1/T} \le C_{\text{high}}${{< /math >}}, which removes the low tail outright as well.
 
 **MIS in practice.** The ratio is a product over hundreds of tokens, so compute it in log space, over model-generated tokens only (tool-response tokens are excluded, as in `vllm-kl`):
 
@@ -688,7 +728,7 @@ seq_weight = torch.exp(seq_log_ratio.clamp(max=math.log(C))) * keep   # in [0, C
 pg_loss = pg_loss * seq_weight.unsqueeze(-1)                # scale each sequence's per-token loss
 ```
 
-**Results.** As Figure 17 shows, on L20 GPUs MIS trained for more than 700 steps where the uncorrected run collapsed near step 280. It raised the peak training reward from about 0.56 to 0.64 and matched the uncorrected run's peak test accuracy (0.70 vs. 0.68), well above Seq-TIS (about 0.61). It was not free of instability: its reward dipped to about 0.37 near step 440 before recovering. [Part 3](/post/rl-collapse-part3/) develops MIS into the length-invariant geometric form.
+**Results.** As Figure 17 shows, on L20 GPUs MIS trained for more than 700 steps where the uncorrected run collapsed near step 280. It raised the peak training reward from about 0.56 to 0.64 and matched the uncorrected run's peak test accuracy (0.70 vs. 0.68), well above Seq-TIS (about 0.61). It was not free of instability: its reward dipped to about 0.37 near step 440 before recovering. The length-invariant geometric form is given [below](#geo-mis) and developed further in [Part 3](/post/rl-collapse-part3/).
 
 <figure class="post-fig">
 <img src="/figs/img/rl-collapse/fig17-mis.png" alt="Training rewards and test accuracy: vanilla collapses near step 280 and sequence-level TIS ends near step 410, while sequence-level MIS trains to step 700 with the highest reward (about 0.64) and test accuracy reaching about 0.70.">
@@ -701,6 +741,81 @@ pg_loss = pg_loss * seq_weight.unsqueeze(-1)                # scale each sequenc
 <img src="/figs/img/rl-collapse/fig18-token-vs-seq-mis.jpg" alt="Gradient norm and rewards for token-level and sequence-level MIS: the token-level run collapses while the sequence-level run stays stable.">
 <figcaption><strong>Figure 18.</strong> On-policy GRPO with token-level MIS (purple) and sequence-level MIS (orange), on L20 GPUs with the same configuration. <strong>Left:</strong> gradient norm. <strong>Right:</strong> training rewards.</figcaption>
 </figure>
+
+##### Geo-MIS and Trust Region Masking {#geo-mis}
+
+**Why the product form needs a length correction.** {{< math >}}$\log\rho(y|x) = \sum_t \log\rho_t${{< /math >}} is a sum over the {{< math >}}$T${{< /math >}} model-generated tokens of the response, so it scales with length. A per-token log-ratio of {{< math >}}$0.01${{< /math >}} gives {{< math >}}$\rho = e^{1} \approx 2.7${{< /math >}} at {{< math >}}$T = 100${{< /math >}} and {{< math >}}$\rho = e^{10} \approx 22{,}000${{< /math >}} at {{< math >}}$T = 1000${{< /math >}}. A fixed threshold {{< math >}}$C${{< /math >}} therefore tests long responses far more strictly than short ones, whatever their per-token quality.
+
+**Geo-MIS.** Take the geometric mean of the per-token ratios and mask on both sides:
+
+{{< math >}}
+$$
+\begin{gathered}
+\rho_{\mathrm{geo}}(y|x) = \rho(y|x)^{1/T} = \exp\Big(\frac{1}{T}\sum_{t \in \mathcal{T}_{\mathcal{M}}(y)} \log\rho_t\Big), \qquad T = |\mathcal{T}_{\mathcal{M}}(y)|, \\
+\rho_{\mathrm{geo}}(y|x) \gets \rho_{\mathrm{geo}}(y|x)\,\mathbb{I}\{C_{\text{low}} \le \rho_{\mathrm{geo}}(y|x) \le C_{\text{high}}\}.
+\end{gathered}
+$$
+{{< /math >}}
+
+If every token has ratio {{< math >}}$r${{< /math >}}, then {{< math >}}$\rho_{\mathrm{geo}} = r${{< /math >}} at any length. This is the form released in VeRL 0.6.0 (`rollout_is_level="geometric"`, `rollout_is_mode="mask"`), where {{< math >}}$C_{\text{low}}${{< /math >}} defaults to {{< math >}}$1/C_{\text{high}}${{< /math >}}. [Part 3](/post/rl-collapse-part3/) calls the mask Geo-Mask and current VeRL calls it Geo-RS; both also apply it without a weight, or with per-token weights in place of {{< math >}}$\rho_{\mathrm{geo}}${{< /math >}}. With `seq_log_ratio` from the MIS sketch above, the lines after it become:
+
+```python
+n_tokens = response_mask.sum(dim=-1).clamp(min=1)            # T: model tokens per response
+geo_log_ratio = seq_log_ratio / n_tokens                     # log rho_geo: mean per-token log-ratio
+keep = (geo_log_ratio >= math.log(C_low)) & (geo_log_ratio <= math.log(C_high))
+seq_weight = torch.exp(geo_log_ratio) * keep                 # Geo-MIS weight; masked -> 0
+pg_loss = pg_loss * seq_weight.unsqueeze(-1)
+```
+
+**Step 1: {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} is a one-sample estimate of the mean KL.** Write {{< math >}}$D_t = \mathrm{KL}\big(\pvllm(\cdot|x,y_{\lt t})\,\|\,\pfsdp(\cdot|x,y_{\lt t})\big)${{< /math >}} for the KL divergence from the sampler to the trainer at the context of token {{< math >}}$t${{< /math >}}. The token {{< math >}}$y_t${{< /math >}} was drawn from {{< math >}}$\pvllm${{< /math >}}, so by the definition of the KL divergence
+
+{{< math >}}
+$$
+\mathbb{E}_{y_t \sim \pvllm(\cdot|x,y_{\lt t})}\big[-\log\rho_t\big] = \sum_{v} \pvllm(v|x,y_{\lt t}) \log\frac{\pvllm(v|x,y_{\lt t})}{\pfsdp(v|x,y_{\lt t})} = D_t \;\ge\; 0 .
+$$
+{{< /math >}}
+
+Averaging over the response splits {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} into the mean KL along it and zero-mean sampling noise:
+
+{{< math >}}
+$$
+-\log\rho_{\mathrm{geo}}(y|x) = \frac{1}{T}\sum_{t}\big(-\log\rho_t\big) = \underbrace{\frac{1}{T}\sum_{t} D_t}_{\text{mean KL along } y} + \underbrace{\frac{1}{T}\sum_{t}\xi_t}_{\text{sampling noise}},
+$$
+{{< /math >}}
+
+where {{< math >}}$\xi_t = -\log\rho_t - D_t${{< /math >}} has mean zero given the context {{< math >}}$(x, y_{\lt t})${{< /math >}}.
+
+This is `vllm-kl` in its plain log-ratio form ([§3.1](#31-measuring-the-mismatch-the-vllm-kl-metric)), computed on one response instead of a batch. The product form is the same statement about the total: the expectation of {{< math >}}$-\log\rho(y|x)${{< /math >}} under the sampler is the KL divergence between the two engines' distributions over whole responses, which by the chain rule is the sum of the expected token-level KLs and so grows with {{< math >}}$T${{< /math >}}. MIS thresholds an estimate of that total, and Geo-MIS an estimate of its per-token mean.
+
+**Step 2: the band is a trust region on that estimate.** Taking logarithms,
+
+{{< math >}}
+$$
+C_{\text{low}} \le \rho_{\mathrm{geo}} \le C_{\text{high}} \iff -\log C_{\text{high}} \;\le\; -\log\rho_{\mathrm{geo}} \;\le\; \log\frac{1}{C_{\text{low}}} .
+$$
+{{< /math >}}
+
+The right-hand inequality caps the estimated mean KL at {{< math >}}$\log(1/C_{\text{low}})${{< /math >}} nats per token. It is the side that removes the low-probability tail of [§3.3](#low-probability-tokens). The left-hand inequality exists because a one-sample estimate of a non-negative quantity can be negative; it removes responses on which the trainer is far more confident than the sampler, the tail that the product-form mask {{< math >}}$\rho \le C${{< /math >}} cuts. With {{< math >}}$C_{\text{low}} = 1/C_{\text{high}}${{< /math >}} the band reads {{< math >}}$|\log\rho_{\mathrm{geo}}| \le \log C_{\text{high}}${{< /math >}}. For example, {{< math >}}$C_{\text{high}} = 1.001${{< /math >}} allows about {{< math >}}$10^{-3}${{< /math >}} nats per token, the scale of `vllm-kl` in our H20 batches (Group 1 in [§3.3](#low-probability-tokens)).
+
+**Step 3: Trust Region Masking computes the same quantity exactly, and adds a maximum.** [Trust Region Masking](https://arxiv.org/abs/2512.23075) (TRM, ICML 2026) stores the sampler's logits at rollout time, so {{< math >}}$D_t${{< /math >}} is computed over the full vocabulary in the training forward pass instead of being estimated from the one sampled token. It masks a sequence with two criteria:
+
+{{< math >}}
+$$
+\frac{1}{T}\sum_{t} D_t \le \delta_{\mathrm{avg}} \quad \text{(mean KL)}, \qquad\qquad \max_{t} D_t \le \delta \quad \text{(max KL)}.
+$$
+{{< /math >}}
+
+- **The mean-KL criterion is the exact version of Geo-MIS.** The noise term of Step 1 is gone and the statistic is non-negative, so a single threshold replaces the two-sided band, with {{< math >}}$\delta_{\mathrm{avg}}${{< /math >}} in the role of {{< math >}}$\log(1/C_{\text{low}})${{< /math >}}. Like Geo-MIS, it does not reject long responses more often than short ones.
+- **The max-KL criterion is what the guarantee needs.** The paper's error bounds depend on the largest token-level KL over all contexts, and a mean cannot control it: a response whose mean KL is below {{< math >}}$\delta_{\mathrm{avg}}${{< /math >}} can still contain one token with a KL as large as {{< math >}}$T\delta_{\mathrm{avg}}${{< /math >}}. A maximum, in turn, rejects long responses more often. In practice the paper combines the two: the maximum catches single-token outliers and the mean limits accumulated drift.
+- **Without stored logits, TRM falls back to sample-based estimators.** For the mean it uses {{< math >}}$k_3(\rho_t) = \rho_t - 1 - \log\rho_t${{< /math >}}, which is non-negative and unbiased for {{< math >}}$D_t${{< /math >}} (the estimator behind `vllm-kl` in §3.1), and for the maximum a symmetric function of {{< math >}}$\log\rho_t${{< /math >}}. Geo-MIS is the mean criterion with the {{< math >}}$k_1${{< /math >}} estimator, {{< math >}}$-\log\rho_t${{< /math >}}, in place of {{< math >}}$k_3${{< /math >}}.
+- **The weights differ.** Inside an accepted sequence TRM weights each token by its own ratio {{< math >}}$\rho_t${{< /math >}}, where Geo-MIS weights the whole sequence by {{< math >}}$\rho_{\mathrm{geo}}${{< /math >}}.
+
+| Method | Statistic for one response | Kept when | Weight if kept |
+|---|---|---|---|
+| MIS (this post) | {{< math >}}$\log\rho = \sum_t \log\rho_t${{< /math >}}; {{< math >}}$-\log\rho${{< /math >}} estimates the total KL | {{< math >}}$\rho \le C${{< /math >}} | {{< math >}}$\rho${{< /math >}} |
+| Geo-MIS (VeRL 0.6.0) | {{< math >}}$\log\rho_{\mathrm{geo}} = \frac{1}{T}\sum_t \log\rho_t${{< /math >}}; {{< math >}}$-\log\rho_{\mathrm{geo}}${{< /math >}} estimates the mean KL | {{< math >}}$C_{\text{low}} \le \rho_{\mathrm{geo}} \le C_{\text{high}}${{< /math >}} | {{< math >}}$\rho_{\mathrm{geo}}${{< /math >}} |
+| TRM, mean KL | {{< math >}}$\frac{1}{T}\sum_t D_t${{< /math >}}, exact | at most {{< math >}}$\delta_{\mathrm{avg}}${{< /math >}} | {{< math >}}$\rho_t${{< /math >}} per token |
+| TRM, max KL | {{< math >}}$\max_t D_t${{< /math >}}, exact | at most {{< math >}}$\delta${{< /math >}} | {{< math >}}$\rho_t${{< /math >}} per token |
 
 #### 4.2.3 Top-p Sampling: A Diagnostic
 
@@ -743,4 +858,4 @@ The training-inference mismatch is not a niche bug but a fundamental, growing ch
 
 We hypothesize that the mismatch between inference engines (e.g., vLLM) and training frameworks (e.g., Megatron-LM) will also be a significant issue for **Mixture-of-Experts (MoE) RL**, an interesting and critical direction for future work.
 
-**Since publication.** [Part 3](/post/rl-collapse-part3/) of the series and the follow-up paper, [Trust Region Masking](https://arxiv.org/abs/2512.23075), develop MIS into a two-sided geometric sequence mask (Geo-Mask in Part 3; Geo-MIS/Geo-RS in VeRL). It keeps a sequence only when the per-token geometric mean of the ratio, {{< math >}}$\rho^{1/T}${{< /math >}}, lies within {{< math >}}$[C_{\text{low}}, C_{\text{high}}]${{< /math >}}, so long responses are not rejected systematically and the low tail of [§3.3](#low-probability-tokens) is masked too. This length-invariant form is the one now in VeRL, DeepSeek-V3.2 uses a closely related length-normalized sequence mask, and it is what we recommend today.
+**Since publication.** MIS has been developed in two steps. [Geo-MIS](#geo-mis), released in VeRL 0.6.0 and analyzed in [Part 3](/post/rl-collapse-part3/) as Geo-Mask, keeps a sequence only when the geometric mean of the per-token ratios, {{< math >}}$\rho^{1/T}${{< /math >}}, lies within {{< math >}}$[C_{\text{low}}, C_{\text{high}}]${{< /math >}}, so long responses are not rejected systematically and the low tail of [§3.3](#low-probability-tokens) is masked too; DeepSeek-V3.2 uses a closely related length-normalized sequence mask. [Trust Region Masking](https://arxiv.org/abs/2512.23075) (ICML 2026) then replaces the sampled statistic with the exact token-level KL: its mean-KL criterion is the quantity that {{< math >}}$-\log\rho^{1/T}${{< /math >}} estimates, and its max-KL criterion is the one its improvement guarantee rests on. A length-normalized sequence mask is what we recommend today.

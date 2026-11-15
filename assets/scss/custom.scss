@@ -855,6 +855,11 @@ body.dark .navbar-nav > .nav-item > .nav-link:hover {
 // Display math wider than the column scrolls instead of being clipped.
 .article-style mjx-container[display="true"] { overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
 
+// On phones a table wider than the column scrolls sideways instead of being clipped.
+@media (max-width: 767.98px) {
+  .article-style table { display: block; max-width: 100%; overflow-x: auto; }
+}
+
 // The theme marks spoiler text with a bar on each <p>; display math outside a <p> needs it too.
 details > mjx-container[display="true"] {
   margin-left: 0.3rem !important;
