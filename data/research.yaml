@@ -86,10 +86,7 @@ questions:
       made it principled as Trust Region Masking (a sequence mask with per-token importance
       sampling), and built a learning-rate schedule that decays the step size as instability builds.
       Whole sequences are kept or masked and no single token is clipped, so every token's score
-      stays centered. Around the
-      sampler, the gain of an update is a tangent plus a remainder bounded by the reward range
-      times the sequence KL, and
-      a batch-size-invariant rule for the step size and the queue keeps the gap fixed as runs grow.
+      stays centered.
     results:
       - value: O(T)
         caption: trust-region bound for long sequences, down from the classical O(T²)
