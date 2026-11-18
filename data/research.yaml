@@ -158,15 +158,16 @@ timeline:
       where: ICML 2026 · arXiv 2026
       text: Variance as a second cause of collapse; the mismatch moves with the step size.
       url: "https://arxiv.org/abs/2602.07078"
-    - when: Oct 2026
-      title: Around the sampler, and how the gap scales
-      where: Blog, 2026
-      text: >-
-        The gain is a tangent plus a remainder bounded by the sequence KL; a batch-size-invariant
-        rule for the step size and the queue keeps the gap fixed as runs grow.
-      url: "/post/offpolicy-around-the-sampler/"
-      parts: ["/post/offpolicy-around-the-sampler/", "/post/offpolicy-gap-at-scale/"]
-      current: true
+    # Hidden while the Off-Policy RL at Scale series is offline (draft: true in both posts).
+    # - when: Oct 2026
+    #   title: Around the sampler, and how the gap scales
+    #   where: Blog, 2026
+    #   text: >-
+    #     The gain is a tangent plus a remainder bounded by the sequence KL; a batch-size-invariant
+    #     rule for the step size and the queue keeps the gap fixed as runs grow.
+    #   url: "/post/offpolicy-around-the-sampler/"
+    #   parts: ["/post/offpolicy-around-the-sampler/", "/post/offpolicy-gap-at-scale/"]
+    #   current: true
     - when: Oct 2026
       title: The shape of a post-training update
       where: Blog, 2026
