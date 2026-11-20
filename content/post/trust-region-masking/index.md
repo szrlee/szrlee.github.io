@@ -135,7 +135,7 @@ By masking at the sequence level, we ensure that:
 
 ### Masking Criterion
 A sequence is masked if:
-$$\max_{t} D_{\mathrm{KL}}(\pi_{\mathrm{roll}}(\cdot|c_t) \| \pi_{\theta}(\cdot|c_t)) > \epsilon$$
+$$\max_{t} D_{\mathrm{KL}}(\pi_{\mathrm{roll}}(\cdot|c_t) \Vert \pi_{\theta}(\cdot|c_t)) > \epsilon$$
 
 where $\epsilon$ is the trust region threshold.
 

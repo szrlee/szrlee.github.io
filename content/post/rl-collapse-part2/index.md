@@ -100,17 +100,17 @@ The problem is that for autoregressive sequences, this second moment explodes ex
 A direct computation yields that
 
 $$
-\mathbf{Var}(\hat{g}_{\mathrm{seq}}) = \mathbb{E}\_{\mu}\left[ \left\| \hat{g}\_{\mathrm{seq}} \right\|^2 \right] - \left\| \mathbb{E}\_{\mu}\left[ \hat{g}\_{\mathrm{seq}} \right] \right\|^2
+\mathbf{Var}(\hat{g}_{\mathrm{seq}}) = \mathbb{E}\_{\mu}\left[ \left\Vert \hat{g}\_{\mathrm{seq}} \right\Vert^2 \right] - \left\Vert \mathbb{E}\_{\mu}\left[ \hat{g}\_{\mathrm{seq}} \right] \right\Vert^2
 $$
 
 $$
-= \mathbb{E}\_{\mu}\left[ \rho^2(y) R^2(y) \left\| \nabla\_{\theta}\log \pi(y) \right\|^2 \right] - \left\| g \right\|^2
+= \mathbb{E}\_{\mu}\left[ \rho^2(y) R^2(y) \left\Vert \nabla\_{\theta}\log \pi(y) \right\Vert^2 \right] - \left\Vert g \right\Vert^2
 $$
 
-Assuming that $\sup\_y \left\| \nabla\_{\theta}\log \pi(y) \right\|^2 \le M$ and $\forall y: |R(y)| \le R\_{\text{max}}$, then the variance is upper-bounded by the second moment:
+Assuming that $\sup\_y \left\Vert \nabla\_{\theta}\log \pi(y) \right\Vert^2 \le M$ and $\forall y: |R(y)| \le R\_{\text{max}}$, then the variance is upper-bounded by the second moment:
 
 $$
-\mathbf{Var}(\hat{g}\_{\mathrm{seq}}) \le M \cdot R\_{\max} \cdot \mathbb{E}\_{\mu}\left[ \rho^2(y) \right] - \left\| g \right\|^2
+\mathbf{Var}(\hat{g}\_{\mathrm{seq}}) \le M \cdot R\_{\max} \cdot \mathbb{E}\_{\mu}\left[ \rho^2(y) \right] - \left\Vert g \right\Vert^2
 $$
 
 Let's analyze the second moment.
@@ -126,10 +126,10 @@ $$
 Each per-token expectation is, by definition, $1$ plus its $\chi^2$-divergence:
 
 $$
-\mathbb{E}\_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) \| \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2\_{\max}
+\mathbb{E}\_\mu[\rho_t^2 | s_t] = 1 + \chi^2(\pi(\cdot|s_t) \Vert \mu(\cdot|s_t)) \le 1 + \bar{\chi}^2\_{\max}
 $$
 
-Let $\bar{\chi}^2\_{\max} =$ $\max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} \gt 0$.
+Let $\bar{\chi}^2\_{\max} =$ $\max\_{t, s\_t} \chi^2(\pi(\cdot|s\_t) \Vert \mu(\cdot|s\_t))$. If any mismatch exists, $\bar{\chi}^2\_{\max} \gt 0$.
 This gives the exponential upper bound:
 
 $$
@@ -214,7 +214,7 @@ By breaking the exponential product, both estimators have a variance that is pol
 
 {{< spoiler text="Derivation: The Polynomial Variance" >}}
 
-The variance is always bounded by the second moment: $\mathbf{Var}(\hat{g}) \le \mathbb{E}[\|\hat{g}\|^2]$. We just need to show this second moment is $O(\text{poly}(T))$.
+The variance is always bounded by the second moment: $\mathbf{Var}(\hat{g}) \le \mathbb{E}[\Vert\hat{g}\Vert^2]$. We just need to show this second moment is $O(\text{poly}(T))$.
 
 **1. Naive Estimator:**
 
@@ -223,13 +223,13 @@ Let $f(y) = \hat{g}\_{\text{naive}}(y) =$ $R(y|x) \cdot \nabla\_\theta \log \pi(
 As we show in the "Factor 1" part of the bias proof below, the score function $\nabla\_\theta \log \pi(y|x) = \sum\_t \nabla\_\theta \log \pi\_t$ has a magnitude that scales as $O(T)$.
 
 $$
-\|f(y)\| = |R(y)| \cdot \|\nabla\_\theta \log \pi(y|x)\| \le R\_{\max} \cdot O(T)
+\Vert f(y)\Vert = |R(y)| \cdot \Vert\nabla\_\theta \log \pi(y|x)\Vert \le R\_{\max} \cdot O(T)
 $$
 
 The second moment is therefore bounded by the square of this:
 
 $$
-\mathbb{E}[\|\hat{g}\_{\text{naive}}\|^2] \le \mathbb{E}[(\sup_y \|f(y)\|)^2] = O(T^2)
+\mathbb{E}[\Vert\hat{g}\_{\text{naive}}\Vert^2] \le \mathbb{E}[(\sup_y \Vert f(y)\Vert)^2] = O(T^2)
 $$
 
 The variance is definitively polynomial.
@@ -239,10 +239,10 @@ This estimator is a sum of $T$ terms: $\hat{g}\_{\text{tok}} = \sum\_{t=0}^{T-1}
 The variance of a sum is $\mathbf{Var}(\sum\_t X\_t) =$ $\sum\_t \mathbf{Var}(X\_t)$ $+\mkern4mu \sum\_{t \neq t'} \mathbf{Cov}(X\_t, X\_{t'})$.
 This has $T$ diagonal (variance) terms and $T(T-1) \approx O(T^2)$ off-diagonal (covariance) terms.
 
-**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t\|^2]$.
+**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\Vert X\_t\Vert^2]$.
 
 $$
-\mathbb{E}[|X_t|^2] = \mathbb{E}\left[\left\| \frac{\pi_t}{\mu_t} A_t \nabla\_\theta \log \pi_t \right\|^2\right] \le (\sup \|A_t \nabla\_\theta \log \pi_t\|)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
+\mathbb{E}[|X_t|^2] = \mathbb{E}\left[\left\Vert \frac{\pi_t}{\mu_t} A_t \nabla\_\theta \log \pi_t \right\Vert^2\right] \le (\sup \Vert A_t \nabla\_\theta \log \pi_t\Vert)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
 $$
 
 The $A\_t$ and $\nabla\_\theta \log \pi\_t$ terms are bounded by constants. The expectation is $\mathbb{E}[\rho\_t^2] \le (1+\bar{\chi}^2)$.
@@ -250,9 +250,9 @@ So, each diagonal term is $O(1+\bar{\chi}^2)$. The sum of all $T$ diagonal terms
 
 **Cross Terms ($O(T^2)$ of them):** We bound $\mathbf{Cov}(X\_t, X\_{t'})$.
 
-By the Cauchy-Schwarz inequality, $|\mathbb{E}[X\_t^\top X\_{t'}]| \le$ $\sqrt{\mathbb{E}[\|X\_t\|^2] \mathbb{E}[\|X\_{t'}\|^2]}$.
+By the Cauchy-Schwarz inequality, $|\mathbb{E}[X\_t^\top X\_{t'}]| \le$ $\sqrt{\mathbb{E}[\Vert X\_t\Vert^2] \mathbb{E}[\Vert X\_{t'}\Vert^2]}$.
 
-Since we just showed $\mathbb{E}[\|X\_t\|^2]$ is $O(1+\bar{\chi}^2)$, the covariance/cross-term is also $O(1+\bar{\chi}^2)$.
+Since we just showed $\mathbb{E}[\Vert X\_t\Vert^2]$ is $O(1+\bar{\chi}^2)$, the covariance/cross-term is also $O(1+\bar{\chi}^2)$.
 
 The sum of all $O(T^2)$ cross terms is $O(T^2(1+\bar{\chi}^2))$.
 
@@ -286,18 +286,18 @@ where $f(y) = \hat{g}\_{\text{naive}}(y) =$ $R(y|x) \cdot \nabla\_\theta \log \p
 This is the difference in the expectation of the same function $f(y)$ under two different distributions, $\mu$ and $\pi$. We can bound this difference:
 
 $$
-\|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 = \left\| \sum_y (\mu(y) - \pi(y)) f(y) \right\|_2 \le \sup_y \|f(y)\| \cdot \sum_y |\mu(y) - \pi(y)|
+\Vert\text{Bias}(\hat{g}\_{\text{naive}})\Vert_2 = \left\Vert \sum_y (\mu(y) - \pi(y)) f(y) \right\Vert_2 \le \sup_y \Vert f(y)\Vert \cdot \sum_y |\mu(y) - \pi(y)|
 $$
 
 This is bounded by the "worst-case" value of $f(y)$ multiplied by the total difference in probabilities. The total probability difference is exactly twice the Total Variation (TV) distance:
 
 $$
-\sum_y |\mu(y) - \pi(y)| = 2 D_{TV}(\mu \| \pi)
+\sum_y |\mu(y) - \pi(y)| = 2 D_{TV}(\mu \Vert \pi)
 $$
 
 {{< math >}}
 $$
-\|\text{Bias}(\hat{g}_{\text{naive}})\|_2 \le 2 \sup_y \|f(y)\| \cdot D_{TV}(\mu \| \pi)
+\Vert\text{Bias}(\hat{g}_{\text{naive}})\Vert_2 \le 2 \sup_y \Vert f(y)\Vert \cdot D_{TV}(\mu \Vert \pi)
 $$
 {{< /math >}}
 
@@ -305,7 +305,7 @@ The $O(T^2)$ bias comes from the fact that both of these terms scale linearly wi
 
 ---
 
-**Factor 1: Bounding the Function,** $\sup\_y \|f(y)\| = O(T)$
+**Factor 1: Bounding the Function,** $\sup\_y \Vert f(y)\Vert = O(T)$
 
 Our function $f(y)$ is the product of the reward (bounded by $R\_{\max}$) and the full-sequence score function. The score function is a sum of $T$ per-token score functions:
 
@@ -316,12 +316,12 @@ $$
 Since each per-token score is bounded (let's say by a constant $K\_t$) for softmax parameterization, the full sequence score is bounded by $O(T \cdot K\_t)$. Therefore:
 
 $$
-\sup_y \|f(y)\| \le R\_{\max} \cdot O(T) = O(T)
+\sup_y \Vert f(y)\Vert \le R\_{\max} \cdot O(T) = O(T)
 $$
 
 ---
 
-**Factor 2: Bounding the Divergence,** $D\_{TV}(\mu \| \pi) = O(T \Delta\_{\max})$
+**Factor 2: Bounding the Divergence,** $D\_{TV}(\mu \Vert \pi) = O(T \Delta\_{\max})$
 
 This is the **Simulation Lemma** (or hybrid argument). It proves that the total sequence-level TV distance is bounded by the *sum* of the per-token TV distances.
 
@@ -338,34 +338,34 @@ b. Use the Triangle Inequality (Telescoping Sum):
 The total distance is bounded by the sum of the distances of each "step" in the bridge.
 
 $$
-D_{TV}(\pi \| \mu) = D_{TV}(H_0 \| H_T) \le \sum_{t=0}^{T-1} D_{TV}(H_t \| H_{t+1})
+D_{TV}(\pi \Vert \mu) = D_{TV}(H_0 \Vert H_T) \le \sum_{t=0}^{T-1} D_{TV}(H_t \Vert H_{t+1})
 $$
 
-**c. Analyze a Single Step** $D\_{TV}(H\_t \| H\_{t+1})$:
+**c. Analyze a Single Step** $D\_{TV}(H\_t \Vert H\_{t+1})$:
 
 $H\_t$ and $H\_{t+1}$ are identical *except* at token $t$, where one uses $\pi(y\_t|s\_t)$ and the other uses $\mu(y\_t|s\_t)$.
 
 $$
-D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_y |H_t(y) - H_{t+1}(y)|
+D_{TV}(H_t \Vert H_{t+1}) = \frac{1}{2} \sum_y |H_t(y) - H_{t+1}(y)|
 $$
 
 Let's call the common prefix $q(s\_t) = \prod\_{i\lt t} \mu(y\_i|s\_i)$ and the common suffix $p(y\_{\gt t}) = \prod\_{j\gt t} \pi(y\_j|s\_j)$.
 
 $$
-D_{TV}(H_t \| H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \sum_{y_{\gt t}} p(y_{\gt t})
+D_{TV}(H_t \Vert H_{t+1}) = \frac{1}{2} \sum_{s_t} q(s_t) \sum_{y_t} |\pi(y_t|s_t) - \mu(y_t|s_t)| \sum_{y_{\gt t}} p(y_{\gt t})
 $$
 
 Factor out the common terms. The innermost sum $\sum\_{y\_{\gt t}} p(y\_{\gt t})$ is 1 (it's the probability of all possible futures):
 
 $$
-D_{TV}(H_t \| H_{t+1}) = \sum_{s_t} q(s_t) \cdot D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))
+D_{TV}(H_t \Vert H_{t+1}) = \sum_{s_t} q(s_t) \cdot D_{TV}(\pi(\cdot|s_t) \Vert \mu(\cdot|s_t))
 $$
 
 We recognize: $q(s\_t)$ is $d\_t^\mu(s\_t)$, the probability of being in state $s\_t$ under $\mu$. This gives:
 
 {{< math >}}
 $$
-D_{TV}(H_t \| H_{t+1}) = \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
+D_{TV}(H_t \Vert H_{t+1}) = \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \Vert \mu(\cdot|s_t))]
 $$
 {{< /math >}}
 
@@ -375,14 +375,14 @@ Substitute this back into the sum from (b):
 
 {{< math >}}
 $$
-D_{TV}(\pi \| \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \| \mu(\cdot|s_t))]
+D_{TV}(\pi \Vert \mu) \le \sum_{t=0}^{T-1} \mathbb{E}_{s_t \sim d_t^\mu} [D_{TV}(\pi(\cdot|s_t) \Vert \mu(\cdot|s_t))]
 $$
 {{< /math >}}
 
-Let $\Delta\_{\max} =$ $\max\_{t,s\_t} D\_{TV}(\pi(\cdot|s\_t) \| \mu(\cdot|s\_t))$. The bound becomes:
+Let $\Delta\_{\max} =$ $\max\_{t,s\_t} D\_{TV}(\pi(\cdot|s\_t) \Vert \mu(\cdot|s\_t))$. The bound becomes:
 
 $$
-D_{TV}(\pi \| \mu) \le T \cdot \Delta\_{\max}
+D_{TV}(\pi \Vert \mu) \le T \cdot \Delta\_{\max}
 $$
 
 ---
@@ -392,7 +392,7 @@ $$
 We have just proved that the **Naive estimator** has a bias of $O(T^2 \Delta\_{\max})$:
 
 $$
-\|\text{Bias}(\hat{g}\_{\text{naive}})\|_2 \le (2 \cdot O(T)) \cdot (O(T \Delta\_{\max})) = O(T^2 \Delta\_{\max})
+\Vert\text{Bias}(\hat{g}\_{\text{naive}})\Vert_2 \le (2 \cdot O(T)) \cdot (O(T \Delta\_{\max})) = O(T^2 \Delta\_{\max})
 $$
 
 **Why does this also apply to the Token-Level IS (PPO-like) estimator?**
@@ -439,7 +439,7 @@ The estimator is a sum of $T$ terms: $\hat{g}\_{\text{tl-tis}} = \sum\_{t=0}^{T-
 
 The variance is $\mathbf{Var}(\sum\_t X\_t') =$ $\sum\_t \mathbf{Var}(X\_t')$ $+\mkern4mu \sum\_{t \neq t'} \mathbf{Cov}(X\_t', X\_{t'}')$. This is again $O(T)$ diagonal terms and $O(T^2)$ cross terms.
 
-**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\|X\_t'\|^2]$.
+**Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\Vert X\_t'\Vert^2]$.
 
 $$
 \mathbb{E}[|X_t'|^2] = \mathbb{E}\left[\left| \min(\rho_t, C) A_t \nabla\_\theta \log \pi_t \right|^2\right] \le (\sup |A_t \nabla\_\theta \log \pi_t|)^2 \cdot \mathbb{E}\left[\min(\rho_t, C)^2\right]
@@ -449,7 +449,7 @@ Since $\min(\rho\_t, C)^2 \le C^2$ by definition, the expectation is bounded by 
 
 **Cross Terms ($O(T^2)$ of them):**
 
-By Cauchy-Schwarz, $|\mathbb{E}[X\_t'^\top X\_{t'}']| \le$ $\sqrt{\mathbb{E}[\|X\_t'\|^2] \mathbb{E}[\|X\_{t'}'\|^2]}$. Since the second moments are $O(C^2)$, each cross-term is also $O(C^2)$. The sum of all $O(T^2)$ cross terms is $O(T^2 C^2)$.
+By Cauchy-Schwarz, $|\mathbb{E}[X\_t'^\top X\_{t'}']| \le$ $\sqrt{\mathbb{E}[\Vert X\_t'\Vert^2] \mathbb{E}[\Vert X\_{t'}'\Vert^2]}$. Since the second moments are $O(C^2)$, each cross-term is also $O(C^2)$. The sum of all $O(T^2)$ cross terms is $O(T^2 C^2)$.
 
 **Total Variance:**
 
@@ -545,7 +545,7 @@ We fixed it! By definition, the ratio $\min(\rho, C)$ can never be larger than $
 
 {{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\text{sl-tis}}) \le \mathbb{E}_\mu[\|\min(\rho, C) f(y)\|^2] \le \mathbb{E}_\mu[C^2 \|f(y)\|^2]
+\mathbf{Var}(\hat{g}_{\text{sl-tis}}) \le \mathbb{E}_\mu[\Vert\min(\rho, C) f(y)\Vert^2] \le \mathbb{E}_\mu[C^2 \Vert f(y)\Vert^2]
 $$
 {{< /math >}}
 
@@ -564,7 +564,7 @@ $$
 
 {{< math >}}
 $$
-\|\mathbf{Bias}(\hat{g}_{\text{sl-tis}})\|_2 \le \frac{2 K (1 + \chi^2)}{C}
+\Vert\mathbf{Bias}(\hat{g}_{\text{sl-tis}})\Vert_2 \le \frac{2 K (1 + \chi^2)}{C}
 $$
 {{< /math >}}
 

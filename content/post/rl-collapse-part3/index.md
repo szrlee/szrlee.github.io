@@ -125,7 +125,7 @@ Using the **Simulation Lemma** ([Kearns & Singh, 2002](https://doi.org/10.1023/A
 
 {{< math >}}
 $$
-D_{TV}(d_{\pi,t} \| d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)
+D_{TV}(d_{\pi,t} \Vert d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)
 $$
 {{< /math >}}
 
@@ -140,7 +140,7 @@ $$
 where:
 - $C$ is a constant depending on the maximum advantage $\max_{x, y_{\le t}}|A_\mu(x, y_{\le t})|$
 - $T$ is the sequence length
-- {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_{x, y_{\lt t}}${{< /math >}} {{< math >}}$D_{TV}(\pi(\cdot|x, y_{\lt t}) \| \mu(\cdot|x, y_{\lt t}))${{< /math >}} is the maximum per-token TV distance
+- {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_{x, y_{\lt t}}${{< /math >}} {{< math >}}$D_{TV}(\pi(\cdot|x, y_{\lt t}) \Vert \mu(\cdot|x, y_{\lt t}))${{< /math >}} is the maximum per-token TV distance
 
 ### The Trust Region Requirement
 
@@ -234,7 +234,7 @@ $$
 
 Only samples within this region contribute to the gradient. Samples with $\rho(y) \gt C$ are treated as unreliable and excluded.
 
-**Connection to TRPO:** This implements the trust region concept from TRPO theory ([Part 1](https://richardli.xyz/rl-collapse-1)), where the trust region constraint $D_{TV}(\pi \| \mu) \le \delta$ must be enforced to guarantee improvement. Seq-MIS enforces this constraint via **rejection** (hard trust region) rather than **penalization** (soft trust region), ensuring that gradient updates only use samples from the valid trust region.
+**Connection to TRPO:** This implements the trust region concept from TRPO theory ([Part 1](https://richardli.xyz/rl-collapse-1)), where the trust region constraint $D_{TV}(\pi \Vert \mu) \le \delta$ must be enforced to guarantee improvement. Seq-MIS enforces this constraint via **rejection** (hard trust region) rather than **penalization** (soft trust region), ensuring that gradient updates only use samples from the valid trust region.
 
 The principled version, a sequence mask with per-token IS, is [Trust Region Masking](/post/trust-region-masking/).
 
@@ -268,7 +268,7 @@ The bias is the negative of the contribution from rejected samples (weighted by 
 
 {{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\text{seq-mis}}) \le \mathbb{E}_\mu[\|\hat{g}_{\text{seq-mis}}\|^2] \le C^2 \cdot \mathbb{E}_\mu[\|f\|^2] = O(T^2 C^2)
+\mathbf{Var}(\hat{g}_{\text{seq-mis}}) \le \mathbb{E}_\mu[\Vert\hat{g}_{\text{seq-mis}}\Vert^2] \le C^2 \cdot \mathbb{E}_\mu[\Vert f\Vert^2] = O(T^2 C^2)
 $$
 {{< /math >}}
 
@@ -440,14 +440,14 @@ This is the **sample average of the per-token log-ratios** along trajectory $y$.
 
 **Connection to KL Divergence:** Recall that at each step $t$, given context $(x, y_{\lt t})$:
 
-- **Forward KL:** {{< math >}}$D_{KL}(\pi \| \mu) =${{< /math >}} {{< math >}}$\mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
-- **Reverse KL:** {{< math >}}$D_{KL}(\mu \| \pi) =${{< /math >}} {{< math >}}$\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|x, y_{\lt t})}{\pi(y_t|x, y_{\lt t})}\right] =${{< /math >}} {{< math >}}$-\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
+- **Forward KL:** {{< math >}}$D_{KL}(\pi \Vert \mu) =${{< /math >}} {{< math >}}$\mathbb{E}_{y_t \sim \pi}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
+- **Reverse KL:** {{< math >}}$D_{KL}(\mu \Vert \pi) =${{< /math >}} {{< math >}}$\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\mu(y_t|x, y_{\lt t})}{\pi(y_t|x, y_{\lt t})}\right] =${{< /math >}} {{< math >}}$-\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right]${{< /math >}}
 
 Since samples are drawn from $\mu$ (the behavior policy), each term $\log \rho_t = \log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}$ is a single-sample estimate of the **negative reverse KL**:
 
 {{< math >}}
 $$
-\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right] = -D_{KL}(\mu(\cdot|x, y_{\lt t}) \| \pi(\cdot|x, y_{\lt t}))
+\mathbb{E}_{y_t \sim \mu}\left[\log \frac{\pi(y_t|x, y_{\lt t})}{\mu(y_t|x, y_{\lt t})}\right] = -D_{KL}(\mu(\cdot|x, y_{\lt t}) \Vert \pi(\cdot|x, y_{\lt t}))
 $$
 {{< /math >}}
 
@@ -455,11 +455,11 @@ Therefore, $\log \rho_{\text{geo}}(y)$ can be interpreted as a trajectory-averag
 
 {{< math >}}
 $$
-\mathbb{E}_{y \sim \mu}\left[\log \rho_{\text{geo}}(y)\right] = -\frac{1}{T} \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_\mu}\left[D_{KL}(\mu(\cdot|x, y_{\lt t}) \| \pi(\cdot|x, y_{\lt t}))\right]
+\mathbb{E}_{y \sim \mu}\left[\log \rho_{\text{geo}}(y)\right] = -\frac{1}{T} \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_\mu}\left[D_{KL}(\mu(\cdot|x, y_{\lt t}) \Vert \pi(\cdot|x, y_{\lt t}))\right]
 $$
 {{< /math >}}
 
-**Connection to k1 Estimation of KL Divergence:** Schulman's framework ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)) defines three estimators for $D_{KL}(\mu \| \pi)$ based on ratio $r = \mu/\pi$:
+**Connection to k1 Estimation of KL Divergence:** Schulman's framework ([Schulman, 2016](http://joschu.net/blog/kl-approx.html)) defines three estimators for $D_{KL}(\mu \Vert \pi)$ based on ratio $r = \mu/\pi$:
 
 - **k1:** $-\log r = \log(\pi/\mu) = \log \rho$ (unbiased, high variance)
 - **k2:** $(\log r)^2 / 2 = (\log \rho)^2 / 2$ (low variance, biased)
@@ -475,11 +475,11 @@ $$
 $$
 {{< /math >}}
 
-Therefore, **$\log \rho_{\text{geo}}$ is the average k1 estimate** along the trajectory. Since {{< math >}}$\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \| \pi)${{< /math >}}, we have:
+Therefore, **$\log \rho_{\text{geo}}$ is the average k1 estimate** along the trajectory. Since {{< math >}}$\mathbb{E}_{\mu}[\log \rho] = -D_{KL}(\mu \Vert \pi)${{< /math >}}, we have:
 
 {{< math >}}
 $$
-\mathbb{E}_{y \sim \mu}\left[\log \rho_{\text{geo}}(y)\right] = -\frac{1}{T} \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_\mu}\left[D_{KL}(\mu(\cdot|x, y_{\lt t}) \| \pi(\cdot|x, y_{\lt t}))\right] = -\bar{D}_{KL}
+\mathbb{E}_{y \sim \mu}\left[\log \rho_{\text{geo}}(y)\right] = -\frac{1}{T} \sum_{t=0}^{T-1} \mathbb{E}_{(x, y_{\lt t}) \sim d_\mu}\left[D_{KL}(\mu(\cdot|x, y_{\lt t}) \Vert \pi(\cdot|x, y_{\lt t}))\right] = -\bar{D}_{KL}
 $$
 {{< /math >}}
 
@@ -562,7 +562,7 @@ The surrogate objective $L_\mu(\pi)$ is only a valid approximation to $J(\pi)$ w
 
 {{< math >}}
 $$
-\mathbf{Var}(\hat{g}_{\text{geo-mask}}) \le \mathbb{E}_\mu[\|f\|^2] = O(T^2)
+\mathbf{Var}(\hat{g}_{\text{geo-mask}}) \le \mathbb{E}_\mu[\Vert f\Vert^2] = O(T^2)
 $$
 {{< /math >}}
 

@@ -111,8 +111,8 @@ To analyze this rigorously, we model the problem as a Markov Decision Process. F
 |------------|-------------------|
 | **State** $s_t$ | The prefix $(x, y_{\lt t})$: prompt + previously generated tokens |
 | **Action** $a_t$ | The next token $y_t$ |
-| **Policy** $\pi(a_t \| s_t)$ | Token distribution $\pi_\theta(y_t \| x, y_{\lt t})$ |
-| **Transition** $P(s_{t+1} \| s_t, a_t)$ | **Deterministic**: appending $y_t$ to $(x, y_{\lt t})$ gives $s_{t+1} = (x, y_{\lt t+1})$ |
+| **Policy** $\pi(a_t \Vert s_t)$ | Token distribution $\pi_\theta(y_t \Vert x, y_{\lt t})$ |
+| **Transition** $P(s_{t+1} \Vert s_t, a_t)$ | **Deterministic**: appending $y_t$ to $(x, y_{\lt t})$ gives $s_{t+1} = (x, y_{\lt t+1})$ |
 | **Horizon** $T$ | Sequence length |
 
 This deterministic transition structure is crucial: once you choose an action, the next state is fully determined. This applies to LLM generation and many other sequential decision problems.
@@ -128,9 +128,9 @@ For an $L$-smooth objective, the expected progress per step is:
 {{< math >}}
 $$
 \begin{aligned}
-\mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq\; & \underbrace{\eta \left(1 - \frac{L\eta}{2}\right)\|\nabla J\|^2}_{\text{Term A: True Progress}} \\
+\mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq\; & \underbrace{\eta \left(1 - \frac{L\eta}{2}\right)\Vert\nabla J\Vert^2}_{\text{Term A: True Progress}} \\
 & + \underbrace{\eta(1 - L\eta)\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle}_{\text{Term B: Bias Error}} \\
-& - \underbrace{\frac{L\eta^2}{2}\left[\mathbf{Var}(\hat{g}) + \|\mathbf{Bias}(\hat{g})\|^2\right]}_{\text{Term C: Noise Penalty}}
+& - \underbrace{\frac{L\eta^2}{2}\left[\mathbf{Var}(\hat{g}) + \Vert\mathbf{Bias}(\hat{g})\Vert^2\right]}_{\text{Term C: Noise Penalty}}
 \end{aligned}
 $$
 {{< /math >}}
@@ -148,39 +148,39 @@ This decomposition reveals exactly how mismatch affects optimization progress.
 An objective $J$ is $L$-smooth if its gradient is $L$-Lipschitz. The descent lemma states:
 
 $$
-J(\theta_{k+1}) \geq J(\theta_k) + \langle \nabla J(\theta_k), \eta \hat{g}_k \rangle - \frac{L\eta^2}{2}\|\hat{g}_k\|^2
+J(\theta_{k+1}) \geq J(\theta_k) + \langle \nabla J(\theta_k), \eta \hat{g}_k \rangle - \frac{L\eta^2}{2}\Vert\hat{g}_k\Vert^2
 $$
 
 **2. Take the expectation:**
 
 $$
-\mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq \eta\langle \nabla J, \mathbb{E}[\hat{g}_k] \rangle - \frac{L\eta^2}{2}\mathbb{E}[\|\hat{g}_k\|^2]
+\mathbb{E}[J(\theta_{k+1})] - J(\theta_k) \geq \eta\langle \nabla J, \mathbb{E}[\hat{g}_k] \rangle - \frac{L\eta^2}{2}\mathbb{E}[\Vert\hat{g}_k\Vert^2]
 $$
 
 **3. Decompose using Bias and Variance:**
 
 - $\mathbf{Bias}(\hat{g}) = \mathbb{E}[\hat{g}] - \nabla J$
-- $\mathbf{Var}(\hat{g}) = \mathbb{E}[\|\hat{g}\|^2] - \|\mathbb{E}[\hat{g}]\|^2$
+- $\mathbf{Var}(\hat{g}) =$ $\mathbb{E}[\Vert\hat{g}\Vert^2] - \Vert\mathbb{E}[\hat{g}]\Vert^2$
 
 **4. Substitute and expand:**
 
 Using $\mathbb{E}[\hat{g}] = \nabla J + \mathbf{Bias}(\hat{g})$:
 
 $$
-\mathbb{E}[\|\hat{g}\|^2] = \mathbf{Var}(\hat{g}) + \|\nabla J + \mathbf{Bias}(\hat{g})\|^2
+\mathbb{E}[\Vert\hat{g}\Vert^2] = \mathbf{Var}(\hat{g}) + \Vert\nabla J + \mathbf{Bias}(\hat{g})\Vert^2
 $$
 
 Expanding the squared term:
 
 $$
-= \mathbf{Var}(\hat{g}) + \|\nabla J\|^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \|\mathbf{Bias}(\hat{g})\|^2
+= \mathbf{Var}(\hat{g}) + \Vert\nabla J\Vert^2 + 2\langle \nabla J, \mathbf{Bias}(\hat{g}) \rangle + \Vert\mathbf{Bias}(\hat{g})\Vert^2
 $$
 
 **5. Collect terms:**
 
-- $\|\nabla J\|^2$ terms: $\eta (1 - \frac{L\eta}{2})\|\nabla J\|^2$ (Term A)
+- $\Vert\nabla J\Vert^2$ terms: $\eta (1 - \frac{L\eta}{2})\Vert\nabla J\Vert^2$ (Term A)
 - $\langle \nabla J, \mathbf{Bias} \rangle$ terms: $\eta(1 - L\eta)\langle \nabla J, \mathbf{Bias} \rangle$ (Term B)
-- $\mathbf{Var}$ and $\|\mathbf{Bias}\|^2$ terms: $- \frac{L\eta^2}{2}[\mathbf{Var} + \|\mathbf{Bias}\|^2]$ (Term C)
+- $\mathbf{Var}$ and $\Vert\mathbf{Bias}\Vert^2$ terms: $- \frac{L\eta^2}{2}[\mathbf{Var} + \Vert\mathbf{Bias}\Vert^2]$ (Term C)
 
 {{< /spoiler >}}
 
@@ -211,7 +211,7 @@ The variance is the noise:
 
 {{< math >}}
 $$
-\mathbf{Var}(\hat{g}) = \mathbb{E}[\|\hat{g}\|^2] - \|\mathbb{E}[\hat{g}]\|^2
+\mathbf{Var}(\hat{g}) = \mathbb{E}[\Vert\hat{g}\Vert^2] - \Vert\mathbb{E}[\hat{g}]\Vert^2
 $$
 {{< /math >}}
 
@@ -232,7 +232,7 @@ We've identified two failure modes. We need the right mathematical tools to meas
 
 {{< math >}}
 $$
-D_{TV}(\pi \| \mu) = \frac{1}{2} \sum_y |\pi(y|x) - \mu(y|x)|
+D_{TV}(\pi \Vert \mu) = \frac{1}{2} \sum_y |\pi(y|x) - \mu(y|x)|
 $$
 {{< /math >}}
 
@@ -240,7 +240,7 @@ $$
 
 {{< math >}}
 $$
-|\mathbb{E}_\pi[f] - \mathbb{E}_\mu[f]| \leq 2 \|f\|_\infty \cdot D_{TV}(\pi \| \mu)
+|\mathbb{E}_\pi[f] - \mathbb{E}_\mu[f]| \leq 2 \Vert f\Vert_\infty \cdot D_{TV}(\pi \Vert \mu)
 $$
 {{< /math >}}
 
@@ -252,7 +252,7 @@ TV distance directly bounds how much expectations can differ between two distrib
 
 {{< math >}}
 $$
-\chi^2(\pi\|\mu) = \mathbb{E}_\mu\left[\left(\frac{\pi(y)}{\mu(y)}\right)^2\right] - 1 = \mathbb{E}_\mu[\rho^2] - 1
+\chi^2(\pi\Vert\mu) = \mathbb{E}_\mu\left[\left(\frac{\pi(y)}{\mu(y)}\right)^2\right] - 1 = \mathbb{E}_\mu[\rho^2] - 1
 $$
 {{< /math >}}
 
@@ -262,7 +262,7 @@ $$
 
 ### 4.3 The Critical Insight: These Metrics Are Not Interchangeable
 
-The Pinsker-type inequality $D_{TV}(\pi\|\mu) \leq \sqrt{\frac{1}{2}\chi^2(\pi\|\mu)}$ reveals:
+The Pinsker-type inequality $D_{TV}(\pi\Vert\mu) \leq \sqrt{\frac{1}{2}\chi^2(\pi\Vert\mu)}$ reveals:
 
 > **A tiny TV distance can hide a massive $\chi^2$-divergence.**
 
@@ -343,7 +343,7 @@ $$
 where:
 - $C$ = constant depending on max advantage $\max_{s,a}|A_\mu(s,a)|$
 - $T$ = horizon (sequence length)
-- {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_s D_{TV}(\pi(\cdot|s) \| \mu(\cdot|s))${{< /math >}}
+- {{< math >}}$D_{TV}^{\max} =${{< /math >}} {{< math >}}$\max_s D_{TV}(\pi(\cdot|s) \Vert \mu(\cdot|s))${{< /math >}}
 
 **The penalty scales quadratically with horizon $T^2$** because state distribution errors accumulate linearly with $t$, and summing over all timesteps gives $O(T^2)$.
 
@@ -360,23 +360,23 @@ $$
 $$
 {{< /math >}}
 
-This simplifies to $O(\|d_\pi - d_\mu\|_1)$.
+This simplifies to $O(\Vert d_\pi - d_\mu\Vert_1)$.
 
 **2. The Simulation Lemma**
 
 State distribution divergence accumulates linearly with time:
 
 $$
-D_{TV}(d_{\pi,t} \| d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)
+D_{TV}(d_{\pi,t} \Vert d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)
 $$
 
 **Simulation Lemma Proof:**
 
-**Lemma:** $D_{TV}(d_{\pi,t} \| d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)$
+**Lemma:** $D_{TV}(d_{\pi,t} \Vert d_{\mu,t}) \leq t \cdot D_{TV}^{\max}(\pi, \mu)$
 
 **Proof by Induction:**
 
-Let {{< math >}}$\delta_t = \|d_{\pi,t} - d_{\mu,t}\|_1 =${{< /math >}} {{< math >}}$2 \cdot D_{TV}(d_{\pi,t} \| d_{\mu,t})${{< /math >}}.
+Let {{< math >}}$\delta_t = \Vert d_{\pi,t} - d_{\mu,t}\Vert_1 =${{< /math >}} {{< math >}}$2 \cdot D_{TV}(d_{\pi,t} \Vert d_{\mu,t})${{< /math >}}.
 
 **Base case:** $\delta_0 = 0$ (same initial distribution).
 
