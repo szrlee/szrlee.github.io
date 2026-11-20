@@ -219,7 +219,7 @@ $$
 $$
 {{< /math >}}
 
-The bound still holds, but its signal scale grows at least exponentially in the number of positions where the data leaves the model's distribution. It is the same {{< math >}}$(1+\chi^2)^T${{< /math >}} form as the variance of sequence-level importance sampling in [rl-collapse Part 2](/post/rl-collapse-part2/), and the {{< math >}}$\chi^2${{< /math >}} that makes per-token importance sampling noisy. Booked directly under the data, the cost moves into the empirical Fisher {{< math >}}$\mathbb{E}_D[\mathrm{score}_i^2]${{< /math >}}, which a small {{< math >}}$F_i${{< /math >}} does not bound.
+The bound still holds, but its signal scale grows at least exponentially in the number of positions where the data leaves the model's distribution. It is the same {{< math >}}$(1+\chi^2)^T${{< /math >}} form as the variance of sequence-level importance sampling in [rl-collapse Part 2](/post/rl-collapse-part2/), and the {{< math >}}$\chi^2${{< /math >}} that makes per-token importance sampling noisy in [Around the Sampler](/post/offpolicy-around-the-sampler/#5-per-token-importance-sampling-same-tangent-more-variance). Booked directly under the data, the cost moves into the empirical Fisher {{< math >}}$\mathbb{E}_D[\mathrm{score}_i^2]${{< /math >}}, which a small {{< math >}}$F_i${{< /math >}} does not bound.
 
 </details>
 
@@ -281,7 +281,7 @@ Centering removes the shift exactly, and on its own it matches or beats importan
 ## 6. Scope and open questions
 
 - **What centering needs.** On the score side, the sampler's full next-token distribution at every prefix (a stale model, or an engine that returns full log-probabilities; with top-k or top-p, the truncated distribution), or per-token importance weights, which need only the drawn token's two probabilities. On the signal side, a per-prefix value baseline, which works on offline data with an unknown sampler as long as the signal varies. Demonstrations alone provide neither probabilities nor a varying signal. Estimating {{< math >}}$\bar\kappa^{\mu}${{< /math >}} or {{< math >}}$V^{\mu}${{< /math >}} from a batch makes the cancellation approximate.
-- **What it changes.** Off-policy, centering drops the mean-shift term, which pulls the model toward the sampler; a coefficient chosen in place of the average signal of section 3's split sets that pull on purpose.
+- **What it changes.** Off-policy, centering drops the mean-shift term, which pulls the model toward the sampler; the coefficient {{< math >}}$\beta${{< /math >}} in [Around the Sampler](/post/offpolicy-around-the-sampler/#6-one-knob-how-hard-to-pull-toward-the-sampler), the average signal of section 3's split, sets that pull on purpose.
 - **Two mechanisms, still entangled.** A concentrated sampler and candidates that react alike both lower the Fisher, and the ratio in section 2 changes both at once. Cleaner tests: permute which tokens get which probabilities at fixed entropy, and measure, per coordinate, the share of the second moment that centering removes, {{< math >}}$(\bar\kappa^{p}_i)^2/\sum_a\pmodel(a)\,\kappa_{i,a}^2${{< /math >}}; a share near 1 on low-Fisher coordinates would mean the common part dominates.
 - **One step.** The Fisher itself changes during training; [Part 3](/post/what-policy-gradient-can-reach/) works out what a one-step bound implies.
 
