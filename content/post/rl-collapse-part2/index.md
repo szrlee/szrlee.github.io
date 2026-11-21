@@ -188,7 +188,7 @@ $$
 $$
 {{< /math >}}
 
-So while SNIS is "stable" (it doesn't explode), it becomes incredibly inefficient. We are discarding $99\%$ of our batch data. We need a way to keep more data while controlling the outliers. We need Truncation.
+So while SNIS is "stable" (it doesn't explode), it becomes incredibly inefficient. We are discarding 99% of our batch data. We need a way to keep more data while controlling the outliers. We need Truncation.
 
 ---
 
@@ -242,7 +242,7 @@ This has $T$ diagonal (variance) terms and $T(T-1) \approx O(T^2)$ off-diagonal 
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\Vert X\_t\Vert^2]$.
 
 $$
-\mathbb{E}[|X_t|^2] = \mathbb{E}\left[\left\Vert \frac{\pi_t}{\mu_t} A_t \nabla\_\theta \log \pi_t \right\Vert^2\right] \le (\sup \Vert A_t \nabla\_\theta \log \pi_t\Vert)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
+\mathbb{E}[\Vert X_t\Vert^2] = \mathbb{E}\left[\left\Vert \frac{\pi_t}{\mu_t} A_t \nabla\_\theta \log \pi_t \right\Vert^2\right] \le (\sup \Vert A_t \nabla\_\theta \log \pi_t\Vert)^2 \cdot \mathbb{E}\left[\left(\frac{\pi_t}{\mu_t}\right)^2\right]
 $$
 
 The $A\_t$ and $\nabla\_\theta \log \pi\_t$ terms are bounded by constants. The expectation is $\mathbb{E}[\rho\_t^2] \le (1+\bar{\chi}^2)$.
@@ -442,7 +442,10 @@ The variance is $\mathbf{Var}(\sum\_t X\_t') =$ $\sum\_t \mathbf{Var}(X\_t')$ $+
 **Diagonal Terms ($T$ of them):** We bound $\mathbb{E}[\Vert X\_t'\Vert^2]$.
 
 $$
-\mathbb{E}[|X_t'|^2] = \mathbb{E}\left[\left| \min(\rho_t, C) A_t \nabla\_\theta \log \pi_t \right|^2\right] \le (\sup |A_t \nabla\_\theta \log \pi_t|)^2 \cdot \mathbb{E}\left[\min(\rho_t, C)^2\right]
+\begin{aligned}
+\mathbb{E}[\Vert X_t'\Vert^2] &= \mathbb{E}\left[\left\Vert \min(\rho_t, C) A_t \nabla\_\theta \log \pi_t \right\Vert^2\right] \\\\
+&\le (\sup \Vert A_t \nabla\_\theta \log \pi_t\Vert)^2 \cdot \mathbb{E}\left[\min(\rho_t, C)^2\right]
+\end{aligned}
 $$
 
 Since $\min(\rho\_t, C)^2 \le C^2$ by definition, the expectation is bounded by $C^2$. This is even *better* than the $O(1+\bar{\chi}^2)$ bound for the unclipped Token-IS. Each diagonal term is $O(C^2)$. The sum of $T$ terms is $O(T C^2)$.
