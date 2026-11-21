@@ -36,6 +36,20 @@ window.MathJax = {
       MathJax.startup.defaultReady();
       MathJax.startup.promise.then(function () {
         glueMathPunctuation(document.body);
+        fitDisplayMath(document.body);
+        // Fit again when the column changes width, a folded section opens, or the fonts arrive.
+        var width = window.innerWidth, timer;
+        window.addEventListener('resize', function () {
+          if (window.innerWidth === width) return;
+          width = window.innerWidth;
+          clearTimeout(timer);
+          timer = setTimeout(function () { fitDisplayMath(document.body); }, 150);
+        });
+        document.addEventListener('toggle', function (e) { fitDisplayMath(e.target); }, true);
+        window.addEventListener('load', function () { fitDisplayMath(document.body); });
+        if (document.fonts && document.fonts.ready) {
+          document.fonts.ready.then(function () { fitDisplayMath(document.body); });
+        }
       });
     },
   },
@@ -89,4 +103,29 @@ function glueMathPunctuation(root) {
       }
     }
   });
+}
+
+// A display formula slightly wider than the column would scroll sideways by a few pixels.
+// Up to 5% too wide, it shrinks to fit instead. A wider one keeps its size and scrolls.
+function fitDisplayMath(root) {
+  var smallest = 0.95;
+  var formulas = [].slice.call(root.querySelectorAll('mjx-container[display="true"]'));
+  formulas.forEach(function (el) {
+    if (el.dataset.fitBase === undefined) el.dataset.fitBase = el.style.fontSize;
+    el.style.fontSize = el.dataset.fitBase;
+  });
+  formulas
+    .map(function (el) {
+      var room = el.clientWidth, width = el.scrollWidth;
+      return [el, room, width, room && width > room ? parseFloat(getComputedStyle(el).fontSize) : 0];
+    })
+    .forEach(function (m) {
+      var el = m[0], room = m[1], width = m[2], size = m[3];
+      if (!size) return;
+      for (var scale = (room - 1) / width; scale >= smallest; scale -= 0.005) {
+        el.style.fontSize = (size * scale).toFixed(2) + 'px';
+        if (el.scrollWidth <= el.clientWidth) return;
+      }
+      el.style.fontSize = el.dataset.fitBase;
+    });
 }
