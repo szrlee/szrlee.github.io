@@ -290,7 +290,7 @@ From the three figures we observe that:
 1. The mismatch tends to be more pronounced when the vLLM probability {{< math >}}$\pvllm${{< /math >}} approaches zero, and extreme values of {{< math >}}$\log \pfsdp - \log \pvllm${{< /math >}} are more likely there.
 2. The batches collected on L20 GPUs (groups 2 and 3) show a training-inference mismatch mainly in the form of the FSDP probability {{< math >}}$\pfsdp${{< /math >}} being much smaller than the vLLM probability {{< math >}}$\pvllm${{< /math >}}.
 
-Two caveats in reading these plots. Every token here was sampled by vLLM, so the average of {{< math >}}$\log \pvllm - \log \pfsdp${{< /math >}} over the sampled tokens is the KL divergence, which is never negative: some downward shift is expected, and what matters is the size of the tail, which reaches −15 in group 3. And the upper edge of each cloud is the bound {{< math >}}$\log \pfsdp - \log \pvllm \le -\log \pvllm${{< /math >}}, which widens as {{< math >}}$\pvllm \to 0${{< /math >}} by construction.
+Two caveats in reading these plots. Every token here was sampled by vLLM, so the average of {{< math >}}$\log \pvllm - \log \pfsdp${{< /math >}} over the sampled tokens is the KL divergence, which is never negative: some downward shift is expected, and what matters is the size of the tail, which reaches −15 in group 3. And the upper edge of each cloud is the bound {{< math >}}$\log \pfsdp - \log \pvllm \le${{< /math >}} {{< math >}}$-\log \pvllm${{< /math >}}, which widens as {{< math >}}$\pvllm \to 0${{< /math >}} by construction.
 
 ### 3.3 Finding 3: Out-of-Distribution Tool Responses Amplify the Mismatch {#ood-tool-responses}
 

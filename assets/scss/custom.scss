@@ -900,6 +900,9 @@ body.dark details > mjx-container[display="true"] { border-left-color: rgba(255,
   font-weight: 500;
 }
 
+// An inline formula and the punctuation next to it stay on one line (assets/js/mathjax-config.js).
+.math-glue { white-space: nowrap; }
+
 // ---------- Sampler and trainer in formulas (\ps, \pt in assets/js/mathjax-config.js) ----------
 
 .mjx-ps { color: #C2410C; }
