@@ -1029,6 +1029,33 @@ body.dark .mjx-pt { color: #8FB4FF; }
   figcaption { margin-top: 0.5rem; font-size: 0.85rem; color: var(--hp-muted); }
 }
 
+// Standing of a claim (measured, derived, toy, interpretation) and the line that reports a numerical check.
+.claim-tag {
+  display: inline-block;
+  padding: 0.12rem 0.4rem;
+  border: 1px solid var(--hp-muted);
+  border-radius: 3px;
+  font-family: var(--hp-mono);
+  font-size: 0.66rem;
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--hp-ink);
+  vertical-align: 0.12em;
+  white-space: nowrap;
+}
+.claim-tag--m { background: var(--hp-panel); border-color: var(--hp-panel-strong); }
+.claim-tag--t { border-radius: 999px; padding: 0.12rem 0.55rem; }
+.claim-tag--i { border-style: dashed; color: var(--hp-muted); }
+.article-style .claim-check {
+  margin: -0.3rem 0 1.1rem;
+  padding-left: 0.75rem;
+  border-left: 2px solid var(--hp-rule);
+  font-size: 0.85rem;
+  color: var(--hp-muted);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .stepfig.js .stepfig-frame, .stepfig.js [data-step] { transition: none; }
 }

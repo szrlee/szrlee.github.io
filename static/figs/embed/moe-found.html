@@ -1,0 +1,123 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Experts, named by what they were found to do</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,wght@1,400;1,600&display=swap">
+<style>
+html,body{margin:0;padding:0;background:transparent;color:#161A22;font-family:"IBM Plex Sans",Arial,sans-serif}
+#wrap{display:flow-root;padding-bottom:2px}
+.fig{overflow-x:auto}
+.fig svg{display:block;width:100%;min-width:600px;height:auto}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:2px 4px 12px;font-size:15px;color:#3F4654}
+.ctl label{display:flex;align-items:center;gap:10px}
+.ctl input[type=range]{width:170px;max-width:42vw;accent-color:#C2410C}
+.ctl output{min-width:2.2em;font-variant-numeric:tabular-nums;color:#161A22;font-weight:500}
+button{font:500 14px "IBM Plex Sans",Arial,sans-serif;color:#161A22;background:#FAF8F3;border:1px solid #C9C2B2;border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:#C2410C;color:#C2410C}
+button:focus-visible,input:focus-visible{outline:2px solid #C2410C;outline-offset:2px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid #C9C2B2;border-radius:8px;overflow:hidden}
+.seg button{border:0;border-right:1px solid #C9C2B2;border-radius:0}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"],.seg button[aria-pressed="true"]:hover{background:#161A22;color:#FAF8F3}
+@media (max-width:480px){.seg{flex-direction:column;align-items:stretch}.seg button{border-right:0;border-bottom:1px solid #C9C2B2;text-align:left}.seg button:last-child{border-bottom:0}}
+#read{margin:10px 4px 2px;font-size:15px;line-height:1.5;color:#3F4654;font-variant-numeric:tabular-nums}
+#read b{color:#161A22;font-weight:600}
+i,.var{font-family:"Source Serif 4",Georgia,serif;font-style:italic}
+.key{display:flex;flex-wrap:wrap;gap:6px 20px;margin:10px 4px 0;font-size:14px;color:#3F4654}
+.key>span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+.box{background:#F0EDE4;border-radius:16px;padding:14px 16px}
+svg text{font-family:"IBM Plex Sans",Arial,sans-serif}
+svg .var{font-family:"Source Serif 4",Georgia,serif;font-style:italic}
+.lbl{font-size:12.5px;fill:#3F4654}.lbl.on{fill:#161A22}
+.lbl-strong{font-size:13.5px;font-weight:600;fill:#161A22}
+.node{fill:#FAF8F3;stroke:#161A22;stroke-width:1.5}
+.fan{stroke:#C9C2B2;stroke-width:1}
+.trk{fill:#E4DFD2}
+.bar{fill:#9AA0AC;transform-box:fill-box;transform-origin:left center;transition:transform .45s ease,fill .25s}
+.bar.on{fill:#1D4ED8}
+.exp{fill:#FAF8F3;stroke:#C9C2B2;stroke-width:1.2;transition:fill .25s,stroke .25s}
+.exp.on{fill:#DCE5FB;stroke:#1D4ED8}
+.lnk{stroke:#1D4ED8;stroke-width:2;opacity:0;stroke-dasharray:5 5;transition:opacity .25s}
+.lnk.on{opacity:1;animation:dash .9s linear infinite}
+.flow{stroke:#161A22;stroke-width:1.6;fill:none;stroke-dasharray:6 5;animation:dash 1.1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-11}}
+@media (prefers-reduced-motion: reduce){.lnk.on,.flow{animation:none}.bar,.exp,.u,.tok,.tb,.out{transition:none !important}}
+
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:10px}
+.xcard{background:#FAF8F3;border:1px solid #C9C2B2;border-radius:10px;padding:10px 12px}
+.xcard .id{font-size:11.5px;font-weight:600;color:#666C78;letter-spacing:0.04em}
+.xcard .job{font-size:16px;font-weight:600;line-height:1.25;margin:4px 0 5px;color:#161A22}
+.xcard .how{font-size:13.5px;line-height:1.4;color:#3F4654}
+.xcard.predicted{border-style:dashed;background:transparent}
+.ex{font:500 13px/1.7 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;margin-top:8px;padding-top:7px;border-top:1px solid #C9C2B2;min-height:3.9em;color:#161A22}
+.ex mark{background:#DCE5FB;color:#161A22;padding:0 0.18em;border-radius:2px;box-shadow:inset 0 -2px 0 #1D4ED8}
+.ex .arr{color:#666C78;margin:0 0.3em}
+.ex .out{display:inline-block;font-weight:600;border:1px solid #9AA0AC;border-radius:4px;padding:0 0.3em;background:#FAF8F3;transition:opacity .25s}
+.ex .out.hide{opacity:0}
+.ex .cap{display:block;color:#666C78;font:400 12px/1.5 "IBM Plex Sans",Arial,sans-serif}
+</style></head><body><main id="wrap">
+<div class="box"><div class="grid" id="grid">
+<div class="xcard predicted"><div class="id">WHAT THE NAME PREDICTS</div><div class="job">&ldquo;The biology expert&rdquo;</div><div class="how">One expert per subject. Not found in any of the studies above.</div></div>
+<div class="xcard"><div class="id">OLMoE &middot; LAYER 15 &middot; EXPERT 17</div><div class="job">Closes LaTeX delimiters</div><div class="how">Active inside formatting blocks and promotes the closing braces.</div>
+<div class="ex" data-ctx="\mathbf{|b|" data-out="}}" data-cap="sees &rarr; promotes"></div></div>
+<div class="xcard"><div class="id">ERNIE-4.5 &middot; LAYER 15 &middot; EXPERT 0</div><div class="job">Continues after a conjunction</div><div class="how">Fires on &ldquo;and&rdquo;, &ldquo;or&rdquo;, &ldquo;but&rdquo; and promotes likely completions.</div>
+<div class="ex" data-ctx="boots |and| the" data-out="like,alike" data-cap="sees &rarr; promotes"></div></div>
+<div class="xcard"><div class="id">OLMoE &middot; LAYER 1 &middot; EXPERT 57</div><div class="job">Glues sub-word pieces</div><div class="how">Fires on a piece of a rare chemical term and promotes sub-word continuations.</div>
+<div class="ex" data-ctx="glut|amine|" data-out="iaz,endar,uba" data-cap="sees &rarr; promotes"></div></div>
+<div class="xcard"><div class="id">OpenMoE &middot; EXPERT 31</div><div class="job">Modal verbs</div><div class="how">Collects these tokens wherever they occur, whatever the context.</div>
+<div class="ex" data-ctx="" data-out="can,will,would" data-cap="tokens routed here"></div></div>
+<div class="xcard"><div class="id">OLMoE &middot; LAYER 4 &middot; EXPERT 3</div><div class="job">Patent and legal boilerplate</div><div class="how">The closest thing to a subject expert in the sample. It still works by promoting a document style.</div>
+<div class="ex" data-ctx="|patent text|" data-out="patents,applications,inventor" data-cap="sees &rarr; promotes"></div></div>
+</div></div>
+</main>
+<script>
+var RM=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var NS='http://www.w3.org/2000/svg';
+function $(s,r){return (r||document).querySelector(s)}
+function S(n,a,p,t){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;if(p)p.appendChild(e);return e}
+function H(n,a,p,t){var e=document.createElement(n);for(var k in a){if(k==='class')e.className=a[k];else e.setAttribute(k,a[k])}if(t!=null)e.textContent=t;if(p)p.appendChild(e);return e}
+function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return h>>>0}
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){var u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function softmax(a){var m=Math.max.apply(null,a);var e=a.map(function(x){return Math.exp(x-m)});var z=e.reduce(function(p,c){return p+c},0);return e.map(function(x){return x/z})}
+function topk(a,k){return a.map(function(v,i){return i}).sort(function(i,j){return a[j]-a[i]}).slice(0,k)}
+function clear(n){while(n.lastChild)n.removeChild(n.lastChild)}
+// The rounded panel behind a drawing, as in the other slider figures of the site.
+function panel(svg){var b=svg.viewBox.baseVal;return S('rect',{x:b.x,y:b.y,width:b.width,height:b.height,rx:16,fill:'#F0EDE4'},svg)}
+// VIS follows whether the figure is on screen, so that a figure nobody is looking at stays still.
+var VIS=true;
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){VIS=es[es.length-1].isIntersecting}).observe(document.documentElement)}
+function onView(el,fn){
+  if(!el) return;
+  if(!('IntersectionObserver' in window)){fn();return}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.disconnect();fn()}})},{threshold:0.3});
+  io.observe(el);
+}
+function post(){parent.postMessage({livefig:"moe-found",h:document.getElementById('wrap').offsetHeight},'*')}
+window.addEventListener('resize',post);window.addEventListener('load',post);
+if('ResizeObserver' in window){new ResizeObserver(post).observe(document.getElementById('wrap'))}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(post)}
+
+(function(){
+  var exs=document.querySelectorAll('.ex'), items=[];
+  Array.prototype.forEach.call(exs,function(el){
+    var ctx=el.getAttribute('data-ctx'), outs=el.getAttribute('data-out').split(','), cap=el.getAttribute('data-cap');
+    H('span',{class:'cap'},el,cap);
+    if(ctx){
+      var parts=ctx.split('|'), line=H('span',{},el);
+      parts.forEach(function(p,i){if(!p) return; if(i%2===1) H('mark',{},line,p); else line.appendChild(document.createTextNode(p))});
+      H('span',{class:'arr'},el,'→');
+    }
+    var nodes=outs.map(function(o){var s=H('span',{class:'out'},el,o); el.appendChild(document.createTextNode(' ')); return s});
+    items.push(nodes);
+  });
+  if(RM) return;
+  var tick=0;
+  function frame(){
+    if(!VIS) return;
+    items.forEach(function(nodes){var n=nodes.length, show=tick%(n+1); nodes.forEach(function(s,i){s.classList.toggle('hide',i>=show)})});
+    tick++;
+  }
+  onView($('#grid'),function(){frame();setInterval(frame,900)});
+})();
+</script>
+</body></html>

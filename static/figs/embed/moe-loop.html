@@ -1,0 +1,89 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The feedback loop of top-K routing</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,wght@1,400;1,600&display=swap">
+<style>
+html,body{margin:0;padding:0;background:transparent;color:#161A22;font-family:"IBM Plex Sans",Arial,sans-serif}
+#wrap{display:flow-root;padding-bottom:2px}
+.fig{overflow-x:auto}
+.fig svg{display:block;width:100%;min-width:600px;height:auto}
+.ctl{display:flex;flex-wrap:wrap;gap:10px 22px;align-items:center;margin:2px 4px 12px;font-size:15px;color:#3F4654}
+.ctl label{display:flex;align-items:center;gap:10px}
+.ctl input[type=range]{width:170px;max-width:42vw;accent-color:#C2410C}
+.ctl output{min-width:2.2em;font-variant-numeric:tabular-nums;color:#161A22;font-weight:500}
+button{font:500 14px "IBM Plex Sans",Arial,sans-serif;color:#161A22;background:#FAF8F3;border:1px solid #C9C2B2;border-radius:8px;padding:6px 12px;cursor:pointer}
+button:hover{border-color:#C2410C;color:#C2410C}
+button:focus-visible,input:focus-visible{outline:2px solid #C2410C;outline-offset:2px}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid #C9C2B2;border-radius:8px;overflow:hidden}
+.seg button{border:0;border-right:1px solid #C9C2B2;border-radius:0}
+.seg button:last-child{border-right:0}
+.seg button[aria-pressed="true"],.seg button[aria-pressed="true"]:hover{background:#161A22;color:#FAF8F3}
+@media (max-width:480px){.seg{flex-direction:column;align-items:stretch}.seg button{border-right:0;border-bottom:1px solid #C9C2B2;text-align:left}.seg button:last-child{border-bottom:0}}
+#read{margin:10px 4px 2px;font-size:15px;line-height:1.5;color:#3F4654;font-variant-numeric:tabular-nums}
+#read b{color:#161A22;font-weight:600}
+i,.var{font-family:"Source Serif 4",Georgia,serif;font-style:italic}
+.key{display:flex;flex-wrap:wrap;gap:6px 20px;margin:10px 4px 0;font-size:14px;color:#3F4654}
+.key>span{display:inline-flex;align-items:center;gap:7px}
+.sw{width:13px;height:13px;border-radius:3px;display:inline-block}
+.box{background:#F0EDE4;border-radius:16px;padding:14px 16px}
+svg text{font-family:"IBM Plex Sans",Arial,sans-serif}
+svg .var{font-family:"Source Serif 4",Georgia,serif;font-style:italic}
+.lbl{font-size:12.5px;fill:#3F4654}.lbl.on{fill:#161A22}
+.lbl-strong{font-size:13.5px;font-weight:600;fill:#161A22}
+.node{fill:#FAF8F3;stroke:#161A22;stroke-width:1.5}
+.fan{stroke:#C9C2B2;stroke-width:1}
+.trk{fill:#E4DFD2}
+.bar{fill:#9AA0AC;transform-box:fill-box;transform-origin:left center;transition:transform .45s ease,fill .25s}
+.bar.on{fill:#1D4ED8}
+.exp{fill:#FAF8F3;stroke:#C9C2B2;stroke-width:1.2;transition:fill .25s,stroke .25s}
+.exp.on{fill:#DCE5FB;stroke:#1D4ED8}
+.lnk{stroke:#1D4ED8;stroke-width:2;opacity:0;stroke-dasharray:5 5;transition:opacity .25s}
+.lnk.on{opacity:1;animation:dash .9s linear infinite}
+.flow{stroke:#161A22;stroke-width:1.6;fill:none;stroke-dasharray:6 5;animation:dash 1.1s linear infinite}
+@keyframes dash{to{stroke-dashoffset:-11}}
+@media (prefers-reduced-motion: reduce){.lnk.on,.flow{animation:none}.bar,.exp,.u,.tok,.tb,.out{transition:none !important}}
+</style></head><body><main id="wrap">
+<div class="fig"><svg id="svg" viewBox="-10 -6 780 262" role="img" aria-label="A loop: the router selects its top-K experts; only those experts train on the token; they fit it better; their router logits rise; the router selects them again. Experts outside the loop get no data and no signal.">
+<rect x="-10" y="-6" width="780" height="262" rx="16" fill="#F0EDE4"/>
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="#161A22"/></marker></defs>
+<path class="flow" d="M250 50H506" marker-end="url(#arrow)"/>
+<path class="flow" d="M620 78V168" marker-end="url(#arrow)"/>
+<path class="flow" d="M510 200H254" marker-end="url(#arrow)"/>
+<path class="flow" d="M140 172V82" marker-end="url(#arrow)"/>
+<rect class="exp on" x="30" y="24" width="220" height="52" rx="8"/><text class="lbl-strong" x="140" y="46" text-anchor="middle">The router selects</text><text class="lbl-strong" x="140" y="63" text-anchor="middle">its top-K experts</text>
+<rect class="exp" x="510" y="24" width="220" height="52" rx="8"/><text class="lbl-strong" x="620" y="46" text-anchor="middle">Only those experts</text><text class="lbl-strong" x="620" y="63" text-anchor="middle">train on the token</text>
+<rect class="exp" x="510" y="174" width="220" height="52" rx="8"/><text class="lbl-strong" x="620" y="196" text-anchor="middle">They fit that token</text><text class="lbl-strong" x="620" y="213" text-anchor="middle">better than before</text>
+<rect class="exp" x="30" y="174" width="220" height="52" rx="8"/><text class="lbl-strong" x="140" y="196" text-anchor="middle">Their router logits</text><text class="lbl-strong" x="140" y="213" text-anchor="middle">rise for that token</text>
+<rect x="278" y="90" width="204" height="70" rx="8" fill="none" stroke="#9AA0AC" stroke-dasharray="4 4"/>
+<text class="lbl" x="380" y="112" text-anchor="middle">Every other expert:</text><text class="lbl" x="380" y="129" text-anchor="middle">no data from this token,</text><text class="lbl" x="380" y="146" text-anchor="middle">no signal to the router</text>
+<text class="lbl" x="378" y="40" text-anchor="middle">top-K</text><text class="lbl" x="632" y="127">gradient</text><text class="lbl" x="382" y="218" text-anchor="middle">higher reward than the mixture</text><text class="lbl" x="128" y="127" text-anchor="end">Δh &gt; 0</text>
+</svg></div>
+</main>
+<script>
+var RM=!!(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+var NS='http://www.w3.org/2000/svg';
+function $(s,r){return (r||document).querySelector(s)}
+function S(n,a,p,t){var e=document.createElementNS(NS,n);for(var k in a)e.setAttribute(k,a[k]);if(t!=null)e.textContent=t;if(p)p.appendChild(e);return e}
+function H(n,a,p,t){var e=document.createElement(n);for(var k in a){if(k==='class')e.className=a[k];else e.setAttribute(k,a[k])}if(t!=null)e.textContent=t;if(p)p.appendChild(e);return e}
+function fnv(s){var h=0x811c9dc5;for(var i=0;i<s.length;i++){h^=s.charCodeAt(i);h=Math.imul(h,0x01000193)}return h>>>0}
+function rng(a){return function(){a|=0;a=a+0x6D2B79F5|0;var t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296}}
+function gauss(r){var u=0,v=0;while(u===0)u=r();while(v===0)v=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*v)}
+function softmax(a){var m=Math.max.apply(null,a);var e=a.map(function(x){return Math.exp(x-m)});var z=e.reduce(function(p,c){return p+c},0);return e.map(function(x){return x/z})}
+function topk(a,k){return a.map(function(v,i){return i}).sort(function(i,j){return a[j]-a[i]}).slice(0,k)}
+function clear(n){while(n.lastChild)n.removeChild(n.lastChild)}
+// The rounded panel behind a drawing, as in the other slider figures of the site.
+function panel(svg){var b=svg.viewBox.baseVal;return S('rect',{x:b.x,y:b.y,width:b.width,height:b.height,rx:16,fill:'#F0EDE4'},svg)}
+// VIS follows whether the figure is on screen, so that a figure nobody is looking at stays still.
+var VIS=true;
+if('IntersectionObserver' in window){new IntersectionObserver(function(es){VIS=es[es.length-1].isIntersecting}).observe(document.documentElement)}
+function onView(el,fn){
+  if(!el) return;
+  if(!('IntersectionObserver' in window)){fn();return}
+  var io=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){io.disconnect();fn()}})},{threshold:0.3});
+  io.observe(el);
+}
+function post(){parent.postMessage({livefig:"moe-loop",h:document.getElementById('wrap').offsetHeight},'*')}
+window.addEventListener('resize',post);window.addEventListener('load',post);
+if('ResizeObserver' in window){new ResizeObserver(post).observe(document.getElementById('wrap'))}
+if(document.fonts&&document.fonts.ready){document.fonts.ready.then(post)}
+</script>
+</body></html>
