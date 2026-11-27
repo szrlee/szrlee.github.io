@@ -366,12 +366,12 @@ fig('moe-found', 'Experts, named by what they were found to do', r'''
 <div class="box"><div class="grid" id="grid">
 <div class="xcard predicted"><div class="id">WHAT THE NAME PREDICTS</div><div class="job">&ldquo;The biology expert&rdquo;</div><div class="how">One expert per subject. Not found in any of the studies above.</div></div>
 <div class="xcard"><div class="id">OLMoE &middot; LAYER 15 &middot; EXPERT 17</div><div class="job">Closes LaTeX delimiters</div><div class="how">Active inside formatting blocks and promotes the closing braces.</div>
-<div class="ex" data-ctx="\mathbf{|b|" data-out="}}" data-cap="sees &rarr; promotes"></div></div>
+<div class="ex" data-ctx="|\mathbf{b}|" data-out="}}" data-cap="sees &rarr; promotes"></div></div>
 <div class="xcard"><div class="id">ERNIE-4.5 &middot; LAYER 15 &middot; EXPERT 0</div><div class="job">Continues after a conjunction</div><div class="how">Fires on &ldquo;and&rdquo;, &ldquo;or&rdquo;, &ldquo;but&rdquo; and promotes likely completions.</div>
 <div class="ex" data-ctx="boots |and| the" data-out="like,alike" data-cap="sees &rarr; promotes"></div></div>
 <div class="xcard"><div class="id">OLMoE &middot; LAYER 1 &middot; EXPERT 57</div><div class="job">Glues sub-word pieces</div><div class="how">Fires on a piece of a rare chemical term and promotes sub-word continuations.</div>
 <div class="ex" data-ctx="glut|amine|" data-out="iaz,endar,uba" data-cap="sees &rarr; promotes"></div></div>
-<div class="xcard"><div class="id">OpenMoE &middot; EXPERT 31</div><div class="job">Modal verbs</div><div class="how">Collects these tokens wherever they occur, whatever the context.</div>
+<div class="xcard"><div class="id">OpenMoE &middot; EXPERT 31</div><div class="job">Modal verbs, among others</div><div class="how">Three of its ten most frequent tokens, next to “to”, “of”, “ing” and “ed”. They arrive whatever the context.</div>
 <div class="ex" data-ctx="" data-out="can,will,would" data-cap="tokens routed here"></div></div>
 <div class="xcard"><div class="id">OLMoE &middot; LAYER 4 &middot; EXPERT 3</div><div class="job">Patent and legal boilerplate</div><div class="how">The closest thing to a subject expert in the sample. It still works by promoting a document style.</div>
 <div class="ex" data-ctx="|patent text|" data-out="patents,applications,inventor" data-cap="sees &rarr; promotes"></div></div>
@@ -502,7 +502,7 @@ fig('moe-grad', 'The derived router update, iterated', r'''
 
 # ---------------------------------------------------------------- Figure 6: the feedback loop (a diagram, no controls)
 fig('moe-loop', 'The feedback loop of top-K routing', '', r'''
-<div class="fig"><svg id="svg" viewBox="-10 -6 780 262" role="img" aria-label="A loop: the router selects its top-K experts; only those experts train on the token; they fit it better; their router logits rise; the router selects them again. Experts outside the loop get no data and no signal.">
+<div class="fig"><svg id="svg" viewBox="-10 -6 780 262" role="img" aria-label="A loop: the router selects its top-K experts; only those experts train on the token; they fit it better; the ones that beat the mixture gain router logit; the router selects them again. Experts outside the loop get no data and no signal.">
 <rect x="-10" y="-6" width="780" height="262" rx="16" fill="«PANEL»"/>
 <defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0L10 5L0 10z" fill="«INK»"/></marker></defs>
 <path class="flow" d="M250 50H506" marker-end="url(#arrow)"/>
@@ -512,7 +512,7 @@ fig('moe-loop', 'The feedback loop of top-K routing', '', r'''
 <rect class="exp on" x="30" y="24" width="220" height="52" rx="8"/><text class="lbl-strong" x="140" y="46" text-anchor="middle">The router selects</text><text class="lbl-strong" x="140" y="63" text-anchor="middle">its top-K experts</text>
 <rect class="exp" x="510" y="24" width="220" height="52" rx="8"/><text class="lbl-strong" x="620" y="46" text-anchor="middle">Only those experts</text><text class="lbl-strong" x="620" y="63" text-anchor="middle">train on the token</text>
 <rect class="exp" x="510" y="174" width="220" height="52" rx="8"/><text class="lbl-strong" x="620" y="196" text-anchor="middle">They fit that token</text><text class="lbl-strong" x="620" y="213" text-anchor="middle">better than before</text>
-<rect class="exp" x="30" y="174" width="220" height="52" rx="8"/><text class="lbl-strong" x="140" y="196" text-anchor="middle">Their router logits</text><text class="lbl-strong" x="140" y="213" text-anchor="middle">rise for that token</text>
+<rect class="exp" x="30" y="174" width="220" height="52" rx="8"/><text class="lbl-strong" x="140" y="196" text-anchor="middle">The ones that beat the mixture</text><text class="lbl-strong" x="140" y="213" text-anchor="middle">gain logit for that token</text>
 <rect x="278" y="90" width="204" height="70" rx="8" fill="none" stroke="«GRAY»" stroke-dasharray="4 4"/>
 <text class="lbl" x="380" y="112" text-anchor="middle">Every other expert:</text><text class="lbl" x="380" y="129" text-anchor="middle">no data from this token,</text><text class="lbl" x="380" y="146" text-anchor="middle">no signal to the router</text>
 <text class="lbl" x="378" y="40" text-anchor="middle">top-K</text><text class="lbl" x="632" y="127">gradient</text><text class="lbl" x="382" y="218" text-anchor="middle">higher reward than the mixture</text><text class="lbl" x="128" y="127" text-anchor="end">Δh &gt; 0</text>
@@ -600,7 +600,7 @@ fig('moe-bound', 'The fixed-budget convergence bound against K', '', r'''
   function b(K,rh){return (1+M/K+rh)*Math.sqrt(c+K)}
   function sx(K){return X0+(K-1)/(M-1)*(X1-X0)}
   function sy(v){return Y1-(Math.min(v,YMAX)-1)/(YMAX-1)*(Y1-Y0)}
-  function curve(rh){var pts=[],mn=Infinity,arg=1;for(var K=1;K<=M+1e-9;K+=0.05){var v=b(K,rh);pts.push([K,v]);if(v<mn){mn=v;arg=K}}return {pts:pts.map(function(p){return [p[0],p[1]/mn]}),arg:arg,min:mn}}
+  function curve(rh){var pts=[],mn=Infinity,arg=1,K,v;for(K=1;K<=M+1e-9;K+=0.05){v=b(K,rh);pts.push([K,v]);if(v<mn){mn=v;arg=K}}var lo=Math.max(1,arg-0.05),hi=Math.min(M,arg+0.05);for(K=lo;K<=hi+1e-12;K+=0.001){v=b(K,rh);if(v<mn){mn=v;arg=K}}if(c===0){arg=Math.min(M,Math.max(1,M/(1+rh)));mn=b(arg,rh)}return {pts:pts.map(function(p){return [p[0],p[1]/mn]}),arg:arg,min:mn}}
   function path(pts){var d='',pen=false;pts.forEach(function(p){if(p[1]>YMAX){pen=false;return}d+=(pen?'L':'M')+sx(p[0]).toFixed(1)+' '+sy(p[1]).toFixed(1);pen=true});return d}
   var A,B;
   function draw(){
@@ -643,7 +643,7 @@ fig('moe-bound', 'The fixed-budget convergence bound against K', '', r'''
     hit.addEventListener('pointerleave',function(){hov.style.display='none'});
     var txt='Best K = '+A.arg.toFixed(1)+' of '+M+'. With ρ = 0 it is '+B.arg.toFixed(1)+'.';
     if(c===0) txt+=' Closed form M / (1 + ρ) = '+(M/(1+rho)).toFixed(1)+(rho===7?', the value the paper observes.':'.');
-    else txt+=' A fixed cost of '+c+' expert'+(c===1?'':'s')+' per layer makes extra experts relatively cheaper and moves the best K up.';
+    else txt+=' A fixed cost of '+c+' expert'+(c===1?'':'s')+' per layer makes extra experts relatively cheaper'+(rho===0?'. The best K stays at M.':' and moves the best K up.');
     $('#read').textContent=txt;
   }
   function setRho(v){rho=v;$('#rho').value=v;$('#rhoout').textContent=v;draw()}

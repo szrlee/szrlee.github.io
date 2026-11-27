@@ -85,7 +85,7 @@ if(document.fonts&&document.fonts.ready){document.fonts.ready.then(post)}
   function b(K,rh){return (1+M/K+rh)*Math.sqrt(c+K)}
   function sx(K){return X0+(K-1)/(M-1)*(X1-X0)}
   function sy(v){return Y1-(Math.min(v,YMAX)-1)/(YMAX-1)*(Y1-Y0)}
-  function curve(rh){var pts=[],mn=Infinity,arg=1;for(var K=1;K<=M+1e-9;K+=0.05){var v=b(K,rh);pts.push([K,v]);if(v<mn){mn=v;arg=K}}return {pts:pts.map(function(p){return [p[0],p[1]/mn]}),arg:arg,min:mn}}
+  function curve(rh){var pts=[],mn=Infinity,arg=1,K,v;for(K=1;K<=M+1e-9;K+=0.05){v=b(K,rh);pts.push([K,v]);if(v<mn){mn=v;arg=K}}var lo=Math.max(1,arg-0.05),hi=Math.min(M,arg+0.05);for(K=lo;K<=hi+1e-12;K+=0.001){v=b(K,rh);if(v<mn){mn=v;arg=K}}if(c===0){arg=Math.min(M,Math.max(1,M/(1+rh)));mn=b(arg,rh)}return {pts:pts.map(function(p){return [p[0],p[1]/mn]}),arg:arg,min:mn}}
   function path(pts){var d='',pen=false;pts.forEach(function(p){if(p[1]>YMAX){pen=false;return}d+=(pen?'L':'M')+sx(p[0]).toFixed(1)+' '+sy(p[1]).toFixed(1);pen=true});return d}
   var A,B;
   function draw(){
@@ -128,7 +128,7 @@ if(document.fonts&&document.fonts.ready){document.fonts.ready.then(post)}
     hit.addEventListener('pointerleave',function(){hov.style.display='none'});
     var txt='Best K = '+A.arg.toFixed(1)+' of '+M+'. With ρ = 0 it is '+B.arg.toFixed(1)+'.';
     if(c===0) txt+=' Closed form M / (1 + ρ) = '+(M/(1+rho)).toFixed(1)+(rho===7?', the value the paper observes.':'.');
-    else txt+=' A fixed cost of '+c+' expert'+(c===1?'':'s')+' per layer makes extra experts relatively cheaper and moves the best K up.';
+    else txt+=' A fixed cost of '+c+' expert'+(c===1?'':'s')+' per layer makes extra experts relatively cheaper'+(rho===0?'. The best K stays at M.':' and moves the best K up.');
     $('#read').textContent=txt;
   }
   function setRho(v){rho=v;$('#rho').value=v;$('#rhoout').textContent=v;draw()}
