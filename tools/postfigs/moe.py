@@ -591,7 +591,7 @@ fig('moe-bound', 'The fixed-budget convergence bound against K', '', r'''
 <label for="c"><span>Fixed cost <i>c</i></span><input type="range" id="c" min="0" max="16" step="1" value="0"><output id="cout" for="c">0</output></label>
 </div>
 <div class="fig"><svg id="svg" viewBox="-10 -10 780 330" role="img" aria-label="Line chart of the convergence bound, divided by its own minimum, against K from 1 to 16 with 16 experts stored. With no noise term the bound keeps falling until K equals M. With a large noise term the minimum moves to small K."></svg></div>
-<div class="key"><span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" stroke="«BL»" stroke-width="2.5"/></svg>bound with the chosen noise share</span><span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" stroke="«GRAY»" stroke-width="2" stroke-dasharray="5 4"/></svg><span>same bound with <i>ρ</i> = 0</span></span></div>
+<div class="key"><span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" stroke="«BL»" stroke-width="2.5"/></svg>bound with the chosen noise ratio</span><span><svg width="26" height="8" aria-hidden="true"><line x1="0" y1="4" x2="26" y2="4" stroke="«GRAY»" stroke-width="2" stroke-dasharray="5 4"/></svg><span>same bound with <i>ρ</i> = 0</span></span></div>
 <div id="read" aria-live="off"></div>
 ''', r'''
 (function(){
